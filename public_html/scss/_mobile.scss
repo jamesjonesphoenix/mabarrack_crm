@@ -1,0 +1,26 @@
+/*///  MOBILE  ///*/
+@media (max-width: 767px) {
+  .main-btn {
+    width: 140px;
+    height: 140px;
+    h2 {
+      font-size: 22px;
+    }
+  }
+
+  .crmtitle {
+    font-size: 22px;
+  }
+
+  .logout {
+    margin-top: 65px;
+  }
+
+  .crmhead .logo_title {
+    white-space: nowrap;
+  }
+
+  .usrnm {
+    margin-top: -25px;
+  }
+}

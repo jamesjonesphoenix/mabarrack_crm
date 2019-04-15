@@ -1,0 +1,64 @@
+<?php
+include 'include/crm_init.php';
+//Check whether the user is already logged in
+if ( isset( $_SESSION[ 'user_id' ] ) ) { //logged in, redirect to main page
+    $ph_user = new ph_User( $_SESSION[ 'user_id' ], 'id' );
+    if ( $ph_user->is_logged_in() ) {
+        if ( !empty( $_GET[ 'logout' ] ) && $_GET[ 'logout' ] == 'true' ) {
+            $ph_user->logout();
+            ph_messages()->add_message( 'You have successfully logged out.', 'primary' );
+        } else
+            ph_redirect( $ph_user->get_user_homepage() );
+    }
+}
+
+if ( !empty( $_GET[ 'message' ] ) ) {
+
+    switch ( $_GET[ 'message' ] ) {
+        case 'session_ini_failed':
+            ph_messages()->add_message( 'Could not initiate a safe session (ini_set)' );
+            break;
+        case 'not_logged_in':
+            ph_messages()->add_message( 'You cannot access that page until you are logged in. Please login.' );
+            break;
+        case 'login_timed_out':
+            ph_messages()->add_message( 'Your login timed out due to inactivity. Please login again.' );
+            break;
+        case 'wrong_IP':
+            ph_messages()->add_message( 'You logged in with incorrect IP. Please try again from Mabarrack Factory.' );
+            break;
+        default:
+            ph_messages()->add_message( 'Error, but not quite sure what it is.' );
+            break;
+    }
+}
+
+?>
+    <div class="row" style="text-align: center;">
+        <div class="col-md-12"><img src="img/logo.png" class="logo"/>
+            <h1 class='crmtitle' style="text-align: center"><?php echo SYSTEM_TITLE; ?></h1>
+        </div>
+    </div>
+    <div class="row loginpanel">
+        <div class="col-md-12">
+            <h2>LOGIN</h2>
+            <?php ph_messages()->display(); ?>
+            <form method='post' class='form' id="loginform">
+                <div class="login-fields">
+                    <label for="pin">Your Pin</label>
+                    <input id="pin-field" name='pin' type='text' class='form-control' data-validation='number'
+                           maxlength="4"
+                           autofocus/>
+                </div>
+                <div class="login-fields">
+                    <label for="password">Your Password</label>
+                    <input id="password-field" name='password' type='password' class='form-control' autofocus/>
+                </div>
+                <input id="loginbtn" type='submit' value='Login' class='btn btn-default'>
+                <input name="login-attempt" type='hidden' value='submit'>
+            </form>
+        </div>
+    </div>
+    </div>
+
+<?php include 'include/footer.php' ?>

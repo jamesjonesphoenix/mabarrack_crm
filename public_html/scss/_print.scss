@@ -1,0 +1,51 @@
+@media print {
+  html, body {
+    width: 210mm;
+    height: 296mm;
+  }
+
+  body {
+    margin: 0;
+    border: initial;
+    border-radius: initial;
+    width: initial;
+    background: initial;
+    min-height: initial;
+    box-shadow: initial;
+
+  }
+
+  .crmheadbg, .crmhead, a, .btn, .header:after, .header.headerSortDown:after, .header.headerSortUp:after, .hidden-date {
+    display: none;
+  }
+
+  .headerSortDown, .headerSortUp {
+    border-bottom: 4px solid #36383f !important;
+  }
+
+  .container {
+    margin: 0;
+    max-width: 204mm;
+  }
+
+  .header {
+    white-space: normal;
+  }
+
+  td {
+    padding-top: 4px !important;
+    padding-bottom: 4px !important;
+  }
+
+  @page {
+    size: A4; /* landscape */
+    margin: 0mm;
+  }
+  //added to get iPad print preview displaying
+  * {
+    text-shadow: none !important;
+    color: #000 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+}

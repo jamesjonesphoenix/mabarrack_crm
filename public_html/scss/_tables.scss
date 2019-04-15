@@ -1,0 +1,169 @@
+/*///  TABLES  ///*/
+
+table {
+  color: #222;
+  > tbody > tr:nth-of-type(2n) {
+    background-color: #66676b;
+    border: none;
+  }
+  > tbody > tr:nth-of-type(2n+1) {
+    background-color: #5c5d60;
+    border: none;
+  }
+}
+
+.table-hover > tbody {
+  > tr:nth-of-type(2n):hover {
+    background-color: #72747a;
+  }
+  > tr:nth-of-type(2n+1):hover {
+    background-color: #72747a;
+  }
+}
+
+td, th {
+  padding: 5px;
+  color: #fff;
+}
+
+th, .viewth {
+  position: relative;
+  white-space: nowrap;
+}
+
+.table > tbody > tr > td, .table > tbody > tr > th, .table > tfoot > tr > td, .table > tfoot > tr > th, .table > thead > tr > td, .table > thead > tr > th {
+  border-top: 0px solid #505050;
+}
+
+.form td {
+  color: #ffffff;
+}
+
+.header {
+  padding-right: 30px !important;
+  cursor: pointer;
+  border-bottom: 4px solid #36383f !important;
+  background: #4a4c51;
+  color: #fff;
+  vertical-align: top !important;
+}
+
+.headerSortUp, .headerSortDown {
+  background: #40424a; /*#4e5057;*/
+  border-bottom: 4px solid #18a5ff !important;
+}
+
+.header:after {
+  content: "";
+  display: block;
+  color: #ddd;
+  margin: 5px auto 0 auto;
+  border-top: 8px solid;
+  border-right: 5px solid transparent;
+  border-left: 5px solid transparent;
+  z-index: 777;
+  position: absolute;
+  right: 10px;
+  top: 16px;
+}
+
+.header.headerSortDown:after {
+  content: "";
+  display: block;
+  color: #fff;
+  margin: 5px auto 0 auto;
+  border-top: 8px solid;
+  border-right: 5px solid transparent;
+  border-left: 5px solid transparent;
+  z-index: 777;
+  position: absolute;
+  right: 10px;
+  top: 10px;
+}
+
+.header.headerSortUp:after {
+  content: "";
+  display: block;
+  color: #fff;
+  margin: 5px auto 0 auto;
+  border-bottom: 8px solid;
+  border-top: 0;
+  border-right: 5px solid transparent;
+  border-left: 5px solid transparent;
+  z-index: 777;
+  position: absolute;
+  right: 10px;
+  top: 10px;
+}
+
+.noresult {
+  text-align: center;
+  text-transform: uppercase;
+  font-style: italic;
+  width: 100%;
+}
+
+.container {
+  position: relative;
+}
+
+#jstatus {
+  color: #fff;
+  max-width: 300px;
+  option {
+    background: #fff;
+    color: #555;
+  }
+}
+
+.jobstat_red td, #jstatus.jobstat_red {
+  background: rgba(255, 0, 0, 0.5);
+}
+
+.jobstat_yellow td, #jstatus.jobstat_yellow {
+  background: rgba(255, 157, 46, 0.9);
+}
+
+.jobstat_green td, #jstatus.jobstat_green {
+  background: rgba(105, 186, 49, 0.9);
+}
+
+.jobstat_red td {
+  border-top: 1px solid #9F0101 !important;
+}
+
+.jobstat_yellow td {
+  border-top: 1px solid #DA8526 !important;
+}
+
+.jobstat_green td {
+  border-top: 1px solid #5F9E34 !important;
+}
+
+td.viewth {
+  background: #4a4c51;
+  border-bottom: 4px solid #36383f !important;
+  width: 50px;
+  border-top: 0 !important;
+}
+
+
+.report_summary_table {
+  th,td{
+    padding: 6px 12px;
+  }
+  td {
+    text-align: right;
+  }
+  td:first-child {
+    text-align: left;
+  }
+  .jcr-total_costs td {
+    border-top: 2px solid #ffffff;
+    padding-bottom: 1.5em;
+  }
+}
+
+.hidden-date {
+  display: none;
+}

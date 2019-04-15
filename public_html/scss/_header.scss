@@ -1,0 +1,15 @@
+.logo {
+  width: 90px;
+  padding: 10px;
+  vertical-align: top;
+}
+
+.header_buttons {
+  margin-bottom: 15px;
+  a {
+    margin-left: 15px;
+    &:first-child {
+      margin-left: 0;
+    }
+  }
+}

@@ -1,0 +1,227 @@
+<?php include 'include/crm_init.php';
+$j_id = -1;
+$j_row = [];
+if ( isset( $_GET[ 'jobno' ] ) ) {
+    $j_id = ph_validate_number( $_GET[ 'jobno' ] );
+    $jrws = get_rows( "jobs", "WHERE ID = " . $j_id );
+
+    if ( $jrws !== FALSE ) {
+        $j_row = $jrws[ 0 ];
+    } else {
+        header( "Location: w_enterjob.php?error" );
+    }
+} else {
+    header( "Location: w_enterjob.php?error" );
+}
+?>
+    <div id="actadder">
+        <div class='panel panel-default'>
+            <h2>Add Activity</h2>
+            <?php echo addactivitypanel(); ?>
+            <div class='btn btn-default add_act'>ADD</div>
+        </div>
+    </div>
+    <div id="shiftadd_bg"></div>
+    <div class="row">
+        <div id="shiftadder" class="col-md-12">
+            <div class='panel panel-default'>
+                <h2>Add Shift</h2>
+                <div class='btn btn-default show_acts'>(A)dd Activity</div>
+                <div class='btn btn-default shft_cancel'>(C)ancel</div>
+                <?php echo addshiftform( $j_id, ph_validate_number( $_SESSION[ 'user_id' ] ) ); ?>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class='btn btn-default jobselect'>◀ &nbsp; Select Job</div>
+            <div class="panel panel-default">
+                <input type='button' id="asbtn" value='(A)dd Shift' class="btn btn-default" autofocus/>
+                <h2 style="display: inline; margin-right: 50px;">Job
+                    <div class="well"><?php echo $j_id; ?></div>
+                </h2>
+                <?php
+                echo "<h2 style='display: inline'>Truck <div class='well'>" . $j_row[ 'truck' ] . "</div></h2>\n";
+                echo "<h3 style='margin-bottom: 0px;'>Description</h3><div class='well' style='margin-top: 5px; width: 100%; text-align: left'><p>" . $j_row[ 'description' ] . "</p></div>\n";
+                echo "<h3>Shifts</h3>";
+
+                $s_rows = get_rows_qry( "sq", [ 'job', $j_id ] );
+                if ( $s_rows !== FALSE ) {
+                    foreach ( $s_rows as $skey => $s_row ) {
+                        $a_rows = get_rows( "activities", "WHERE ID in (" . $s_row[ 'activity' ] . ")" );
+                        $a_str = "";
+                        foreach ( $a_rows as $a_row ) {
+                            $a_str .= $a_row[ 'name' ] . ", ";
+                        }
+                        $s_rows[ $skey ][ 'activity' ] = $a_str;
+                    }
+                }
+
+                $cols = array_diff( get_columns( "shifts", false ), array( 'ID', 'job', 'activity_values', 'activity_comments' ) );
+                echo generate_table( $cols, $s_rows );
+
+                ?>
+            </div>
+        </div>
+    </div>
+    <script>
+        pagefunctions();
+
+        // go back to job enter page
+        $( ".jobselect" ).click( function () {
+            window.location.href = "w_enterjob.php";
+        } );
+
+        ////  ACTIVITIES DATA  ////
+        acts_list = []; //list of activities for the current shifts (cleared when shift added)
+        $( ".shft_finish" ).prop( 'disabled', true );
+
+        // open the shift adder
+        $( "#asbtn" ).click( function () {
+            $( "#shiftadd_bg" ).show();
+            $( "#shiftadd_bg" ).height( $( window ).height() - 125 );
+            $( "#shiftadder" ).show();
+        } );
+
+
+        function close_sa() {
+            $( "#shiftadder" ).hide(); //close the shift adder
+            $( "#shiftadd_bg" ).hide(); //hide bg
+            $( ".shft_acts" ).html( "no activities" ); //remove html of added activities
+            acts_list.length = 0; //remove all activites
+        }
+
+        Mousetrap.bindGlobal( 'c', close_sa );
+
+        // close/cancel the shift adder
+        $( ".shft_cancel" ).click( function () {
+            $( "#shiftadder" ).hide(); //close the shift adder
+            $( "#shiftadd_bg" ).hide(); //hide bg
+            $( ".shft_acts" ).html( "no activities" ); //remove html of added activities
+            acts_list.length = 0; //remove all activites
+        } );
+
+        // open the activity adder
+        $( ".show_acts" ).click( function () {
+            $( "#actadder" ).show();
+        } );
+
+        //  ADD ACTIVITY TO SHIFT ADDER  //
+        $( ".add_act" ).click( function () {
+            var actdiv = $( ".shft_acts" );
+            if ( actdiv.html() == "no activities" ) {
+                actdiv.html( "" );
+            }
+            //Get Activity Chosen
+            var act_chosen = $( ".act_chosen" );
+            //Get Activity Chosen Options
+            var act_chosen_ops = $( "#" + $( act_chosen ).attr( 'id' ).replace( "act", "actopt" ) );
+            //Create Activity Object
+            var act_obj = {'id': $( act_chosen ).attr( 'name' ), 'comment': $( ".act_comment" ).val()};
+
+            //Get Options
+            var firstop = true;
+            var act_op_str = ""; //string to store all the options and their values
+            $( 'input', act_chosen_ops ).each( function () { //for each input
+                if ( !firstop ) {
+                    act_op_str += "|";
+                }
+                firstop = false;
+                if ( $( this ).prop( 'type' ) == "checkbox" ) { //for checkboxs
+                    act_op_str += $( this ).prop( 'checked' );
+                }
+            } );
+            act_obj[ 'options' ] = act_op_str; //add options string to activity object
+
+            //add activity object to activity list
+            acts_list.push( act_obj );
+            console.log( acts_list );
+
+            //Create html to display activity in the shift adder
+            var act_str = "<div class='activity'>";
+            act_str += "<p class='name'>" + act_chosen.html() + "</p>";
+            act_str += "<p>Options</p>";
+            act_str += "<span class='options'>" + act_op_str + "</span>";
+            act_str += "<p>Comment: </p><p class='comment'>" + $( ".act_comment" ).val() + "</p>";
+            act_str += "</div>";
+
+            //Add activity html to shift adder
+            actdiv.append( act_str );
+
+            $( "#actadder" ).hide();
+            $( ".act_comment" ).val( "" ); //clear the comment field
+            $( ".act_btn" ).removeClass( "act_chosen" ); //clear chosen activity
+            $( ".shft_finish" ).prop( 'disabled', false );
+        } );
+
+
+        //  SELECT ACTIVITY  //
+        $( ".act_btn" ).click( function () {
+            $( ".act_btn" ).removeClass( "act_chosen" );
+            $( this ).addClass( "act_chosen" );
+            $( ".add_act" ).show();
+            $( ".act_op" ).hide();
+            var actop_str = $( this ).attr( 'id' );
+            actop_str = "#" + actop_str.replace( "act", "actopt" );
+            console.log( actop_str );
+            $( actop_str ).show();
+        } );
+
+
+        //  ADD SHIFT  //
+        $( "#shft_add_form" ).submit( function ( e ) {
+            $( ".shft_finish" ).prop( 'disabled', true );
+
+            var acts = {'activity': '', 'activity_values': '', 'activity_comments': ''}
+            var firsta = true;
+
+            for ( var i = 0; i < acts_list.length; i++ ) {
+                if ( !firsta ) {
+                    acts[ 'activity' ] += ",";
+                    acts[ 'activity_values' ] += ",";
+                    acts[ 'activity_comments' ] += ",";
+                } else {
+                    firsta = false;
+                }
+                var a_o = acts_list[ i ]; //activity object
+                acts[ 'activity' ] += a_o[ 'id' ]; //add id
+                acts[ 'activity_values' ] += a_o[ 'options' ]; //add option values
+                acts[ 'activity_comments' ] += a_o[ 'comment' ]; //add comment
+            }
+
+            console.log( acts );
+
+            acts_str = "&activity=" + acts[ 'activity' ] + "&activity_values=" + acts[ 'activity_values' ] + "&activity_comments=" + acts[ 'activity_comments' ];
+
+            //alert($('#shft_add_form').serialize() + acts_str);
+
+            $.ajax( {
+                url: 'add_entry.php',
+                type: 'POST',
+                data: $( '#shft_add_form' ).serialize() + acts_str,
+                success: function ( data ) {
+                    console.log( data );
+                    if ( data != "success" ) {
+                        $( ".shft_finish" ).prop( 'disabled', false );
+                    }
+                    else {
+                        console.log( "shift added!" );
+                        $( "#shiftadder" ).hide(); //close the shift adder
+                        $( ".shft_acts" ).html( "no activities" ); //remove html of added activities
+                        acts_list.length = 0; //remove all activites
+                        location.reload();
+                    }
+                },
+                error: function ( xhr, desc, err ) {
+                    console.log( xhr );
+                    console.log( "Details: " + desc + "\nError:" + err );
+                    return false;
+                }
+            } );
+
+            e.preventDefault();
+
+        } );
+
+    </script>
+<?php include 'include/footer.php' ?>

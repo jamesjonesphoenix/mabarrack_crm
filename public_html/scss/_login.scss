@@ -1,0 +1,96 @@
+/*///  LOGIN  ///*/
+.loginpanel {
+  background: $panel-bg;
+  max-width: 360px;
+  margin: 0 auto;
+  margin-top: 50px;
+  text-align: center;
+  padding: 10px;
+  padding-bottom: 30px;
+  input {
+    text-align: center;
+  }
+  .btn {
+    margin: 0 auto;
+    display: block;
+    margin-top: 15px;
+  }
+  .alert, .login-fields{
+    margin-bottom: 15px;
+  }
+}
+
+#pin-field {
+  //max-width: 200px;
+  //margin: 0 auto;
+  font-size: 24px;
+  height: 40px;
+}
+
+#loginerror {
+  display: none;
+  color: #f00;
+  font-size: 16px;
+}
+
+#loginbtn {
+  background: #46bc52;
+  font-size: 20px;
+  width: 200px;
+  &:hover {
+    background: #60e44d;
+  }
+}
+
+.logout {
+  float: right;
+  margin-top: 35px;
+  background: #f2385a;
+  &:hover {
+    background: #ff879d;
+  }
+}
+
+.whomepanel {
+  text-align: center;
+}
+
+.whbtn {
+  width: 50%;
+  h2 {
+    margin-top: 10px;
+  }
+}
+
+.topnews {
+  min-height: 32px;
+  font-size: 22px;
+  background: #880000;
+}
+
+.detailform table {
+  width: 100%;
+  background: none;
+  tbody tr {
+    background: none;
+  }
+}
+
+textarea {
+  resize: none;
+}
+
+#setbtn {
+  float: right;
+  margin-top: 35px;
+  margin-right: 15px;
+  background: #666;
+  padding: 4px;
+  &:hover {
+    background: #aaaaaa;
+  }
+  img {
+    height: 27px;
+    margin: 0;
+  }
+}
