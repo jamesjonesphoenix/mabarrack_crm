@@ -1,0 +1,24 @@
+{
+  "name": "phoenixweb/mabarrackcrm",
+  "description": "Mabarrack CRM",
+  "minimum-stability": "stable",
+  "license": "proprietary",
+  "authors": [
+    {
+      "name": "James Jones",
+      "email": "james.jones@phoenixweb.com.au"
+    }
+  ],
+  "require": {
+    "twbs/bootstrap": "^4.3",
+    "components/jquery": "*"
+  },
+  "scripts": {
+    "post-update-cmd": "@front-end-stuff",
+    "post-install-cmd": "@front-end-stuff",
+    "front-end-stuff": [
+      "cp vendor/twbs/bootstrap/dist/js/* public_html/js/",
+      "cp vendor/components/jquery/jquery.min.js public_html/js/jquery.min.js; cp vendor/components/jquery/jquery.min.map public_html/js/jquery.min.map;"
+    ]
+  }
+}
