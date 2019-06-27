@@ -1,38 +1,35 @@
 <?php include 'include/crm_init.php';
 
-$time_s = date( "H:i:s" ); //get current time
+$time_s = date("H:i:s"); //get current time
 
 
-$user_id = ph_validate_number($_SESSION[ 'user_id' ]);
+$user_id = ph_validate_number($_SESSION['user_id']);
 //Get the previous shift ID
-$prshtrows = get_rows( "shifts", "WHERE worker = " . $user_id . " AND time_finished IS NULL ORDER BY ID DESC LIMIT 1" );
-if ( $prshtrows !== FALSE ) {
-    $prev_shift = $prshtrows[ 0 ];
-    $ps_id = $prev_shift[ 'ID' ];
-    $ps_times = $prev_shift[ 'time_started' ];
+$prshtrows = get_rows("shifts", "WHERE worker = " . $user_id . " AND time_finished IS NULL ORDER BY ID DESC LIMIT 1");
+if ($prshtrows !== FALSE) {
+    $prev_shift = $prshtrows[0];
+    $ps_times = $prev_shift['time_started'];
 
-    $minutes = ( strtotime( $time_s ) - strtotime( $ps_times ) ) / 60;
+    $minutes = (strtotime($time_s) - strtotime($ps_times)) / 60;
 
 //echo "minutes: " . $minutes . " <br>";
 //echo $time_s;
 //echo $ps_id;
 //Clock off the previous shift
-    $clms = [ 'ID', 'time_finished', 'minutes' ];
-    $data = [ $ps_id, $time_s, $minutes ];
-    $ur = update_row( "shifts", $clms, $data );
-    if ( $ur !== TRUE ) {
+    $columns = ['ID', 'time_finished', 'minutes'];
+    $data = [$prev_shift['ID'], $time_s, $minutes];
+    if (update_row("shifts", $columns, $data) !== true)
         echo $ur;
-    } else {
+    else
         echo "success";
-    }
 }
 
 
-$clms = [ 'job', 'worker', 'date', 'time_started', 'activity' ];
-$data = [ $_GET[ 'jid' ], $user_id, date( "d-m-Y" ), $time_s, $_GET[ 'aid' ] ];
+$columns = ['job', 'worker', 'date', 'time_started', 'activity'];
+$data = [$_GET['jid'], $user_id, date("d-m-Y"), $time_s, $_GET['aid']];
 
-$ar = add_row( "shifts", $clms, $data );
-if ( $ar !== TRUE ) {
+$ar = add_row("shifts", $columns, $data);
+if ($ar !== TRUE) {
     echo $ar;
 } else {
     echo "success";
@@ -47,9 +44,9 @@ if ( $ar !== TRUE ) {
         </div>
     </div>
     <script>
-        setTimeout( function () {
+        setTimeout(function () {
             location.href = 'w_enterjob.php';
-        }, 1000 );
+        }, 1000);
     </script>
 
 <?php include 'include/footer.php' ?>

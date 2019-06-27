@@ -14,31 +14,31 @@ if ( $prshtrows !== FALSE ) {
     $minutes = ( strtotime( $time_s ) - strtotime( $ps_times ) ) / 60;
 
     //Clock off the previous shift
-    $clms = [ 'ID', 'time_finished', 'minutes' ];
+    $columns = [ 'ID', 'time_finished', 'minutes' ];
     $data = [ $ps_id, $time_s, $minutes ];
-    $ur = update_row( "shifts", $clms, $data );
+    $ur = update_row( "shifts", $columns, $data );
     if ( $ur !== TRUE ) {
         echo $ur;
     } else {
     }
 }
 
-$clms = [ 'job', 'worker', 'date', 'time_started', 'activity', 'minutes' ];
-$jid = ph_validate_number( $_GET[ 'jid' ] );
-$data = [ $jid, $user_id, date( "Y-m-d" ), $time_s, $_GET[ 'aid' ], 0 ];
+$columns = [ 'job', 'worker', 'date', 'time_started', 'activity', 'minutes' ];
+$job_id = ph_validate_number( $_GET[ 'job_id' ] );
+$data = [ $job_id, $user_id, date( "Y-m-d" ), $time_s, $_GET[ 'activity_id' ], 0 ];
 
-if ( $jid != 0 ) {
-    $clms[] = 'furniture';
-    $data[] = $_GET[ 'fid' ];
+if ( $job_id != 0 ) {
+    $columns[] = 'furniture';
+    $data[] = $_GET[ 'furniture_id' ];
 } else {
-    $aid = ph_validate_number( $_GET[ 'aid' ] );
-    if ( $aid == 14 ) {
-        $clms[] = 'activity_comments';
+    $activity_id = ph_validate_number( $_GET[ 'activity_id' ] );
+    if ( $activity_id == 14 ) {
+        $columns[] = 'activity_comments';
         $data[] = $_GET[ 'comment' ];
     }
 }
 
-$ar = add_row( "shifts", $clms, $data );
+$ar = add_row( "shifts", $columns, $data );
 if ( $ar !== TRUE ) {
     echo $ar;
 } else {

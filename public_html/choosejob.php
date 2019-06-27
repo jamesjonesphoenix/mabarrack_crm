@@ -19,7 +19,6 @@
                                class="btn btn-default">Select</a>
                         </div>
                     </div>
-
                     <?php
                 }
                 ?>
