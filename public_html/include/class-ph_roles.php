@@ -44,6 +44,7 @@ class ph_Roles
                 'choosejob',
                 'finishday',
                 'nextshift',
+                'othercomment',
                 'report',
                 'reports',
                 'startlunch',

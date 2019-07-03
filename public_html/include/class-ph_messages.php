@@ -83,6 +83,10 @@ class ph_Messages
         }
     }
 
+    /**
+     * @param bool $message
+     * @return bool
+     */
     function formulate_message( $message = false ) {
         if ( empty( $message ) )
             return false;

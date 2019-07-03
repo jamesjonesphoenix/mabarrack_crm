@@ -15,7 +15,7 @@
                                     <span><b><?php echo $job_row[ 'customer' ]; ?></b><br>Job No. <?php echo $job_row[ 'ID' ]; ?>
                                         &nbsp;&nbsp;&nbsp;<?php echo $job_row[ 'description' ]; ?></span></div>
                         <div class="col-md-4">
-                            <a href="choosefur.php?jid=<?php echo $job_row[ 'ID' ]; ?>"
+                            <a href="choosefur.php?job_id=<?php echo $job_row[ 'ID' ]; ?>"
                                class="btn btn-default">Select</a>
                         </div>
                     </div>
@@ -25,7 +25,7 @@
                 <div class="row cjob">
                     <div class="col-md-12">
                         <span><b>Factory</b><br></span>
-                        <a href="chooseact.php?jid=0" class="btn btn-default">Select</a>
+                        <a href="chooseact.php?job_id=0" class="btn btn-default">Select</a>
                     </div>
                 </div>
             </div>

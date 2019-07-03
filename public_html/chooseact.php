@@ -1,70 +1,57 @@
 <?php include 'include/crm_init.php'; ?>
 
+<?php
+$jobID = ph_validate_number($_GET['job_id']);
+$activityCategories = [];
+$activityTypes = [];
+foreach (get_rows("activities") as $activity) {
+    if ($activity['name'] == 'Lunch')
+        continue;
+    if ($jobID == 0 && $activity['factoryOnly'] != 1)
+        continue;
+    if ($jobID > 0 && $activity['factoryOnly'] == 1)
+        continue;
+    $href = $activity['name'] == 'other' ? 'othercomment' : 'nextshift';
+
+    $activity['href'] = sprintf('%s.php?job_id=%s&activity_id=%s&furniture_id=%s', $href, $jobID, $activity['ID'], $jobID);
+    $activityType = !empty($activity['type']) ? $activity['type'] : 'Manual';
+    if (!in_array($activityType, $activityTypes))
+        $activityTypes[] = $activityType;
+    $activityCategories[$activity['name']][$activityType] = $activity;
+}
+?>
+
 <div class="row panel panel-default actsbtns">
     <div class="col-md-12 col-sm-12 col-xs-12">
         <h1>Choose Activity</h1>
     </div>
-    <?php
+    <table class="table">
+        <thead>
+        <tr>
+            <th scope="col">Activity Type</th>
+            <th colspan="2" scope="col">Choices</th>
+        </tr>
+        </thead>
+        <tbody>
+        <?php foreach ($activityCategories as $categoryName => $activities) : ?>
+            <tr>
+                <th scope="row"><?php echo $categoryName; ?></th>
+                <?php foreach ($activityTypes as $type) : ?>
+                    <td>
+                        <?php if (!empty($activities[$type])) : ?>
+                            <a href="<?php echo $activities[$type]['href']; ?>">
+                                <img src="<?php echo $activities[$type]['image']; ?>"/>
+                                <p><?php echo $activities[$type]['type']; ?></p>
+                            </a>
 
-    $activities = get_rows("activities");
-    print_r($activities);
-
-    $jobID = ph_validate_number($_GET['jid']);
-
-    foreach ($activities as $activity) {
-        $activityCategories[$activity['name']][$activity['type']] = $activity;
-    }
-    
-    foreach ($activityCategories as $categoryName => $activities) {
-        ?><h2><?php //echo $categoryName; ?></h2><?php
-        foreach ($activities as $activity) {
-            if ($jobID != 0) {
-                if (($activity['ID'] > 0) and ($activity['ID'] < 11))
-                    $href = 'nextshift';
-            } else {
-                if ($activity['ID'] >= 11)
-                    $href = 'nextshift';
-                if ($activity['name'] == 'other')
-                    $href = 'othercomment';
-            }
-            if (!empty($href)) :
-                $href = sprintf('%s.php?job_id=%s&activity_id=%s&furniture_id=%s', $href, $jobID, $activity['ID'], $jobID);
-                ?>
-                <div class="col-md-3 col-sm-4 col-xs-6">
-                    <div class="btn main-btn">
-                        <a href="<?php echo $href; ?>">
-                            <img src="<?php echo $activity['image']; ?>"/>
-                            <h3><?php echo $activity['name']; ?></h3>
-                        </a>
-                    </div>
-                </div>
-            <?php endif;
-        }
-    }
-    
-    
-    foreach ($activities as $activity) {
-        if ($jobID != 0) {
-            if (($activity['ID'] > 0) and ($activity['ID'] < 11))
-                $href = 'nextshift';
-        } else {
-            if ($activity['ID'] >= 11)
-                $href = 'nextshift';
-            if ($activity['name'] == 'other')
-                $href = 'othercomment';
-        }
-        if (!empty($href)) :
-            $href = sprintf('%s.php?job_id=%s&activity_id=%s&furniture_id=%s', $href, $jobID, $activity['ID'], $jobID);
-            ?>
-            <div class="col-md-3 col-sm-4 col-xs-6">
-                <div class="btn main-btn">
-                    <a href="<?php echo $href; ?>">
-                        <img src="<?php echo $activity['image']; ?>"/>
-                        <h2><?php echo $activity['name']; ?></h2>
-                    </a>
-                </div>
-            </div>
-        <?php endif;
-    } ?>
+                        <?php else : ?>
+                            &nbsp;
+                        <?php endif; ?>
+                    </td>
+                <?php endforeach; ?>
+            </tr>
+        <?php endforeach; ?>
+        </tbody>
+    </table>
 </div>
 <?php include 'include/footer.php' ?>
