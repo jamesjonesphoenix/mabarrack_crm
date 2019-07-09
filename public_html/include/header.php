@@ -27,7 +27,7 @@ if ( $script_filename != "login" ) { ?>
         <a href='login.php?logout=true' class="btn btn-default logout">Log Out</a>
         <?php
         if ( $ph_user->get_role() == "admin" ) {
-            echo "<a href='settings.php' id='setbtn' class='btn btn-default'><img src='img/settings.svg'></a>";
+            echo "<a href='settings.php' id='setbtn' class='btn btn-default'><img src='img/admin/settings.svg'></a>";
         }
         ?>
     </div>
