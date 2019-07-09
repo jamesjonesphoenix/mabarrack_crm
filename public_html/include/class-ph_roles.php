@@ -39,7 +39,7 @@ class ph_Roles
         ),
         'staff' => array(
             'file_capabilities' => array(
-                'chooseact',
+                'chooseactivity',
                 'choosefur',
                 'choosejob',
                 'finishday',

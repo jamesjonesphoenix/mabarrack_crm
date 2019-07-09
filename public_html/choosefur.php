@@ -22,7 +22,7 @@
                     <div class="row cjob">
                         <div class="col-md-12">
                             <span><b><?php echo $ffn; ?></b><br>Quantity: <?php echo $ffq; ?></span>
-                            <a href="chooseact.php?job_id=<?php echo $_GET[ 'job_id' ]; ?>&furniture_id=<?php echo $findex; ?>"
+                            <a href="chooseactivity.php?job_id=<?php echo $_GET[ 'job_id' ]; ?>&furniture_id=<?php echo $findex; ?>"
                                class="btn btn-default">Select</a>
                         </div>
                     </div>

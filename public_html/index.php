@@ -1,5 +1,5 @@
 <?php include 'include/crm_init.php'; ?>
-    <div class="row main-btns">
+    <div class="row">
         <?php
         $menuitems = get_rows( "main_menu", "" );
 

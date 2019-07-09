@@ -2,10 +2,12 @@
 
 table {
   color: #222;
+
   > tbody > tr:nth-of-type(2n) {
     background-color: #66676b;
     border: none;
   }
+
   > tbody > tr:nth-of-type(2n+1) {
     background-color: #5c5d60;
     border: none;
@@ -16,6 +18,7 @@ table {
   > tr:nth-of-type(2n):hover {
     background-color: #72747a;
   }
+
   > tr:nth-of-type(2n+1):hover {
     background-color: #72747a;
   }
@@ -31,8 +34,17 @@ th, .viewth {
   white-space: nowrap;
 }
 
-.table > tbody > tr > td, .table > tbody > tr > th, .table > tfoot > tr > td, .table > tfoot > tr > th, .table > thead > tr > td, .table > thead > tr > th {
+.table > tbody > tr > td,
+.table > tbody > tr > th,
+.table > tfoot > tr > td,
+.table > tfoot > tr > th,
+.table > thead > tr > td,
+.table > thead > tr > th {
   border-top: 0px solid #505050;
+}
+
+.table {
+  width: 100%;
 }
 
 .form td {
@@ -110,6 +122,7 @@ th, .viewth {
 #jstatus {
   color: #fff;
   max-width: 300px;
+
   option {
     background: #fff;
     color: #555;
@@ -149,15 +162,18 @@ td.viewth {
 
 
 .report_summary_table {
-  th,td{
+  th, td {
     padding: 6px 12px;
   }
+
   td {
     text-align: right;
   }
+
   td:first-child {
     text-align: left;
   }
+
   .jcr-total_costs td {
     border-top: 2px solid #ffffff;
     padding-bottom: 1.5em;

@@ -3,13 +3,20 @@
 
 $panel-bg: #2c2e30;
 
+@mixin centre-vertically() {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
 body {
   background: #111;
-  color: #fff;
   font-family: 'Open Sans', sans-serif;
 }
 
-h1, h2, h3, h4 {
+body,
+h1, h2, h3, h4,
+.btn-default {
   color: #fff;
 }
 
@@ -84,7 +91,6 @@ h3, h4, th {
 /*///  BUTTONS  ///*/
 .btn-default {
   border: none;
-  color: #fff;
   /*background-color: #57595f;*/
   background: #246cb3;
   font-size: 16px;
@@ -116,7 +122,11 @@ h3, h4, th {
   display: inline;
   position: relative;
 
-  .btn-default, .btn-default:hover, .btn-default:active, .btn-default:active:hover, .btn-default:focus:hover {
+  .btn-default,
+  .btn-default:hover,
+  .btn-default:active,
+  .btn-default:active:hover,
+  .btn-default:focus:hover {
     position: relative;
     color: transparent;
     background: none;
@@ -140,43 +150,6 @@ h3, h4, th {
   }
 }
 
-.main-btn {
-  position: relative;
-  background: none;
-  color: #fff;
-  width: 180px;
-  height: 180px;
-  padding: 5px;
-  border-radius: 15px;
-  margin: 0 auto;
-  display: block;
-  white-space: normal;
-
-  &:hover {
-    background: #333;
-  }
-
-  .col-md-3 {
-    padding: 15px;
-  }
-
-  img {
-    margin: 0;
-    padding: 0;
-  }
-
-  h2 {
-    position: absolute;
-    width: 100%;
-    left: 0;
-    bottom: 10px;
-    margin: 0;
-    padding: 0px 3px;
-    margin-top: -16px;
-    font-weight: 300;
-    font-size: 24px;
-  }
-}
 
 .notifs {
   position: absolute;
@@ -193,6 +166,7 @@ h3, h4, th {
   color: #F00;
 }
 
+/*
 .actsbtns .main-btn {
   max-height: 150px;
   margin-bottom: 20px;
@@ -201,6 +175,7 @@ h3, h4, th {
     height: 100%;
   }
 }
+*/
 
 /*///  SEARCH FORM  ///*/
 .form-inline .sci {
@@ -359,6 +334,7 @@ h3, h4, th {
 @import 'generic_classes';
 @import 'mobile';
 @import 'print';
+@import 'activities';
 
 .messages {
   margin-bottom: 15px;
@@ -367,3 +343,5 @@ h3, h4, th {
 .btn {
   white-space: nowrap;
 }
+
+

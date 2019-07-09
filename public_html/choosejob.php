@@ -25,7 +25,7 @@
                 <div class="row cjob">
                     <div class="col-md-12">
                         <span><b>Factory</b><br></span>
-                        <a href="chooseact.php?job_id=0" class="btn btn-default">Select</a>
+                        <a href="chooseactivity.php?job_id=0" class="btn btn-default">Select</a>
                     </div>
                 </div>
             </div>
