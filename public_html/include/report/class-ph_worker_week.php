@@ -1,20 +1,52 @@
 <?php
 
+/**
+ * Class ph_Report_Worker_Week
+ */
 class ph_Report_Worker_Week extends ph_Report
 {
-
+    /**
+     * @var
+     */
     public $customer_hours;
+    /**
+     * @var string
+     */
     public $date_start = '';
+    /**
+     * @var string
+     */
     public $date_finish = '';
 
+    /**
+     * @var
+     */
     public $worker_id;
 
+    /**
+     * @var
+     */
     public $factory_minutes;
+    /**
+     * @var
+     */
     public $total_pay_minutes;
 
+    /**
+     * @var array
+     */
     public $weekly_time_record = array();
+    /**
+     * @var array
+     */
     public $time_clock_record = array();
+    /**
+     * @var array
+     */
     public $factory_hours_no_job_number = array();
+    /**
+     * @var array
+     */
     public $factory_hours_with_job_number = array();
 
     /**
@@ -124,6 +156,9 @@ class ph_Report_Worker_Week extends ph_Report
         return false;
     }
 
+    /**
+     * @return array|mixed
+     */
     function get_weekly_time_record() {
         if ( !empty( $this->weekly_time_record ) )
             return $this->weekly_time_record;
@@ -209,6 +244,9 @@ class ph_Report_Worker_Week extends ph_Report
         return false;
     }
 
+    /**
+     * @return array
+     */
     function get_time_clock_record() {
         if ( !empty( $this->time_clock_record ) )
             return $this->time_clock_record;
@@ -249,13 +287,20 @@ class ph_Report_Worker_Week extends ph_Report
         return false;
     }
 
+    /**
+     * @return mixed
+     */
     function get_customer_hours() {
         if ( !empty( $this->customer_hours ) )
             return $this->customer_hours;
         return $this->setup_customer_hours();
     }
 
-    function setup_factory_hours( $with_job_number = false ) {
+    /**
+     * @param bool $with_job_number
+     * @return array|bool|mixed
+     */
+    function setup_factory_hours($with_job_number = false ) {
         //factory activity summary
         $shifts = $this->get_shifts();
         if ( !empty( $shifts ) ) {
@@ -308,7 +353,11 @@ class ph_Report_Worker_Week extends ph_Report
         return false;
     }
 
-    function get_factory_hours( $with_job_number = false ) {
+    /**
+     * @param bool $with_job_number
+     * @return array|bool|mixed
+     */
+    function get_factory_hours($with_job_number = false ) {
         if ( $with_job_number ) {
             if ( !empty( $this->factory_hours_with_job_number ) )
                 return $this->factory_hours_with_job_number;
@@ -318,7 +367,6 @@ class ph_Report_Worker_Week extends ph_Report
                 return $this->factory_hours_no_job_number;
         return $this->setup_factory_hours( $with_job_number );
     }
-
 
     /**
      * @param string $date_start
@@ -346,6 +394,9 @@ class ph_Report_Worker_Week extends ph_Report
         return true;
     }
 
+    /**
+     * @return array
+     */
     function query_shifts() {
         $shifts = ph_pdo()->run( 'SELECT shifts.ID, shifts.job, shifts.worker, shifts.date, shifts.time_started, shifts.time_finished, shifts.activity, 
     activities.chargable, customers.name as customer, customers.ID as customer_id, users.rate

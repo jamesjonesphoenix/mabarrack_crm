@@ -1,29 +1,65 @@
 <?php
 
+/**
+ * Class ph_Activities
+ */
 class ph_Activities
 {
+    /**
+     * @var array
+     */
     public $activities = array();
 
+    /**
+     * ph_Activities constructor.
+     */
     public function __construct() {
 
     }
 
-    public function get_activities() {
+    /**
+     * @return array
+     */
+    public function getActivities() {
         if ( count( $this->activities ) == 0 ) {
             $this->activities = get_rows( "activities" );
         }
         return (array)$this->activities;
     }
 
-    public function get_activity_name( $activity_ID = 0 ) {
-        $activities = $this->get_activities();
+    /**
+     * @param int $activity_ID
+     * @return bool|mixed
+     */
+    private function getAttribute(int $activity_ID = 0, string $attribute = '' ) {
+        $activities = $this->getActivities();
         if ( !empty( $activities[ $activity_ID ] ) )
-            return $activity_str = $activities[ $activity_ID ][ 'name' ];
+            return $activity_str = $activities[ $activity_ID ][ $attribute ];
         return false;
     }
 
-    public function get_activity_id( $activity_name = 'Lunch' ) {
-        $activities = $this->get_activities();
+    /**
+     * @param int $activity_ID
+     * @return bool|mixed
+     */
+    public function getName($activity_ID = 0 ) {
+        return $this->getAttribute($activity_ID, 'name');
+    }
+
+    /**
+     * @param int $activity_ID
+     * @return bool|mixed
+     */
+    public function getType($activity_ID = 0 ) {
+        return $this->getAttribute($activity_ID, 'type');
+    }
+
+    /**
+     * @param string $activity_name
+     * @return mixed
+     */
+    public function getID($activity_name = 'Lunch' ) {
+        $activities = $this->getActivities();
         //print_r( $activities );
         if ( !empty( $activity_name ) ) {
             foreach ( $activities as $activity ) {

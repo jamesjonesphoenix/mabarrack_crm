@@ -1,22 +1,30 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: James
- * Date: 17/06/2018
- * Time: 12:59 AM
- */
 
 class ph_Report_Job_Costing extends ph_Report
 {
+    /**
+     * @var array
+     */
     public $job = array();
+    /**
+     * @var array
+     */
     public $activity_summary = array();
 
-    function __construct( $job_id = '' ) {
+    /**
+     * ph_Report_Job_Costing constructor.
+     * @param string $job_id
+     */
+    function __construct($job_id = '' ) {
         parent::__construct();
         return $this->init( $job_id );
     }
 
-    function init( $job_id = '' ) {
+    /**
+     * @param string $job_id
+     * @return bool
+     */
+    function init($job_id = '' ) {
         if ( empty( $job_id ) ) {
             ph_messages()->add_message( 'Job ID missing. Can\'t create report.' );
             return false;
@@ -58,7 +66,11 @@ class ph_Report_Job_Costing extends ph_Report
         return false;
     }
 
-    function get_job( $job_id = '' ) {
+    /**
+     * @param string $job_id
+     * @return array|bool|mixed
+     */
+    function get_job($job_id = '' ) {
         if ( empty( $this->job ) ) {
             if ( empty( $job_id ) )
                 return false;
@@ -68,6 +80,9 @@ class ph_Report_Job_Costing extends ph_Report
         return $this->job;
     }
 
+    /**
+     * @return array|bool
+     */
     function query_shifts() {
         $job = $this->get_job();
         if ( !empty( $job ) ) {
@@ -81,6 +96,10 @@ WHERE shifts.job = ?',
         return false;
     }
 
+    /**
+     * @return bool|mixed
+     * @throws Exception
+     */
     function setup_job_costing() {
         $job_costing = array();
         $shifts = $this->get_shifts();
@@ -112,12 +131,19 @@ WHERE shifts.job = ?',
         return false;
     }
 
+    /**
+     * @return bool|mixed
+     * @throws Exception
+     */
     function get_job_costing() {
         if ( !empty( $this->job_costing ) )
             return $this->job_costing;
         return $this->setup_job_costing();
     }
 
+    /**
+     * @throws Exception
+     */
     function output_report() {
         ph_get_template_part( 'report/header/links-admin', array() );
         if ( $this->get_shifts() ) {

@@ -18,4 +18,4 @@
         <?php }
     } ?>
     <a class="btn btn-default" id="printbtn">Print</a>
-</div>LF
+</div>

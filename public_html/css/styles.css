@@ -7599,6 +7599,34 @@ h1, h2, h3, h4,
 .btn-default {
   color: #fff; }
 
+.main-btn {
+  position: relative;
+  background: none;
+  width: 180px;
+  height: 180px;
+  padding: 5px;
+  border-radius: 15px;
+  margin: 0 auto;
+  display: block;
+  white-space: normal; }
+  .main-btn:hover {
+    background: #333; }
+  .main-btn .col-md-3 {
+    padding: 15px; }
+  .main-btn img {
+    margin: 0;
+    padding: 0; }
+  .main-btn h2 {
+    position: absolute;
+    width: 100%;
+    left: 0;
+    bottom: 10px;
+    margin: 0;
+    padding: 0px 3px;
+    margin-top: -16px;
+    font-weight: 300;
+    font-size: 24px; }
+
 h3, h4, th {
   text-transform: capitalize; }
 
@@ -8302,8 +8330,8 @@ table > tbody > tr:nth-of-type(2n) {
   .chooseactivity .table tbody td.activityIcon a {
     display: block;
     float: left;
-    width: 200px;
-    height: 200px;
+    width: 208px;
+    height: 208px;
     margin: 7.5px;
     background: #299626;
     border-radius: 15px;
@@ -8311,13 +8339,13 @@ table > tbody > tr:nth-of-type(2n) {
     padding: 15px;
     position: relative; }
     .chooseactivity .table tbody td.activityIcon a .activityIconImageContainer {
-      height: 146.006px;
+      height: 154.006px;
       position: relative; }
       .chooseactivity .table tbody td.activityIcon a .activityIconImageContainer img {
         display: block;
         margin: 0 auto;
-        width: 100%;
-        max-height: 146.006px;
+        max-width: 100%;
+        max-height: 154.006px;
         position: absolute;
         top: 50%;
         left: 50%;
@@ -8351,44 +8379,6 @@ table > tbody > tr:nth-of-type(2n) {
 .chooseactivity .table td.activityIcon {
   border-left: 2px solid #dee2e6; }
 
-/*
-.main-btn {
-  position: relative;
-  background: none;
-  width: 180px;
-  height: 180px;
-  padding: 5px;
-  border-radius: 15px;
-  margin: 0 auto;
-  display: block;
-  white-space: normal;
-
-  &:hover {
-    background: #333;
-  }
-
-  .col-md-3 {
-    padding: 15px;
-  }
-
-  img {
-    margin: 0;
-    padding: 0;
-  }
-
-  h2 {
-    position: absolute;
-    width: 100%;
-    left: 0;
-    bottom: 10px;
-    margin: 0;
-    padding: 0px 3px;
-    margin-top: -16px;
-    font-weight: 300;
-    font-size: 24px;
-  }
-}
- */
 .messages {
   margin-bottom: 15px; }
 
