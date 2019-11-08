@@ -272,12 +272,13 @@ class User extends Base
             $this->messages->add( 'IP_RESTRICTED_ROLES missing.' );
             return false;
         }
+
         $ipRestrictedRoles = is_string( IP_RESTRICTED_ROLES ) ? array(IP_RESTRICTED_ROLES) : IP_RESTRICTED_ROLES;
-        if ( in_array( $this->getRole(), $ipRestrictedRoles, true ) ) {
+        if ( in_array( $this->getRole(), $ipRestrictedRoles, false ) ) {
             //limit staff login to login from factory only
             $allowedIPs = is_string( ALLOWED_IP_NUMBERS ) ? array(ALLOWED_IP_NUMBERS) : ALLOWED_IP_NUMBERS;
 
-            if ( in_array( !$_SERVER['REMOTE_ADDR'], $allowedIPs, true ) ) {
+            if ( !in_array( $_SERVER['REMOTE_ADDR'], $allowedIPs, true ) ) {
                 $this->messages->add( 'Incorrect IP detected. Please login from approved location.' );
                 return false;
             }
