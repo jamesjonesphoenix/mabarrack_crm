@@ -1,4 +1,8 @@
-<?php include 'include/crm_init.php';
+<?php
+
+namespace Phoenix;
+
+include '../src/crm_init.php';
 
 $jobID = ph_validate_number($_GET['job_id']);
 $activityID = ph_validate_number($_GET['activity_id']);
@@ -19,4 +23,4 @@ $activityID = ph_validate_number($_GET['activity_id']);
             </div>
         </div>
     </div>
-<?php include 'include/footer.php' ?>
+<?php ph_get_template_part('footer') ?>

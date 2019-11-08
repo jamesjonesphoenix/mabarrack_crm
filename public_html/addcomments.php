@@ -1,14 +1,17 @@
-<?php include 'include/crm_init.php';
+<?php
+namespace Phoenix;
 
-$time_s = date("H:i:s"); //get current time
+include '../src/crm_init.php';
+
+$time_s = date('H:i:s'); //get current time
 
 
 $user_id = ph_validate_number($_SESSION['user_id']);
 //Get the previous shift ID
-$prshtrows = get_rows("shifts", "WHERE worker = " . $user_id . " AND time_finished IS NULL ORDER BY ID DESC LIMIT 1");
-if ($prshtrows !== FALSE) {
-    $prev_shift = $prshtrows[0];
-    $ps_times = $prev_shift['time_started'];
+$previousShift = PDOWrap::instance()->getRow( 'shifts','worker = ' . $user_id . ' AND time_finished IS NULL ORDER BY ID DESC LIMIT 1' );
+
+if ($previousShift !== false) {
+    $ps_times = $previousShift['time_started'];
 
     $minutes = (strtotime($time_s) - strtotime($ps_times)) / 60;
 
@@ -16,23 +19,23 @@ if ($prshtrows !== FALSE) {
 //echo $time_s;
 //echo $ps_id;
 //Clock off the previous shift
-    $columns = ['ID', 'time_finished', 'minutes'];
-    $data = [$prev_shift['ID'], $time_s, $minutes];
-    if (update_row("shifts", $columns, $data) !== true)
+    $data = [$previousShift['ID'], $time_s, $minutes];
+    if (update_row('shifts', array('ID', 'time_finished', 'minutes'), $data) !== true) {
         echo $ur;
-    else
-        echo "success";
+    }
+    else {
+        echo 'success';
+    }
 }
 
 
-$columns = ['job', 'worker', 'date', 'time_started', 'activity'];
-$data = [$_GET['jid'], $user_id, date("d-m-Y"), $time_s, $_GET['aid']];
+$data = [$_GET['jid'], $user_id, date('d-m-Y'), $time_s, $_GET['aid']];
 
-$ar = add_row("shifts", $columns, $data);
+$ar = add_row('shifts', array('job', 'worker', 'date', 'time_started', 'activity'), $data);
 if ($ar !== TRUE) {
     echo $ar;
 } else {
-    echo "success";
+    echo 'success';
 }
 
 ?>
@@ -45,8 +48,8 @@ if ($ar !== TRUE) {
     </div>
     <script>
         setTimeout(function () {
-            location.href = 'w_enterjob.php';
+            location.href = 'worker_enterjob.php';
         }, 1000);
     </script>
 
-<?php include 'include/footer.php' ?>
+<?php ph_get_template_part('footer'); ?>

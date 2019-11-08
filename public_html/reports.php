@@ -1,4 +1,7 @@
-<?php include 'include/crm_init.php'; ?>
+<?php
+namespace Phoenix;
+
+include '../src/crm_init.php'; ?>
 
     <div class='row'>
         <div class='col-md-3'>
@@ -20,4 +23,4 @@
         pagefunctions();
     </script>
 
-<?php include 'include/footer.php'; ?>
+<?php ph_get_template_part('footer'); ?>

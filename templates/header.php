@@ -1,4 +1,7 @@
-<?php $script_filename = ph_script_filename( '.php' ) ?>
+<?php
+namespace Phoenix;
+
+$script_filename = ph_script_filename( '.php' ) ?>
     <!DOCTYPE html>
     <html>
     <head>
@@ -15,7 +18,7 @@
     </head>
 <body class="<?php echo $script_filename; ?>">
 <?php
-if ( $script_filename != "login" ) { ?>
+if ( $script_filename !== 'login') { ?>
     <div class="crmheadbg"></div>
     <div class="container">
     <div class="row crmhead">
@@ -26,12 +29,12 @@ if ( $script_filename != "login" ) { ?>
     <div class="col-md-3 col-sm-4 col-xs-1">
         <a href='login.php?logout=true' class="btn btn-default logout">Log Out</a>
         <?php
-        if ( $ph_user->get_role() == "admin" ) {
+        if ( CurrentUser::instance()->getRole() === 'admin') {
             echo "<a href='settings.php' id='setbtn' class='btn btn-default'><img src='img/admin/settings.svg'></a>";
         }
         ?>
     </div>
-    <?php echo "<div class='usrnm'><p>Welcome <b>" . $ph_user->get_name() . "</b></p></div></div>";
+    <?php echo "<div class='usrnm'><p>Welcome <b>" .  CurrentUser::instance()->getName() . '</b></p></div></div>';
     ph_messages()->display();
 } else { ?>
     <div class="container"><?php

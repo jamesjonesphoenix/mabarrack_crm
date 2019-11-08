@@ -1,22 +1,26 @@
-<?php include 'include/crm_init.php';
+<?php
 
-$time_s = roundTime( date( "H:i:s" ) ); //get current time
+namespace Phoenix;
+
+include '../src/crm_init.php';
+
+$time_s = roundTime( date('H:i:s') ); //get current time
 
 $user_id = ph_validate_number( $_SESSION[ 'user_id' ]);
 
 //Get the previous shift ID
-$prshtrows = get_rows( "shifts", "WHERE worker = " . $user_id . " AND time_finished IS NULL ORDER BY ID DESC LIMIT 1" );
-if ( $prshtrows !== FALSE ) {
-    $prev_shift = $prshtrows[ 0 ];
-    $ps_id = $prev_shift[ 'ID' ];
-    $ps_times = $prev_shift[ 'time_started' ];
+$previousShift = PDOWrap::instance()->getRow( 'shifts', 'worker = ' . $user_id . ' AND time_finished IS NULL ORDER BY ID DESC LIMIT 1' );
+
+if ( $previousShift !== false ) {
+    $ps_id = $previousShift[ 'ID' ];
+    $ps_times = $previousShift[ 'time_started' ];
 
     $minutes = ( strtotime( $time_s ) - strtotime( $ps_times ) ) / 60;
 
     //Clock off the previous shift
     $columns = [ 'ID', 'time_finished', 'minutes' ];
     $data = [ $ps_id, $time_s, $minutes ];
-    $ur = update_row( "shifts", $columns, $data );
+    $ur = update_row( 'shifts', $columns, $data );
     if ( $ur !== TRUE ) {
         echo $ur;
     } else {
@@ -25,22 +29,22 @@ if ( $prshtrows !== FALSE ) {
 
 $columns = [ 'job', 'worker', 'date', 'time_started', 'activity', 'minutes' ];
 $job_id = ph_validate_number( $_GET[ 'job_id' ] );
-$data = [ $job_id, $user_id, date( "Y-m-d" ), $time_s, $_GET[ 'activity_id' ], 0 ];
+$data = [ $job_id, $user_id, date('Y-m-d'), $time_s, $_GET[ 'activity_id' ], 0 ];
 
 if ( $job_id != 0 ) {
     $columns[] = 'furniture';
     $data[] = $_GET[ 'furniture_id' ];
 } else {
     $activity_id = ph_validate_number( $_GET[ 'activity_id' ] );
-    if ( $activity_id == 14 ) {
+    if ( $activity_id === 14 ) {
         $columns[] = 'activity_comments';
         $data[] = $_GET[ 'comment' ];
     }
 }
 
-$ar = add_row( "shifts", $columns, $data );
-if ( $ar !== TRUE ) {
-    echo $ar;
+$addRow = add_row( 'shifts', $columns, $data );
+if ( $addRow !== TRUE ) {
+    echo $addRow;
 } else {
     ?>
     <div class="row">
@@ -52,9 +56,9 @@ if ( $ar !== TRUE ) {
     </div>
     <script>
         setTimeout( function () {
-            location.href = 'w_enterjob.php';
+            location.href = 'worker_enterjob.php';
         }, 1000 );
     </script>
     <?php
 }
-include 'include/footer.php' ?>
+ph_get_template_part('footer') ?>

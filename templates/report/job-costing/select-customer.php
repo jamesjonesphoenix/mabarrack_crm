@@ -1,3 +1,4 @@
+<?php namespace Phoenix; ?>
 <h2>Records Of Times For Job Costing</h2>
 <div class='panel panel-default' style='position: relative'>
     <?php if ( !empty( $customers ) ) { ?>

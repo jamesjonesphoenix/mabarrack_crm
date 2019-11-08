@@ -1,12 +1,26 @@
 <?php
 
-final class ph_CRM
+namespace Phoenix;
+
+/**
+ * Class CRM
+ */
+final class CRM
 {
 
-    protected static $_instance = null;
+    /**
+     * @var null
+     */
+    protected static $_instance;
 
+    /**
+     * @var
+     */
     protected $db;
 
+    /**
+     * @var array
+     */
     public $class_includes = array(
         'activities',
         'messages',
@@ -22,23 +36,31 @@ final class ph_CRM
         )
     );
 
-    public static function instance() {
-        if ( is_null( self::$_instance ) ) {
+    /**
+     * @return CRM|null
+     */
+    public static function instance(): ?CRM
+    {
+        if (self::$_instance === null) {
             self::$_instance = new self();
         }
         return self::$_instance;
     }
 
     /**
-     * ph_CRM constructor.
+     * CRM constructor.
      *
      */
-    function __construct() {
+    private function __construct() {
         //$this->db = $db;
-        return $this->init();
+        $this->init();
     }
 
-    function init() {
+    /**
+     * @return bool
+     */
+    public function init(): bool
+    {
         $this->includes();
         return true;
     }
@@ -48,7 +70,8 @@ final class ph_CRM
      *
      * @return bool
      */
-    function includes() {
+    public function includes(): bool
+    {
         foreach ( $this->class_includes as $folder => $class_include ) {
             if ( is_array( $class_include ) ) {
                 foreach ( $class_include as $class_name ) {
@@ -58,30 +81,27 @@ final class ph_CRM
                 $this->class_include( $class_include );
             }
         }
-        if ( defined( 'DOING_CRON' ) )
-            $this->class_include( 'cron_logging' );
-        include_once 'functions.php';
+        if ( defined( 'DOING_CRON' ) ) {
+            $this->class_include('cron_logging');
+        }
         return true;
     }
 
-    function class_include( $class_include, $folder = '' ) {
-        if ( !empty( $folder ) )
-            $folder = $folder . '/';
+    /**
+     * @param $class_include
+     * @param string $folder
+     * @return bool
+     */
+    public function class_include($class_include, $folder = '' ): bool
+    {
+        if ( !empty( $folder ) ) {
+            $folder .= '/';
+        }
         $include_string = $folder . 'class-ph_' . $class_include . '.php';
-        if ( file_exists( dirname( __FILE__ ) . '/' . $include_string ) ) {
+        if ( file_exists( __DIR__ . '/' . $include_string ) ) {
             include_once $include_string;
             return true;
         }
         return false;
     }
-}
-
-/**
- * Main instance of ph_CRM.
- *
- * Returns the main instance of WC to prevent the need to use globals.
- *
- */
-function ph_crm() {
-    return ph_CRM::instance();
 }

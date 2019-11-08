@@ -11,7 +11,18 @@
   ],
   "require": {
     "twbs/bootstrap": "^4.3",
-    "components/jquery": "*"
+    "components/jquery": "*",
+    "ext-json": "*",
+    "ext-pdo": "*",
+    "ext-mysqli": "*"
+  },
+  "autoload": {
+    "psr-4": {
+      "Phoenix\\": "src/"
+    },
+    "files": [
+      "src/Functions.php"
+    ]
   },
   "scripts": {
     "post-update-cmd": "@front-end-stuff",
@@ -20,5 +31,8 @@
       "cp vendor/twbs/bootstrap/dist/js/* public_html/js/",
       "cp vendor/components/jquery/jquery.min.js public_html/js/jquery.min.js; cp vendor/components/jquery/jquery.min.map public_html/js/jquery.min.map;"
     ]
+  },
+  "require-dev": {
+    "kint-php/kint": "3.0"
   }
 }

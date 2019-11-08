@@ -1,34 +1,38 @@
 <?php
-include 'include/crm_init.php';
+
+namespace Phoenix;
+
+include '../src/crm_init.php';
 //Check whether the user is already logged in
-if ( isset( $_SESSION[ 'user_id' ] ) ) { //logged in, redirect to main page
-    $ph_user = new ph_User( $_SESSION[ 'user_id' ], 'id' );
-    if ( $ph_user->is_logged_in() ) {
-        if ( !empty( $_GET[ 'logout' ] ) && $_GET[ 'logout' ] == 'true' ) {
+if ( isset( $_SESSION['user_id'] ) ) { //logged in, redirect to main page
+    $ph_user = CurrentUser::instance( PDOWrap::instance(), Messages::instance(), $_SESSION['user_id'], 'id' );
+    if ( $ph_user->isLoggedIn() ) {
+        if ( !empty( $_GET['logout'] ) && $_GET['logout'] === 'true' ) {
             $ph_user->logout();
-            ph_messages()->add_message( 'You have successfully logged out.', 'primary' );
-        } else
-            ph_redirect( $ph_user->get_user_homepage() );
+            ph_messages()->add( 'You have successfully logged out.', 'primary' );
+        } else {
+            ph_redirect( $ph_user->getUserHomepage() );
+        }
     }
 }
 
-if ( !empty( $_GET[ 'message' ] ) ) {
+if ( !empty( $_GET['message'] ) ) {
 
-    switch ( $_GET[ 'message' ] ) {
+    switch( $_GET['message'] ) {
         case 'session_ini_failed':
-            ph_messages()->add_message( 'Could not initiate a safe session (ini_set)' );
+            ph_messages()->add( 'Could not initiate a safe session (ini_set)' );
             break;
         case 'not_logged_in':
-            ph_messages()->add_message( 'You cannot access that page until you are logged in. Please login.' );
+            ph_messages()->add( 'You cannot access that page until you are logged in. Please login.' );
             break;
         case 'login_timed_out':
-            ph_messages()->add_message( 'Your login timed out due to inactivity. Please login again.' );
+            ph_messages()->add( 'Your login timed out due to inactivity. Please login again.' );
             break;
         case 'wrong_IP':
-            ph_messages()->add_message( 'You logged in with incorrect IP. Please try again from Mabarrack Factory.' );
+            ph_messages()->add( 'You logged in with incorrect IP. Please try again from Mabarrack Factory.' );
             break;
         default:
-            ph_messages()->add_message( 'Error, but not quite sure what it is.' );
+            ph_messages()->add( 'Error, but not quite sure what it is.' );
             break;
     }
 }
@@ -61,4 +65,4 @@ if ( !empty( $_GET[ 'message' ] ) ) {
     </div>
     </div>
 
-<?php include 'include/footer.php' ?>
+    <?php ph_get_template_part( 'footer' ); ?>

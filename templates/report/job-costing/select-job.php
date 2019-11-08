@@ -12,6 +12,6 @@
             <br>
             <input type='submit' value='Run Report' class='btn btn-default'>
         </form>
-        <?php ph_get_template_part( 'report/job-costing/enter-job' );
+        <?php Phoenix\ph_get_template_part( 'report/job-costing/enter-job' );
     } ?>
 </div>

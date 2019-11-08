@@ -1,9 +1,13 @@
-<?php include 'include/crm_init.php'; ?>
+<?php
+
+namespace Phoenix;
+
+include '../src/crm_init.php'; ?>
     <div class="row">
         <?php
-        $menuitems = get_rows("main_menu", "");
+        $menuitems = get_rows('main_menu', '');
 
-        if ($menuitems !== FALSE) {
+        if ($menuitems !== false) {
             foreach ($menuitems as $menuitem) { ?>
                 <div class="col-md-3 col-sm-4 col-xs-6">
                     <a href="<?php echo $menuitem['url']; ?>">
@@ -15,7 +19,7 @@
                             if ($menuitem['notif_qry'] != '') { //has notification query
                                 $notif = get_notify_qry($menuitem['notif_qry']);
 
-                                echo "<div class='notifs'>" . $notif . "</div>";
+                                echo "<div class='notifs'>" . $notif . '</div>';
 
                             }
                             ?>
@@ -27,5 +31,5 @@
         }
         ?>
     </div>
-<?php
-include 'include/footer.php';
+    <?php
+ph_get_template_part('footer');
