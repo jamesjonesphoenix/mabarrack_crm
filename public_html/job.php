@@ -238,7 +238,6 @@ if ( isset( $_GET['add'] ) ) { //add a new job
         if ( $shiftRows !== false ) {
             $activities = new Activities( PDOWrap::instance() );
             foreach ( $shiftRows as $shiftKey => $shiftRow ) {
-                //$shiftRows[$shiftKey]['activity'] = $activities->getType( $shiftRow['activity'] ) . ' ' . $activities->getName( $shiftRow['activity'] ) ?? '';
                 $shiftRows[$shiftKey]['activity'] = $activities->getDisplayName( $shiftRow['activity'] ) ?? '';
             }
         }

@@ -81,7 +81,9 @@ class Activities extends Base
      */
     public function getType(int $activityID = 0)
     {
-        return $this->getAttribute( $activityID, 'type' );
+        $type = $this->getAttribute( $activityID, 'type' );
+        $type = $type === 'All' ? 'Unspecific' : $type;
+        return $type;
     }
 
     /**

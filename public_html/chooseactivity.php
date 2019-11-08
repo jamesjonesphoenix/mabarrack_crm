@@ -5,15 +5,16 @@ namespace Phoenix;
 include '../src/crm_init.php'; ?>
 
 <?php
-$jobID = ph_validate_number( $_GET['job_id'] );
-$furnitureID = ph_validate_number( $_GET['furniture_id'] );
+
+$jobID = !empty( $_GET['job_id'] ) ? ph_validate_number( $_GET['job_id'] ) : 0;
+$furnitureID = !empty( $_GET['furniture_id'] ) ? ph_validate_number( $_GET['furniture_id'] ) : 0;
 
 
-
-$sortedActivities = [];
+$unsortedActivities = [];
 $allActivityTypes = [];
 
 $activities = new Activities( PDOWrap::instance() );
+
 
 foreach ( $activities->getActivities() as $activity ) {
     if ( $activity['name'] === 'Lunch' ) {
@@ -36,10 +37,30 @@ foreach ( $activities->getActivities() as $activity ) {
     if ( !in_array( $activityType, $allActivityTypes, true ) ) {
         $allActivityTypes[] = $activityType;
     }
-    $sortedActivities[$activity['category']][$activityType][$activity['name']] = $activity;
+    $unsortedActivities[$activity['category']][$activityType][$activity['name']] = $activity;
 }
-//print_r($sortedActivities);
-//<th colspan="2" scope="col">Choices</th>
+d( $unsortedActivities );
+//terrible code
+if ( $jobID > 0 ) {
+    $activityCategories = array(
+        'Planning',
+        'Set Out',
+        'Cutting',
+        'Machining',
+        'Assembly',
+        'Polishing',
+        'Fit Up',
+        'Delivery',
+        'Pick Up',
+        'Rework'
+    );
+
+    foreach ( $activityCategories as $activityCategory ) {
+        $sortedActivities[$activityCategory] = $unsortedActivities[$activityCategory];
+    }
+} else {
+    $sortedActivities = $unsortedActivities;
+}
 ?>
 
 <div class="row panel panel-default actsbtns">
@@ -50,8 +71,10 @@ foreach ( $activities->getActivities() as $activity ) {
         <thead>
         <tr>
             <th scope="col">Activity Category</th>
-            <th scope="col">Manual Activities</th>
-            <th scope="col">CNC Activities</th>
+            <th scope="col"><?php echo $jobID > 0 ? 'Manual ' : ''; ?>Activities</th>
+
+
+            <?php echo $jobID > 0 ? '<th scope="col">CNC Activities</th>' : ''; ?>
 
         </tr>
         </thead>
@@ -67,7 +90,7 @@ foreach ( $activities->getActivities() as $activity ) {
                                     <div class="activityIconImageContainer"><img
                                                 src="img/activities/<?php echo $activity['image']; ?>"
                                                 alt="<?php echo $activity['name']; ?>"/></div>
-                                    <span><?php echo $activities->getDisplayName($activity['ID']) ?></span>
+                                    <span><?php echo $activities->getDisplayName( $activity['ID'] ) ?></span>
                                 </a>
                             <?php
                             endforeach;
