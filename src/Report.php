@@ -5,7 +5,7 @@ namespace Phoenix;
 /**
  * Class Report
  */
-class Report extends Base
+class Report extends AbstractCRM
 {
     /**
      * @var Activities

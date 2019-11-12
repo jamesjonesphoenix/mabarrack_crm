@@ -2,12 +2,11 @@
 
 namespace Phoenix;
 
-require_once '../vendor/autoload.php';
+require_once __DIR__ . '/../vendor/autoload.php';
 
 include __DIR__ . '/../config.php';
 
-
-//default database definitions
+//Default DB definitions
 if ( !defined( 'DB_HOST' ) ) {
     define( 'DB_HOST', 'localhost' );
 }
@@ -23,14 +22,13 @@ if ( !defined( 'DB_NAME' ) ) {
 if ( !defined( 'DB_PORT' ) ) {
     define( 'DB_PORT', '3306' );
 }
-//default parameters
+//Default parameters
 if ( !defined( 'USING_SSL' ) ) {
     define( 'USING_SSL', false );
 }
 if ( !defined( 'SYSTEM_TITLE' ) ) {
     define( 'SYSTEM_TITLE', 'CRM' );
 }
-
 if ( !defined( 'ALLOWED_IP_NUMBERS' ) ) {
     define( 'ALLOWED_IP_NUMBERS', '127.0.0.1' );
 }

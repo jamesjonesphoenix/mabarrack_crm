@@ -23,7 +23,7 @@ $newsText = nl2br( $newsText );
 
             $shiftRows = PDOWrap::instance()->run( 'SELECT shifts.*, activities.name as activity FROM shifts INNER JOIN activities ON shifts.activity=activities.ID WHERE shifts.worker=? AND date = CURRENT_DATE', [$userID] )->fetchAll();
 
-            if ( $shiftRows === false ) { //no shifts found for today, show start day
+            if ( $shiftRows == false ) { //no shifts found for today, show start day
                 ?>
                 <a class="btn btn-default whbtn" style="margin: 50px;" href="choosejob.php?sd"><h2>Start Day</h2></a>
             <?php } else { ?>

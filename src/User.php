@@ -5,7 +5,7 @@ namespace Phoenix;
 /**
  * Class User
  */
-class User extends Base
+class User extends AbstractCRM
 {
     /**
      * @var

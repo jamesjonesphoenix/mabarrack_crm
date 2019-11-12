@@ -8,28 +8,6 @@ namespace Phoenix;
 class Base
 {
     /**
-     * @var Messages
-     */
-    protected $messages;
-
-    /**
-     * @var PDOWrap
-     */
-    protected $db;
-
-    /**
-     * Base constructor.
-     *
-     * @param PDOWrap|null $db
-     * @param Messages|null $messages
-     */
-    public function __construct(PDOWrap $db = null, Messages $messages = null)
-    {
-        $this->db = $db;
-        $this->messages = $messages;
-    }
-
-    /**
      * @param $name
      * @param $value
      */
@@ -45,7 +23,6 @@ class Base
 
     public function __isset($name)
     {
-        $this->messages->add( '<strong>' . $name . '</strong> not found.' );
         return false;
     }
 

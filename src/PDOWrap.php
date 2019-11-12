@@ -166,11 +166,12 @@ class PDOWrap
             foreach ( $queryArgs as $key => $queryArg ) {
                 $sqlWhereString = $key;
                 if ( is_array( $queryArg ) ) {
-                    $sqlWhereString .= ' ' . $queryArg['operator'] . ' ';
+                    $sqlWhereString .= ' ' . $queryArg['operator'] . ' :' . $key;
+                } else if ( $queryArg === null ) {
+                    $sqlWhereString .= ' IS NULL';
                 } else {
-                    $sqlWhereString .= '=';
+                    $sqlWhereString .= '=:' . $key;
                 }
-                $sqlWhereString .= ':' . $key;
                 $sqlWhereStrings[] = $sqlWhereString;
             }
             return $sql . implode( ' AND ', $sqlWhereStrings );
@@ -184,13 +185,13 @@ class PDOWrap
      */
     private function getRunArgs($queryArgs = []): array
     {
+
         if ( empty( $queryArgs ) || !is_array( $queryArgs ) ) {
             return [];
         }
-
         foreach ( $queryArgs as $key => $queryArg ) {
             if ( !empty( $queryArg ) ) {
-                $args[$key] = $queryArg['value'] ?? $queryArg;
+                $args[$key] = $queryArg['value'] ?? $queryArg ?? '';
             }
         }
         return $args ?? [];
@@ -223,6 +224,8 @@ class PDOWrap
         } else {
             $result = $statement->fetchAll();
         }
+
+
         if ( !empty( $result ) ) {
             return $result;
         }

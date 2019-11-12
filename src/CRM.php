@@ -27,7 +27,7 @@ final class CRM
         'pdo',
         'roles',
         'user',
-        'current_user',
+        'currentUser',
         'date_time',
         'report' => array(
             'report',
