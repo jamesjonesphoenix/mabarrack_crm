@@ -55,24 +55,20 @@ class Messages extends Base
     }
 
     /**
-     * @param User $user
      * @return bool
      */
     public function init(): bool
     {
-
-        //d($_SESSION['messages']);
-
-        if ( !empty( $_SESSION['message'] ) ) {
-            $this->addStatefulMessages( $_SESSION['message'] );
-            unset( $_SESSION['message'] );
-        }
-        if ( !empty( $_GET['message'] ) ) {
-            $this->addStatefulMessages( $_GET['message'] );
+        if ( !defined( 'DOING_CRON' ) || !DOING_CRON ) {
+            if ( !empty( $_SESSION['message'] ) ) {
+                $this->addStatefulMessages( $_SESSION['message'] );
+                unset( $_SESSION['message'] );
+            }
+            if ( !empty( $_GET['message'] ) ) {
+                $this->addStatefulMessages( $_GET['message'] );
+            }
         }
         return true;
-
-
     }
 
     /**
@@ -85,7 +81,7 @@ class Messages extends Base
             return $this->_emailArgs;
         }
 
-        $this->_emailArgs['prepend'] = $emailArgs['messagePrepend'] ?? '';
+        $this->_emailArgs['prepend'] = $emailArgs['prepend'] ?? '';
         $this->_emailArgs['subject'] = $emailArgs['subject'] ?? 'CRON log';
         $this->_emailArgs['to'] = $emailArgs['to'] ?? TO_EMAIL ?? '';
         $this->_emailArgs['from'] = $emailArgs['from'] ?? FROM_EMAIL ?? '';
@@ -102,8 +98,8 @@ class Messages extends Base
         if ( empty( $message ) ) {
             return false;
         }
-        if (defined('DOING_CRON') && DOING_CRON) {
-            trigger_error($this->emailArgs['prepend'] . $message);
+        if ( defined( 'DOING_CRON' ) && DOING_CRON ) {
+            trigger_error( $this->emailArgs['prepend'] . $message );
             echo $message . "\r\n";
         }
 
@@ -281,33 +277,30 @@ class Messages extends Base
      */
     public function email(): bool
     {
-        if ( empty( $this->emailArgs['from'] ) || empty( $this->emailArgs['to'] ) || empty( $this->emailArgs['subject'] ) ) {
+        $emailArgs = $this->emailArgs;
+        if ( empty( $emailArgs['from'] ) || empty( $emailArgs['to'] ) || empty( $emailArgs['subject'] ) ) {
+            d( $emailArgs );
+            $this->add( 'Can\'t email messages. Email args missing' );
             return false;
         }
-/*
-        if ( !empty( $message ) ) {
-            $message = $this->messagePrepend . $message;
-            trigger_error( $message );
-            echo $message . "\r\n";
-            $this->emailMessage .= $message . '<br>';
-        }
-*/
+
         $emailContent = '';
         foreach ( $this->messages as $message ) {
             if ( !empty( $message['string'] ) ) {
-                $messageType = $message['type'] ?? 'danger';
-                $emailContent .= $this->emailArgs['prepend'] . $message . '<br>';
-
-
+                $emailContent .= $emailArgs['prepend'] . $message['string'] . '<br>';
             }
         }
 
-        $headers = 'From: ' . SYSTEM_TITLE . ' CRM <' . $this->emailArgs['from'] . '>' . "\r\n";
+        $headers = 'From: ' . SYSTEM_TITLE . ' CRM <' . $emailArgs['from'] . '>' . "\r\n";
         $headers .= 'Mime-Version: 1.0' . "\r\n";
         $headers .= 'Content-type: text/html; charset=UTF-8' . "\r\n";
-        if ( mail( $this->emailArgs['to'], $this->emailArgs['subject'], '<h1>Results</h1>' . $emailContent, $headers ) ) {
+        if ( mail( $emailArgs['to'], $emailArgs['subject'], '<h1>Results</h1>' . $emailContent, $headers ) ) {
             return true;
         }
+
+        //function mail ($to, $subject, $message, $additional_headers = null, $additional_parameters = null) {}
+
+        $this->add( 'Failed to email messages.' );
         return false;
     }
 }

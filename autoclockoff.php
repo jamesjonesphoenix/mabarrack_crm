@@ -44,7 +44,5 @@ if ( !empty($unfinishedShifts) ) { //there are unfinished shifts from the day
 } else {
     $messages->add( 'No unfinished shifts found today.' );
 }
-if ( !$messages->email() ) {
-    $messages->add( 'Failed to email results.' );
-}
 $messages->add( 'Finished' );
+$messages->email();

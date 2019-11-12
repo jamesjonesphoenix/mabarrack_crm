@@ -27,7 +27,5 @@ if ( !empty( $returnVar ) ) {
 } else {
     $messages->add( 'Database backed up to ' . $filename . '.' );
 }
-if ( !$messages->email() ) {
-    $messages->add( 'Failed to email results.' );
-}
 $messages->add( 'Finished' );
+$messages->email();
