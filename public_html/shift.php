@@ -131,7 +131,6 @@ include '../src/crm_init.php'; ?>
                 $furnitureQuantity = !empty($furniture) ? $furniture : '';
                 //d($furnitureID);
                 $furnitureName = !empty( $shiftRow['furniture'] ) ? PDOWrap::instance()->getRow( 'furniture', array('ID' => $shiftRow['furniture']) )['name'] : 'Unknown or N/A';
-                d($furnitureQuantity);
                 $furnitureString = $furnitureQuantity . ' ' . $furnitureName ;
                 $furnitureString .= !empty($furnitureQuantity) && $furnitureQuantity > 1 ? 's' : '';
                 ?>

@@ -10,7 +10,6 @@ $user_id = ph_validate_number( $_SESSION['user_id'] );
 
 //Get the previous shift ID
 $previousShift = PDOWrap::instance()->getRow( 'shifts', 'worker = ' . $user_id . ' AND time_finished IS NULL ORDER BY ID DESC LIMIT 1' );
-//d( $previousShift );
 
 
 if ( empty( $previousShift ) ) {

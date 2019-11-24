@@ -15,7 +15,6 @@ include '../src/crm_init.php'; ?>
 as customer FROM jobs INNER JOIN customers ON jobs.customer=customers.ID WHERE jobs.status = 'jobstat_red' AND jobs.ID != 0";
                 $jobRows = PDOWrap::instance()->run( $query );
 
-                d($_SESSION);
 
                 foreach ( $jobRows as $jobRow ) {
                     ?>

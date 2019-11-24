@@ -61,7 +61,6 @@ include '../src/crm_init.php'; ?>
                             <h2><?php echo $menuItem['name']; ?></h2>
                             <?php
                             if ( !empty( $menuItem['number'] ) ) { //has notification query
-                                d($menuItem['number']);
                                 echo "<div class='notifs'>" . $menuItem['number'] . '</div>';
                             }
                             ?>
