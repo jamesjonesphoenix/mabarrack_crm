@@ -54,21 +54,21 @@ function ph_redirect(string $location = '', $args = [])
     if ( empty( $location ) ) {
         return false;
     }
-    $arg_string = '';
+    $argString = '';
     if ( !empty( $args ) ) {
-        $arg_string = '?';
+        $argString = '?';
         if ( is_array( $args ) ) {
 
             $num_args = count( $args );
             $i = 0;
             foreach ( $args as $arg_name => $arg_value ) {
-                $arg_string .= $arg_name . '=' . $arg_value;
+                $argString .= $arg_name . '=' . $arg_value;
                 if ( ++$i !== $num_args ) {
-                    $arg_string .= '&';
+                    $argString .= '&';
                 }
             }
         } elseif ( is_string( $args ) ) {
-            $arg_string .= $args;
+            $argString .= $args;
         }
     }
 
@@ -79,7 +79,7 @@ function ph_redirect(string $location = '', $args = [])
     }
 
     //redirect
-    header( 'Location: ' . $location . $arg_string, true, 302 );
+    header( 'Location: ' . $location . $argString, true, 302 );
     exit();
 }
 
