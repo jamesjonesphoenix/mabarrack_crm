@@ -68,6 +68,7 @@ class Roles
                 'choosefur',
                 'choosejob',
                 'finishday',
+                'finish_day',
                 'nextshift',
                 'othercomment',
                 'report',

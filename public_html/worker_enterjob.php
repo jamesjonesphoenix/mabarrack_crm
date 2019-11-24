@@ -44,7 +44,7 @@ $newsText = nl2br( $newsText );
 
                     if ( $hadLunch ) { ?>
                         <a class="btn btn-default redbtn whbtn" style="margin: 70px 50px 50px 50px;"
-                           href="finishday.php">
+                           href="finish_day.php">
                             <h2>Finish Day</h2></a>
                     <?php } else { ?>
                         <a class="btn btn-default redbtn whbtn" style="margin: 70px 50px 50px 50px;"
@@ -134,7 +134,7 @@ $newsText = nl2br( $newsText );
                     $activities = new Activities(PDOWrap::instance());
                     $activity = $activities->getName($lastShift['activity']);
                     echo !empty($activity) ? '<br><h3 class="well">' . $activity . '</h3>' : '';
-
+d($lastShift);
                     echo !empty($lastJob['description']) && $lastShift['job'] !== 0 ? '<br><h3 class="well">' . $lastJob['description'] . '</h3>' : '';
 
 
