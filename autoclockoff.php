@@ -22,24 +22,24 @@ $minFinishTime = '16:30:00';
 //Get the previous shift ID
 $unfinishedShifts = PDOWrap::instance()->getRows( 'shifts', array('time_finished' => null) );
 
-if ( !empty($unfinishedShifts) ) { //there are unfinished shifts from the day
+if ( !empty( $unfinishedShifts ) ) { //there are unfinished shifts from the day
     $found_message = 'Found ' . count( $unfinishedShifts ) . ' unfinished shift';
     $found_message .= count( $unfinishedShifts ) > 1 ? 's.' : '.';
     $messages->add( $found_message );
-    
+
     foreach ( $unfinishedShifts as $unfinishedShift ) {
         //Clock off the previous shift
         $clockOffTime = $unfinishedShift['time_started'] > $minFinishTime ?
             date( 'H:i:s', strtotime( $unfinishedShift['time_started'] ) + 60 ) : $minFinishTime;
 
-        $data = [$unfinishedShift['ID'], $clockOffTime, 0]; //clock off everyone at 4:30pm. Run script at 5:30pm.
-        $result = update_row( 'shifts', ['ID', 'time_finished', 'minutes'], $data );
-        if ( $result !== TRUE ) {
-            $messages->add( 'Failed to update shift - ' . $result );
-            exit();
-        }
 
-        $messages->add( 'Successfully clocked off shift with ID of ' . $unfinishedShift['ID'] . '.' );
+        if ( !PDOWrap::instance()->update( 'shifts',
+            array('time_finished' => $clockOffTime, 'minutes' => 0),
+            array('ID' => $unfinishedShift['ID']) ) ) {
+            $messages->add( 'Failed to update shift.' );
+        } else {
+            $messages->add( 'Successfully clocked off shift with ID of ' . $unfinishedShift['ID'] . '.' );
+        }
     }
 } else {
     $messages->add( 'No unfinished shifts found today.' );

@@ -203,8 +203,7 @@ class Messages extends Base
                         $messageString .= ' add a new ';
                     }
                 }
-                //print_r( $message[ 'data' ] );
-                //print_r( $message[ 'columns' ] );
+                //d( $message[ 'data' ] );
 
                 if ( $message['table'] !== 'users' ) {
                     $messageString .= ' ' . rtrim( $message['table'], 's' );
@@ -212,11 +211,7 @@ class Messages extends Base
                 else {
                     $messageString .= ' worker';
                 }
-                if ( !empty( $message['columns'] ) && !empty( $message['data'] ) ) {
-
-                    foreach ( $message['columns'] as $key => $column ) {
-                        $data[$column] = $message['data'][$key];
-                    }
+                if ( !empty( $message['data'] ) ) {
 
                     switch( $message['table'] ) {
                         case 'customers':

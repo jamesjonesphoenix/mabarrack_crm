@@ -35,40 +35,40 @@ class JobCosting extends Report
             $this->messages->add('Job ID missing. Can\'t create report.');
             return false;
         }
-        $job = $this->get_job($jobID);
+        $job = $this->getJob($jobID);
 
         if (empty($job)) {
             $this->messages->add('Job not found. Can\'t create report. Is Job ID : "' . $jobID . '" correct?');
             return false;
         }
 
-        $shifts = $this->get_shifts();
+        $shifts = $this->getShifts();
         if (empty($shifts)) {
             $this->messages->add('No shifts found for this job. Can\'t create report.');
             return false;
         }
 
         //output activities summary table
-        $this->activity_summary = $this->setup_activity_summary();
+        $this->activity_summary = $this->setupActivitySummary();
         //output customer hours
         $total_profit = $job['sale_price'] - $this->totals['amount']['employee_cost'] - $job['material_cost'] - $job['contractor_cost'] - $job['spare_cost'];
         $total_cost = $this->totals['amount']['employee_cost'] + $job['material_cost'] + $job['contractor_cost'] + $job['spare_cost'];
-        $this->set_a_total($total_profit, 'total_profit', 'money');
-        $this->set_a_total($total_cost, 'total_cost', 'money');
-        $this->set_a_total($total_profit / $total_cost, 'markup', 'percent');
-        $this->set_a_total($total_profit / $this->get_job()['sale_price'], 'gross_margin', 'percent');
+        $this->setTotal($total_profit, 'total_profit', 'money');
+        $this->setTotal($total_cost, 'total_cost', 'money');
+        $this->setTotal($total_profit / $total_cost, 'markup', 'percent');
+        $this->setTotal($total_profit / $this->getJob()['sale_price'], 'gross_margin', 'percent');
 
 
-        $this->set_a_total($this->totals['amount']['employee_cost'] / $total_cost, 'percent_employee_cost', 'percent');
-        $this->set_a_total($job['material_cost'], 'material_cost', 'money');
-        $this->set_a_total($job['material_cost'] / $total_cost, 'percent_material_cost', 'percent');
-        $this->set_a_total($job['contractor_cost'], 'contractor_cost', 'money');
-        $this->set_a_total($job['contractor_cost'] / $total_cost, 'percent_contractor_cost', 'percent');
-        $this->set_a_total($job['spare_cost'], 'spare_cost', 'money');
-        $this->set_a_total($job['spare_cost'] / $total_cost, 'percent_spare_cost', 'percent');
+        $this->setTotal($this->totals['amount']['employee_cost'] / $total_cost, 'percent_employee_cost', 'percent');
+        $this->setTotal($job['material_cost'], 'material_cost', 'money');
+        $this->setTotal($job['material_cost'] / $total_cost, 'percent_material_cost', 'percent');
+        $this->setTotal($job['contractor_cost'], 'contractor_cost', 'money');
+        $this->setTotal($job['contractor_cost'] / $total_cost, 'percent_contractor_cost', 'percent');
+        $this->setTotal($job['spare_cost'], 'spare_cost', 'money');
+        $this->setTotal($job['spare_cost'] / $total_cost, 'percent_spare_cost', 'percent');
 
 
-        $this->set_a_total($job['sale_price'], 'sale_price', 'money');
+        $this->setTotal($job['sale_price'], 'sale_price', 'money');
 
         return true;
     }
@@ -77,7 +77,7 @@ class JobCosting extends Report
      * @param int $jobID
      * @return array|bool
      */
-    public function get_job(int $jobID = 0)
+    public function getJob(int $jobID = 0)
     {
         if (!empty($this->job)) {
             return $this->job;
@@ -92,9 +92,9 @@ class JobCosting extends Report
     /**
      * @return array|bool
      */
-    public function query_shifts()
+    public function queryShifts()
     {
-        $job = $this->get_job();
+        $job = $this->getJob();
         if (empty($job)) {
             return false;
         }
@@ -110,10 +110,10 @@ WHERE shifts.job = ?',
      * @return bool|mixed
      * @throws \Exception
      */
-    public function setup_job_costing()
+    public function setupJobCosting()
     {
         $job_costing = array();
-        $shifts = $this->get_shifts();
+        $shifts = $this->getShifts();
         if (!empty($shifts)) {
             foreach ($shifts as $shift) {
 
@@ -146,24 +146,24 @@ WHERE shifts.job = ?',
      * @return bool|mixed
      * @throws \Exception
      */
-    public function get_job_costing()
+    public function getJobCosting()
     {
         if (!empty($this->job_costing)) {
             return $this->job_costing;
         }
-        return $this->setup_job_costing();
+        return $this->setupJobCosting();
     }
 
     /**
      * @throws \Exception
      */
-    public function output_report()
+    public function outputReport()
     {
         ph_get_template_part('report/header/links-admin', array());
-        if ($this->get_shifts()) {
+        if ($this->getShifts()) {
             ph_get_template_part('report/job-costing/report', array(
-                'job' => $this->get_job(),
-                'shifts' => $this->get_job_costing(),
+                'job' => $this->getJob(),
+                'shifts' => $this->getJobCosting(),
                 'activities_summary' => $this->activity_summary,
                 'totals' => $this->totals['formatted'],
             ));

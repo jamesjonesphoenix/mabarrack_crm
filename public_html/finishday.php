@@ -14,14 +14,15 @@ if ( $previousShift !== false ) {
     $minutes = (strtotime( $time_s ) - strtotime( $previousShift['time_started'] )) / 60;
 
 //Clock off the previous shift
-    $columns = ['ID', 'time_finished', 'minutes'];
-    $data = [$previousShift['ID'], $time_s, $minutes];
-    $update_row = update_row( 'shifts', $columns, $data );
-    if ( $update_row !== TRUE ) {
-        echo $update_row;
-    } else {
+
+    if ( PDOWrap::instance()->update( 'shifts', array(
+        'time_finished' => $time_s,
+        'minutes' => $minutes
+    ), array('ID' => $previousShift['ID']) ) ) {
         echo '<h2>Logging Out</h2>';
         ph_redirect( 'worker_enterjob.php', array('message' => 'finished_day') );
+    } else {
+        echo 'Failed';
     }
 }
 

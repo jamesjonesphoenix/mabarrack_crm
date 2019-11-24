@@ -57,7 +57,8 @@ class Roles
                 'tcr',
                 'worker',
                 'wtr',
-                'report'
+                'report',
+                'tables_test'
             ),
             'level' => 10
         ),

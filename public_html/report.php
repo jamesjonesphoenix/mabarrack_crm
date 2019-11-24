@@ -24,7 +24,7 @@ if ( empty( $worker_id ) && empty( $job_id ) && $ph_user->getRole() === 'admin' 
         if ( $_GET['report'] === 'jcr' ) {
             if ( isset( $_GET['customer_id'] ) ) {
                 $customer_id = ph_validate_number( $_GET['customer_id'] );
-                //kill $jobs = get_rows_qry( 'jc', [ $customer_id ] );
+                //kill $jobs = getRowsQuery( 'jc', [ $customer_id ] );
                 $jobs = PDOWrap::instance()->run( 'SELECT jobs.ID, jobs.date_started, jobs.date_finished, jobs.status, jobs.priority, jobs.customer, jobs.furniture, jobs.description, customers.name as customer
                 FROM jobs
                 INNER JOIN customers ON jobs.customer=customers.ID WHERE jobs.ID != 0 AND jobs.customer = ?', [$customer_id] )->fetchAll();
@@ -58,13 +58,12 @@ if ( empty( $worker_id ) && empty( $job_id ) && $ph_user->getRole() === 'admin' 
         /*
          * worker weekly time record
          */
-        $date_start = !empty( $_GET['date_start'] ) ? $_GET['date_start'] : '';
-        d( $worker_id );
+        $dateStart = !empty( $_GET['date_start'] ) ? $_GET['date_start'] : '';
         $report = new Report\WorkerWeek( $activities, PDOWrap::instance(), Messages::instance() );
-        $report->init( $worker_id, $date_start );
+        $report->init( $worker_id, $dateStart );
     }
     ph_messages()->display();
-    $report->output_report();
+    $report->outputReport();
 }
 
 ?>

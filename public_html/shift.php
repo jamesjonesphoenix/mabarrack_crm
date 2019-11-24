@@ -74,12 +74,12 @@ include '../src/crm_init.php'; ?>
                 </tr>
                 <?php
                 //echo "<tr><td><b>Started</b><select name='time_started' class='form-control viewinput w300' autocomplete='off'>\n";
-                //echo timedd($shiftRow['time_started']);
+                //echo timeDropDown($shiftRow['time_started']);
                 //echo "</select></td>\n";
 
 
                 //echo "<td><b>Finished</b><select name='time_finished' class='form-control viewinput w300' autocomplete='off'>\n";
-                //echo timedd($shiftRow['time_finished']);
+                //echo timeDropDown($shiftRow['time_finished']);
                 //echo "</select></td></tr>\n";
 
                 $activityRows = PDOWrap::instance()->getRows( 'activities' );
@@ -152,6 +152,6 @@ include '../src/crm_init.php'; ?>
     }
     //ph_script_filename() . "?" . $_SERVER[ 'QUERY_STRING' ] /*the shift we were just on*/
 
-    getdetailpagefooter( '#update_shift_form', 'shifts', 'page.php?id=1' );
+    getDetailPageFooter( '#update_shift_form', 'shifts', 'page.php?id=1' );
     ?>
 

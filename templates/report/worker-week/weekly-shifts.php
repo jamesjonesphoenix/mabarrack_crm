@@ -11,12 +11,12 @@ namespace Phoenix;
     <?php
     endif;
     if ( !empty( $weekly_time_record ) ) : ?>
-        <?php echo generate_table( array_keys( reset( $weekly_time_record ) ), $weekly_time_record, "shifts" );
+        <?php echo generateTable( array_keys( reset( $weekly_time_record ) ), $weekly_time_record, "shifts" );
     endif; ?>
     <?php if ( !empty( $time_clock_record ) ) : ?>
         <h2>Time Clock Record</h2>
         <?php
-        echo generate_table( array( 'ID', 'day', 'date', 'start_time', 'finish_time', 'hours', 'total', 'lunch_start', 'lunch_finish' ), $time_clock_record );
+        echo generateTable( array( 'ID', 'day', 'date', 'start_time', 'finish_time', 'hours', 'total', 'lunch_start', 'lunch_finish' ), $time_clock_record );
     endif; ?>
     <br>
     <?php
@@ -24,7 +24,7 @@ namespace Phoenix;
         <div class='row'>
             <div class='col-md-12 col-sm-12 col-xs-12'>
                 <h4>Customer Hours</h4>
-                <?php echo generate_table( array_keys( reset( $customer_hours ) ), $customer_hours, array(
+                <?php echo generateTable( array_keys( reset( $customer_hours ) ), $customer_hours, array(
                     array( 'table' => 'jobs', 'column' => 'job_ID' ),
                     array( 'table' => 'customers', 'column' => 'customer_ID' )
                 ) ); ?>
@@ -37,11 +37,11 @@ namespace Phoenix;
     if ( !empty( $factory_hours_with_job_number ) ) : ?>
         <h4>Factory Hours (with job number)</h4>
         <?php
-        echo generate_table( $activities_columns, $factory_hours_with_job_number );
+        echo generateTable( $activities_columns, $factory_hours_with_job_number );
     endif;
     if ( !empty( $factory_hours_no_job_number ) ) : ?>
         <h4>Factory Hours (without job number)</h4>
-        <?php echo generate_table( $activities_columns, $factory_hours_no_job_number );
+        <?php echo generateTable( $activities_columns, $factory_hours_no_job_number );
     endif;
     if ( !empty( $totals ) ) :
         ph_get_template_part( 'report/worker-week/totals-summary', array( 'totals' => $totals, ) );

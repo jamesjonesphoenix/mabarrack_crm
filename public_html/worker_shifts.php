@@ -20,7 +20,7 @@ if ( empty( $jobRow ) ) {
     <div id="actadder">
         <div class='panel panel-default'>
             <h2>Add Activity</h2>
-            <?php echo addactivitypanel(); ?>
+            <?php echo addActivityPanel(); ?>
             <div class='btn btn-default add_act'>ADD</div>
         </div>
     </div>
@@ -31,7 +31,7 @@ if ( empty( $jobRow ) ) {
                 <h2>Add Shift</h2>
                 <div class='btn btn-default show_acts'>(A)dd Activity</div>
                 <div class='btn btn-default shft_cancel'>(C)ancel</div>
-                <?php echo addshiftform( $jobID, ph_validate_number( $_SESSION['user_id'] ) ); ?>
+                <?php echo addShiftForm( $jobID, ph_validate_number( $_SESSION['user_id'] ) ); ?>
             </div>
         </div>
     </div>
@@ -53,20 +53,16 @@ if ( empty( $jobRow ) ) {
                 <?php
                 //SELECT shifts.ID, shifts.job, shifts.worker, shifts.date, shifts.time_started, shifts.time_finished, shifts.minutes, shifts.activity, users.name as worker FROM shifts INNER JOIN users ON shifts.worker=users.ID WHERE arg0 = arg1
 
-                $s_rows = get_rows_qry( 'sq', ['job', $jobID] );
+                $s_rows = getRowsQuery( 'sq', ['job', $jobID] );
                 if ( $s_rows !== false ) {
                     foreach ( $s_rows as $skey => $s_row ) {
-                        $a_rows = get_rows( 'activities', 'WHERE ID in (' . $s_row['activity'] . ')' );
-                        $a_str = '';
-                        foreach ( $a_rows as $a_row ) {
-                            $a_str .= $a_row['name'] . ', ';
-                        }
-                        $s_rows[$skey]['activity'] = $a_str;
+                        $activityRow = PDOWrap::instance()->getRow( 'activities', array('ID' => $s_row['activity']) );
+                        $s_rows[$skey]['activity'] = $activityRow['name'] . ', ';
                     }
                 }
 
-                $cols = array_diff( get_columns( 'shifts', false ), array('ID', 'job', 'activity_values', 'activity_comments') );
-                echo generate_table( $cols, $s_rows );
+                $columns = array('furniture','worker','date','time_started','time_finished','minutes','activity');
+                echo generateTable( $columns, $s_rows );
 
                 ?>
             </div>

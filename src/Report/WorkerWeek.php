@@ -23,12 +23,12 @@ class WorkerWeek extends Report
     /**
      * @var string
      */
-    public $date_start = '';
+    public $dateStart = '';
 
     /**
      * @var string
      */
-    public $date_finish = '';
+    public $dateFinish = '';
 
     /**
      * @var
@@ -53,7 +53,7 @@ class WorkerWeek extends Report
     /**
      * @var array
      */
-    public $time_clock_record = array();
+    public $timeClockRecord = array();
 
     /**
      * @var array
@@ -73,10 +73,10 @@ class WorkerWeek extends Report
 
     /**
      * @param string $workerID
-     * @param string $date_start
+     * @param string $dateStart
      * @return bool
      */
-    public function init($workerID = '', $date_start = ''): bool
+    public function init($workerID = '', $dateStart = ''): bool
     {
         if ( empty( $workerID ) ) {
             $this->messages->add( "Worker ID missing. Can't create report." );
@@ -84,37 +84,37 @@ class WorkerWeek extends Report
         }
 
         $this->worker_id = ph_validate_number( $workerID );
-        if ( !$this->get_worker( $this->worker_id ) ) {
+        if ( !$this->getWorker( $this->worker_id ) ) {
             $this->messages->add( 'Worker with ID: ' . $this->worker_id . ' doesn\'t exist. Can\'t create report.' );
             return false;
         }
-        $date_start = \Phoenix\DateTime::validate_date( $date_start, true );
+        $dateStart = \Phoenix\DateTime::validate_date( $dateStart, true );
 
-        $this->set_start_and_finish_dates( $date_start );
+        $this->setStartAndFinishDates( $dateStart );
 
 
-        $shifts = $this->setup_shifts();
+        $shifts = $this->setupShifts();
 
         if ( !empty( $shifts ) ) {
-            $this->setup_weekly_time_record();
-            $this->setup_time_clock_record();
-            $this->setup_customer_hours();
-            $this->setup_factory_hours();
+            $this->setupWeeklyTimeRecord();
+            $this->setupTimeClockRecord();
+            $this->setupCustomerHours();
+            $this->setupFactoryHours();
 
-            $this->set_a_total( $this->totals['amount']['time_value_adding'] / $this->totals['amount']['time_paid'],
+            $this->setTotal( $this->totals['amount']['time_value_adding'] / $this->totals['amount']['time_paid'],
                 'percent_paid_time_value_adding', 'percent' );
-            $this->set_a_total( $this->totals['amount']['time_non_chargeable'] / $this->totals['amount']['time_paid'],
+            $this->setTotal( $this->totals['amount']['time_non_chargeable'] / $this->totals['amount']['time_paid'],
                 'percent_paid_time_non_chargeable', 'percent' );
-            $this->set_a_total( $this->totals['amount']['total_recorded_time'] / $this->totals['amount']['time_paid'],
+            $this->setTotal( $this->totals['amount']['total_recorded_time'] / $this->totals['amount']['time_paid'],
                 'percent_paid_time_total_recorded', 'percent' );
 
-            $this->set_a_total( $this->totals['amount']['time_factory'] / $this->totals['amount']['time_paid'],
+            $this->setTotal( $this->totals['amount']['time_factory'] / $this->totals['amount']['time_paid'],
                 'percent_paid_time_factory', 'percent' );
-            $this->set_a_total( $this->totals['amount']['time_factory_with_job_number'] / $this->totals['amount']['time_paid'],
+            $this->setTotal( $this->totals['amount']['time_factory_with_job_number'] / $this->totals['amount']['time_paid'],
                 'percent_paid_time_factory_with_job_number', 'percent' );
-            $this->set_a_total( $this->totals['amount']['time_factory_without_job_number'] / $this->totals['amount']['time_paid'],
+            $this->setTotal( $this->totals['amount']['time_factory_without_job_number'] / $this->totals['amount']['time_paid'],
                 'percent_paid_time_factory_without_job_number', 'percent' );
-            $this->set_a_total( $this->totals['amount']['percent_time_lunch'] / $this->totals['amount']['time_paid'],
+            $this->setTotal( $this->totals['amount']['percent_time_lunch'] / $this->totals['amount']['time_paid'],
                 'percent_paid_time_lunch', 'percent' );
 
             return true;
@@ -126,9 +126,9 @@ class WorkerWeek extends Report
     /**
      * @return mixed
      */
-    public function setup_weekly_time_record()
+    public function setupWeeklyTimeRecord()
     {
-        $shifts = $this->get_shifts();
+        $shifts = $this->getShifts();
 
         if ( empty( $shifts ) ) {
             return false;
@@ -162,12 +162,12 @@ class WorkerWeek extends Report
             'non_chargeable' => array('type' => 'hoursminutes'),
         ] );
 
-        $this->set_a_total( $total_value_adding, 'time_value_adding' );
-        $this->set_a_total( $total_non_chargeable, 'time_non_chargeable' );
+        $this->setTotal( $total_value_adding, 'time_value_adding' );
+        $this->setTotal( $total_non_chargeable, 'time_non_chargeable' );
 
-        $this->set_a_total( $total_value_adding / $this->totals['amount']['total_recorded_time'],
+        $this->setTotal( $total_value_adding / $this->totals['amount']['total_recorded_time'],
             'percent_time_value_adding', 'percent' );
-        $this->set_a_total( $total_non_chargeable / $this->totals['amount']['total_recorded_time'],
+        $this->setTotal( $total_non_chargeable / $this->totals['amount']['total_recorded_time'],
             'percent_time_non_chargeable', 'percent' );
         return $this->weekly_time_record = $weekly_time_record;
 
@@ -176,47 +176,47 @@ class WorkerWeek extends Report
     /**
      * @return array|mixed
      */
-    public function get_weekly_time_record()
+    public function getWeeklyTimeRecord()
     {
         if ( !empty( $this->weekly_time_record ) ) {
             return $this->weekly_time_record;
         }
-        return $this->setup_weekly_time_record();
+        return $this->setupWeeklyTimeRecord();
     }
 
     /**
      * @return array
      */
-    public function setup_time_clock_record()
+    public function setupTimeClockRecord()
     {
-        $shifts = $this->get_shifts();
+        $shifts = $this->getShifts();
         if ( !empty( $shifts ) ) {
-            $time_clock_record = $this->get_days_array();
+            $timeClockRecord = $this->getDaysArray();
             $total_lunch_minutes = 0;
-            foreach ( $this->get_shifts() as $shift ) {
+            foreach ( $this->getShifts() as $shift ) {
 
                 $time_started_seconds = strtotime( $shift['time_started'] );
-                if ( $time_started_seconds < strtotime( $time_clock_record[$shift['weekday']]['start_time'] ) ) { //if start time is earlier, us this shift's start time
-                    $time_clock_record[$shift['weekday']]['start_time'] = date( 'H:i:s', $time_started_seconds );
+                if ( $time_started_seconds < strtotime( $timeClockRecord[$shift['weekday']]['start_time'] ) ) { //if start time is earlier, us this shift's start time
+                    $timeClockRecord[$shift['weekday']]['start_time'] = date( 'H:i:s', $time_started_seconds );
                 }
                 $time_finished_seconds = strtotime( $shift['time_finished'] );
-                if ( $time_finished_seconds > strtotime( $time_clock_record[$shift['weekday']]['finish_time'] ) ) { //if finish time is later, us this shift's finish time
-                    $time_clock_record[$shift['weekday']]['finish_time'] = date( 'H:i:s', $time_finished_seconds );
+                if ( $time_finished_seconds > strtotime( $timeClockRecord[$shift['weekday']]['finish_time'] ) ) { //if finish time is later, us this shift's finish time
+                    $timeClockRecord[$shift['weekday']]['finish_time'] = date( 'H:i:s', $time_finished_seconds );
                 }
 
                 if ( $shift['activity'] !== 'Lunch' ) {
-                    $time_clock_record[$shift['weekday']]['minutes'] += $shift['minutes'];
+                    $timeClockRecord[$shift['weekday']]['minutes'] += $shift['minutes'];
                 } elseif ( $shift['activity'] === 'Lunch' ) {
-                    $time_clock_record[$shift['weekday']]['lunch_start'] = date( 'H:i', strtotime( $shift['time_started'] ) );
-                    $time_clock_record[$shift['weekday']]['lunch_finish'] = date( 'H:i', strtotime( $shift['time_finished'] ) );
-                    $time_clock_record[$shift['weekday']]['lunch_minutes'] += $shift['minutes'];
+                    $timeClockRecord[$shift['weekday']]['lunch_start'] = date( 'H:i', strtotime( $shift['time_started'] ) );
+                    $timeClockRecord[$shift['weekday']]['lunch_finish'] = date( 'H:i', strtotime( $shift['time_finished'] ) );
+                    $timeClockRecord[$shift['weekday']]['lunch_minutes'] += $shift['minutes'];
                     $total_lunch_minutes += $shift['minutes'];
                 }
             }
-            if ( !empty( $time_clock_record ) ) {
+            if ( !empty( $timeClockRecord ) ) {
                 $total_pay_minutes = 0; //total mins to be paid
                 $weekend = array('Saturday', 'Sunday');
-                foreach ( $time_clock_record as $weekday => &$day_data ) {
+                foreach ( $timeClockRecord as $weekday => &$day_data ) {
 
                     $day_data['hours'] = $day_data['minutes'];
 
@@ -231,8 +231,8 @@ class WorkerWeek extends Report
                         $day_data['finish_time'] = '-';
                     }
 
-                    if ( !empty( $this->date_start ) ) {
-                        $day_data['date'] = date( 'Y-m-d', strtotime( $this->date_start . '+ ' . $day_data['ID'] . ' day' ) );
+                    if ( !empty( $this->dateStart ) ) {
+                        $day_data['date'] = date( 'Y-m-d', strtotime( $this->dateStart . '+ ' . $day_data['ID'] . ' day' ) );
                     }
                     /*
                     if ( empty( $day_data[ 'lunch_start' ] ) )
@@ -248,19 +248,19 @@ class WorkerWeek extends Report
                     $total_pay_minutes += $day_data['minutes'];
                     $day_data['total'] = $total_pay_minutes;
                 }
-                $this->set_a_total( $total_pay_minutes, 'time_paid' );
-                $this->set_a_total( $total_lunch_minutes, 'time_lunch' );
+                $this->setTotal( $total_pay_minutes, 'time_paid' );
+                $this->setTotal( $total_lunch_minutes, 'time_lunch' );
 
-                $this->set_a_total( $total_pay_minutes / $this->totals['amount']['total_recorded_time'],
+                $this->setTotal( $total_pay_minutes / $this->totals['amount']['total_recorded_time'],
                     'percent_time_paid', 'percent' );
-                $this->set_a_total( $total_lunch_minutes / $this->totals['amount']['total_recorded_time'],
+                $this->setTotal( $total_lunch_minutes / $this->totals['amount']['total_recorded_time'],
                     'percent_time_lunch', 'percent' );
 
-                $time_clock_record = ph_format_table_value( $time_clock_record, [
+                $timeClockRecord = ph_format_table_value( $timeClockRecord, [
                     'hours' => array('type' => 'hoursminutes'),
                     'total' => array('type' => 'hoursminutes'),
                 ] );
-                return $this->time_clock_record = $time_clock_record;
+                return $this->timeClockRecord = $timeClockRecord;
             }
         }
         return false;
@@ -269,124 +269,131 @@ class WorkerWeek extends Report
     /**
      * @return array
      */
-    public function get_time_clock_record()
+    public function getTimeClockRecord()
     {
-        if ( !empty( $this->time_clock_record ) ) {
-            return $this->time_clock_record;
+        if ( !empty( $this->timeClockRecord ) ) {
+            return $this->timeClockRecord;
         }
-        return $this->setup_time_clock_record();
+        return $this->setupTimeClockRecord();
     }
 
     /**
      * @return mixed
      */
-    public function setup_customer_hours()
+    public function setupCustomerHours()
     {
-        $shifts = $this->get_shifts();
+        $shifts = $this->getShifts();
         if ( !empty( $shifts ) ) {
-            $jobs_list = [];
-            foreach ( $shifts as $shift ) {
-                if ( empty( $jobs_list[$shift['job']] ) ) {
-                    $jobs_list[$shift['job']] = array(
-                        'job_ID' => $shift['job'],
-                        'customer_ID' => $shift['customer_id'],
-                        'customer' => $shift['customer'],
-                        'hours_this_week' => $shift['minutes']
-                    );
-                } else {
-                    $jobs_list[$shift['job']]['hours_this_week'] += $shift['minutes'];
-                }
-            }
-            foreach ( $jobs_list as &$job ) {
-                //$job['hours_this_week'] = $job['hours_this_week'];
-                $job['customer_cost'] = $job['hours_this_week'] * $this->get_worker( $this->worker_id )['rate'] / 60;
-            }
+            return false;
 
-            $jobs_list = ph_format_table_value( $jobs_list, [
-                    'customer_cost' => array('type' => 'currency'),
-                    'hours_this_week' => array('type' => 'hoursminutes')]
-            );
-
-            return $this->customer_hours = $jobs_list;
         }
-        return false;
+        $jobs_list = [];
+        foreach ( $shifts as $shift ) {
+            if ( empty( $jobs_list[$shift['job']] ) ) {
+                $jobs_list[$shift['job']] = array(
+                    'job_ID' => $shift['job'],
+                    'customer_ID' => $shift['customer_id'],
+                    'customer' => $shift['customer'],
+                    'hours_this_week' => $shift['minutes']
+                );
+            } else {
+                $jobs_list[$shift['job']]['hours_this_week'] += $shift['minutes'];
+            }
+        }
+        foreach ( $jobs_list as &$job ) {
+            //$job['hours_this_week'] = $job['hours_this_week'];
+            $job['customer_cost'] = $job['hours_this_week'] * $this->getWorker( $this->worker_id )['rate'] / 60;
+        }
+
+        $jobs_list = ph_format_table_value( $jobs_list, [
+                'customer_cost' => array('type' => 'currency'),
+                'hours_this_week' => array('type' => 'hoursminutes')]
+        );
+
+        return $this->customer_hours = $jobs_list;
+
     }
 
     /**
      * @return mixed
      */
-    public function get_customer_hours()
+    public
+    function getCustomerHours()
     {
         if ( !empty( $this->customer_hours ) ) {
             return $this->customer_hours;
         }
-        return $this->setup_customer_hours();
+        return $this->setupCustomerHours();
     }
 
     /**
      * @param bool $with_job_number
      * @return array|bool|mixed
      */
-    public function setup_factory_hours($with_job_number = false)
+    public
+    function setupFactoryHours($with_job_number = false)
     {
         //factory activity summary
-        $shifts = $this->get_shifts();
-        if ( !empty( $shifts ) ) {
-            $factory_shifts_no_job_number = [];
-            $factory_shifts_with_job_number = [];
+        $shifts = $this->getShifts();
+        if ( empty( $shifts ) ) {
+            return false;
+        }
+        $factory_shifts_no_job_number = [];
+        $factory_shifts_with_job_number = [];
 
-            $factory_minutes = 0; //total time spent on factory
-            $factory_minutes_without_job_number = 0;
-            $factory_minutes_with_job_number = 0;
-            foreach ( $shifts as $shift ) {
-                if ( $shift['customer'] === 'Factory' && $shift['activity'] !== 'Lunch' ) { //internal job
-                    if ( empty( $shift['job'] ) ) {
-                        $factory_shifts_no_job_number[] = $shift;
-                        $factory_minutes_without_job_number += $shift['minutes']; //add minutes of this shift to total
-                    } elseif ( $shift['job'] > 0 ) {
-                        $factory_shifts_with_job_number[] = $shift;
-                        $factory_minutes_with_job_number += $shift['minutes'];
-                    }
-                    $factory_minutes += $shift['minutes'];
-
+        $factory_minutes = 0; //total time spent on factory
+        $factory_minutes_without_job_number = 0;
+        $factory_minutes_with_job_number = 0;
+        foreach ( $shifts as $shift ) {
+            if ( $shift['customer'] === 'Factory' && $shift['activity'] !== 'Lunch' ) { //internal job
+                if ( empty( $shift['job'] ) ) {
+                    $factory_shifts_no_job_number[] = $shift;
+                    $factory_minutes_without_job_number += $shift['minutes']; //add minutes of this shift to total
+                } elseif ( $shift['job'] > 0 ) {
+                    $factory_shifts_with_job_number[] = $shift;
+                    $factory_minutes_with_job_number += $shift['minutes'];
                 }
-            }
-            if ( !empty( $factory_shifts_no_job_number ) ) {
-                $this->factory_hours_no_job_number = $this->setup_activity_summary( $factory_shifts_no_job_number );
-            }
-            if ( !empty( $factory_shifts_with_job_number ) ) {
-                $this->factory_hours_with_job_number = $this->setup_activity_summary( $factory_shifts_with_job_number );
-            }
-            $this->set_a_total( $factory_minutes,
-                'time_factory' );
-            $this->set_a_total( $factory_minutes_with_job_number,
-                'time_factory_with_job_number' );
-            $this->set_a_total( $factory_minutes_without_job_number,
-                'time_factory_without_job_number' );
+                $factory_minutes += $shift['minutes'];
 
-            $this->set_a_total( $factory_minutes / $this->totals['amount']['total_recorded_time'],
-                'percent_time_factory', 'percent' );
-            $this->set_a_total( $factory_minutes_with_job_number / $this->totals['amount']['total_recorded_time'],
-                'percent_time_factory_with_job_number', 'percent' );
-            $this->set_a_total( $factory_minutes_without_job_number / $this->totals['amount']['total_recorded_time'],
-                'percent_time_factory_without_job_number', 'percent' );
-
-            $this->set_a_total( $factory_minutes / $this->totals['amount']['total_recorded_time'], 'factory_time_percentage', 'percent' );
-
-            if ( $with_job_number ) {
-                return $this->factory_hours_with_job_number;
             }
+        }
+        if ( !empty( $factory_shifts_no_job_number ) ) {
+            $this->factory_hours_no_job_number = $this->setupActivitySummary( $factory_shifts_no_job_number );
+        }
+        if ( !empty( $factory_shifts_with_job_number ) ) {
+            $this->factory_hours_with_job_number = $this->setupActivitySummary( $factory_shifts_with_job_number );
+        }
+        $this->setTotal( $factory_minutes,
+            'time_factory' );
+        $this->setTotal( $factory_minutes_with_job_number,
+            'time_factory_with_job_number' );
+        $this->setTotal( $factory_minutes_without_job_number,
+            'time_factory_without_job_number' );
 
+        $this->setTotal( $factory_minutes / $this->totals['amount']['total_recorded_time'],
+            'percent_time_factory', 'percent' );
+        $this->setTotal( $factory_minutes_with_job_number / $this->totals['amount']['total_recorded_time'],
+            'percent_time_factory_with_job_number', 'percent' );
+        $this->setTotal( $factory_minutes_without_job_number / $this->totals['amount']['total_recorded_time'],
+            'percent_time_factory_without_job_number', 'percent' );
+
+        $this->setTotal( $factory_minutes / $this->totals['amount']['total_recorded_time'], 'factory_time_percentage', 'percent' );
+
+        if ( $with_job_number ) {
             return $this->factory_hours_with_job_number;
         }
-        return false;
+
+        return $this->factory_hours_with_job_number;
+
+
     }
 
     /**
      * @param bool $with_job_number
      * @return array|bool|mixed
      */
-    public function get_factory_hours($with_job_number = false)
+    public
+    function getFactoryHours($with_job_number = false)
     {
         if ( $with_job_number ) {
             if ( !empty( $this->factory_hours_with_job_number ) ) {
@@ -397,40 +404,44 @@ class WorkerWeek extends Report
             if ( !empty( $this->factory_hours_no_job_number ) ) {
                 return $this->factory_hours_no_job_number;
             }
-        return $this->setup_factory_hours( $with_job_number );
+        return $this->setupFactoryHours( $with_job_number );
     }
 
     /**
-     * @param string $date_start
+     * @param string $dateStart
      * @return bool
      */
-    public function set_start_and_finish_dates($date_start = ''): bool
+    public
+    function setStartAndFinishDates($dateStart = ''): bool
     {
         //get week dates
-        if ( !empty( $date_start ) ) {
-            $this->date_start = $date_start;
-            $this->date_finish = date( 'd-m-Y', strtotime( $date_start . ' + 6 days' ) );
-        } else {
-            if ( date( 'w' ) === 5 /*Friday*/ ) {
-                $date_start_timestamp = time();
-            } else {
-                $date_start_timestamp = strtotime( 'previous friday' );
-            }
-            $this->date_start = date( 'd-m-Y', $date_start_timestamp );
-            if ( date( 'w' ) === 4 /*Thursday*/ ) {
-                $date_finish_timestamp = time();
-            } else {
-                $date_finish_timestamp = strtotime( 'next thursday' );
-            }
-            $this->date_finish = date( 'd-m-Y', $date_finish_timestamp );
+        if ( !empty( $dateStart ) ) {
+            $this->dateStart = $dateStart;
+            $this->dateFinish = date( 'd-m-Y', strtotime( $dateStart . ' + 6 days' ) );
+            return true;
         }
+
+        if ( date( 'w' ) === '5' /*Friday*/ ) {
+            $dateStart_timestamp = time();
+        } else {
+            $dateStart_timestamp = strtotime( 'previous friday' );
+        }
+        $this->dateStart = date( 'd-m-Y', $dateStart_timestamp );
+
+        if ( date( 'w' ) === '4' /*Thursday*/ ) {
+            $dateFinish_timestamp = time();
+        } else {
+            $dateFinish_timestamp = strtotime( 'next thursday' );
+        }
+        $this->dateFinish = date( 'd-m-Y', $dateFinish_timestamp );
         return true;
     }
 
     /**
-     * @return  array|bool
+     * @return array
      */
-    public function query_shifts()
+    public
+    function queryShifts(): array
     {
         $shifts = $this->db->run( 'SELECT shifts.ID, shifts.job, shifts.worker, shifts.date, shifts.time_started, shifts.time_finished, shifts.activity, 
     activities.chargable, customers.name as customer, customers.ID as customer_id, users.rate
@@ -441,22 +452,23 @@ class WorkerWeek extends Report
     INNER JOIN users ON shifts.worker=users.ID
     WHERE shifts.worker = :workerid AND shifts.date >= :datestart AND shifts.date <= :datefinish', [
             'workerid' => $this->worker_id,
-            'datestart' => date( 'Y-m-d', strtotime( $this->date_start ) ),
-            'datefinish' => date( 'Y-m-d', strtotime( $this->date_finish ) )
+            'datestart' => date( 'Y-m-d', strtotime( $this->dateStart ) ),
+            'datefinish' => date( 'Y-m-d', strtotime( $this->dateFinish ) )
         ] )->fetchAll();
-        return $shifts;
+        return $shifts ?? [];
     }
 
     /**
      * @return array
      */
-    public function get_days_array(): array
+    public
+    function getDaysArray(): array
     {
         $dayList = ['Friday', 'Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'];
         //$dateo->format( 'd-m-Y' );
 
-        if ( !empty( $this->date_start ) ) {
-            $day_start = date( 'l', strtotime( $this->date_start ) );
+        if ( !empty( $this->dateStart ) ) {
+            $day_start = date( 'l', strtotime( $this->dateStart ) );
             $day_start_index = array_search( $day_start, $dayList, true );
             for ( $i = 0; $i < $day_start_index; $i++ ) {
                 $shift_day = array_shift( $dayList );
@@ -482,26 +494,27 @@ class WorkerWeek extends Report
     /**
      *
      */
-    public function output_report(): void
+    public
+    function outputReport(): void
     {
         ph_get_template_part( 'report/header/links-' . CurrentUser::instance()->getRole(), array(
             'worker_id' => $this->worker_id,
-            'date_next' => date( 'd-m-Y', strtotime( $this->date_finish ) ),
-            'date_previous' => date( 'd-m-Y', strtotime( $this->date_start . ' - 7 days' ) ),
+            'date_next' => date( 'd-m-Y', strtotime( $this->dateFinish ) ),
+            'date_previous' => date( 'd-m-Y', strtotime( $this->dateStart . ' - 7 days' ) ),
         ) );
 
 
-        if ( $this->get_shifts() ) {
+        if ( $this->getShifts() ) {
             ph_get_template_part( 'report/worker-week/weekly-shifts', array(
-                'worker' => $this->get_worker( $this->worker_id ),
-                'date_start' => $this->date_start,
-                'date_finish' => $this->date_finish,
+                'worker' => $this->getWorker( $this->worker_id ),
+                'date_start' => $this->dateStart,
+                'date_finish' => $this->dateFinish,
                 'totals' => $this->totals['formatted'],
-                'weekly_time_record' => $this->get_weekly_time_record(),
-                'time_clock_record' => $this->get_time_clock_record(),
-                'customer_hours' => $this->get_customer_hours(),
-                'factory_hours_with_job_number' => $this->get_factory_hours( true ),
-                'factory_hours_no_job_number' => $this->get_factory_hours( false )
+                'weekly_time_record' => $this->getWeeklyTimeRecord(),
+                'time_clock_record' => $this->getTimeClockRecord(),
+                'customer_hours' => $this->getCustomerHours(),
+                'factory_hours_with_job_number' => $this->getFactoryHours( true ),
+                'factory_hours_no_job_number' => $this->getFactoryHours( false )
             ) );
         }
 

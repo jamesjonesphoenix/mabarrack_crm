@@ -83,24 +83,6 @@ function ph_redirect(string $location = '', $args = [])
     exit();
 }
 
-
-/**
- * @return mixed|string
- */
-function ph_get_user_ip()
-{
-    if ( !empty( $_SERVER['HTTP_X_FORWARDED_FOR'] ) ) {
-        if ( strpos( $_SERVER['HTTP_X_FORWARDED_FOR'], ',' ) > 0 ) {
-            $addr = explode( ',', $_SERVER['HTTP_X_FORWARDED_FOR'] );
-            return trim( $addr[0] );
-        }
-
-        return $_SERVER['HTTP_X_FORWARDED_FOR'];
-    }
-
-    return $_SERVER['REMOTE_ADDR'];
-}
-
 /**
  * Taken verbatim from WordPress wp_sanitize_redirect() in pluggable.php
  *
@@ -238,289 +220,84 @@ function ph_script_filename($suffix = false)
 }
 
 /**
- * INITIALISE CONNECTION TO CRMDB
- *
- * @return \mysqli
- */
-function init_crmdb()
-{
-    // Try and connect to the database
-    $connection = new \mysqli( DB_HOST, DB_USER, DB_PASSWORD, DB_NAME, DB_PORT );
-
-    // If connection was not successful, handle the error
-    if ( $connection->connect_error ) {
-        die( "<h1>Error establishing a database connection</h1><h2><a href='https://phoenixweb.com.au/contact-us/'>Please contact</a> your nearest friendly Phoenix Web developer.</h2><p>" . $connection->connect_error . '</p>' );
-    }
-    return $connection;
-
-}
-
-////  CLOSE CONNECTION TO CRMDB  ////
-/**
- * @param $connection
- */
-function close_crmdb($connection)
-{
-    mysqli_close( $connection );
-}
-
-////  RETURN ARRAY OF FOREIGN KEYS  ////
-/**
- * @param $detail
- * @return array|bool
- */
-function get_fks($detail)
-{
-    $fks = get_rows( 'fks', '' );
-
-    if ( $detail ) {
-        return $fks;
-    }
-
-    $fnks = [];
-    foreach ( $fks as $fk ) {
-        $fkns[] = $fk['column_name'];
-    }
-    return $fkns;
-}
-
-/**
  * RETURN NAME OF DETAIL PAGE FOR A TABLE
  *
  * @param $table
  * @return bool
  */
-function get_detailpage($table)
+function getDetailPage($table)
 {
-    $dps = get_rows( 'detail_page', "WHERE table_name = '" . $table . "'" );
-    if ( $dps !== false ) {
-        return $dps[0]['page_name'];
-    }
-
-    return false;
-}
-
-////  RETURNS AN ARRAY OF THE COLUMNS IN A TABLE  ////
-/**
- * @param $table
- * @param $detail
- * @return array|bool
- */
-function get_columns($table, $detail)
-{
-    $connection = init_crmdb();
-    if ( $connection ) {
-        $sql = 'SHOW COLUMNS FROM ' . $table;
-        $result = mysqli_query( $connection, $sql );
-        close_crmdb( $connection );
-        if ( $result->num_rows > 0 ) {
-            $columns = array();
-            while ( $column = $result->fetch_assoc() ) {
-                if ( $detail ) {
-                    $columns[] = $column;
-                } else {
-                    $columns[] = $column['Field'];
-                }
-            }
-            return $columns;
-        }
-    }
-    return false;
+    $detailPages = array(
+        'jobs' => 'job.php',
+        'shifts' => 'shift.php',
+        'users' => 'worker.php',
+        'customers' => 'customer.php',
+        'furniture' => 'furniture.php'
+    );
+    return $detailPages[$table] ?? '';
 }
 
 
 /**
  * @param $query
- * @param $qa
+ * @param $queryArgs
  * @return array|bool
  */
-function get_columns_qry($query, $qa)
-{
-    $connection = init_crmdb();
-    $sql = "SELECT * FROM `qrys` WHERE name = '" . $query . "'";
-    $rsql = '';
-    $rows = array();
-    $qresult = mysqli_query( $connection, $sql );
-    if ( $qresult->num_rows > 0 ) {
-        while ( $row = $qresult->fetch_assoc() ) {
-            $rsql = $row['query']; //get the query
-        }
-        foreach ( $qa as $a => $aValue ) {
-            $rsql = str_replace( 'arg' . $a, $qa[$a], $rsql );
-        }
-        //print_r($rsql);
-        $result = mysqli_query( $connection, $rsql );
-        close_crmdb( $connection );
-        $cols = $result->fetch_fields();
-        if ( count( $cols ) !== 0 ) { //runs the query and get the rows
-            foreach ( $cols as $col ) {
-                $rows[] = $col->name;
-            }
-            return array_unique( $rows );
-        }
-
-        return false;
-    }
-
-//query failed
-    close_crmdb( $connection );
-    echo "QUERY NAME INVALID\n";
-    return false;
-
-}
-
-////  RETURN ARRAY OF ROWS FROM CUSTOM QUERY  ////
-/**
- * @param $query
- * @param $qa
- * @return array|bool
- */
-function get_rows_qry($query, $qa)
-{
-    //print_r($qa);
-    $connection = init_crmdb();
-    $sql = "SELECT * FROM `qrys` WHERE name = '" . $query . "'";
-    $rsql = '';
-    $rows = array();
-    $qresult = mysqli_query( $connection, $sql );
-    if ( $qresult->num_rows > 0 ) {
-        while ( $row = $qresult->fetch_assoc() ) {
-            $rsql = $row['query']; //get the query
-        }
-        foreach ( $qa as $a => $aValue ) {
-            $rsql = str_replace( 'arg' . $a, $qa[$a], $rsql );
-        }
-        //print_r($rsql);
-        $result = mysqli_query( $connection, $rsql );
-        close_crmdb( $connection );
-        if ( $result->num_rows > 0 ) { //runs the query and get the rows
-            while ( $row = $result->fetch_assoc() ) {
-                $rows[] = $row;
-            }
-            return $rows;
-        }
-
-        return false;
-    }
-
-//query failed
-    close_crmdb( $connection );
-    echo "QUERY NAME INVALID\n";
-    return false;
-}
-
-
-//// RETURNS NUMBER OF NOTIFCATIONS FROM GIVEN QUERY
-/**
- * @param $queryname
- * @return mixed|string
- */
-function get_notify_qry($queryname)
-{
-    $qry_rows = get_rows( 'qrys', "WHERE name = '" . $queryname . "'" );
-    $qry_row = $qry_rows[0];
-    $query = $qry_row['query'];
-
-    if ( $queryname === 'jurg_count' ) {
-        $joburg_th = get_rows( 'settings', "WHERE name = 'joburg_th'" )[0]['value'];
-        $query = str_replace( 'arg0', $joburg_th, $query );
-    }
-    $connection = init_crmdb();
-    $sql = $query;
-    $result = mysqli_query( $connection, $sql );
-    $data = mysqli_fetch_assoc( $result );
-    close_crmdb( $connection );
-    return $data['num'];
-}
-
-////  RETURNS ARRAY OF ROWS  ////
-/**
- * @param $table
- * @param string $query
- * @return array|bool
- */
-function get_rows($table, $query = '')
+function getColumnsQuery($query, $queryArgs)
 {
 
-    //ph_pdo()->run( "SELECT * FROM ? WHERE type = ?", [ $table ] )->fetch();
+    $query = PDOWrap::instance()->getRow( 'qrys', array('name' => $query) )['query'];
 
-
-    $connection = init_crmdb();
-    $sql = 'SELECT * FROM ' . $table . ' ' . $query;
-    $result = mysqli_query( $connection, $sql );
-    close_crmdb( $connection );
-    if ( !empty( $result->num_rows ) && $result->num_rows > 0 ) {
-        $rows = array();
-        while ( $row = $result->fetch_assoc() ) {
-            $rows[] = $row;
-        }
-        //print_r( $rows );
-        return $rows;
+    foreach ( $queryArgs as $argName => $argValue ) {
+        $query = str_replace( 'arg' . $argName, $argValue, $query );
     }
-    return false;
+    return array_keys( PDOWrap::instance()->run( $query )->fetch() ) ?? [];
 }
 
-////  RETURN ARRAY OF ROWS OF COLUMNS SUPPLIED  ////
 /**
- * @param $table
- * @param $columns
- * @param $query
- * @return array|bool
- */
-function get_rows_ext($table, $columns, $query)
-{
-    $connection = init_crmdb();
-    $col_str = '';
-    foreach ( $columns as $f => $fValue ) {
-        if ( $f === (count( $columns ) - 1) ) {
-            $col_str .= $fValue;
-        } else {
-            $col_str .= $fValue . ', ';
-        }
-    }
-    $sql = 'SELECT ' . $col_str . ' FROM ' . $table . ' ' . $query;
-    $result = mysqli_query( $connection, $sql );
-    close_crmdb( $connection );
-    if ( $result->num_rows > 0 ) {
-        $rows = array();
-        while ( $row = $result->fetch_assoc() ) {
-            $rows[] = $row;
-        }
-        return $rows;
-    }
-    return false;
-}
-
-
-
-/**
- * GENERATE TABLES FROM $COLS AND $ROWS
+ * RETURN ARRAY OF ROWS FROM CUSTOM QUERY
  *
- * @param $cols columns for the table
- * @param $rows rows for the table
+ * @param $query
+ * @param $queryArgs
+ * @return array|bool
+ */
+function getRowsQuery($query, $queryArgs)
+{
+    $query = PDOWrap::instance()->getRow( 'qrys', array('name' => $query) )['query'];
+    foreach ( $queryArgs as $argName => $argValue ) {
+        $query = str_replace( 'arg' . $argName, $argValue, $query );
+    }
+    return PDOWrap::instance()->run( $query )->fetchAll() ?? [];
+}
+
+/**
+ * GENERATE TABLES FROM $columns AND $ROWS
+ *
+ * @param $columns
+ * @param $rows
  * @param string $view_button_args table name
- * @param $canview
  * @return string
  */
-function generate_table($cols, $rows, $view_button_args = '')
+function generateTable($columns, $rows, $view_button_args = '')
 {
-    $html_str = "<table class='tablesorter table table-hover'>\n  <thead>\n    <tr>";
+    $html_str = "<table class='tablesorter table table-hover'><thead><tr>";
     $first = true;
-    //print_r($cols);
+    //print_r($columns);
     //print_r($rows);
     $has_status = false;
     $colidx = 0;
-    foreach ( $cols as $column ) {
+    foreach ( $columns as $column ) {
         if ( $column !== 'status' ) {
             if ( in_array( $column, ['ID', 'priority'] ) ) {
-                $html_str .= "<th class='w50'>" . str_replace( '_', ' ', $column ) . '</th>';
-            } else if ( $colidx === (count( $cols ) - 1) ) {
-                $html_str .= "<th class='desctd'>" . str_replace( '_', ' ', $column ) . '</th>';
+                $class = 'w50';
+            } else if ( $colidx === (count( $columns ) - 1) ) {
+                $class = 'desctd';
             } else if ( in_array( $column, ['worker', 'name'] ) ) {
-                $html_str .= "<th class='w200'>" . str_replace( '_', ' ', $column ) . '</th>';
+                $class = 'w200';
             } else {
-                $html_str .= "<th class='w100'>" . str_replace( '_', ' ', $column ) . '</th>';
+                $class = 'w100';
             }
+            $html_str .= '<th class="' . $class . '"  >' . str_replace( '_', ' ', $column ) . '</th>';
         } else {
             $has_status = true;
         }
@@ -530,11 +307,11 @@ function generate_table($cols, $rows, $view_button_args = '')
     if ( !empty( $view_button_args ) && CurrentUser::instance()->getRole() === 'admin' ) {
         if ( !is_array( $view_button_args ) ) {
             $view_button_args = array(
-                array('table' => $view_button_args, 'detail_page' => get_detailpage( $view_button_args )));
+                array('table' => $view_button_args, 'detail_page' => getDetailPage( $view_button_args )));
         }
 
         foreach ( $view_button_args as $key => &$view_button ) {
-            $view_button['detail_page'] = get_detailpage( $view_button['table'] );
+            $view_button['detail_page'] = getDetailPage( $view_button['table'] );
             if ( (!empty( $view_button['detail_page'] )) ) {
                 $html_str .= "<td class='viewth'></td>";
             }
@@ -548,36 +325,36 @@ function generate_table($cols, $rows, $view_button_args = '')
         }
     }
 
-    $html_str .= "</tr>\n  </thead>\n";
-    $html_str .= "  <tbody>\n";
+    $html_str .= '</tr></thead>';
+    $html_str .= '<tbody>';
 
     if ( $rows === false ) {
-        $html_str .= '    <tr><td class="noresult" colspan="' . (count( $cols ) + 1) . '">' . "no results found </td></tr>\n";
+        $html_str .= '    <tr><td class="noresult" colspan="' . (count( $columns ) + 1) . '">No results found</td></tr>';
     } else {
-        foreach ( $rows as $rkey => $row ) {
+        foreach ( $rows as $row ) {
 
             if ( $has_status ) {
                 $html_str .= "    <tr class='" . $row['status'] . "'>";
             } else {
                 $html_str .= '    <tr>';
             }
-            foreach ( $cols as $column ) {
+            foreach ( $columns as $column ) {
                 //if ( empty( $row[ $column ] ) )
                 //  $row[ $column ] = '';
                 if ( $column !== 'status' ) {
                     if ( ($column === 'job') && ($row[$column] === 0) ) { //row job id is 0 (internal)
                         $row[$column] = 'Factory';
                     } else if ( $column === 'furniture' ) {
-                        $rjson = json_decode( $row[$column], true );
-                        $rstr = '';
+                        $rowJSON = json_decode( $row[$column], true );
+                        $rowString = '';
 
-                        foreach ( $rjson as $ff ) {
-                            $ffid = current( array_keys( $ff ) );
+                        foreach ( $rowJSON as $ff ) {
+                            $furnitureID = current( array_keys( $ff ) );
                             $ffq = reset( $ff );
-                            $ffn = get_rows( 'furniture', 'WHERE ID = ' . $ffid )[0]['name'];
-                            $rstr .= $ffq . ' ' . ucfirst( $ffn ) . ($ffq > 1 ? 's<br>' : '<br>');
+                            $furnitureName = PDOWrap::instance()->getRow( 'furniture', array('ID' => $furnitureID) )['name'];
+                            $rowString .= $ffq . ' ' . ucfirst( $furnitureName ) . ($ffq > 1 ? 's<br>' : '<br>');
                         }
-                        $row[$column] = $rstr;
+                        $row[$column] = $rowString;
                     } else if ( (strpos( $column, 'cost' ) !== false) || (strpos( $column, 'price' ) !== false) || (strpos( $column, 'rate' ) !== false) ) {
                         $row[$column] = ph_format_currency( $row[$column] );
                     } else if ( strpos( $column, 'time' ) !== false ) {
@@ -608,253 +385,42 @@ function generate_table($cols, $rows, $view_button_args = '')
 
                 }
             }
-            $html_str .= "</tr></a>\n";
+            $html_str .= '</tr></a>';
         }
     }
-    $html_str .= "  </tbody>\n</table>\n";
+    $html_str .= '</tbody></table>';
     return $html_str;
 }
 
-////  RETURN HTML OF TABLE  ////
 /**
+ * RETURN HTML OF TABLE
+ *
  * @param $table
- * @param $qry
  * @return bool|string
  */
-function get_table($table, $qry)
+function getTable($table)
 {
     if ( !PDOWrap::instance()->tableExists( $table ) ) {
         return "table '" . $table . "' not found<br><br>";;
     }
-    $rows = get_rows( $table, $qry );
+    $rows = PDOWrap::instance()->getRows( $table );
     if ( !$rows ) {
         return false;
     }
-    return "\n" . generate_table( array_keys( $rows[0] ), $rows, $table );
+    return generateTable( array_keys( $rows[0] ), $rows, $table );
 }
 
-////  CHECK IF TABLE EXISTS AND RETURN HTML OF TABLE  ////
+
 /**
- * @param $table
- * @param $cols
- * @param $qry
- * @return bool|string
- */
-function get_table_ext($table, $cols, $qry)
-{
-    if ( !PDOWrap::instance()->tableExists( $table ) ) {
-        return "table '" . $table . "' not found<br><br>";;
-    }
-
-    $columns = $cols;
-    $rows = get_rows_ext( $table, $cols, $qry );
-    if ( !$columns || !$rows ) {
-        return false;
-    }
-    return "\n" . generate_table( $columns, $rows, $table );
-}
-
-////  ADD ROW (TABLE,COLUMNS,DATA)  ////
-/**
- * @param $table
- * @param $cols
- * @param $data
- * @return bool|string
- */
-function add_row($table, $cols, $data)
-{
-    if ( !PDOWrap::instance()->tableExists( $table ) ) {
-        return false;
-    }
-
-    $connection = init_crmdb();
-    $sql = 'INSERT INTO ' . $table . '  (';
-    foreach ( $cols as $c => $cValue ) {
-        if ( $c === (count( $cols ) - 1) ) {
-            $sql .= $cValue;
-        } else {
-            $sql .= $cValue . ', ';
-        }
-    }
-    $sql .= ') VALUES (';
-    foreach ( $data as $d => $dValue ) {
-        /*
-        if (strpos($cols[$d], "date") !== false) {
-            $date = array_filter(explode("-", $data[$d]));
-            if (count($date) > 1) {
-                $data[$d] = $date[2] . "-" . $date[1] . "-" . $date[0];
-            } else {
-                $data[$d] = "NULL";
-            }
-        }
-        */
-        if ( $d === (count( $data ) - 1) ) {
-            if ( $dValue !== 'NULL' ) {
-                $sql .= "'" . mysqli_real_escape_string( $connection, $dValue ) . "'";
-            } else {
-                $sql .= mysqli_real_escape_string( $connection, $dValue );
-            }
-        } else if ( $dValue !== 'NULL' ) {
-            $sql .= "'" . mysqli_real_escape_string( $connection, $dValue ) . "', ";
-        } else {
-            $sql .= mysqli_real_escape_string( $connection, $dValue ) . ', ';
-        }
-    }
-    $sql .= ')';
-    //echo $sql;
-    $qry = mysqli_query( $connection, $sql );
-    if ( $qry ) {
-        return true;
-    }
-
-    $errorString = '<b>Error: ' . $sql . '<br>' . mysqli_error( $connection ) . '</b>';
-    close_crmdb( $connection );
-    return $errorString;
-}
-
-////  UPDATE ROW (TABLE,COLUMNS,DATA)  ////
-/**
- * @param $table
- * @param $cols
- * @param $data
- * @return bool|string
- */
-function update_row($table, $cols, $data)
-{
-
-    if ( !PDOWrap::instance()->tableExists( $table ) ) {
-        return false;
-    }
-    $connection = init_crmdb();
-    $sql = 'UPDATE ' . $table . ' SET ';
-    for ( $c = 1; $c < count( $cols ); $c++ ) {
-        if ( $c == (count( $cols ) - 1) ) {
-            if ( $data[$c] !== 'NULL' ) {
-                $sql .= $cols[$c] . " = '" . mysqli_real_escape_string( $connection, $data[$c] ) . "'";
-            } else {
-                $sql .= $cols[$c] . ' = ' . mysqli_real_escape_string( $connection, $data[$c] );
-            }
-        } else if ( $data[$c] !== 'NULL' ) {
-            $sql .= $cols[$c] . " = '" . mysqli_real_escape_string( $connection, $data[$c] ) . "', ";
-        } else {
-            $sql .= $cols[$c] . ' = ' . mysqli_real_escape_string( $connection, $data[$c] ) . ', ';
-        }
-    }
-    $sql .= ' WHERE ID = ' . $data[0];
-    $qry = mysqli_query( $connection, $sql );
-    if ( $qry ) {
-        return true;
-    }
-
-    $errorString = '<b>Error: ' . $sql . '<br>' . mysqli_error( $connection ) . '</b>';
-    close_crmdb( $connection );
-    return $errorString;
-}
-
-////  GENERATE FORM WITH $columns TO ADD / EDIT AN ENTRY TO $table  ////
-/**
- * @param $title
- * @param $table
- * @param $columns
- * @param $values
- * @param $skipcols
- * @return string
- */
-function generate_form($title, $table, $columns, $values, $skipcols)
-{
-    $skpcols = [];
-    if ( $skipcols !== false ) {
-        $skpcols = $skipcols;
-    }
-
-    $fks = get_fks( true ); //load list of foreign keys
-    $form_html = '<h4>' . $title . "</h4>\n";
-    if ( $values !== false ) {
-        $form_html .= "<form action='add_entry.php?update' method='post' class='form'>\n";
-        if ( isset( $values['ID'] ) ) {
-            $form_html .= "<input type='hidden' name='ID' value='" . $values['ID'] . "' />\n";
-        }
-    } else {
-        $form_html .= "<form action='add_entry.php' method='post' class='form'>\n";
-    }
-    $form_html .= "<input type='hidden' name='table' value='" . $table . "' />\n";
-    $form_html .= "<table>\n";
-    foreach ( $columns as $col ) {
-        //Work out the column type
-        $col_type = '';
-        $col_name = $col['Field'];
-
-        if ( in_array( $col_name, $skpcols ) ) { //skip this column if in $skpcols
-            continue;
-        }
-
-        if ( strpos( $col['Type'], 'int' ) !== false ) {
-            $col_type = 'number';
-        } else {
-            $col_type = $col['Type'];
-        }
-
-        $isfk = false;
-        if ( ($values !== false) && ($col_name === 'ID') ) { //edit page
-            continue;
-        }
-
-        $form_html .= '<tr><td>' . $col_name . '</td><td>';
-        //echo $col_name . "\n";
-        foreach ( $fks as $fk ) {
-            if ( $col_name == $fk['column_name'] ) { //column is a foreign key
-                $form_html .= "<select name='" . $col_name . "' class='" . $col_name . "_dd form-control' autocomplete='off'>\n";
-
-                $fk_rows = get_rows( $fk['table_name'], '' );
-                //echo $fk['table_name'] . "\n";
-                foreach ( $fk_rows as $fkr ) {
-                    //print_r($fkr);
-                    //echo "\n";
-                    //select the option that matches the value
-                    if ( ($values !== false) && (isset( $values[$col_name] )) && ($fkr['ID'] === $values[$col_name]) ) {
-                        $form_html .= '<option selected="selected" value="' . $fkr['ID'] . '">' . $fkr['ID'] . "</option>\n";
-                        echo 'success';
-                    } else {
-                        $form_html .= '<option value="' . $fkr['ID'] . '">' . $fkr['ID'] . "</option>\n";
-                    }
-                }
-                $form_html .= "</select>\n";
-                $isfk = true;
-                break;
-            }
-        }
-        if ( !$isfk ) {
-            if ( $col_type === 'time' ) {
-                $form_html .= "<select name='" . $col_name . "' class='time_dd form-control' autocomplete='off'>\n";
-                if ( ($values !== false) && (isset( $values[$col_name] )) ) {
-                    $form_html .= timedd( $values[$col_name] );
-                } else {
-                    $form_html .= timedd( '' );
-                }
-                $form_html .= "</select>\n";
-            } else if ( ($values !== false) && (isset( $values[$col_name] )) ) {
-                $form_html .= "<input name='" . $col_name . "' type='" . $col_type . "' value='" . $values[$col_name] . "' class='form-control' data-validation='" . $col_type . "'/>\n";
-            } else {
-                $form_html .= "<input name='" . $col_name . "' type='" . $col_type . "' class='form-control' data-validation='" . $col_type . "'/>\n";
-            }
-        }
-
-        $form_html .= "</td></tr>\n";
-
-    }
-    $form_html .= "</table><input type='submit' value='Submit' class='btn btn-default'>\n</form>\n";
-    return $form_html;
-}
-
-////  GENERATE TIME DROPDOWN OPTIONS  ////
-/**
+ * GENERATE TIME DROPDOWN OPTIONS
+ *
  * @param $ts
  * @return string
  */
-function timedd($ts)
+function timeDropDown($ts)
 {
 
-    $timedd_html = '';
+    $html = '';
     for ( $t = 8; $t < 18; $t++ ) {
         $t_str = $t . ':';
         if ( $t < 10 ) {
@@ -863,79 +429,16 @@ function timedd($ts)
         //$mins = ["00", "15", "30", "45"];
         for ( $m = 0; $m < 60; $m += 6 ) {
             $time = $t_str . str_pad( $m, 2, '0', STR_PAD_LEFT );
-            //echo $ts . "=" . ($time . ":00"); echo " ";
-            if ( ($time . ':00') === $ts ) {
-                //echo "Match\n";
-                $timedd_html .= "<option selected='selected' value='" . $time . ":00'>" . $time . '</option>';
-            } else {
-                $timedd_html .= "<option value='" . $time . ":00'>" . $time . '</option>';
-            }
+            $selected = ($time . ':00') === $ts ? ' selected="selected"' : '';
+
+            $html .= '<option' . $selected . ' value="' . $time . ':00">' . $time . '</option>';
         }
-        $timedd_html .= "\n";
     }
 
 
-    return $timedd_html;
+    return $html;
 }
 
-////  GENERATE TABLE SEARCH FORM  ////
-/**
- * @param $table
- * @return string
- */
-function generate_searchform($table)
-{
-
-    $cols = get_columns( $table, true );
-    $fks = get_fks( true );
-
-    $form_html = "<form action='search.php' method='get' class='form form-inline sform'>\n";
-    $form_html .= "<input type='hidden' name='t' value='" . $table . "' />\n";
-
-    // DROPDOWN LIST OF COLUMNS //
-    $form_html .= "<select name='col' id='searchcolumn' class='form-control' autocomplete='off'>\n";
-    foreach ( $cols as $col ) {
-        $form_html .= "<option value='" . $col['Field'] . "'>" . $col['Field'] . "</option>\n";
-    }
-    $form_html .= "</select>\n";
-
-    // INPUT FIELD (TEXT,NUMBER,DATE,DROPDOWN) FOR EACH COLUMN
-    foreach ( $cols as $col ) {
-        //Work out the column type
-        $col_type = '';
-        $col_name = $col['Field'];
-
-        if ( strpos( $col['Type'], 'int' ) !== false ) {
-            $col_type = 'number';
-        } else {
-            $col_type = $col['Type'];
-        }
-
-        $isfk = false;
-
-        foreach ( $fks as $fk ) {
-            if ( $col_name == $fk['column_name'] ) { //
-                $rows = get_rows( $fk['table_name'], '' );
-
-                $form_html .= "<select name='" . $col_name . "' class='" . $col_name . "_input sci form-control' autocomplete='off'>\n";
-                $form_html .= "<option value='any' selected='selected'>any</option>\n";
-                foreach ( $rows as $row ) {
-                    $form_html .= '<option value="' . $row['ID'] . '">' . $row['ID'] . "</option>\n";
-                }
-                $form_html .= "</select>\n";
-                $isfk = true;
-            }
-        }
-        if ( !$isfk ) {
-            $form_html .= "<input name='" . $col_name . "' type='" . $col_type . "' class='" . $col_name . "_input sci form-control' data-validation='" . $col_type . "'/>\n";
-        }
-    }
-
-    // SEACH BUTTON
-    $form_html .= "<div class='searchbtn'><input type='submit' value='-' class='btn btn-default'><img src='img/search.svg'/></div>\n</form>\n";
-
-    return $form_html;
-}
 
 /**
  * @param $pid
@@ -943,51 +446,56 @@ function generate_searchform($table)
  * @param $group
  * @return string
  */
-function generate_groupbyform($pid, $table, $group)
+function generateGroupByForm($pid, $table, $group)
 {
-    $cols = array_diff( get_columns( $table, false ), ['ID', 'description', 'activity_comments', 'activity_values', 'minutes', 'time_started', 'time_finished', 'pin', 'type', 'name'] );
-    $gbf_html = '';
-    if ( count( $cols ) > 0 ) {
-        $gbf_html = "<form action='page.php' method='get' class='form form-inline gbform'>\n";
-        $gbf_html .= "<input type='hidden' name='id' value='" . $pid . "' />\n";
-        $gbf_html .= "<input type='submit' value='Group By' class='btn btn-default'><select name='g' class='groupby_dd form-control' autocomplete='off'>\n";
-        $gbf_html .= "<option value=''>none</option>";
-        foreach ( $cols as $col ) {
-            if ( $col !== 'furniture' ) {
-                if ( $col == $group ) {
-                    $gbf_html .= "<option value='" . $col . "' selected='selected'>" . str_replace( '_', ' ', $col ) . '</option>';
-                } else {
-                    $gbf_html .= "<option value='" . $col . "'>" . str_replace( '_', ' ', $col ) . '</option>';
+    $columns = array_diff(
+        PDOWrap::instance()->getColumns( $table ), ['ID', 'description', 'activity_comments', 'activity_values', 'minutes', 'time_started', 'time_finished', 'pin', 'type', 'name']
+    );
+    if ( count( $columns ) > 0 ) {
+        ?>
+        <form action='page.php' method='get' class='form form-inline gbform'>
+            <input type='hidden' name='id' value='<?php echo $pid; ?>'/>
+            <input type='submit' value='Group By' class='btn btn-default'><select name='g'
+                                                                                  class='groupby_dd form-control'
+                                                                                  autocomplete='off'>
+                <option value=''>none</option>
+                <?php
+                foreach ( $columns as $column ) {
+                    if ( $column !== 'furniture' ) {
+                        $selected = $column == $group ? ' selected="selected"' : '';
+                        echo sprintf( '<option value="' . $column . '"%s>' . str_replace( '_', ' ', $column ) . '</option>', $selected );
+                    }
                 }
-            }
-        }
-        $gbf_html .= '</select></form>';
+                ?>
+            </select>
+        </form>
+        <?php
     }
-
-    return $gbf_html;
+    //return $gbf_html;
 }
 
-////  GENERATE ACTIVITY ADDER PANEL  ////
 /**
+ * GENERATE ACTIVITY ADDER PANEL
+ *
  * @return string
  */
-function addactivitypanel()
+function addActivityPanel()
 {
-    $panel_html = "<div class='row'>\n";
-    $acts = get_rows( 'activities', '' );
-    foreach ( $acts as $act ) { //get each activity
-        $panel_html .= "<div class='col-md-3'>\n<div class='btn btn-default act_btn' id='act_" . $act['ID'] . "' name='" . $act['ID'] . "'>\n";
-        $panel_html .= $act['name'];
-        $panel_html .= "</div></div>\n";
+    $panel_html = "<div class='row'>";
+    $activities = PDOWrap::instance()->getRows( 'activities' );
+    foreach ( $activities as $activity ) { //get each activity
+        $panel_html .= "<div class='col-md-3'><div class='btn btn-default act_btn' id='act_" . $activity['ID'] . "' name='" . $activity['ID'] . "'>";
+        $panel_html .= $activity['name'];
+        $panel_html .= "</div></div>";
     }
     $panel_html .= '</div>';
-    $panel_html .= "<div class='row act_options'>\n";
-    foreach ( $acts as $act ) { //get each activity
-        $act_ops = array_filter( explode( ',', $act['options'] ) ); //get activity options
-        $panel_html .= "<div class='col-md-12 act_op' id='actopt_" . $act['ID'] . "'>\n";
-        if ( !empty( $act_ops ) ) { //if this activity has options, add them
+    $panel_html .= "<div class='row act_options'>";
+    foreach ( $activities as $activity ) { //get each activity
+        $activityOptions = array_filter( explode( ',', $activity['options'] ) ); //get activity options
+        $panel_html .= "<div class='col-md-12 act_op' id='actopt_" . $activity['ID'] . "'>";
+        if ( !empty( $activityOptions ) ) { //if this activity has options, add them
             $cb = 0;
-            foreach ( $act_ops as $op ) {
+            foreach ( $activityOptions as $op ) {
                 $opvals = explode( '|', $op ); //split options into name and type
                 $panel_html .= "<span class='opname'>" . $opvals[0] . '</span>';
 
@@ -1000,94 +508,73 @@ function addactivitypanel()
         $panel_html .= '</div>';
     }
     $panel_html .= '</div>';
-    $panel_html .= "<textarea class='act_comment'></textarea>\n";
+    $panel_html .= "<textarea class='act_comment'></textarea>";
     return $panel_html;
 }
 
-////  GENERATE SHIFT ADDER PANEL  ////
 /**
- * @param $j_id
- * @param $w_id
+ * GENERATE SHIFT ADDER PANEL
+ *
+ * @param $jobID
+ * @param $workerID
  * @return string
  */
-function addshiftform($j_id, $w_id)
+function addShiftForm($jobID, $workerID)
 {
-    $form_html = "<form action='add_entry.php' method='post' class='form' id='shft_add_form'><input type='hidden' name='table' value='shifts' /><input type='hidden' name='job' value='" . $j_id . "' /><input type='hidden' name='worker' value='" . $w_id . "' />";
-    $form_html .= "<table><tr><td>Date</td><td><input type='date' name='date' class='form-control' data-validation='date' autocomplete='off' value='" . date( 'd-m-Y' ) . "'/></td></tr><tr><td>Time Started</td><td><select name='time_started' class='time_dd form-control' autocomplete='off'>";
-    $form_html .= timedd( '' );
-    $form_html .= "</select></td></tr><tr><td>Time Finished</td><td><select name='time_finished' class='time_dd form-control' autocomplete='off'>\n";
-    $form_html .= timedd( '' );
-    $form_html .= "</select></td></tr><tr><td colspan='2'><h3>Activities</h3><div class='shft_acts'>no activities</div></td></tr></table><input type='submit' value='(F)inish Shift' class='btn btn-default shft_finish' ></form>";
-    return $form_html;
+
+    return "<form action='add_entry.php' method='post' class='form' id='shft_add_form'><input type='hidden' name='table' value='shifts' /><input type='hidden' name='job' value='"
+        . $jobID
+        . "' /><input type='hidden' name='worker' value='"
+        . $workerID
+        . "' /><table><tr><td>Date</td><td><input type='date' name='date' class='form-control' data-validation='date' autocomplete='off' value='"
+        . date( 'd-m-Y' )
+        . "'/></td></tr><tr><td>Time Started</td><td><select name='time_started' class='time_dd form-control' autocomplete='off'>"
+        . timeDropDown( '' )
+        . "</select></td></tr><tr><td>Time Finished</td><td><select name='time_finished' class='time_dd form-control' autocomplete='off'>"
+        . timeDropDown( '' ) .
+        "</select></td></tr><tr><td colspan='2'><h3>Activities</h3><div class='shft_acts'>no activities</div></td></tr></table><input type='submit' value='(F)inish Shift' class='btn btn-default shft_finish' ></form>";
 }
 
-////  GENERATE JS FOR LIST OF ACTIVITIES AND THEIR OPTIONS  ////
 /**
- * @return string
- */
-function loadactivitiesjs()
-{
-    $ac_js = '<script>';
-    $ac_js .= "acts_list = [];\n";
-    $acts = get_rows( 'activities', '' );
-    foreach ( $acts as $act ) { //get each activity
-        $act_ops = array_filter( explode( ',', $act['options'] ) ); //get activity options
-
-        if ( !empty( $act_ops ) ) { //if this activity has options, add them
-            $ac_js .= 'acts_list[' . $act['ID'] . '] = {name:"' . $act['name'] . '", options:{';
-            $firstop = true;
-            foreach ( $act_ops as $op ) {
-                $opvals = explode( '|', $op ); //split options into name and type
-                if ( !$firstop ) {
-                    $ac_js .= ',';
-                }
-                $firstop = false;
-                $ac_js .= '"' . $opvals[0] . '":"' . $opvals[1] . '"';
-            }
-            $ac_js .= '}};';
-        } else {
-            $ac_js .= 'acts_list[' . $act['ID'] . '] = {name:"' . $act['name'] . '", options:-1};';
-        }
-
-        $ac_js .= "\n";
-    }
-    $ac_js .= 'console.log(acts_list);</script>';
-
-    return $ac_js;
-}
-
-//// HEADER FOR DETAIL PAGES
-/**
+ * HEADER FOR DETAIL PAGES
+ *
  * @param $prepageurl
  * @param $prepagename
  * @param $title
  * @return string
  */
-function getdetailpageheader($prepageurl, $prepagename, $title)
+function getDetailPageHeader($prepageurl, $prepagename, $title)
 {
     echo '<a href="' . $prepageurl . '" class="page-header-breadcrumb"><div class="btn btn-default">◀ &nbsp; ' . $prepagename . '</div></a>';
-    $redirecturl = ph_script_filename() . '?' . $_SERVER['QUERY_STRING'];
+    $redirectURL = ph_script_filename() . '?' . $_SERVER['QUERY_STRING'];
     if ( isset( $_GET['add'] ) ) { //add a new worker
-        $redirecturl = $prepageurl;
+        $redirectURL = $prepageurl;
         echo '<h2>Add ' . $title . "</h2><div class='panel panel-default' style='position: relative'>";
     } else {
-        echo '<h2>' . $title . " Details</h2><div class='panel panel-default' style='position: relative'><input type='button' id='editbtn' value='Edit' class='btn btn-default'/><input type='button' id='cancelbtn' value='Cancel' class='btn btn-default'/>";
+        echo '<h2>' . $title . " Details</h2>
+<div class='panel panel-default' style='position: relative'>
+<input type='button' id='editbtn' value='Edit' class='btn btn-default'/>
+<input type='button' id='cancelbtn' value='Cancel' class='btn btn-default'/>";
     }
-    return $redirecturl;
+    return $redirectURL;
 }
 
-//// FOOTER FOR DETAIL PAGES
 /**
+ * FOOTER FOR DETAIL PAGES
+ *
  * @param $formid
  * @param $table
- * @param $redirecturl
+ * @param $redirectURL
  */
-function getdetailpagefooter($formid, $table, $redirecturl)
+function getDetailPageFooter($formid, $table, $redirectURL)
 {
-    echo '</div><script>';
-    if ( !empty( $redirecturl ) ) {
+    ?>
+    </div>
+    <script>
+    <?php
+    if ( !empty( $redirectURL ) ) {
         echo '
-        redirecturl = "' . $redirecturl . '";
+        redirecturl = "' . $redirectURL . '";
         pagefunctions();
         ';
     }
@@ -1161,8 +648,7 @@ function ph_format_hours_minutes($minutes, $order_of_magnitude = false)
 function ph_format_currency($value, $order_of_magnitude = false)
 {
     if ( is_numeric( $value ) ) {
-        $formatted_value = ph_format_shim_insert( $value, $order_of_magnitude ) . '$' . number_format( $value, 2 );
-        return $formatted_value;
+        return ph_format_shim_insert( $value, $order_of_magnitude ) . '$' . number_format( $value, 2 );
     }
     return $value;
 

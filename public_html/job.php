@@ -3,7 +3,7 @@
 namespace Phoenix;
 
 include '../src/crm_init.php';
-$redirecturl = getdetailpageheader( 'page.php?id=3', 'Jobs', 'Job' );
+$redirecturl = getDetailPageHeader( 'page.php?id=3', 'Jobs', 'Job' );
 if ( isset( $_GET['add'] ) ) { //add a new job
     //add job form
     ?>
@@ -129,7 +129,7 @@ if ( isset( $_GET['add'] ) ) { //add a new job
                                                autocomplete='off'>
                             <?php
                             $jobStatuses = PDOWrap::instance()->getRows( 'settings', array('name' => array(
-                                'value' => '%jobstat%',
+                                'value' => 'jobstat',
                                 'operator' => 'LIKE')
                             ) );
 
@@ -241,10 +241,10 @@ if ( isset( $_GET['add'] ) ) { //add a new job
                 $shiftRows[$shiftKey]['activity'] = $activities->getDisplayName( $shiftRow['activity'] ) ?? '';
             }
         }
-        echo generate_table( array('worker', 'date', 'time_started', 'time_finished', 'minutes', 'activity'), $shiftRows, 'shifts' );
+        echo generateTable( array('worker', 'date', 'time_started', 'time_finished', 'minutes', 'activity'), $shiftRows, 'shifts' );
 
     } else {
         echo 'no result';
     }
 }
-getdetailpagefooter( '#job_form', 'jobs', 'page.php?id=1' );
+getDetailPageFooter( '#job_form', 'jobs', 'page.php?id=1' );

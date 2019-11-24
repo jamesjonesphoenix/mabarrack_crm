@@ -3,7 +3,7 @@
 namespace Phoenix;
 
 include '../src/crm_init.php';
-getdetailpageheader( 'page.php?id=5', 'Customers', 'Customer' );
+getDetailPageHeader( 'page.php?id=5', 'Customers', 'Customer' );
 ?>
     <form id='customer_form' class='detailform'>
     <table>
@@ -75,7 +75,7 @@ if ( isset( $_GET['add'] ) ) { //add a new customer
                 'description'
             );
 
-            echo generate_table( $columns, $jobRows, 'jobs' );
+            echo generateTable( $columns, $jobRows, 'jobs' );
 
         } else {
             echo 'no result';
@@ -83,4 +83,4 @@ if ( isset( $_GET['add'] ) ) { //add a new customer
     }
 }
 
-getdetailpagefooter( '#customer_form', 'customers', 'page.php?id=1' );
+getDetailPageFooter( '#customer_form', 'customers', 'page.php?id=1' );

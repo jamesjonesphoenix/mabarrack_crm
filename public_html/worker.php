@@ -3,7 +3,7 @@
 namespace Phoenix;
 
 include '../src/crm_init.php';
-$redirecturl = getdetailpageheader( 'page.php?id=6', 'Workers', 'Worker' );
+$redirecturl = getDetailPageHeader( 'page.php?id=6', 'Workers', 'Worker' );
 if ( isset( $_GET['add'] ) ) { //add a new worker
     //Add Worker Form
     ?>
@@ -81,9 +81,9 @@ if ( isset( $_GET['add'] ) ) { //add a new worker
         }
 
         $columns = array('ID', 'job', 'date', 'time_started', 'time_finished', 'minutes', 'activity');
-        echo generate_table( $columns, $shiftRows, 'shifts' );
+        echo generateTable( $columns, $shiftRows, 'shifts' );
     } else {
         echo 'no result';
     }
 }
-getdetailpagefooter( '#worker_form', 'users', 'page.php?id=1' );
+getDetailPageFooter( '#worker_form', 'users', 'page.php?id=1' );

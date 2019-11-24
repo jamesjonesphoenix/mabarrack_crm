@@ -47,11 +47,11 @@ class Report extends AbstractCRM
      * @param int $total_employee_cost
      * @return mixed
      */
-    public function setup_activity_summary($shifts = array())
+    public function setupActivitySummary($shifts = array())
     {
 
         if ( empty( $shifts ) ) {
-            $shifts = $this->get_shifts();
+            $shifts = $this->getShifts();
             if ( empty( $shifts ) ) {
                 return false;
             }
@@ -104,19 +104,19 @@ class Report extends AbstractCRM
     /**
      * @return mixed
      */
-    public function get_shifts()
+    public function getShifts()
     {
         if ( !empty( $this->shifts ) ) {
             return $this->shifts;
         }
-        return $this->setup_shifts();
+        return $this->setupShifts();
     }
 
     /**
      * @param $workerID
      * @return bool|mixed
      */
-    public function get_worker($workerID)
+    public function getWorker($workerID)
     {
         if ( empty( $workerID ) ) {
             return false;
@@ -138,9 +138,9 @@ class Report extends AbstractCRM
     /**
      * @return mixed
      */
-    public function setup_shifts()
+    public function setupShifts()
     {
-        $shifts = $this->query_shifts();
+        $shifts = $this->queryShifts();
         if ( empty( $shifts ) ) {
             return false;
         }
@@ -171,10 +171,10 @@ class Report extends AbstractCRM
             $shift['cost'] = ($shift['minutes'] / 60) * $shift['rate'];
             $shift['weekday'] = date( 'l', strtotime( $shift['date'] ) );
             $total_recorded_minutes += $shift['minutes'];
-            $total_employee_cost += ($shift['minutes'] / 60) * $this->get_worker( $shift['worker'] )['rate'];
+            $total_employee_cost += ($shift['minutes'] / 60) * $this->getWorker( $shift['worker'] )['rate'];
         }
-        $this->set_a_total( $total_recorded_minutes );
-        $this->set_a_total( $total_employee_cost, 'employee_cost', 'money' );
+        $this->setTotal( $total_recorded_minutes );
+        $this->setTotal( $total_employee_cost, 'employee_cost', 'money' );
 
         return $this->shifts = $shifts;
     }
@@ -182,7 +182,7 @@ class Report extends AbstractCRM
     /**
      * @return array|bool
      */
-    public function query_shifts()
+    public function queryShifts()
     {
         return false;
     }
@@ -193,7 +193,7 @@ class Report extends AbstractCRM
      * @param string $type
      * @return mixed
      */
-    public function set_a_total($amount = '', $handle = 'total_recorded_time', $type = 'time')
+    public function setTotal($amount = '', $handle = 'total_recorded_time', $type = 'time')
     {
         switch( $type ) {
             case 'money':
@@ -215,7 +215,7 @@ class Report extends AbstractCRM
      * @param string $sum_type
      * @return array|bool|mixed
      */
-    public function get_total($sum_type = '')
+    public function getTotal($sum_type = '')
     {
         if ( empty( $sum_type ) ) {
             if ( !empty( $this->totals ) ) {

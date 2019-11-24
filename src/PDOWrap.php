@@ -33,9 +33,9 @@ class PDOWrap
     protected $tables;
 
     /**
-     * @return PDOWrap|null
+     * @return PDOWrap
      */
-    public static function instance(): ?PDOWrap
+    public static function instance(): PDOWrap
     {
         if ( self::$_instance === null ) {
             self::$_instance = new self();
@@ -108,7 +108,7 @@ class PDOWrap
      */
     public function getRow(string $table = '', $queryArgs = [], $columns = 'all')
     {
-        return $this->getData( $table, $columns, $queryArgs, true );
+        return $this->get( $table, $queryArgs, $columns, true );
 
     }
 
@@ -120,7 +120,7 @@ class PDOWrap
      */
     public function getRows(string $table = '', $queryArgs = [], $columns = 'all')
     {
-        return $this->getData( $table, $columns, $queryArgs, false );
+        return $this->get( $table, $queryArgs, $columns, false );
     }
 
     /**
@@ -167,7 +167,7 @@ class PDOWrap
                 $sqlWhereString = $key;
                 if ( is_array( $queryArg ) ) {
                     $sqlWhereString .= ' ' . $queryArg['operator'] . ' :' . $key;
-                } else if ( $queryArg === null ) {
+                } else if ( $queryArg === null || $queryArg === 'NULL' ) {
                     $sqlWhereString .= ' IS NULL';
                 } else {
                     $sqlWhereString .= '=:' . $key;
@@ -185,13 +185,19 @@ class PDOWrap
      */
     private function getRunArgs($queryArgs = []): array
     {
-
         if ( empty( $queryArgs ) || !is_array( $queryArgs ) ) {
             return [];
         }
         foreach ( $queryArgs as $key => $queryArg ) {
-            if ( !empty( $queryArg ) ) {
-                $args[$key] = $queryArg['value'] ?? $queryArg ?? '';
+            if ( isset( $queryArg['value'] ) && $queryArg['value'] !== null && $queryArg['value'] !== 'NULL' ) {
+
+                if ( $queryArg['operator'] === 'LIKE' ) {
+                    $args[$key] = '%' . $queryArg['value'] . '%';
+                } else {
+                    $args[$key] = $queryArg['value'];
+                }
+            } elseif ( isset( $queryArg ) && $queryArg !== null && $queryArg !== 'NULL' ) {
+                $args[$key] = $queryArg;
             }
         }
         return $args ?? [];
@@ -204,15 +210,16 @@ class PDOWrap
      * @param bool $singleRow
      * @return array|bool
      */
-    private function getData(string $table = '', $columns = 'all', $queryArgs = [], $singleRow = false)
+    private function get(string $table = '', $queryArgs = [], $columns = 'all', $singleRow = false)
     {
         if ( empty( $table ) ) {
-            $this->messages->add( 'No table name supplied to getData method.' );
+            $this->messages->add( 'No table name supplied to get method.' );
             return false;
         }
         if ( !$columnString = $this->getColumnSQLFragment( $columns ) ) {
             return false;
         }
+
         $sql = 'SELECT ' . $columnString . ' FROM ' . $table;
 
         $sql .= $this->getWhereSQLFragment( $queryArgs );
@@ -226,6 +233,89 @@ class PDOWrap
         }
 
 
+        if ( !empty( $result ) ) {
+            return $result;
+        }
+        return false;
+    }
+
+    /**
+     * @param string $table
+     * @param array $data
+     * @return bool|string
+     */
+    public function add(string $table = '', array $data = [])
+    {
+        if ( !$this->tableExists( $table ) ) {
+            return false;
+        }
+
+        $sql = 'INSERT INTO ' . $table . ' (';
+        $sql .= implode( ',', array_keys( $data ) );
+        $sql .= ') VALUES (';
+        $dataStrings = [];
+        foreach ( $data as $key => $value ) {
+            //$quotes = $value === null || strtolower( $value ) === strtolower( 'NULL' ) || is_numeric( $value ) ? '' : '"';
+            $quotes = '';
+            $dataStrings[] = $quotes . ':' . $key . $quotes;
+        }
+        $sql .= implode( ', ', $dataStrings );
+        $sql .= ')';
+
+
+        $args = $this->getRunArgs( $data );
+
+        $result = $this->run( $sql, $args );
+        if ( !empty( $result ) ) {
+            return $result;
+        }
+        return false;
+    }
+
+    /**
+     * @param string $table
+     * @param array $data
+     * @param array $queryArgs
+     * @return bool|false|PDOStatement
+     */
+    public function update(string $table = '', array $data = [], array $queryArgs = [])
+    {
+        if ( !$this->tableExists( $table ) ) {
+            return false;
+        }
+        $sql = 'UPDATE ' . $table . ' SET ';
+        $dataStrings = [];
+        foreach ( $data as $key => $value ) {
+            //$quotes = $value === null || strtolower( $value ) === strtolower( 'NULL' ) || is_numeric( $value ) ? '' : '"';
+            $quotes = '';
+            $dataStrings[] = $key . '=' . $quotes . ':' . $key . $quotes;
+        }
+        $sql .= implode( ', ', $dataStrings );
+
+        $sql .= $this->getWhereSQLFragment( $queryArgs );
+        $args = array_merge( $this->getRunArgs( $data ), $this->getRunArgs( $queryArgs ) );
+
+        $result = $this->run( $sql, $args );
+        if ( !empty( $result ) ) {
+            return $result;
+        }
+        return false;
+    }
+
+    /**
+     * @param string $table
+     * @param array $queryArgs
+     * @return bool|false|PDOStatement
+     */
+    public function delete(string $table = '', array $queryArgs = [])
+    {
+        if ( !$this->tableExists( $table ) ) {
+            return false;
+        }
+        $sql = 'DELETE FROM ' . $table;
+        $sql .= $this->getWhereSQLFragment( $queryArgs );
+        $args = $this->getRunArgs( $queryArgs );
+        $result = $this->run( $sql, $args );
         if ( !empty( $result ) ) {
             return $result;
         }
@@ -248,8 +338,21 @@ class PDOWrap
         return false;
     }
 
-    public function updateRow(string $table = '', $columns = 'all', $queryArgs = [])
+    /**
+     * @param string $table
+     * @return array
+     */
+    public function getColumns(string $table = ''): array
     {
-
+        if ( !$this->tableExists( $table ) ) {
+            return [];
+        }
+        $result = $this->run( 'SHOW COLUMNS FROM ' . $table )->fetchAll( 0 );
+        foreach ( $result as $row ) {
+            $columns[] = $row['Field'];
+        }
+        return $columns ?? [];
     }
+
+
 }

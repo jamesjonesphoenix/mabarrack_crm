@@ -4,7 +4,7 @@ namespace Phoenix;
 
 include '../src/crm_init.php';
 
-echo get_table( $conn, 'depots', 'all');
+echo getTable( 'depots');
 ?>
     <h4>Add Depot:</h4>
     <form action="add_depot.php" method="post" class="form-inline">
@@ -13,7 +13,7 @@ echo get_table( $conn, 'depots', 'all');
         <input type="submit" value="Submit" class="btn btn-default">
     </form>
 <?php
-echo get_table( $conn, 'trucks', 'all');
+echo getTable( 'trucks');
 
 ?>
     <h4>Add Truck:</h4>
@@ -24,7 +24,7 @@ echo get_table( $conn, 'trucks', 'all');
         <input type="submit" value="Submit" class="btn btn-default">
     </form>
 <?php
-echo get_table( $conn, 'workers', 'all');
+echo getTable(  'workers');
 ?>
     <h4>Add Worker:</h4>
     <form action="add_worker.php" method="post" class="form-inline">
@@ -33,7 +33,7 @@ echo get_table( $conn, 'workers', 'all');
         <input type="submit" value="Submit" class="btn btn-default">
     </form>
 <?php
-echo get_table( $conn, 'jobs', 'all');
+echo getTable(  'jobs');
 ?>
     <h4>Add Job:</h4>
     <form action="add_job.php" method="post" class="form-inline">
@@ -44,7 +44,7 @@ echo get_table( $conn, 'jobs', 'all');
         <input type="submit" value="Submit" class="btn btn-default">
     </form>
 <?php
-echo get_table( $conn, 'shifts', 'all');
+echo getTable(  'shifts');
 ?>
     <h4>Add Shift:</h4>
     <form action="add_shift.php" method="post" class="form-inline">
