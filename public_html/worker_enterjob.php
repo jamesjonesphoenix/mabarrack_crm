@@ -126,7 +126,6 @@ $newsText = nl2br( $newsText );
                         }
                     }
                     $lastJob = PDOWrap::instance()->run( 'SELECT jobs.*, customers.name as customer FROM jobs INNER JOIN customers ON jobs.customer=customers.ID WHERE jobs.ID=:jobID', ['jobID' => $lastShift['job']] )->fetchAll()[0];
-d($lastShift);
 
 
 
@@ -136,7 +135,7 @@ d($lastShift);
                     $activity = $activities->getName($lastShift['activity']);
                     echo !empty($activity) ? '<br><h3 class="well">' . $activity . '</h3>' : '';
 
-                    echo !empty($lastJob['description']) ? '<br><h3 class="well">' . $lastJob['description'] . '</h3>' : '';
+                    echo !empty($lastJob['description']) && $lastJob['job'] !== 0 ? '<br><h3 class="well">' . $lastJob['description'] . '</h3>' : '';
 
 
                 } else {
