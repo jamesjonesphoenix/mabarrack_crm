@@ -135,7 +135,7 @@ $newsText = nl2br( $newsText );
                     $activity = $activities->getName($lastShift['activity']);
                     echo !empty($activity) ? '<br><h3 class="well">' . $activity . '</h3>' : '';
 
-                    echo !empty($lastJob['description']) && $lastJob['job'] !== 0 ? '<br><h3 class="well">' . $lastJob['description'] . '</h3>' : '';
+                    echo !empty($lastJob['description']) && $lastShift['job'] !== 0 ? '<br><h3 class="well">' . $lastJob['description'] . '</h3>' : '';
 
 
                 } else {
