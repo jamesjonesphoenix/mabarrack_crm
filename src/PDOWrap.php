@@ -81,6 +81,21 @@ class PDOWrap
         return call_user_func_array( array($this->pdo, $method), $args );
     }
 
+    public function __sleep() {
+        return []; //Pass the names of the variables that should be serialised here
+    }
+
+    public function __wakeup() {
+        $default_options = [
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+            PDO::ATTR_EMULATE_PREPARES => false,
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+        ];
+        $dsn = 'mysql:host=' . DB_HOST . ';dbname=' . DB_NAME . ';port=' . DB_PORT . 'charset=utf8';
+        $this->pdo = new PDO( $dsn, DB_USER, DB_PASSWORD, $default_options );
+    }
+
+
     /**
      * Helper function to run prepared statements
      *
@@ -242,9 +257,9 @@ class PDOWrap
     /**
      * @param string $table
      * @param array $data
-     * @return bool|string
+     * @return bool
      */
-    public function add(string $table = '', array $data = [])
+    public function add(string $table = '', array $data = []): bool
     {
         if ( !$this->tableExists( $table ) ) {
             return false;
@@ -255,30 +270,31 @@ class PDOWrap
         $sql .= ') VALUES (';
         $dataStrings = [];
         foreach ( $data as $key => $value ) {
-            //$quotes = $value === null || strtolower( $value ) === strtolower( 'NULL' ) || is_numeric( $value ) ? '' : '"';
-            $quotes = '';
-            $dataStrings[] = $quotes . ':' . $key . $quotes;
+            if ( $value === null || strtolower( $value ) === strtolower( 'NULL' ) ) {
+                $dataStrings[] = 'NULL';
+            } else {
+                $dataStrings[] = ':' . $key;
+            }
         }
         $sql .= implode( ', ', $dataStrings );
         $sql .= ')';
 
-
         $args = $this->getRunArgs( $data );
 
-        $result = $this->run( $sql, $args );
-        if ( !empty( $result ) ) {
-            return $result;
+        if ( empty( $args ) ) {
+            return $this->pdo->query( $sql );
         }
-        return false;
+        $statement = $this->pdo->prepare( $sql );
+        return $statement->execute( $args );
     }
 
     /**
      * @param string $table
      * @param array $data
      * @param array $queryArgs
-     * @return bool|false|PDOStatement
+     * @return bool
      */
-    public function update(string $table = '', array $data = [], array $queryArgs = [])
+    public function update(string $table = '', array $data = [], array $queryArgs = []): bool
     {
         if ( !$this->tableExists( $table ) ) {
             return false;
@@ -286,28 +302,30 @@ class PDOWrap
         $sql = 'UPDATE ' . $table . ' SET ';
         $dataStrings = [];
         foreach ( $data as $key => $value ) {
-            //$quotes = $value === null || strtolower( $value ) === strtolower( 'NULL' ) || is_numeric( $value ) ? '' : '"';
-            $quotes = '';
-            $dataStrings[] = $key . '=' . $quotes . ':' . $key . $quotes;
+            if ( $value === null || strtolower( $value ) === strtolower( 'NULL' ) ) {
+                $dataStrings[] = $key . '=NULL';
+            } else {
+                $dataStrings[] = $key . '=:' . $key ;
+            }
         }
         $sql .= implode( ', ', $dataStrings );
 
         $sql .= $this->getWhereSQLFragment( $queryArgs );
         $args = array_merge( $this->getRunArgs( $data ), $this->getRunArgs( $queryArgs ) );
 
-        $result = $this->run( $sql, $args );
-        if ( !empty( $result ) ) {
-            return $result;
+        if ( empty( $args ) ) {
+            return $this->pdo->query( $sql );
         }
-        return false;
+        $statement = $this->pdo->prepare( $sql );
+        return $statement->execute( $args );
     }
 
     /**
      * @param string $table
      * @param array $queryArgs
-     * @return bool|false|PDOStatement
+     * @return bool
      */
-    public function delete(string $table = '', array $queryArgs = [])
+    public function delete(string $table = '', array $queryArgs = []): bool
     {
         if ( !$this->tableExists( $table ) ) {
             return false;
@@ -315,11 +333,12 @@ class PDOWrap
         $sql = 'DELETE FROM ' . $table;
         $sql .= $this->getWhereSQLFragment( $queryArgs );
         $args = $this->getRunArgs( $queryArgs );
-        $result = $this->run( $sql, $args );
-        if ( !empty( $result ) ) {
-            return $result;
+
+        if ( empty( $args ) ) {
+            return $this->pdo->query( $sql );
         }
-        return false;
+        $statement = $this->pdo->prepare( $sql );
+        return $statement->execute( $args );
     }
 
     /**

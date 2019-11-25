@@ -27,7 +27,7 @@ if ( isset( $_GET['add'] ) ) { //add a new customer
     $furnitureRow = PDOWrap::instance()->getRow( 'furniture', array('ID' => $furnitureID) );
 
 
-    if ( $furnitureRow !== false ) {
+    if ( !empty( $furnitureRow ) ) {
 
         //Customer details
         ?>
@@ -35,17 +35,17 @@ if ( isset( $_GET['add'] ) ) { //add a new customer
             <table>
                 <tr>
                     <td><b>ID: </b><input type='text' class='form-control viewinputp w300' name='ID' autocomplete='off'
-                                          value='<?php echo $furnitureRow[' ID']; ?>'/>
+                                          value='<?php echo $furnitureRow['ID']; ?>'/>
                     </td>
                 </tr>
                 <tr>
                     <td><b>Name: </b><input type='text' class='form-control viewinput w300' name='name'
-                                            autocomplete='off' value='<?php echo $furnitureRow[' name']; ?>'/>
+                                            autocomplete='off' value='<?php echo $furnitureRow['name']; ?>'/>
                     </td>
                 </tr>
             </table>
             <input type='submit' value='Update' class='btn btn-default' id='updatebtn'>
-        </form>';
+        </form>
         <?php
     } else {
         echo 'no result';

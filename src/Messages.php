@@ -203,7 +203,6 @@ class Messages extends Base
                         $messageString .= ' add a new ';
                     }
                 }
-                //d( $message[ 'data' ] );
 
                 if ( $message['table'] !== 'users' ) {
                     $messageString .= ' ' . rtrim( $message['table'], 's' );
@@ -274,7 +273,6 @@ class Messages extends Base
     {
         $emailArgs = $this->emailArgs;
         if ( empty( $emailArgs['from'] ) || empty( $emailArgs['to'] ) || empty( $emailArgs['subject'] ) ) {
-            d( $emailArgs );
             $this->add( 'Can\'t email messages. Email args missing' );
             return false;
         }

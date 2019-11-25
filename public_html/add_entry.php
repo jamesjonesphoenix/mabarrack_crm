@@ -6,17 +6,15 @@ include '../src/crm_init.php';
 
 $data = [];
 $queryArgs = [];
-
-if ( empty( $_POST['ID'] ) && $_POST['ID'] !== false ) {
-    unset( $_POST['ID'] );
-}
+//if ( !empty( $_POST['ID'] ) && $_POST['ID'] !== false ) {
+  //  unset( $_POST['ID'] );
+//}
 
 foreach ( $_POST as $key => $value ) {
-    if ( $key === 'table' ) {
-        continue;
-    }
 
     switch( $key ) {
+        case 'table':
+            break;
         case 'ID':
             if ( isset( $_GET['update'] ) ) {
                 $queryArgs = array('ID' => $value);
@@ -81,21 +79,33 @@ $message = array(
 if ( isset( $_GET['update'] ) ) {
     $result = PDOWrap::instance()->update( $table, $data, $queryArgs );
     $message['action'] = 'update';
-} else {
-    $result = PDOWrap::instance()->add( $table, $data );
-    $message['action'] = 'add';
-}
 
-if ( $result ) {
-    $message['message'] = $result;
-    $message['status'] = 'failure';
-    echo 'Failed';
+    if ( empty( $result ) ) {
+        echo 'Failed to update ' . trim($table,'s');
+    } else {
+        echo 'Successfully updated ' . trim($table,'s');
+    }
 } else {
-    echo 'Success';
+
+
+    $result = PDOWrap::instance()->add( $table, $data );
+
+    $message['action'] = 'add';
+    if ( empty( $result ) ) {
+        echo 'Failed to add ' . trim($table,'s');
+    } else {
+        echo 'Successfully added ' . trim($table,'s');
+    }
+}
+if ( empty( $result ) ) {
+    $message['status'] = 'failure';
+} else {
     $message['status'] = 'success';
 }
+
 if ( empty( $_SESSION['message'] ) || !is_array( $_SESSION['message'] ) ) {
     $_SESSION['message'] = array();
 }
 $_SESSION['message'][] = $message;
+
 die();

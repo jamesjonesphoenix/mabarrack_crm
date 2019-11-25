@@ -134,7 +134,6 @@ $newsText = nl2br( $newsText );
                     $activities = new Activities(PDOWrap::instance());
                     $activity = $activities->getName($lastShift['activity']);
                     echo !empty($activity) ? '<br><h3 class="well">' . $activity . '</h3>' : '';
-d($lastShift);
                     echo !empty($lastJob['description']) && $lastShift['job'] !== 0 ? '<br><h3 class="well">' . $lastJob['description'] . '</h3>' : '';
 
 

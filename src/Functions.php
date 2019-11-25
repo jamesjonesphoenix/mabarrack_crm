@@ -449,7 +449,7 @@ function timeDropDown($ts)
 function generateGroupByForm($pid, $table, $group)
 {
     $columns = array_diff(
-        PDOWrap::instance()->getColumns( $table ), ['ID', 'description', 'activity_comments', 'activity_values', 'minutes', 'time_started', 'time_finished', 'pin', 'type', 'name']
+        PDOWrap::instance()->getColumns( $table ), ['ID', 'description', 'activity_comments', 'activity_values', 'minutes', 'time_started', 'time_finished', 'pin', 'type', 'name','password']
     );
     if ( count( $columns ) > 0 ) {
         ?>

@@ -39,7 +39,7 @@ foreach ( $activities->getActivities() as $activity ) {
     }
     $unsortedActivities[$activity['category']][$activityType][$activity['name']] = $activity;
 }
-d( $unsortedActivities );
+
 //terrible code
 if ( $jobID > 0 ) {
     $activityCategories = array(

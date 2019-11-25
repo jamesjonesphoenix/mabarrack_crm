@@ -115,21 +115,17 @@ include '../src/crm_init.php'; ?>
                 $jobRow = PDOWrap::instance()->getRow( 'jobs', array('ID' => $shiftRow['job']) );
 
                 if (!empty( $jobRow['furniture'] )) {
-                //d($jobRow['furniture']);
                 $furnitureJSON = json_decode( $jobRow['furniture'], true );
-               // d($furnitureJSON);
-               // d($shiftRow['furniture']);
+
                 foreach($furnitureJSON as $furn){
                     if(!empty($furn[$shiftRow['furniture']])){
                         $furniture = $furn[$shiftRow['furniture']];
                     }
                 }
                 $furniture = $furniture ?? [];
-                //d($furniture);
                 //$furnitureID = current( array_keys( $furniture ) ) ?? 0;
                 //$furnitureQuantity = reset( $furniture );
                 $furnitureQuantity = !empty($furniture) ? $furniture : '';
-                //d($furnitureID);
                 $furnitureName = !empty( $shiftRow['furniture'] ) ? PDOWrap::instance()->getRow( 'furniture', array('ID' => $shiftRow['furniture']) )['name'] : 'Unknown or N/A';
                 $furnitureString = $furnitureQuantity . ' ' . $furnitureName ;
                 $furnitureString .= !empty($furnitureQuantity) && $furnitureQuantity > 1 ? 's' : '';

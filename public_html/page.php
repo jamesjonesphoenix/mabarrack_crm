@@ -83,19 +83,19 @@ if ( $pageQueryString === '' ) {
 
         $activityClass = new Activities( PDOWrap::instance() );
 
-        foreach ( $pageRows as $pkey => $p_row ) {
-            $activityRow = PDOWrap::instance()->getRow( 'activities', 'ID in (' . $p_row['activity'] . ')' );
-            $pageRows[$pkey]['activity'] = $activityClass->getDisplayName( $activityRow['ID'] );
+        foreach ( $pageRows as $pageKey => $pageRow ) {
+            $activityRow = PDOWrap::instance()->getRow( 'activities', 'ID in (' . $pageRow['activity'] . ')' );
+            $pageRows[$pageKey]['activity'] = $activityClass->getDisplayName( $activityRow['ID'] );
         }
     }
     /*display correct Minutes on shifts page*/
     if ( array_key_exists( 'time_started', $pageRows[0] ) && array_key_exists( 'time_finished', $pageRows[0] ) ) {
-        foreach ( $pageRows as $pkey => $p_row ) {
-            $shift_minutes = (strtotime( $pageRows[$pkey]['time_finished'] ) - strtotime( $pageRows[$pkey]['time_started'] )) / 60;
+        foreach ( $pageRows as $pageKey => $pageRow ) {
+            $shift_minutes = (strtotime( $pageRows[$pageKey]['time_finished'] ) - strtotime( $pageRows[$pageKey]['time_started'] )) / 60;
             if ( $shift_minutes < 0 ) {
                 $shift_minutes = '<strong>Error: Finish time before start time</strong>';
             }
-            $pageRows[$pkey]['minutes'] = $shift_minutes;
+            $pageRows[$pageKey]['minutes'] = $shift_minutes;
         }
     }
 } else {
@@ -117,13 +117,14 @@ if ( $pageQueryString === '' ) {
 if ( ($p_groupcolumn != '') and ($pageRows !== false) ) {
     $groups = []; //List of unique group values
     //Generate a list of all the unique groups
-    foreach ( $pageRows as $p_row ) {
+    foreach ( $pageRows as $pageRow ) {
         //Add the group if not already in the list
-        if ( !in_array( $p_row[$p_groupcolumn], $groups ) ) {
-            $groups[] = $p_row[$p_groupcolumn];
+
+        if ( !in_array( $pageRow[$p_groupcolumn], $groups ) ) {
+            $groups[] = $pageRow[$p_groupcolumn];
         }
     }
-
+    //$groups = array_keys($pageRows[0]);
     //Go through each group and output their rows
     foreach ( $groups as $group ) {
         $groupString = '';
@@ -139,11 +140,11 @@ if ( ($p_groupcolumn != '') and ($pageRows !== false) ) {
         echo sprintf( '<div class="row%s"><div class="col-md-12"><div class="panel panel-default"><h3>%s</h3>', $groupString, $heading );
         $g_rows = []; //List of rows that belong to this group
         //Generate list of rows with this group value
-        foreach ( $pageRows as $p_row ) {
-            if ( $p_row[$p_groupcolumn] == $group ) {
-                unset( $p_row[$p_groupcolumn] );
+        foreach ( $pageRows as $pageRow ) {
+            if ( $pageRow[$p_groupcolumn] == $group ) {
+                unset( $pageRow[$p_groupcolumn] );
 
-                $g_rows[] = $p_row;
+                $g_rows[] = $pageRow;
             }
         }
 
