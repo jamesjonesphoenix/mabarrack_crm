@@ -13,32 +13,33 @@ $furnitureID = !empty( $_GET['furniture_id'] ) ? ph_validate_number( $_GET['furn
 $unsortedActivities = [];
 $allActivityTypes = [];
 
-$activities = new Activities( PDOWrap::instance() );
+$activityURLs = [];
 
+$activityFactory = new ActivityFactory(PDOWrap::instance(),Messages::instance());
 
-foreach ( $activities->getActivities() as $activity ) {
-    if ( $activity['name'] === 'Lunch' ) {
+foreach ($activityFactory->getAll() as $activity ) {
+    if ( $activity->name === 'Lunch' ) {
         continue;
     }
-    if ( empty( $jobID ) && !$activities->factoryOnly( $activity['ID'] ) ) {
+    if ( empty( $jobID ) && !$activity->factoryOnly ) {
         continue;
     }
-    if ( $jobID > 0 && $activities->factoryOnly( $activity['ID'] ) ) {
+    if ( $jobID > 0 && $activity->factoryOnly ) {
         continue;
     }
-    if ( !$activities->isActive( $activity['ID'] ) ) {
+    if ( !$activity->isActive() ) {
         continue;
     }
 
-    $href = strtolower( $activity['name'] ) === strtolower( 'other' ) ? 'othercomment' : 'nextshift';
-    $activity['href'] = sprintf( '%s.php?job_id=%s&activity_id=%s&furniture_id=%s', $href, $jobID, $activity['ID'], $furnitureID );
+    $href = strtolower( $activity->name ) === strtolower( 'other' ) ? 'othercomment' : 'nextshift';
+    $activityURLs[$activity->id] = sprintf( '%s.php?job_id=%s&activity_id=%s&furniture_id=%s', $href, $jobID, $activity->id, $furnitureID );
 
-    $activityType = $activity['type'] ?? 'Manual';
-    if ( !in_array( $activityType, $allActivityTypes, true ) ) {
-        $allActivityTypes[] = $activityType;
+    if ( !in_array( $activity->type, $allActivityTypes, true ) ) {
+        $allActivityTypes[] = $activity->type;
     }
-    $unsortedActivities[$activity['category']][$activityType][$activity['name']] = $activity;
+    $unsortedActivities[$activity->category][$activity->type][$activity->name] = $activity;
 }
+
 
 //terrible code
 if ( $jobID > 0 ) {
@@ -61,6 +62,7 @@ if ( $jobID > 0 ) {
 } else {
     $sortedActivities = $unsortedActivities;
 }
+
 ?>
 
 <div class="row panel panel-default actsbtns">
@@ -86,11 +88,11 @@ if ( $jobID > 0 ) {
                     <td class="activityIcon">
                         <?php if ( !empty( $activityTypes[$type] ) ) :
                             foreach ( $activityTypes[$type] as $activity ) : ?>
-                                <a href="<?php echo $activity['href']; ?>">
+                                <a href="<?php echo $activityURLs[$activity->id]; ?>">
                                     <div class="activityIconImageContainer"><img
-                                                src="img/activities/<?php echo $activity['image']; ?>"
-                                                alt="<?php echo $activity['name']; ?>"/></div>
-                                    <span><?php echo $activities->getDisplayName( $activity['ID'] ) ?></span>
+                                                src="img/activities/<?php echo $activity->image; ?>"
+                                                alt="<?php echo $activity->name; ?>"/></div>
+                                    <span><?php echo $activity->displayName; ?></span>
                                 </a>
                             <?php
                             endforeach;

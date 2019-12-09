@@ -40,8 +40,8 @@ foreach ( $_POST as $key => $value ) {
             }
             break;
         case 'password':
-            $ph_user = new User();
-            $data[$key] = password_hash( $value, PASSWORD_BCRYPT, $ph_user->getCryptoOptions() );
+            $ph_user = new User( PDOWrap::instance(), Messages::instance() );
+            $data[$key] = password_hash( $value, PASSWORD_BCRYPT, $ph_user->cryptoOptions() );
             break;
 
         default:

@@ -6,7 +6,7 @@ namespace Phoenix;
     <h1><?php echo $worker[ 'name' ]; ?></h1>
     <h3 style='float:right; text-transform: none'><?php echo $date_start; ?> to <?php echo $date_finish; ?></h3>
     <h2>Weekly Time Record</h2>
-    <?php if ( CurrentUser::instance()->getRole() === 'admin' ) : ?>
+    <?php if ( CurrentUser::instance()->role === 'admin' ) : ?>
         <h3>Rate: $<?php echo $worker[ 'rate' ]; ?>/hour</h3>
     <?php
     endif;

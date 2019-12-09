@@ -75,7 +75,7 @@ class Messages extends Base
      * @param array $emailArgs
      * @return array
      */
-    public function emailArgs(array $emailArgs = []): array
+    protected function emailArgs(array $emailArgs = []): array
     {
         if ( !empty( $this->_emailArgs ) ) {
             return $this->_emailArgs;
@@ -170,7 +170,7 @@ class Messages extends Base
         switch( $message['code'] ) {
             case 'denied':
                 if ( $this->currentUser ) {
-                    $messageString = 'You were redirected to the ' . $this->currentUser->getRole() . ' homepage because you are not allowed to visit ';
+                    $messageString = 'You were redirected to the ' . $this->currentUser->role . ' homepage because you are not allowed to visit ';
                 } else {
                     $messageString = 'You were redirected to this page because you are not allowed to visit ';
                 }

@@ -29,12 +29,12 @@ if ( $script_filename !== 'login') { ?>
     <div class="col-md-3 col-sm-4 col-xs-1">
         <a href='login.php?logout=true' class="btn btn-default logout">Log Out</a>
         <?php
-        if ( CurrentUser::instance()->getRole() === 'admin') {
+        if ( CurrentUser::instance()->role === 'admin') {
             echo "<a href='settings.php' id='setbtn' class='btn btn-default'><img src='img/admin/settings.svg'></a>";
         }
         ?>
     </div>
-    <?php echo "<div class='usrnm'><p>Welcome <b>" .  CurrentUser::instance()->getName() . '</b></p></div></div>';
+    <?php echo "<div class='usrnm'><p>Welcome <b>" .  CurrentUser::instance()->name . '</b></p></div></div>';
     ph_messages()->display();
 } else { ?>
     <div class="container"><?php

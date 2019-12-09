@@ -73,7 +73,6 @@ class Roles
                 'othercomment',
                 'report',
                 'reports',
-                'startlunch',
                 'worker_enterjob',
             ),
             'level' => 1

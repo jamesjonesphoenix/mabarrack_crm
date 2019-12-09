@@ -4,6 +4,13 @@ namespace Phoenix;
 
 include '../src/crm_init.php';
 $redirecturl = getDetailPageHeader( 'page.php?id=3', 'Jobs', 'Job' );
+
+$customerFactory = new CustomerFactory(PDOWrap::instance(),Messages::instance());
+$customers = $customerFactory->getAll();
+
+$furnitureFactory = new FurnitureFactory(PDOWrap::instance(),Messages::instance());
+$allFurniture = $furnitureFactory->getAll();
+
 if ( isset( $_GET['add'] ) ) { //add a new job
     //add job form
     ?>
@@ -34,10 +41,8 @@ if ( isset( $_GET['add'] ) ) { //add a new job
             <tr>
                 <td><b>Customer: </b><select class='form-control' name='customer' autocomplete='off'>
                         <?php
-                        $customerRows = PDOWrap::instance()->getRows( 'customers' );
-
-                        foreach ( $customerRows as $customerRow ) {
-                            echo '<option value="' . $customerRow['ID'] . '">' . $customerRow['name'] . '</option>';
+                        foreach ( $customers as $customer ) {
+                            echo '<option value="' . $customer->id . '">' . $customer->name . '</option>';
                         }
                         ?>
                     </select></td>
@@ -74,9 +79,8 @@ if ( isset( $_GET['add'] ) ) { //add a new job
             <tr class='furrow'>
                 <td><select class='form-control w300 fur-name' autocomplete='off'>
                         <?php
-                        $furnitures = PDOWrap::instance()->getRows( 'furniture' );
-                        foreach ( $furnitures as $furniture ) {
-                            echo '<option value="' . $furniture['ID'] . '">' . ucfirst( $furniture['name'] ) . '</option>';
+                        foreach ( $allFurniture as $furniture ) {
+                            echo '<option value="' . $furniture->id . '">' . ucfirst( $furniture->name ) . '</option>';
                         }
                         ?>
                     </select></td>
@@ -94,9 +98,15 @@ if ( isset( $_GET['add'] ) ) { //add a new job
     </form>
     <?php
 } else { //view existing job
+
     $jobID = ph_validate_number( $_GET['id'] );
-    $jobRow = PDOWrap::instance()->getRow( 'jobs', array('ID' => $jobID) );
-    if ( $jobRow !== false ) {
+    $jobFactory = new JobFactory( PDOWrap::instance(), Messages::instance() );
+    //$job = EntityFactory::instance()->getJob( $jobID );
+
+    $job = $jobFactory->getJob( $jobID );
+
+    if ( $job->exists ) {
+
         //job details form
         ?>
         <a href='delete_job.php?id=<?php echo $jobID; ?>' id='deletebtn' class='btn btn-default redbtn'>Delete</a>
@@ -107,17 +117,14 @@ if ( isset( $_GET['add'] ) ) { //add a new job
                         <table>
                             <tr>
                                 <td><b>ID: </b><input type='text' class='form-control viewinputp w100' name='ID'
-                                                      value='<?php echo $jobRow['ID']; ?>'/></td>
+                                                      value='<?php echo $job->id; ?>'/></td>
                                 <td><b>Priority: </b><select class='form-control viewinput' name='priority'
                                                              autocomplete='off'>
                                         <?php
                                         $pts = array(1, 2, 3, 4);
                                         foreach ( $pts as $pt ) {
-                                            if ( $jobRow['priority'] == $pt ) {
-                                                echo '<option value="' . $pt . '" selected="selected">' . $pt . '</option>';
-                                            } else {
-                                                echo '<option value="' . $pt . '">' . $pt . '</option>';
-                                            }
+                                            $selected = $job->priority === $pt ? ' selected="selected"' : '';
+                                            echo '<option value="' . $pt . '"' . $selected . '>' . $pt . '</option>';
                                         }
                                         ?>
                                     </select></td>
@@ -134,43 +141,41 @@ if ( isset( $_GET['add'] ) ) { //add a new job
                             ) );
 
                             foreach ( $jobStatuses as $jobStatus ) {
-                                if ( $jobRow['status'] == $jobStatus['name'] ) {
-                                    echo '<option value="' . $jobStatus['name'] . '" selected="selected">' . ucwords( str_replace( '_', ' ', $jobStatus['value'] ) ) . '</option>';
-                                } else {
-                                    echo '<option value="' . $jobStatus['name'] . '">' . ucwords( str_replace( '_', ' ', $jobStatus['value'] ) ) . '</option>';
-                                }
+                                $selected = $job->status === $jobStatus['name'] ? ' selected="selected"' : '';
+                                echo '<option value="' . $jobStatus['name'] . '"' . $selected . '>' . ucwords( str_replace( '_', ' ', $jobStatus['value'] ) ) . '</option>';
                             }
                             ?>
                 <tr>
                     <td width=310><b>Started: </b><input type='date' class='form-control viewinput w300'
                                                          name='date_started'
-                                                         value='<?php echo DateTime::validate_date( $jobRow['date_started'] ); ?>'
+                                                         value='<?php echo DateTime::validate_date( $job->dateStarted ); ?>'
                                                          autocomplete='off'/></td>
                     <td><b>Finished: </b><input type='date' class='form-control viewinput w300' name='date_finished'
-                                                value='<?php echo DateTime::validate_date( $jobRow['date_finished'] ); ?>'
+                                                value='<?php echo DateTime::validate_date( $job->dateFinished ); ?>'
                                                 autocomplete='off'/></td>
-                    <?php
-                    $customerRows = PDOWrap::instance()->getRows( 'customers' );
 
-                    echo "<tr><td><b>Customer: </b><select class='form-control viewinput' name='customer' autocomplete='off'>";
-                    foreach ( $customerRows as $customerRow ) {
 
-                        $selected = $customerRow['ID'] == $jobRow['customer'] ? ' selected="selected"' : '';
-                        echo '<option value="' . $customerRow['ID'] . '"'. $selected .'>' . $customerRow['name'] . '</option>';
-                    }
-                    ?>
-                    </select></td></tr>
+                <tr>
+                    <td><b>Customer: </b><select class='form-control viewinput' name='customer' autocomplete='off'>
+                            <?php
+                            foreach ( $customers as $customer ) {
+                                $selected = $customer->id === $job->customer ? ' selected="selected"' : '';
+                                echo '<option value="' . $customer->id . '"' . $selected . '>' . $customer->name . '</option>';
+                            }
+                            ?>
+                        </select></td>
+                </tr>
 
                 <tr>
                     <td colspan=2><b>Description: </b><textarea class='form-control viewinput' name='description'
-                                                                autocomplete='off'><?php echo $jobRow['description']; ?></textarea>
+                                                                autocomplete='off'><?php echo $job->description; ?></textarea>
                     </td>
                 </tr>
 
                 <tr>
                     <td><b>Sale Price: </b><input type='number' step='0.01' min='0' class='form-control viewinput w200'
                                                   name='sale_price' autocomplete='off'
-                                                  value='<?php echo $jobRow['sale_price']; ?>'/><span
+                                                  value='<?php echo $job->salePrice; ?>'/><span
                                 class='currencyinput'></span></td>
                 </tr>
 
@@ -178,18 +183,18 @@ if ( isset( $_GET['add'] ) ) { //add a new job
                     <td><b>Material Cost: </b><input type='number' step='0.01' min='0'
                                                      class='form-control viewinput w200'
                                                      name='material_cost' autocomplete='off'
-                                                     value='<?php echo $jobRow['material_cost']; ?>'/><span
+                                                     value='<?php echo $job->materialCost; ?>'/><span
                                 class='currencyinput'></span></td>
 
                     <td><b>Contractor Cost: </b><input type='number' step='0.01' min='0'
                                                        class='form-control viewinput w200'
                                                        name='contractor_cost' autocomplete='off'
-                                                       value='<?php echo $jobRow['contractor_cost']; ?>'/><span
+                                                       value='<?php echo $job->contractorCost; ?>'/><span
                                 class='currencyinput'></span></td>
 
                     <td><b>Spare Cost: </b><input type='number' step='0.01' min='0' class='form-control viewinput w200'
                                                   name='spare_cost' autocomplete='off'
-                                                  value='<?php echo $jobRow['spare_cost']; ?>'/><span
+                                                  value='<?php echo $job->spareCost; ?>'/><span
                                 class='currencyinput'></span></td>
                 </tr>
 
@@ -197,39 +202,32 @@ if ( isset( $_GET['add'] ) ) { //add a new job
                     <td><b>Furniture</b></td>
                 </tr>
                 <?php
-                $furnitureJSON = json_decode( $jobRow['furniture'], true );
-                $furnitures = PDOWrap::instance()->getRows( 'furniture' );
-                foreach ($furnitureJSON
-
-                as $key => $ff) {
-                echo "<tr class='furrow'><td><select class='form-control viewinput w300 fur-name' autocomplete='off'>";
-                foreach ( $furnitures as $furniture ) {
-                    $ffid = current( array_keys( $ff ) );
-                    $ffq = reset( $ff );
-
-                    $selected = $furniture['ID'] == $ffid ? ' selected="selected"' : '';
-                    echo '<option value="' . $furniture['ID'] . '"'. $selected .'>' . ucfirst( $furniture['name'] ) . '</option>';
-
-                }
-                ?>
-                </select></td>
-                <td>
-                    <div class='w200'><input type='number' min='0' value='<?php echo $ffq; ?>'
-                                             class='form-control viewinput w100 fur-qty'>
-                        <?php
-                        if ( $key !== 0 ) {
-                            echo "<input class='btn btn-default viewinput removefur redbtn' value='&minus;' type='button'></div></td></tr>";
-                        } else {
-                            echo '</div></td></tr>';
-                        }
-
-                        }
-                        ?>
-
-                        <tr>
-                            <td><input id='addfurbtn' class='btn btn-default viewinput' value='&plus;' type='button'>
-                            </td>
-                        </tr>
+                foreach ( $job->furniture as $jobFurniture ) {
+                    ?>
+                    <tr class='furrow'>
+                        <td><select class='form-control viewinput w300 fur-name' autocomplete='off'>
+                                <?php
+                                foreach ( $allFurniture as $furniture ) {
+                                    $selected = $furniture->id === $jobFurniture->id ? ' selected="selected"' : '';
+                                    echo '<option value="' . $furniture->id . '"' . $selected . '>' . ucfirst( $furniture->name ) . '</option>';
+                                }
+                                ?>
+                            </select>
+                        </td>
+                        <td>
+                            <div class='w200'><input type='number' min='0'
+                                                     value='<?php echo $jobFurniture->quantity; ?>'
+                                                     class='form-control viewinput w100 fur-qty'>
+                                <input class='btn btn-default viewinput removefur redbtn' value='&minus;' type='button'>
+                            </div>
+                        </td>
+                    </tr>
+                    <?php
+                } ?>
+                <tr>
+                    <td><input id='addfurbtn' class='btn btn-default viewinput' value='&plus;' type='button'>
+                    </td>
+                </tr>
 
             </table>
             <input type='submit' value='Update' class='btn btn-default' id='updatebtn'>
@@ -237,15 +235,21 @@ if ( isset( $_GET['add'] ) ) { //add a new job
         <h3>Shifts</h3>
         <?php
 
-        $query = 'SELECT shifts.ID, shifts.job, shifts.worker, shifts.date, shifts.time_started, shifts.time_finished, shifts.minutes, shifts.activity, users.name as worker FROM shifts INNER JOIN users ON shifts.worker=users.ID WHERE job = ?';
-        $shiftRows = PDOWrap::instance()->run( $query, [$jobID] )->fetchAll();
-        if ( $shiftRows !== false ) {
-            $activities = new Activities( PDOWrap::instance() );
-            foreach ( $shiftRows as $shiftKey => $shiftRow ) {
-                $shiftRows[$shiftKey]['activity'] = $activities->getDisplayName( $shiftRow['activity'] ) ?? '';
-            }
+        $shifts = $job->shifts;
+        $shiftTableData = [];
+        foreach ( $shifts as $shift ) {
+            $shiftTableData[] = [
+                'ID' => $shift->id, //needed for View shift button
+                'worker' => $shift->worker->name,
+                'date' => $shift->date,
+                'time_started' => $shift->timeStarted,
+                'time_finished' => $shift->timeFinished,
+                'minutes' => $shift->getShiftLength(),
+                'activity' => $shift->activity->displayName
+            ];
         }
-        echo generateTable( array('worker', 'date', 'time_started', 'time_finished', 'minutes', 'activity'), $shiftRows, 'shifts' );
+
+        echo generateTable( array('worker', 'date', 'time_started', 'time_finished', 'minutes', 'activity'), $shiftTableData, 'shifts' );
 
     } else {
         echo 'no result';

@@ -4,19 +4,19 @@ namespace Phoenix;
 include '../src/crm_init.php';
 
 
-if ( $ph_user->getRole() === 'staff' ) {
-    $worker_id = $ph_user->getID();
-} elseif ( $ph_user->getRole() === 'admin' ) {
+if ( $ph_user->role === 'staff' ) {
+    $worker_id = $ph_user->id;
+} elseif ( $ph_user->role === 'admin' ) {
     if ( !empty( $_GET['worker_id'] ) ) {
         $worker_id = ph_validate_number( $_GET['worker_id'] );
     }
     if ( !empty( $_GET['job_id'] ) ) {
-        $job_id = ph_validate_number( $_GET['job_id'] );
+        $jobID = ph_validate_number( $_GET['job_id'] );
     }
 }
 
 
-if ( empty( $worker_id ) && empty( $job_id ) && $ph_user->getRole() === 'admin' ) {
+if ( empty( $worker_id ) && empty( $jobID ) && $ph_user->role === 'admin' ) {
     if ( !empty( $_GET['report'] ) ) {
 
         ph_get_template_part( 'report/header/links-admin' );
@@ -48,12 +48,12 @@ if ( empty( $worker_id ) && empty( $job_id ) && $ph_user->getRole() === 'admin' 
     $total_employee_cost = 0;
     $activities = new Activities(PDOWrap::instance() );
 
-    if ( !empty( $job_id ) ) {
+    if ( !empty( $jobID ) ) {
         /*
          * job costing report
          */
         $report = new Report\JobCosting( $activities, PDOWrap::instance(), Messages::instance() );
-        $report->init( $job_id );
+        $report->init( $jobID );
     } elseif ( !empty( $worker_id ) ) {
         /*
          * worker weekly time record

@@ -81,11 +81,13 @@ class PDOWrap
         return call_user_func_array( array($this->pdo, $method), $args );
     }
 
-    public function __sleep() {
+    public function __sleep()
+    {
         return []; //Pass the names of the variables that should be serialised here
     }
 
-    public function __wakeup() {
+    public function __wakeup()
+    {
         $default_options = [
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
             PDO::ATTR_EMULATE_PREPARES => false,
@@ -105,6 +107,7 @@ class PDOWrap
      */
     public function run($sql = '', $args = null)
     {
+        //d([$sql,$args]);
         if ( empty( $args ) ) {
             return $this->pdo->query( $sql );
         }
@@ -119,7 +122,7 @@ class PDOWrap
      * @param string $table
      * @param array|string $columns
      * @param array|string $queryArgs
-     * @return array|bool
+     * @return array|false
      */
     public function getRow(string $table = '', $queryArgs = [], $columns = 'all')
     {
@@ -175,23 +178,43 @@ class PDOWrap
         if ( is_string( $queryArgs ) ) {
             return $sql . $queryArgs;
         }
-
-        if ( is_array( $queryArgs ) ) {
-            $sqlWhereStrings = [];
-            foreach ( $queryArgs as $key => $queryArg ) {
-                $sqlWhereString = $key;
-                if ( is_array( $queryArg ) ) {
-                    $sqlWhereString .= ' ' . $queryArg['operator'] . ' :' . $key;
-                } else if ( $queryArg === null || $queryArg === 'NULL' ) {
-                    $sqlWhereString .= ' IS NULL';
-                } else {
-                    $sqlWhereString .= '=:' . $key;
-                }
-                $sqlWhereStrings[] = $sqlWhereString;
-            }
-            return $sql . implode( ' AND ', $sqlWhereStrings );
+        if ( !is_array( $queryArgs ) ) {
+            return '';
         }
-        return '';
+
+        $sqlWhereStrings = [];
+        foreach ( $queryArgs as $columnName => $queryArg ) {
+            $sqlWhereString = $columnName;
+            if ( is_array( $queryArg ) ) {
+
+                switch( $queryArg['operator'] ) {
+                    case 'IN':
+                        $sqlWhereString .= ' IN (';
+                        $pieces = [];
+                        foreach ( $queryArg['value'] as $key => $arg ) {
+                            $pieces[] = ':' . $columnName . '_' . $key;
+                        }
+                        $sqlWhereString .= implode( ',', $pieces );
+                        $sqlWhereString .= ')';
+                        break;
+                    //case '!=':
+                      //  $sqlWhereString .= 'blag';
+                        //break;
+                    default:
+                        $sqlWhereString .= ' ' . $queryArg['operator'] . ' :' . $columnName;
+                        break;
+                }
+
+            } else if ( $queryArg === null || $queryArg === 'NULL' ) {
+                $sqlWhereString .= ' IS NULL';
+            } else {
+                $sqlWhereString .= '=:' . $columnName;
+            }
+            $sqlWhereStrings[] = $sqlWhereString;
+        }
+
+        return $sql . implode( ' AND ', $sqlWhereStrings );
+
     }
 
     /**
@@ -203,16 +226,24 @@ class PDOWrap
         if ( empty( $queryArgs ) || !is_array( $queryArgs ) ) {
             return [];
         }
-        foreach ( $queryArgs as $key => $queryArg ) {
+        foreach ( $queryArgs as $columnName => $queryArg ) {
             if ( isset( $queryArg['value'] ) && $queryArg['value'] !== null && $queryArg['value'] !== 'NULL' ) {
 
-                if ( $queryArg['operator'] === 'LIKE' ) {
-                    $args[$key] = '%' . $queryArg['value'] . '%';
-                } else {
-                    $args[$key] = $queryArg['value'];
+                switch( $queryArg['operator'] ) {
+                    case 'LIKE':
+                        $args[$columnName] = '%' . $queryArg['value'] . '%';
+                        break;
+                    case 'IN':
+                        foreach ( $queryArg['value'] as $key => $arg ) {
+                            $args[$columnName . '_' . $key] = $arg;
+                        }
+                        break;
+                    default:
+                        $args[$columnName] = $queryArg['value'];
                 }
+
             } elseif ( isset( $queryArg ) && $queryArg !== null && $queryArg !== 'NULL' ) {
-                $args[$key] = $queryArg;
+                $args[$columnName] = $queryArg;
             }
         }
         return $args ?? [];
@@ -269,11 +300,11 @@ class PDOWrap
         $sql .= implode( ',', array_keys( $data ) );
         $sql .= ') VALUES (';
         $dataStrings = [];
-        foreach ( $data as $key => $value ) {
+        foreach ( $data as $columnName => $value ) {
             if ( $value === null || strtolower( $value ) === strtolower( 'NULL' ) ) {
                 $dataStrings[] = 'NULL';
             } else {
-                $dataStrings[] = ':' . $key;
+                $dataStrings[] = ':' . $columnName;
             }
         }
         $sql .= implode( ', ', $dataStrings );
@@ -299,13 +330,16 @@ class PDOWrap
         if ( !$this->tableExists( $table ) ) {
             return false;
         }
+        if ( empty( $queryArgs ) ) {
+            return false;
+        }
         $sql = 'UPDATE ' . $table . ' SET ';
         $dataStrings = [];
-        foreach ( $data as $key => $value ) {
+        foreach ( $data as $columnName => $value ) {
             if ( $value === null || strtolower( $value ) === strtolower( 'NULL' ) ) {
-                $dataStrings[] = $key . '=NULL';
+                $dataStrings[] = $columnName . '=NULL';
             } else {
-                $dataStrings[] = $key . '=:' . $key ;
+                $dataStrings[] = $columnName . '=:' . $columnName;
             }
         }
         $sql .= implode( ', ', $dataStrings );
@@ -330,8 +364,10 @@ class PDOWrap
         if ( !$this->tableExists( $table ) ) {
             return false;
         }
-        $sql = 'DELETE FROM ' . $table;
-        $sql .= $this->getWhereSQLFragment( $queryArgs );
+        if ( empty( $queryArgs ) ) {
+            return false;
+        }
+        $sql = 'DELETE FROM ' . $table . $this->getWhereSQLFragment( $queryArgs );
         $args = $this->getRunArgs( $queryArgs );
 
         if ( empty( $args ) ) {

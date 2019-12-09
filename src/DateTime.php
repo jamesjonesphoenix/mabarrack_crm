@@ -57,19 +57,21 @@ class DateTime
     }
 
     /**
-     * @param $time_start
-     * @param $time_finish
+     * Returns time difference in minutes
+     * 
+     * @param $timeStart
+     * @param $timeFinish
      * @return bool|float|int
      */
-    public static function time_difference($time_start, $time_finish ) {
-        if ( empty( $time_start ) || empty( $time_finish ) ) {
+    public static function time_difference($timeStart, $timeFinish ) {
+        if ( empty( $timeStart ) || empty( $timeFinish ) ) {
             return false;
         }
-        $time_start = strtotime( $time_start );
-        $time_finish = strtotime( $time_finish );
-        if ( $time_start <= 0 || $time_finish <= 0 ) {
+        $timeStart = strtotime( $timeStart );
+        $timeFinish = strtotime( $timeFinish );
+        if ( $timeStart <= 0 || $timeFinish <= 0 ) {
             return false;
         }
-        return ( $time_finish - $time_start ) / 60;
+        return ( $timeFinish - $timeStart ) / 60;
     }
 }

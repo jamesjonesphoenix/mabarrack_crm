@@ -205,7 +205,7 @@ function ph_validate_number($number)
         return false;
     }
     if ( $number < 1 ) {
-        return false;
+        return 0;
     }
     return $number;
 }
@@ -275,10 +275,10 @@ function getRowsQuery($query, $queryArgs)
  *
  * @param $columns
  * @param $rows
- * @param string $view_button_args table name
+ * @param string $viewButtonArgs table name
  * @return string
  */
-function generateTable($columns, $rows, $view_button_args = '')
+function generateTable($columns, $rows, $viewButtonArgs = '')
 {
     $html_str = "<table class='tablesorter table table-hover'><thead><tr>";
     $first = true;
@@ -304,13 +304,13 @@ function generateTable($columns, $rows, $view_button_args = '')
         $colidx++;
     }
 
-    if ( !empty( $view_button_args ) && CurrentUser::instance()->getRole() === 'admin' ) {
-        if ( !is_array( $view_button_args ) ) {
-            $view_button_args = array(
-                array('table' => $view_button_args, 'detail_page' => getDetailPage( $view_button_args )));
+    if ( !empty( $viewButtonArgs ) && CurrentUser::instance()->role === 'admin' ) {
+        if ( !is_array( $viewButtonArgs ) ) {
+            $viewButtonArgs = array(
+                array('table' => $viewButtonArgs, 'detail_page' => getDetailPage( $viewButtonArgs )));
         }
 
-        foreach ( $view_button_args as $key => &$view_button ) {
+        foreach ( $viewButtonArgs as $key => &$view_button ) {
             $view_button['detail_page'] = getDetailPage( $view_button['table'] );
             if ( (!empty( $view_button['detail_page'] )) ) {
                 $html_str .= "<td class='viewth'></td>";
@@ -341,27 +341,64 @@ function generateTable($columns, $rows, $view_button_args = '')
             foreach ( $columns as $column ) {
                 //if ( empty( $row[ $column ] ) )
                 //  $row[ $column ] = '';
-                if ( $column !== 'status' ) {
-                    if ( ($column === 'job') && ($row[$column] === 0) ) { //row job id is 0 (internal)
-                        $row[$column] = 'Factory';
-                    } else if ( $column === 'furniture' ) {
-                        $rowJSON = json_decode( $row[$column], true );
-                        $rowString = '';
 
-                        foreach ( $rowJSON as $ff ) {
-                            $furnitureID = current( array_keys( $ff ) );
-                            $ffq = reset( $ff );
-                            $furnitureName = PDOWrap::instance()->getRow( 'furniture', array('ID' => $furnitureID) )['name'];
-                            $rowString .= $ffq . ' ' . ucfirst( $furnitureName ) . ($ffq > 1 ? 's<br>' : '<br>');
+                switch( $column ) {
+                    case 'status':
+                        break;
+                    case 'job':
+                        // d( $row[$column] );
+                        // d( $row[$column]->id );
+                        d( $row[$column] );
+                        if ( is_numeric( $row[$column] ) ) {
+                            $jobID = $row[$column];
+                        } else {
+                            $jobID = !empty( $row[$column]->id ) || $row[$column]->id === 0 ? $row[$column]->id : $row[$column];
+                        }
+                        //d( $jobID );
+                        if ( $jobID === 0 ) {
+                            $row[$column] = 'Factory';
+                        } else {
+                            $row[$column] = $jobID;
+                        }
+
+
+                        break;
+                    case 'furniture':
+                        $rowString = '';
+                        if ( is_string( $row[$column] ) ) {
+                            $rowJSON = json_decode( $row[$column], true );
+                            foreach ( $rowJSON as $ff ) {
+                                $furnitureID = current( array_keys( $ff ) );
+                                $ffq = reset( $ff );
+                                $furnitureName = PDOWrap::instance()->getRow( 'furniture', array('ID' => $furnitureID) )['name'];
+                                $rowString .= $ffq . ' ' . ucfirst( $furnitureName ) . ($ffq > 1 ? 's<br>' : '<br>');
+                            }
+                        } else {
+                            foreach ( $row[$column] as $furniture ) {
+                                $rowString .= $furniture->getFurnitureString() . '<br>';
+                            }
                         }
                         $row[$column] = $rowString;
-                    } else if ( (strpos( $column, 'cost' ) !== false) || (strpos( $column, 'price' ) !== false) || (strpos( $column, 'rate' ) !== false) ) {
+                        break;
+                    case 'cost':
+                    case 'price':
+                    case 'rate':
+                    case 'material_cost':
+                    case 'sale_price':
+                    case 'contractor_cost':
+                    case 'spare_cost':
                         $row[$column] = ph_format_currency( $row[$column] );
-                    } else if ( strpos( $column, 'time' ) !== false ) {
+                        break;
+                    case 'time':
+                    case 'time_started':
+                    case 'time_finished':
                         if ( !empty( strtotime( $row[$column] ) ) ) {
                             $row[$column] = substr_replace( $row[$column], '', -3 );
                         }
-                    } else if ( strpos( $column, 'date' ) !== false ) {
+                        break;
+                    case 'date':
+                    case 'date_started':
+                    case 'date_finished':
                         if ( !DateTime::validate_date( $row[$column] ) ) {
                             $row[$column] = 'N/A';
                         } else {
@@ -369,13 +406,15 @@ function generateTable($columns, $rows, $view_button_args = '')
                         }
 
                         //$row[ $column ] = '<span class="hidden-date">' . $row[ $column ] . '</span>' .  date( "d-m-Y", strtotime( $row[ $column ] ) );
-                    }
+                        break;
+                }
+                if ( $column !== 'status' ) {
                     $html_str .= "<td class='" . $column . "'>" . $row[$column] . '</td>';
                 }
             }
 
-            if ( !empty( $view_button_args ) && CurrentUser::instance()->getRole() === 'admin' ) {
-                foreach ( $view_button_args as $key => &$view_button ) {
+            if ( !empty( $viewButtonArgs ) && CurrentUser::instance()->role === 'admin' ) {
+                foreach ( $viewButtonArgs as $key => &$view_button ) {
                     //print_r('"'.$row[ $view_button[ 'column' ] ] . '"<br>');
                     if ( !empty( $view_button['detail_page'] ) && !empty( $row[$view_button['column']] ) && $row[$view_button['column']] !== '0' ) {
                         $html_str .= '<td class="w50"><a href="' . $view_button['detail_page'] . '?id=' . $row[$view_button['column']] . '"><div class="btn btn-default viewbtn">' . $view_button['text'] . '</div></a></td>';
@@ -449,7 +488,7 @@ function timeDropDown($ts)
 function generateGroupByForm($pid, $table, $group)
 {
     $columns = array_diff(
-        PDOWrap::instance()->getColumns( $table ), ['ID', 'description', 'activity_comments', 'activity_values', 'minutes', 'time_started', 'time_finished', 'pin', 'type', 'name','password']
+        PDOWrap::instance()->getColumns( $table ), ['ID', 'description', 'activity_comments', 'activity_values', 'minutes', 'time_started', 'time_finished', 'pin', 'type', 'name', 'password']
     );
     if ( count( $columns ) > 0 ) {
         ?>
@@ -584,19 +623,19 @@ function getDetailPageFooter($formid, $table, $redirectURL)
 
 /**
  * @param $timestamp
- * @param int $updown
+ * @param int $upDown
  * @return false|string
  */
-function roundTime($timestamp, $updown = 0)
+function roundTime($timestamp, int $upDown = 0)
 {
     $precision = 6;
     $timestamp = strtotime( $timestamp );
     $precision = 60 * $precision;
-    if ( $updown == 1 ) {
+    if ( $upDown === 1 ) {
         return date( 'H:i:s', ceil( $timestamp / $precision ) * $precision );
     }
 
-    if ( $updown == -1 ) {
+    if ( $upDown === -1 ) {
         return date( 'H:i:s', floor( $timestamp / $precision ) * $precision );
     }
 
@@ -731,6 +770,23 @@ function ph_get_template_part($template_name, $args = array())
         return;
     }
     include $path;
+}
+
+/**
+ * @param array $options
+ * @param string $name
+ * @param string $selected
+ */
+function ph_generateOptionSelect(array $options = [], string $name = '', $selected = '')
+{
+
+    echo '<select class="form-control viewinput w300" name="' . $name . '" autocomplete="off">';
+    foreach ( $options as $option ) {
+
+        $selectedAttribute = !empty( $selected ) && $option['value'] === $selected ? ' selected="selected"' : '';
+        echo '<option value="' . $option['value'] . '"' . $selectedAttribute . '>' . $option['display'] . '</option>';
+    }
+    echo '</select>';
 }
 
 /**

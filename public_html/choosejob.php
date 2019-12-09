@@ -1,41 +1,40 @@
 <?php
 
 namespace Phoenix;
+//27 jobs
+include '../src/crm_init.php';
 
-include '../src/crm_init.php'; ?>
+$jobFactory = new JobFactory( PDOWrap::instance(), Messages::instance() );
+$activeJobs = $jobFactory->getActiveJobs();
+krsort( $activeJobs );
+$lastWorkedJob = $jobFactory->getLastWorkedJob( CurrentUser::instance()->id );
 
+
+?>
     <div class="row">
         <div class="col-md-12">
             <div class="panel panel-default container actsbtns">
                 <h1>Choose Job</h1>
 
                 <?php
-
-                $query = "SELECT jobs.ID, jobs.date_started, jobs.date_finished, jobs.status, jobs.priority, jobs.customer, jobs.furniture, jobs.description, customers.name 
-as customer FROM jobs INNER JOIN customers ON jobs.customer=customers.ID WHERE jobs.status = 'jobstat_red' AND jobs.ID != 0";
-                $jobRows = PDOWrap::instance()->run( $query );
-
-
-                foreach ( $jobRows as $jobRow ) {
-                    ?>
-                    <div class="row cjob">
-                        <div class="col-md-8">
-                                    <span><b><?php echo $jobRow['customer']; ?></b><br>Job No. <?php echo $jobRow['ID']; ?>
-                                        &nbsp;&nbsp;&nbsp;<?php echo $jobRow['description']; ?></span></div>
-                        <div class="col-md-4">
-                            <a href="choosefur.php?job_id=<?php echo $jobRow['ID']; ?>"
-                               class="btn btn-default">Select</a>
-                        </div>
-                    </div>
+                if ( $lastWorkedJob !== null && $lastWorkedJob->id !== 0 ) {
+                    echo '<h2>Last Worked Job</h2>';
+                    ph_get_template_part( 'choose-job-fragment', ['job' => $lastWorkedJob] ); ?>
                     <?php
                 }
                 ?>
+                <h2>Factory</h2>
                 <div class="row cjob">
                     <div class="col-md-12">
                         <span><b>Factory</b><br></span>
                         <a href="chooseactivity.php?job_id=0" class="btn btn-default">Select</a>
                     </div>
                 </div>
+                <h2>Active Jobs</h2>
+                <?php foreach ( $activeJobs as $job ) {
+                    ph_get_template_part( 'choose-job-fragment', ['job' => $job] );
+                } ?>
+
             </div>
         </div>
     </div>

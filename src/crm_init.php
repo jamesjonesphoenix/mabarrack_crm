@@ -36,7 +36,7 @@ if ( !defined( 'IP_RESTRICTED_ROLES' ) ) {
     define( 'IP_RESTRICTED_ROLES', 'staff' );
 }
 
-//$crm = CRM::instance();
+//EntityFactory::instance(PDOWrap::instance(),Messages::instance());
 
 if ( !defined( 'DOING_CRON' ) ) {
     /*start secure session*/
@@ -53,7 +53,8 @@ if ( !defined( 'DOING_CRON' ) ) {
         }
 
         //set current user for access by class code
-        $ph_user = CurrentUser::instance( PDOWrap::instance(), Messages::instance(), $_SESSION['user_id'], 'id' );
+        $ph_user = CurrentUser::instance( PDOWrap::instance(), Messages::instance() );
+        $ph_user->init($_SESSION['user_id'], 'id');
         if ( !$ph_user->isLoggedIn() ) {
             if ( !$ph_user->isIpAllowed() ) {
                 $errorMessage = 'wrong_IP';
@@ -65,7 +66,8 @@ if ( !defined( 'DOING_CRON' ) ) {
         }
         //logged in, check user can use this page
         if ( !$ph_user->isUserAllowed() ) {
-            ph_redirect( $ph_user->getUserHomepage(), array('message' => 'denied', 'page' => ph_script_filename()) );
+            $roles = new Roles;
+            ph_redirect( $roles->getHomePage( $ph_user->role ), array('message' => 'denied', 'page' => ph_script_filename()) );
             exit();
         }
 
@@ -84,7 +86,7 @@ if ( !defined( 'DOING_CRON' ) ) {
             ph_messages()->add( 'The pin field is empty. Please try again.' );
         } else {
             $pin = ph_validate_number( $_POST['pin'] );
-            if ( !$pin ) {
+            if ( empty($pin) ) {
                 ph_messages()->add( 'Pin should be a number only.' );
             } else {
 
@@ -94,7 +96,9 @@ if ( !defined( 'DOING_CRON' ) ) {
                 if ( $user->login( $_POST['password'] ) ) {
                     //$_SESSION['message'] = 'Logged in like a boss';
                     $_SESSION['message'] = 'loggedIn';
-                    ph_redirect( $user->getUserHomepage() );
+
+                    $roles = new Roles;
+                    ph_redirect( $roles->getHomePage( $user->role ) );
                 } elseif ( !ph_messages()->isMessage() ) {
                     ph_messages()->add( 'Login error, but not quite sure what it is.' );
                 }

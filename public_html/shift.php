@@ -10,9 +10,18 @@ include '../src/crm_init.php'; ?>
     <?php
 
     $shiftID = ph_validate_number( $_GET['id'] );
-    $shiftRow = PDOWrap::instance()->getRow( 'shifts', array('ID' => $shiftID) );
+    $shiftFactory = new ShiftFactory( PDOWrap::instance(), Messages::instance() );
+    $shift = $shiftFactory->getShift( $shiftID );
+    if ( $shift->exists ) {
+        $jobFactory = new JobFactory( PDOWrap::instance(), Messages::instance() );
+        $jobs = $jobFactory->getAll();
 
-    if ( $shiftRow !== false ) {
+        $userFactory = new UserFactory( PDOWrap::instance(), Messages::instance() );
+        $workers = $userFactory->getUsers( ['type' => 'staff'] );
+
+        $activityFactory = new ActivityFactory( PDOWrap::instance(), Messages::instance() );
+        $activities = $activityFactory->getActivities( [], true );
+
         ?>
 
         <input type='button' id='editbtn' value='Edit' class='btn btn-default'/>
@@ -21,122 +30,83 @@ include '../src/crm_init.php'; ?>
             <table>
                 <tr>
                     <td width='310'><b>ID: </b><input type='text' class='form-control viewinputp w300' name='ID'
-                                                      value='<?php echo $shiftRow['ID']; ?>'/></td>
+                                                      value='<?php echo $shift->id; ?>'/></td>
                 </tr>
                 <tr>
-                    <td><b>Job: </b><select class='form-control viewinput w300' name='job' autocomplete='off'>\n
-                            \n
+                    <td><b>Job: </b><select class='form-control viewinput w300' name='job' autocomplete='off'>
                             <?php
-                            $jobRows = PDOWrap::instance()->getRows( 'jobs' );
-                            foreach ( $jobRows as $jobRow ) {
-                                $displayText = $jobRow['ID'];
-                                if ( $displayText === 0 ) {
-                                    $displayText = 'Factory';
-                                }
-                                if ( $jobRow['ID'] == $shiftRow['job'] ) {
-                                    echo '<option value="' . $jobRow['ID'] . '" selected="selected">' . $displayText . "</option>\n";
-                                } else {
-                                    echo '<option value="' . $jobRow['ID'] . '">' . $displayText . "</option>\n";
-                                }
+                            foreach ( $jobs as $job ) {
+                                $displayText = $job->id === 0 ? 'Factory' : $job->id;
+                                $selected = $job->id === $shift->job->id ? ' selected="selected"' : '';
+                                echo '<option value="' . $job->id . '"' . $selected . '>' . $displayText . '</option>';
                             }
+
                             ?>
                         </select></td>
                 </tr>
-                <?php
-                $workerRows = PDOWrap::instance()->getRows( 'users', array('type' => 'staff') );
-                ?>
                 <tr>
-                    <td><b>Worker: </b><select class='form-control viewinput w300' name='worker' autocomplete='off'>
-                            <?php
-                            foreach ( $workerRows as $workerRow ) {
-                                if ( $workerRow['ID'] == $shiftRow['worker'] ) {
-                                    echo '<option value="' . $workerRow['ID'] . '" selected="selected">' . $workerRow['name'] . '</option>';
-                                } else {
-                                    echo '<option value="' . $workerRow['ID'] . '">' . $workerRow['name'] . '</option>';
-                                }
-                            }
-                            ?>
-                        </select></td>
+                    <td><b>Worker: </b>
+                        <?php
+                        $options = [];
+                        foreach ( $workers as $worker ) {
+                            $options[] = ['value' => $worker->id, 'display' => $worker->name];
+                        }
+                        ph_generateOptionSelect( $options, 'worker', $shift->worker->id );
+                        ?>
+                    </td>
                 </tr>
                 <tr>
                     <td><b>Date: </b><input type='date' class='form-control viewinput w300' name='date'
-                                            value='<?php echo DateTime::validate_date( $shiftRow['date'] ); ?>'
+                                            value='<?php echo DateTime::validate_date( $shift->date ); ?>'
                                             autocomplete='off'/>
                     </td>
                 </tr>
                 <tr>
                     <td><b>Started</b><input name='time_started' type='time'
-                                             value='<?php echo date( 'H:i', strtotime( $shiftRow['time_started'] ) ); ?>'
+                                             value='<?php echo date( 'H:i', strtotime( $shift->timeStarted ) ); ?>'
                                              class='form-control viewinput w300' autocomplete="off"></td>
                     <td><b>Finished</b><input name='time_finished' type='time'
-                                              value='<?php echo date( 'H:i', strtotime( $shiftRow['time_finished'] ) ); ?>'
+                                              value='<?php echo date( 'H:i', strtotime( $shift->timeFinished ) ); ?>'
                                               class='form-control viewinput w300' autocomplete="off"></select></td>
                 </tr>
                 <?php
                 //echo "<tr><td><b>Started</b><select name='time_started' class='form-control viewinput w300' autocomplete='off'>\n";
-                //echo timeDropDown($shiftRow['time_started']);
+                //echo timeDropDown($shift->timeStarted);
                 //echo "</select></td>\n";
 
 
                 //echo "<td><b>Finished</b><select name='time_finished' class='form-control viewinput w300' autocomplete='off'>\n";
-                //echo timeDropDown($shiftRow['time_finished']);
+                //echo timeDropDown($shift->timeFinished );
                 //echo "</select></td></tr>\n";
-
-                $activityRows = PDOWrap::instance()->getRows( 'activities' );
-                $activities = new Activities( PDOWrap::instance() );
                 ?>
-
                 <tr>
-                    <td><b>Activity: </b><select class='form-control viewinput w300' name='activity' autocomplete='off'>
-                            <?php
-                            foreach ( $activityRows as $activityRow ) {
-                                if ( $activityRow['ID'] == $shiftRow['activity'] ) {
-                                    $selected = 'selected="selected"';
-                                } else {
-                                    $selected = '';
-                                }
-                                echo '<option value="' . $activityRow['ID'] . '" ' . $selected . '>' . $activities->getDisplayName( $activityRow['ID'] ) . '</option>';
-                            }
-                            ?>
-                        </select></td>
+                    <td><b>Activity: </b>
+                        <?php
+                        $options = [];
+                        foreach ( $activities as $activity ) {
+                            $options[] = ['value' => $activity->id, 'display' => $activity->displayName];
+                        }
+                        ph_generateOptionSelect( $options, 'activity', $shift->activity->id );
+                        ?>
+                    </td>
                 </tr>
                 <?php
-                if ( $shiftRow['activity'] == 14 ) {
+                if ( $shift->activity->name === 'Other' || $shift->activity === 14 ) {
                     ?>
                     <tr>
                         <td colspan='2'><input type='text' class='viewinputp form-control'
-                                               value='"<?php echo $shiftRow['activity_comments']; ?>"'></td>
+                                               value='"<?php echo $shift->activityComments; ?>"'></td>
                     </tr>;
                     <?php
                 }
-
-
-                if (!empty( $shiftRow['job'] )){
-                $jobRow = PDOWrap::instance()->getRow( 'jobs', array('ID' => $shiftRow['job']) );
-
-                if (!empty( $jobRow['furniture'] )) {
-                $furnitureJSON = json_decode( $jobRow['furniture'], true );
-
-                foreach($furnitureJSON as $furn){
-                    if(!empty($furn[$shiftRow['furniture']])){
-                        $furniture = $furn[$shiftRow['furniture']];
-                    }
-                }
-                $furniture = $furniture ?? [];
-                //$furnitureID = current( array_keys( $furniture ) ) ?? 0;
-                //$furnitureQuantity = reset( $furniture );
-                $furnitureQuantity = !empty($furniture) ? $furniture : '';
-                $furnitureName = !empty( $shiftRow['furniture'] ) ? PDOWrap::instance()->getRow( 'furniture', array('ID' => $shiftRow['furniture']) )['name'] : 'Unknown or N/A';
-                $furnitureString = $furnitureQuantity . ' ' . $furnitureName ;
-                $furnitureString .= !empty($furnitureQuantity) && $furnitureQuantity > 1 ? 's' : '';
+                $furnitureString = $shift->getFurnitureString();
                 ?>
                 <tr>
                     <td><b>Furniture: </b><input type='text' class='form-control viewinputp w300'
-                                                 value=' <?php echo $furnitureString; ?> ' autocomplete='off'/></td>
-                    <?php
-                    }
-                    }
-                    ?>
+                                                 value='<?php echo $furnitureString; ?>'
+                                                 autocomplete='off'/>
+                    </td>
+                </tr>
             </table>
             <input type='submit' value='Update' class='btn btn-default' id='updatebtn'></form>
         <?php

@@ -4,6 +4,7 @@ namespace Phoenix;
 
 include '../src/crm_init.php';
 getDetailPageHeader( 'page.php?id=5', 'Customers', 'Customer' );
+
 ?>
     <form id='customer_form' class='detailform'>
     <table>
@@ -42,18 +43,22 @@ if ( isset( $_GET['add'] ) ) { //add a new customer
 
     $customerID = ph_validate_number( $_GET['id'] );
     if ( $customerID ) {
-        $customerRow = PDOWrap::instance()->getRow( 'customers', array('ID' => $customerID) );
 
-        if ( $customerRow !== false ) {
+        $factory = new CustomerFactory(PDOWrap::instance(),Messages::instance());
+        $customer = $factory->getCustomer( $customerID );
+
+        //$customerRow = PDOWrap::instance()->getRow( 'customers', array('ID' => $customerID) );
+
+        if ( $customer->exists ) {
             //Customer details
             ?>
             <tr>
                 <td><b>ID: </b><input type='text' class='form-control viewinputp w300' name='ID' autocomplete='off'
-                                      value='<?php echo $customerRow['ID']; ?>'/></td>
+                                      value='<?php echo $customer->id; ?>'/></td>
             </tr>
             <tr>
                 <td><b>Name: </b><input type='text' class='form-control viewinput w300' name='name' autocomplete='off'
-                                        value='<?php echo $customerRow['name']; ?>'/></td>
+                                        value='<?php echo $customer->name; ?>'/></td>
             </tr>
             </table><input type='submit' value='Update' class='btn btn-default' id='updatebtn'>
             </form>
@@ -61,10 +66,6 @@ if ( isset( $_GET['add'] ) ) { //add a new customer
             <?php
             //List of Jobs for customer
 
-            $query = 'SELECT jobs.ID, jobs.date_started, jobs.date_finished, jobs.status, jobs.priority, jobs.customer, jobs.furniture, jobs.description, customers.name
-             as customer FROM jobs INNER JOIN customers ON jobs.customer=customers.ID WHERE jobs.ID != 0 AND jobs.customer = ?';
-
-            $jobRows = PDOWrap::instance()->run( $query, [$customerID] )->fetchAll();
             $columns = array(
                 'ID',
                 'date_started',
@@ -75,8 +76,19 @@ if ( isset( $_GET['add'] ) ) { //add a new customer
                 'description'
             );
 
-            echo generateTable( $columns, $jobRows, 'jobs' );
-
+            $jobTableData = [];
+            foreach ( $customer->jobs as $job ) {
+                $jobTableData[] = [
+                    'ID' => $job->id, //needed for View shift button
+                    'date_started' => $job->dateStarted,
+                    'date_finished' => $job->dateFinished,
+                    'status' => $job->status,
+                    'priority' => $job->priority,
+                    'furniture' => $job->furniture,
+                    'description' => $job->description
+                ];
+            }
+            echo generateTable( $columns, $jobTableData, 'jobs' );
         } else {
             echo 'no result';
         }

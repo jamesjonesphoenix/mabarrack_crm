@@ -11,7 +11,7 @@ $activityID = ph_validate_number($_GET['activity_id']);
         <div class="col-md-12">
             <div class="panel panel-default container">
                 <h1>Description of Work</h1>
-                <center>
+                <div style="text-align: center;">
                     <form action="nextshift.php" class="detailform" method="get">
                         <input type="hidden" name="job_id" value="<?php echo $jobID; ?>">
                         <input type="hidden" name="activity_id" value="<?php echo $activityID; ?>">
@@ -19,7 +19,7 @@ $activityID = ph_validate_number($_GET['activity_id']);
                         <br>
                         <input type="submit" class='btn btn-default' value="Done">
                     </form>
-                </center>
+                </div>
             </div>
         </div>
     </div>

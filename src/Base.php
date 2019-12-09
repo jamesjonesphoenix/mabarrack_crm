@@ -21,8 +21,15 @@ class Base
         }
     }
 
+    /**
+     * @param $name
+     * @return bool
+     */
     public function __isset($name)
     {
+        if ( method_exists( $this, $name ) ) {
+            return $this->$name();
+        }
         return false;
     }
 
@@ -35,7 +42,6 @@ class Base
         if ( method_exists( $this, $name ) ) {
             return $this->$name();
         }
-
         if ( property_exists( $this, $name ) ) {
             // Getter/Setter not defined so return property if it exists
             return $this->$name;

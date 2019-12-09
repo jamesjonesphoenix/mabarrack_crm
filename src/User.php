@@ -3,194 +3,183 @@
 namespace Phoenix;
 
 /**
+ * @property array $cryptoOptions
+ * @property string $hash
+ * @property string $name
+ * @property integer $pin
+ * @property integer $rate
+ * @property string $role
+ * @property Shift[] $shifts
+ *
  * Class User
+ *
+ * @package Phoenix
  */
-class User extends AbstractCRM
+class User extends Entity
 {
-    /**
-     * @var
-     */
-    protected $data;
-
     /**
      * @var array
      */
-    private $crypto_options = array('cost' => 12);
+    protected $_cryptoOptions = array('cost' => 12);
+
+    /**
+     * @var string
+     */
+    protected $_hash;
+
+    /**
+     * @var string
+     */
+    protected $_name;
+
+    /**
+     * @var integer
+     */
+    protected $_pin;
+
+    /**
+     * @var string
+     */
+    protected $_role;
+
+    /**
+     * @var integer
+     */
+    protected $_rate;
+
+    /**
+     * @var Shift[]
+     */
+    protected $_shifts;
 
     /**
      * @var bool|mixed
      */
-    private $user_browser;
+    private $userBrowser;
 
     /**
-     * @var
+     * @var string
      */
-    public $id;
+    protected $_tableName = 'users';
 
     /**
-     * @var
-     */
-    public $name;
-
-    /**
-     * @var
-     */
-    public $pin;
-
-    /**
-     * @var
-     */
-    public $role;
-
-    /**
-     * @var
-     */
-    public $rate;
-
-    /**
-     * @var
-     */
-    public $hash;
-
-    /**
-     * @var
-     */
-    public $user_homepage;
-
-    /**
-     * @var array
-     */
-    public $capabilities = array();
-
-    /**
-     * User constructor.
+     * Query DB for user with inputted pin number or ID and fill out class properties
      *
-     * @param PDOWrap|null $db
-     * @param Messages|null $messages
-     * @param string $value
-     * @param string $field
-     */
-    public function __construct(PDOWrap $db = null, Messages $messages = null, string $value = '', string $field = 'pin')
-    {
-        $this->user_browser = $_SERVER['HTTP_USER_AGENT'];
-        //echo ' ' . password_hash( '', PASSWORD_BCRYPT, $this->crypto_options );
-
-        parent::__construct( $db, $messages );
-
-        if ( !empty( $value ) ) {
-            $this->init( $value, $field );
-        }
-    }
-
-    /**
-     * @param int $value
+     * @param array|int $input
      * @param string $field
      * @return bool
      */
-    public function init(int $value = 0, string $field = 'pin'): bool
+    public function init($input = null, string $field = 'pin'): bool
     {
-        if ( $value === 0 ) {
-            return false;
+        $this->userBrowser = $_SERVER['HTTP_USER_AGENT'];
+
+        if ( is_numeric( $input ) ) {
+
+            switch( strtolower( $field ) ) {
+                case 'id':
+                    $search = $input ?? $this->id;
+                    $column = 'ID';
+                    break;
+                case 'pin':
+                default:
+                    $search = $input ?? $this->pin;
+                    $column = 'pin';
+                    break;
+            }
+
+            if ( empty( $search ) || !ph_validate_number( $search ) ) {
+                return false;
+            }
+
+            $row = $this->db->getRow( $this->tableName, array($column => $search) );
+        } else {
+            $row = $input;
+        }
+        if ( empty( $row['ID'] ) ) {
+            return $this->exists = false;
         }
 
-        switch( $field ) {
-            case 'id':
-                $search = $value ?? $this->getID();
-                $column = 'ID';
-                break;
-            case 'pin':
-            default:
-                $search = $value ?? $this->getPin();
-                $column = 'pin';
-                break;
-        }
+        $this->id = $row['ID'] ?? 0;
+        $this->name = $row['name'] ?? '';
+        $this->pin = !empty( $row['pin'] ) ? $row['pin'] : 0;
+        $this->role = $row['type'] ?? '';
+        $this->rate = $row['rate'] ?? 0;
+        $this->hash = $row['password'] ?? '';
 
-        if ( empty( $search ) || !ph_validate_number( $search ) ) {
-            return false;
-        }
-
-        $user = $this->db->getRow( 'users', array($column => $search) );
-        if ( empty( $user ) ) {
-            return false;
-        }
-
-        $this->id = $user['ID'] ?? 0;
-        $this->name = $user['name'] ?? '';
-        $this->pin = $user['pin'] ?? '';
-        $this->role = $user['type'] ?? '';
-        $this->rate = $user['rate'] ?? 0;
-        $this->hash = $user['password'] ?? '';
-
-        $roles = new Roles;
-        $this->capabilities = $roles->getRoleCapabilities( $this->getRole() );
-
-        return true;
+        return $this->exists = true;
     }
 
     /**
+     * @param string $hash
      * @return string
      */
-    public function getHash(): string
+    protected function hash(string $hash = ''): string
     {
-        return $this->hash ?? '';
+        if ( !empty( $hash ) ) {
+            $this->_hash = $hash;
+        }
+        return $this->_hash ?? '';
     }
 
     /**
+     * @param int $pin
      * @return int
      */
-    public function getPin(): int
+    protected function pin(int $pin = 0): int
     {
-
-        return $this->pin ?? 0;
+        if ( !empty( $pin ) ) {
+            $this->_pin = $pin;
+        }
+        return $this->_pin ?? 0;
     }
 
     /**
+     * @param int $rate
      * @return int
      */
-    public function getID(): int
+    protected function rate(int $rate = 0): int
     {
-        return $this->id ?? 0;
+        if ( !empty( $rate ) ) {
+            $this->_rate = $rate;
+        }
+        return $this->_rate ?? 0;
     }
 
+
     /**
+     * @param string $name
      * @return string
      */
-    public function getName(): string
+    protected function name(string $name = ''): string
     {
-        return $this->name ?? '';
+        if ( !empty( $name ) ) {
+            $this->_name = $name;
+        }
+        return $this->_name ?? '';
     }
 
     /**
+     * @param string $role
      * @return string
      */
-    public function getRole(): string
+    protected function role(string $role = ''): string
     {
-        //d($this->role);
-        return $this->role ?? '';
+        if ( !empty( $role ) ) {
+            $this->_role = $role;
+        }
+        return $this->_role ?? '';
     }
 
     /**
-     * @return mixed
+     * @param array $cryptoOptions
+     * @return array
      */
-    public function getUserHomepage()
+    protected function cryptoOptions(array $cryptoOptions = []): array
     {
-        if ( !empty( $this->user_homepage ) ) {
-            return $this->user_homepage;
+        if ( !empty( $cryptoOptions ) ) {
+            $this->_cryptoOptions = $cryptoOptions;
         }
-        $roles = new Roles;
-        return $this->user_homepage = $roles->getHomePage($this->getRole());
-        //return $this->user_homepage = $this->db->run( 'SELECT homepage FROM user_access WHERE type = ?', [$this->getRole()] )->fetch()['homepage'] ?? '';
-    }
-
-    /**
-     * @return array|bool
-     */
-    public function getCryptoOptions()
-    {
-        if ( empty( $this->crypto_options ) ) {
-            return false;
-        }
-        return $this->crypto_options;
+        return $this->_cryptoOptions ?? [];
     }
 
     /**
@@ -199,7 +188,7 @@ class User extends AbstractCRM
      */
     public function login($password = ''): bool
     {
-        if ( empty( $this->getID() ) ) {
+        if ( empty( $this->id ) ) {
             $this->messages->add( 'A user with this pin does not exist. Please try again.' );
             return false;
         }
@@ -218,22 +207,24 @@ class User extends AbstractCRM
             return false;
         }
 
-        if ( empty( $this->getHash() ) ) {
+        if ( empty( $this->hash ) ) {
             $this->messages->add( 'Password has not been set.' );
             return false;
         }
 
-        if ( !password_verify( $password, $this->getHash() ) ) {
+        if ( !password_verify( $password, $this->hash ) ) {
             $this->messages->add( 'You entered an incorrect password. Please try again.' );
             // We record failed login attempt to the database
             $now = date( 'Y-m-d H:i:s' );
-            $this->db->run( 'INSERT INTO login_attempts(user_id, ip, timestamp) VALUES (?, INET6_ATON(?), ?)', [$this->getID(), $_SERVER['REMOTE_ADDR'], $now] );
+            $this->db->run( 'INSERT INTO login_attempts(user_id, ip, timestamp) VALUES (?, INET6_ATON(?), ?)', [$this->id, $_SERVER['REMOTE_ADDR'], $now] );
+            //$this->db->add( 'login_attempts', ['user_id' => $this->id, 'ip' => $_SERVER['REMOTE_ADDR'], 'timestamp' => $now] );
+
             return false;
         }
 
         //successful login
-        $_SESSION['user_id'] = preg_replace( '/[^0-9]+/', '', $this->getID() ); // XSS protection
-        $_SESSION['login_string'] = password_hash( $this->getHash() . $this->user_browser, PASSWORD_BCRYPT, $this->crypto_options );
+        $_SESSION['user_id'] = preg_replace( '/[^0-9]+/', '', $this->id ); // XSS protection
+        $_SESSION['login_string'] = password_hash( $this->hash . $this->userBrowser, PASSWORD_BCRYPT, $this->cryptoOptions );
         return true;
 
     }
@@ -251,7 +242,7 @@ class User extends AbstractCRM
             $this->messages->add( 'Incorrect IP detected. Please login from Mabarrack Factory.' );
             return false;
         }
-        if ( !password_verify( $this->getHash() . $this->user_browser, $_SESSION['login_string'] ) ) {
+        if ( !password_verify( $this->hash . $this->userBrowser, $_SESSION['login_string'] ) ) {
             return false;
         }
         return true;
@@ -274,7 +265,7 @@ class User extends AbstractCRM
         }
 
         $ipRestrictedRoles = is_string( IP_RESTRICTED_ROLES ) ? array(IP_RESTRICTED_ROLES) : IP_RESTRICTED_ROLES;
-        if ( in_array( $this->getRole(), $ipRestrictedRoles, false ) ) {
+        if ( in_array( $this->role, $ipRestrictedRoles, false ) ) {
             //limit staff login to login from factory only
             $allowedIPs = is_string( ALLOWED_IP_NUMBERS ) ? array(ALLOWED_IP_NUMBERS) : ALLOWED_IP_NUMBERS;
 
@@ -295,7 +286,10 @@ class User extends AbstractCRM
         if ( empty( $capability ) ) {
             $capability = basename( $_SERVER['SCRIPT_FILENAME'], false );
         }
-        if ( in_array( $capability, $this->capabilities, true ) ) {
+        $roles = Roles::instance();
+        $capabilities = $roles->getRoleCapabilities( $this->role );
+
+        if ( in_array( $capability, $capabilities, true ) ) {
             return true;
         }
         return false;
@@ -335,7 +329,20 @@ class User extends AbstractCRM
 
         //$validAttempts = $now - ( 12 * 60 * 60 );
 
-        $attempts = $this->db->run( 'SELECT INET6_NTOA(ip),timestamp FROM login_attempts WHERE user_id = ? AND timestamp > ?', [$this->getID(), $validAttempts] )->fetchAll();
+        $attempts = $this->db->run( 'SELECT INET6_NTOA(ip),timestamp FROM login_attempts WHERE user_id = ? AND timestamp > ?', [$this->id, $validAttempts] )->fetchAll();
         return count( $attempts ) > 10;
     }
+
+    /**
+     * @param array $shifts
+     * @return Shift[]
+     */
+    protected function shifts(array $shifts = []): array
+    {
+        if ( !empty( $shifts ) ) {
+            $this->_shifts = $shifts;
+        }
+        return $this->_shifts ?? [];
+    }
+
 }

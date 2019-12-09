@@ -11,7 +11,8 @@ if ( isset( $_SESSION['user_id'] ) ) { //logged in, redirect to main page
             $ph_user->logout();
             ph_messages()->add( 'You have successfully logged out.', 'primary' );
         } else {
-            ph_redirect( $ph_user->getUserHomepage() );
+            $roles = new Roles;
+            ph_redirect( $roles->getHomePage( $ph_user->role ) );
         }
     }
 }

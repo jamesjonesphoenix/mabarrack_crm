@@ -497,7 +497,7 @@ class WorkerWeek extends Report
     public
     function outputReport(): void
     {
-        ph_get_template_part( 'report/header/links-' . CurrentUser::instance()->getRole(), array(
+        ph_get_template_part( 'report/header/links-' . CurrentUser::instance()->role, array(
             'worker_id' => $this->worker_id,
             'date_next' => date( 'd-m-Y', strtotime( $this->dateFinish ) ),
             'date_previous' => date( 'd-m-Y', strtotime( $this->dateStart . ' - 7 days' ) ),

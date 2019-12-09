@@ -4,8 +4,11 @@ namespace Phoenix;
 
 include '../src/crm_init.php';
 
+
 $newsText = PDOWrap::instance()->getRow( 'settings', array('name' => 'news_text') )['value'];
 $newsText = nl2br( $newsText );
+
+$userID = CurrentUser::instance()->id
 ?>
     <div class="row">
         <div class="col-md-12">
@@ -19,7 +22,6 @@ $newsText = nl2br( $newsText );
             <div class="panel panel-default whomepanel">
                 <?php
 
-                $userID = ph_validate_number( $_SESSION['user_id'] );
 
                 $shiftRows = PDOWrap::instance()->run( 'SELECT shifts.*, activities.name as activity FROM shifts INNER JOIN activities ON shifts.activity=activities.ID WHERE shifts.worker=? AND date = CURRENT_DATE', [$userID] )->fetchAll();
                 if ( empty( $shiftRows ) ) { //no shifts found for today, show start day
@@ -40,16 +42,15 @@ $newsText = nl2br( $newsText );
                         if ( $shift['activity'] === 'Lunch' ) {
                             $hadLunch = true;
                         }
-                    }
-
+                    } ?>
+                    <a class="btn btn-default redbtn whbtn" style="margin: 70px 50px 50px 50px;"
+                    <?php
                     if ( $hadLunch ) { ?>
-                        <a class="btn btn-default redbtn whbtn" style="margin: 70px 50px 50px 50px;"
-                           href="finish_day.php">
-                            <h2>Finish Day</h2></a>
+                        href="finish_day.php">
+                        <h2>Finish Day</h2></a>
                     <?php } else { ?>
-                        <a class="btn btn-default redbtn whbtn" style="margin: 70px 50px 50px 50px;"
-                           href="startlunch.php">
-                            <h2>Start Lunch</h2></a>
+                        href="nextshift.php">
+                        <h2>Start Lunch</h2></a>
                     <?php }
                 }
                 ?>
@@ -128,17 +129,16 @@ $newsText = nl2br( $newsText );
                     $lastJob = PDOWrap::instance()->run( 'SELECT jobs.*, customers.name as customer FROM jobs INNER JOIN customers ON jobs.customer=customers.ID WHERE jobs.ID=:jobID', ['jobID' => $lastShift['job']] )->fetchAll()[0];
 
 
-
                     echo '<h3 class="well" style="margin-bottom: 0;">' . $lastJob['customer'] . '</h3>';
 
-                    $activities = new Activities(PDOWrap::instance());
-                    $activity = $activities->getName($lastShift['activity']);
-                    echo !empty($activity) ? '<br><h3 class="well">' . $activity . '</h3>' : '';
-                    echo !empty($lastJob['description']) && $lastShift['job'] !== 0 ? '<br><h3 class="well">' . $lastJob['description'] . '</h3>' : '';
+                    $activities = new Activities( PDOWrap::instance() );
+                    $activity = $activities->getName( $lastShift['activity'] );
+                    echo !empty( $activity ) ? '<br><h3 class="well">' . $activity . '</h3>' : '';
+                    echo !empty( $lastJob['description'] ) && $lastShift['job'] !== 0 ? '<br><h3 class="well">' . $lastJob['description'] . '</h3>' : '';
 
 
                 } else {
-                    echo "<h3 class='well' style='margin-bottom: 0'>none</h3>";
+                    ?><h3 class='well' style='margin-bottom: 0'>none</h3><?php
                 }
                 ?>
                 <div class='row justify-content-center'>

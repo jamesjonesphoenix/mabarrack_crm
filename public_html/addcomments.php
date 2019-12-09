@@ -7,9 +7,9 @@ include '../src/crm_init.php';
 $startTime = date( 'H:i:s' ); //get current time
 
 
-$user_id = ph_validate_number( $_SESSION['user_id'] );
+$userID = ph_validate_number( $_SESSION['user_id'] );
 //Get the previous shift ID
-$previousShift = PDOWrap::instance()->getRow( 'shifts', 'worker = ' . $user_id . ' AND time_finished IS NULL ORDER BY ID DESC LIMIT 1' );
+$previousShift = PDOWrap::instance()->getRow( 'shifts', 'worker = ' . $userID . ' AND time_finished IS NULL ORDER BY ID DESC LIMIT 1' );
 
 if ( $previousShift !== false ) {
     $ps_times = $previousShift['time_started'];
@@ -33,7 +33,7 @@ if ( $previousShift !== false ) {
 
 if ( PDOWrap::instance()->add( 'shifts', array(
     'job' => $_GET['jid'],
-    'worker' => $user_id,
+    'worker' => $userID,
     'date' => date( 'd-m-Y' ),
     'time_started' => $startTime,
     'activity' => $_GET['aid']

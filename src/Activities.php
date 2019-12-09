@@ -51,9 +51,8 @@ class Activities extends AbstractCRM
     public function getName(int $activityID = 0)
     {
         return $this->getAttribute( $activityID, 'name' );
-
-
     }
+
 
     /**
      * @param int $activityID
