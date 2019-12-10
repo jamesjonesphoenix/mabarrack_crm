@@ -68,12 +68,6 @@ class WorkerWeek extends Report
     public $factory_hours_with_job_number = array();
 
     /**
-     * @var bool|int
-     */
-    private $worker_id;
-
-
-    /**
      * @param int $workerID
      * @param string $dateStart
      * @return bool
@@ -85,9 +79,9 @@ class WorkerWeek extends Report
             return false;
         }
 
-        $this->worker_id = ph_validate_number( $workerID );
-        if ( !$this->getWorker( $this->worker_id ) ) {
-            $this->messages->add( 'Worker with ID: ' . $this->worker_id . ' doesn\'t exist. Can\'t create report.' );
+        $this->workerID = ph_validate_number( $workerID );
+        if ( !$this->getWorker( $this->workerID ) ) {
+            $this->messages->add( 'Worker with ID: ' . $this->workerID . ' doesn\'t exist. Can\'t create report.' );
             return false;
         }
         $dateStart = DateTime::validateDate( $dateStart, true );
@@ -330,7 +324,7 @@ class WorkerWeek extends Report
         }
         foreach ( $jobsList as &$job ) {
             //$job['hours_this_week'] = $job['hours_this_week'];
-            $job['customer_cost'] = $job['hours_this_week'] * $this->getWorker( $this->worker_id )['rate'] / 60;
+            $job['customer_cost'] = $job['hours_this_week'] * $this->getWorker( $this->workerID )['rate'] / 60;
         }
         unset( $job );
         $jobsList = Format::tableValues( $jobsList, [
@@ -479,7 +473,7 @@ class WorkerWeek extends Report
     INNER JOIN activities ON shifts.activity=activities.ID
     INNER JOIN users ON shifts.worker=users.ID
     WHERE shifts.worker = :workerid AND shifts.date >= :datestart AND shifts.date <= :datefinish', [
-            'workerid' => $this->worker_id,
+            'workerid' => $this->workerID,
             'datestart' => date( 'Y-m-d', strtotime( $this->dateStart ) ),
             'datefinish' => date( 'Y-m-d', strtotime( $this->dateFinish ) )
         ] )->fetchAll();
@@ -525,7 +519,7 @@ class WorkerWeek extends Report
     function outputReport(): void
     {
         ph_get_template_part( 'report/header/links-' . CurrentUser::instance()->role, array(
-            'worker_id' => $this->worker_id,
+            'worker_id' => $this->workerID,
             'date_next' => date( 'd-m-Y', strtotime( $this->dateFinish ) ),
             'date_previous' => date( 'd-m-Y', strtotime( $this->dateStart . ' - 7 days' ) ),
         ) );
@@ -533,7 +527,7 @@ class WorkerWeek extends Report
 
         if ( $this->getShifts() ) {
             ph_get_template_part( 'report/worker-week/weekly-shifts', array(
-                'worker' => $this->getWorker( $this->worker_id ),
+                'worker' => $this->getWorker( $this->workerID ),
                 'date_start' => $this->dateStart,
                 'date_finish' => $this->dateFinish,
                 'totals' => $this->totals['formatted'],

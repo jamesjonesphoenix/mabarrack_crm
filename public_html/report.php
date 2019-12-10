@@ -5,29 +5,28 @@ include '../src/crm_init.php';
 
 
 if ( $ph_user->role === 'staff' ) {
-    $worker_id = $ph_user->id;
+    $workerID = $ph_user->id;
 } elseif ( $ph_user->role === 'admin' ) {
     if ( !empty( $_GET['worker_id'] ) ) {
-        $worker_id = ph_validate_number( $_GET['worker_id'] );
+        $workerID = ph_validate_number( $_GET['worker_id'] );
     }
     if ( !empty( $_GET['job_id'] ) ) {
         $jobID = ph_validate_number( $_GET['job_id'] );
     }
 }
 
-
-if ( empty( $worker_id ) && empty( $jobID ) && $ph_user->role === 'admin' ) {
+if ( empty( $workerID ) && empty( $jobID ) && $ph_user->role === 'admin' ) {
     if ( !empty( $_GET['report'] ) ) {
 
         ph_get_template_part( 'report/header/links-admin' );
         ph_messages()->display();
         if ( $_GET['report'] === 'jcr' ) {
             if ( isset( $_GET['customer_id'] ) ) {
-                $customer_id = ph_validate_number( $_GET['customer_id'] );
-                //kill $jobs = getRowsQuery( 'jc', [ $customer_id ] );
+                $customerID = ph_validate_number( $_GET['customer_id'] );
+                //kill $jobs = getRowsQuery( 'jc', [ $customerID ] );
                 $jobs = PDOWrap::instance()->run( 'SELECT jobs.ID, jobs.date_started, jobs.date_finished, jobs.status, jobs.priority, jobs.customer, jobs.furniture, jobs.description, customers.name as customer
                 FROM jobs
-                INNER JOIN customers ON jobs.customer=customers.ID WHERE jobs.ID != 0 AND jobs.customer = ?', [$customer_id] )->fetchAll();
+                INNER JOIN customers ON jobs.customer=customers.ID WHERE jobs.ID != 0 AND jobs.customer = ?', [$customerID] )->fetchAll();
                 $template_args = array('jobs' => $jobs);
                 ph_get_template_part( 'report/job-costing/select-job', array('jobs' => $jobs) );
             } else {
@@ -57,14 +56,14 @@ if ( empty( $worker_id ) && empty( $jobID ) && $ph_user->role === 'admin' ) {
         $report = new Report\JobCosting( PDOWrap::instance(), Messages::instance(), $activities );
         $report->activities = $activities;
         $report->init( $jobID );
-    } elseif ( !empty( $worker_id ) ) {
+    } elseif ( !empty( $workerID ) ) {
         /*
          * worker weekly time record
          */
         $dateStart = !empty( $_GET['date_start'] ) ? $_GET['date_start'] : '';
         $report = new Report\WorkerWeek( PDOWrap::instance(), Messages::instance(), $activities );
         $report->activities = $activities;
-        $report->init( $worker_id, $dateStart );
+        $report->init( $workerID, $dateStart );
     }
     ph_messages()->display();
     $report->outputReport();
