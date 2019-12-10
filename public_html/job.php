@@ -148,10 +148,10 @@ if ( isset( $_GET['add'] ) ) { //add a new job
                 <tr>
                     <td width=310><b>Started: </b><input type='date' class='form-control viewinput w300'
                                                          name='date_started'
-                                                         value='<?php echo DateTime::validate_date( $job->dateStarted ); ?>'
+                                                         value='<?php echo DateTime::validateDate( $job->dateStarted ); ?>'
                                                          autocomplete='off'/></td>
                     <td><b>Finished: </b><input type='date' class='form-control viewinput w300' name='date_finished'
-                                                value='<?php echo DateTime::validate_date( $job->dateFinished ); ?>'
+                                                value='<?php echo DateTime::validateDate( $job->dateFinished ); ?>'
                                                 autocomplete='off'/></td>
 
 

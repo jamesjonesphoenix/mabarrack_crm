@@ -32,16 +32,16 @@ namespace Phoenix;
         </div>
     <?php endif; ?>
     <?php
-    $activities_columns = array( 'activity_ID', 'activity', 'activity_hours', '%_of_hours_paid', '%_of_total_hours', 'activity_cost', '%_of_total_employee_cost' );
+    $activitiesColumns = array( 'activity_ID', 'activity', 'activity_hours', '%_of_hours_paid', '%_of_total_hours', 'activity_cost', '%_of_total_employee_cost' );
     //$activities_view_link = array( array( 'table' => 'activities', 'column' => 'activity_ID' ) );
     if ( !empty( $factory_hours_with_job_number ) ) : ?>
         <h4>Factory Hours (with job number)</h4>
         <?php
-        echo generateTable( $activities_columns, $factory_hours_with_job_number );
+        echo generateTable( $activitiesColumns, $factory_hours_with_job_number );
     endif;
     if ( !empty( $factory_hours_no_job_number ) ) : ?>
         <h4>Factory Hours (without job number)</h4>
-        <?php echo generateTable( $activities_columns, $factory_hours_no_job_number );
+        <?php echo generateTable( $activitiesColumns, $factory_hours_no_job_number );
     endif;
     if ( !empty( $totals ) ) :
         ph_get_template_part( 'report/worker-week/totals-summary', array( 'totals' => $totals, ) );

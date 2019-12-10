@@ -240,7 +240,7 @@ class Job extends Entity
             return $this->$property ?? 0;
         }
         if ( $amount === 'string' ) {
-            return ph_format_currency( $this->$property ) ?? '';
+            return Format::currency( $this->$property ) ?? '';
         }
         return null;
     }

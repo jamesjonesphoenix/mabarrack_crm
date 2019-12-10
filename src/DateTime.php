@@ -22,56 +22,73 @@ class DateTime
      * @param bool $dmy
      * @return string|bool
      */
-    public static function validate_date($date = '', $dmy = false ) {
+    public static function validateDate($date = '', $dmy = false ) {
 
         if ( empty( $date ) || in_array( $date, self::$dudTimes, false) ) {
             return false;
         }
-        $date_array = explode( '-', $date );
-        if ( empty( $date_array[ 0 ] ) || empty( $date_array[ 1 ] ) || empty( $date_array[ 2 ] ) ) {
+        $dateArray = explode( '-', $date );
+        if ( empty( $dateArray[ 0 ] ) || empty( $dateArray[ 1 ] ) || empty( $dateArray[ 2 ] ) ) {
             return false;
         }
         if ( $dmy ) {
-            if ( checkdate( $date_array[ 1 ], $date_array[ 0 ], $date_array[ 2 ] ) ) {
+            if ( checkdate( $dateArray[ 1 ], $dateArray[ 0 ], $dateArray[ 2 ] ) ) {
                 return $date;
             }
-        } else if ( checkdate( $date_array[ 1 ], $date_array[ 2 ], $date_array[ 0 ] ) ) {
+        } else if ( checkdate( $dateArray[ 1 ], $dateArray[ 2 ], $dateArray[ 0 ] ) ) {
             return $date;
         }
         return false;
-
         /*
-
         $datetime = strtotime( $date );
         if ( $datetime <= 0 )
             return false;
         $date = date( "Y-m-d", $datetime );
-        $date_array = explode( '-', $date );
-        if ( checkdate( $date_array[ 1 ], $date_array[ 2 ], $date_array[ 0 ] ) )
+        $dateArray = explode( '-', $date );
+        if ( checkdate( $dateArray[ 1 ], $dateArray[ 2 ], $dateArray[ 0 ] ) )
             return $date;
         else
             return false;
         */
-
-
     }
 
     /**
-     * Returns time difference in minutes
+     * Returns time difference between two times in minutes
      * 
-     * @param $timeStart
-     * @param $timeFinish
-     * @return bool|float|int
+     * @param string $timeStart
+     * @param string $timeFinish
+     * @return float|int
      */
-    public static function time_difference($timeStart, $timeFinish ) {
+    public static function timeDifference(string $timeStart = '', string $timeFinish = '') {
         if ( empty( $timeStart ) || empty( $timeFinish ) ) {
-            return false;
+            return 0;
         }
         $timeStart = strtotime( $timeStart );
         $timeFinish = strtotime( $timeFinish );
-        if ( $timeStart <= 0 || $timeFinish <= 0 ) {
-            return false;
+        if ( empty($timeStart) || empty($timeFinish) || $timeStart <= 0 || $timeFinish <= 0 ) {
+            return 0;
         }
         return ( $timeFinish - $timeStart ) / 60;
     }
+
+    /**
+     * @param $timestamp
+     * @param int $upDown
+     * @return false|string
+     */
+    public static function roundTime($timestamp, int $upDown = 0)
+    {
+        $precision = 6;
+        $timestamp = strtotime( $timestamp );
+        $precision = 60 * $precision;
+        if ( $upDown === 1 ) {
+            $timestamp = ceil( $timestamp / $precision ) * $precision;
+        } elseif ( $upDown === -1 ) {
+            $timestamp = floor( $timestamp / $precision ) * $precision;
+        } else {
+            $timestamp = round( $timestamp / $precision ) * $precision;
+        }
+        return date( 'H:i:s', $timestamp );
+    }
+
 }

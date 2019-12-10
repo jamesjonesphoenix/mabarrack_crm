@@ -6,7 +6,7 @@ define( 'DOING_AJAX', true );
 
 include '../src/crm_init.php';
 
-$userID = ph_validate_number( $_SESSION['user_id'] );
+$userID = CurrentUser::instance()->id;
 
 //Get the previous shift ID
 $shiftFactory = new ShiftFactory( PDOWrap::instance(), Messages::instance() );

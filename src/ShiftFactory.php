@@ -69,6 +69,25 @@ class ShiftFactory extends EntityFactory
     }
 
     /**
+     * Gets the shift a worker is currently clocked on to.
+     *
+     * @param int $userID
+     * @return Shift|bool
+     */
+    public function getWorkerUnfinishedShift(int $userID = 0)
+    {
+        $previousShift = $this->getEntities( [
+            'worker' => $userID,
+            'time_finished' => null
+        ], true );
+        if ( count( $previousShift ) > 1 ) {
+            $this->messages->add( 'Found more than one unfinished shift. Should only be one.' );
+            return false;
+        }
+        return array_shift( $previousShift );
+    }
+
+    /**
      * Alias for getEntities()
      *
      * @param int $id
@@ -91,22 +110,7 @@ class ShiftFactory extends EntityFactory
         return $this->getEntities( $queryArgs, $provision );
     }
 
-    /**
-     * @param int $userID
-     * @return Shift|bool
-     */
-    public function getWorkerUnfinishedShift(int $userID = 0)
-    {
-        $previousShift = $this->getEntities( [
-            'worker' => $userID,
-            'time_finished' => null
-        ], true );
-        if ( count( $previousShift ) > 1 ) {
-            $this->messages->add( 'Found more than one unfinished shift. Should only be one.' );
-            return false;
-        }
-        return array_shift( $previousShift );
-    }
+
 
     /**
      * @param array $queryArgs

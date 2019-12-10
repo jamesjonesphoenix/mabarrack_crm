@@ -13,7 +13,7 @@ if ( !empty( $unfinishedShift ) ) {
     $unfinishedShift->finishShift();
 }
 
-$currentTime = roundTime( date( 'H:i:s' ) ); //get current time
+$currentTime = DateTime::roundTime( date( 'H:i:s' ) ); //get current time
 
 $jobID = !empty($_GET['job_id']) ? ph_validate_number( $_GET['job_id'] ) : 0;
 $activityID = !empty($_GET['activity_id']) ? ph_validate_number( $_GET['activity_id'] ) : 0;

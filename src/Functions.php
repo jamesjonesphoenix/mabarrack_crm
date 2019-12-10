@@ -280,11 +280,9 @@ function getRowsQuery($query, $queryArgs)
  */
 function generateTable($columns, $rows, $viewButtonArgs = '')
 {
-    $html_str = "<table class='tablesorter table table-hover'><thead><tr>";
+    $html = "<table class='tablesorter table table-hover'><thead><tr>";
     $first = true;
-    //print_r($columns);
-    //print_r($rows);
-    $has_status = false;
+    $hasStatus = false;
     $colidx = 0;
     foreach ( $columns as $column ) {
         if ( $column !== 'status' ) {
@@ -297,9 +295,9 @@ function generateTable($columns, $rows, $viewButtonArgs = '')
             } else {
                 $class = 'w100';
             }
-            $html_str .= '<th class="' . $class . '"  >' . str_replace( '_', ' ', $column ) . '</th>';
+            $html .= '<th class="' . $class . '"  >' . str_replace( '_', ' ', $column ) . '</th>';
         } else {
-            $has_status = true;
+            $hasStatus = true;
         }
         $colidx++;
     }
@@ -313,7 +311,7 @@ function generateTable($columns, $rows, $viewButtonArgs = '')
         foreach ( $viewButtonArgs as $key => &$view_button ) {
             $view_button['detail_page'] = getDetailPage( $view_button['table'] );
             if ( (!empty( $view_button['detail_page'] )) ) {
-                $html_str .= "<td class='viewth'></td>";
+                $html .= "<td class='viewth'></td>";
             }
             if ( empty( $view_button['column'] ) ) {
                 $view_button['column'] = 'ID';
@@ -325,18 +323,18 @@ function generateTable($columns, $rows, $viewButtonArgs = '')
         }
     }
 
-    $html_str .= '</tr></thead>';
-    $html_str .= '<tbody>';
+    $html .= '</tr></thead>';
+    $html .= '<tbody>';
 
     if ( $rows === false ) {
-        $html_str .= '    <tr><td class="noresult" colspan="' . (count( $columns ) + 1) . '">No results found</td></tr>';
+        $html .= '    <tr><td class="noresult" colspan="' . (count( $columns ) + 1) . '">No results found</td></tr>';
     } else {
         foreach ( $rows as $row ) {
 
-            if ( $has_status ) {
-                $html_str .= "    <tr class='" . $row['status'] . "'>";
+            if ( $hasStatus ) {
+                $html .= "    <tr class='" . $row['status'] . "'>";
             } else {
-                $html_str .= '    <tr>';
+                $html .= '    <tr>';
             }
             foreach ( $columns as $column ) {
                 //if ( empty( $row[ $column ] ) )
@@ -346,15 +344,11 @@ function generateTable($columns, $rows, $viewButtonArgs = '')
                     case 'status':
                         break;
                     case 'job':
-                        // d( $row[$column] );
-                        // d( $row[$column]->id );
-                        d( $row[$column] );
                         if ( is_numeric( $row[$column] ) ) {
                             $jobID = $row[$column];
                         } else {
                             $jobID = !empty( $row[$column]->id ) || $row[$column]->id === 0 ? $row[$column]->id : $row[$column];
                         }
-                        //d( $jobID );
                         if ( $jobID === 0 ) {
                             $row[$column] = 'Factory';
                         } else {
@@ -387,7 +381,7 @@ function generateTable($columns, $rows, $viewButtonArgs = '')
                     case 'sale_price':
                     case 'contractor_cost':
                     case 'spare_cost':
-                        $row[$column] = ph_format_currency( $row[$column] );
+                        $row[$column] = Format::currency( $row[$column] );
                         break;
                     case 'time':
                     case 'time_started':
@@ -399,7 +393,7 @@ function generateTable($columns, $rows, $viewButtonArgs = '')
                     case 'date':
                     case 'date_started':
                     case 'date_finished':
-                        if ( !DateTime::validate_date( $row[$column] ) ) {
+                        if ( !DateTime::validateDate( $row[$column] ) ) {
                             $row[$column] = 'N/A';
                         } else {
                             $row[$column] = date( 'd-m-Y', strtotime( $row[$column] ) );
@@ -408,27 +402,27 @@ function generateTable($columns, $rows, $viewButtonArgs = '')
                         //$row[ $column ] = '<span class="hidden-date">' . $row[ $column ] . '</span>' .  date( "d-m-Y", strtotime( $row[ $column ] ) );
                         break;
                 }
+
                 if ( $column !== 'status' ) {
-                    $html_str .= "<td class='" . $column . "'>" . $row[$column] . '</td>';
+                    $html .= "<td class='" . $column . "'>" . $row[$column] . '</td>';
                 }
             }
-
             if ( !empty( $viewButtonArgs ) && CurrentUser::instance()->role === 'admin' ) {
                 foreach ( $viewButtonArgs as $key => &$view_button ) {
                     //print_r('"'.$row[ $view_button[ 'column' ] ] . '"<br>');
                     if ( !empty( $view_button['detail_page'] ) && !empty( $row[$view_button['column']] ) && $row[$view_button['column']] !== '0' ) {
-                        $html_str .= '<td class="w50"><a href="' . $view_button['detail_page'] . '?id=' . $row[$view_button['column']] . '"><div class="btn btn-default viewbtn">' . $view_button['text'] . '</div></a></td>';
+                        $html .= '<td class="w50"><a href="' . $view_button['detail_page'] . '?id=' . $row[$view_button['column']] . '"><div class="btn btn-default viewbtn">' . $view_button['text'] . '</div></a></td>';
                     } else {
-                        $html_str .= '<td>-</td>';
+                        $html .= '<td>-</td>';
                     }
 
                 }
             }
-            $html_str .= '</tr></a>';
+            $html .= '</tr></a>';
         }
     }
-    $html_str .= '</tbody></table>';
-    return $html_str;
+    $html .= '</tbody></table>';
+    return $html;
 }
 
 /**
@@ -447,35 +441,6 @@ function getTable($table)
         return false;
     }
     return generateTable( array_keys( $rows[0] ), $rows, $table );
-}
-
-
-/**
- * GENERATE TIME DROPDOWN OPTIONS
- *
- * @param $ts
- * @return string
- */
-function timeDropDown($ts)
-{
-
-    $html = '';
-    for ( $t = 8; $t < 18; $t++ ) {
-        $t_str = $t . ':';
-        if ( $t < 10 ) {
-            $t_str = '0' . $t . ':';
-        }
-        //$mins = ["00", "15", "30", "45"];
-        for ( $m = 0; $m < 60; $m += 6 ) {
-            $time = $t_str . str_pad( $m, 2, '0', STR_PAD_LEFT );
-            $selected = ($time . ':00') === $ts ? ' selected="selected"' : '';
-
-            $html .= '<option' . $selected . ' value="' . $time . ':00">' . $time . '</option>';
-        }
-    }
-
-
-    return $html;
 }
 
 
@@ -622,140 +587,6 @@ function getDetailPageFooter($formid, $table, $redirectURL)
 }
 
 /**
- * @param $timestamp
- * @param int $upDown
- * @return false|string
- */
-function roundTime($timestamp, int $upDown = 0)
-{
-    $precision = 6;
-    $timestamp = strtotime( $timestamp );
-    $precision = 60 * $precision;
-    if ( $upDown === 1 ) {
-        return date( 'H:i:s', ceil( $timestamp / $precision ) * $precision );
-    }
-
-    if ( $upDown === -1 ) {
-        return date( 'H:i:s', floor( $timestamp / $precision ) * $precision );
-    }
-
-    return date( 'H:i:s', round( $timestamp / $precision ) * $precision );
-}
-
-
-/**
- * @param $value
- * @param bool $order_of_magnitude
- * @return string
- */
-function ph_format_shim_insert($value, $order_of_magnitude = false)
-{
-    $shim = '';
-    if ( $order_of_magnitude ) {
-        $number_of_shims = $order_of_magnitude - max( 0, floor( log10( $value ) ) );
-        for ( $i = 0; $i < $number_of_shims; $i++ ) {
-            $shim .= '&#x2007;';
-        }
-    }
-    return $shim;
-}
-
-/**
- * Convert minutes to hours:minutes
- *
- * @param $minutes
- * @return string
- */
-function ph_format_hours_minutes($minutes, $order_of_magnitude = false)
-{
-    if ( is_numeric( $minutes ) ) {
-        if ( $minutes == 0 ) {
-            return ph_format_shim_insert( 0, $order_of_magnitude ) . '-';
-        }
-        $hours = floor( $minutes / 60 );
-        $hours_and_minutes = ph_format_shim_insert( $hours, $order_of_magnitude ) . $hours . ':' . str_pad( ($minutes % 60), 2, '0', STR_PAD_LEFT );
-        return $hours_and_minutes;
-    }
-    return $minutes;
-}
-
-/**
- * @param $value
- * @param bool $order_of_magnitude
- * @return string
- */
-function ph_format_currency($value, $order_of_magnitude = false)
-{
-    if ( is_numeric( $value ) ) {
-        return ph_format_shim_insert( $value, $order_of_magnitude ) . '$' . number_format( $value, 2 );
-    }
-    return $value;
-
-}
-
-/**
- * @param $value
- * @param bool $for_table
- * @return string
- */
-function ph_format_percentage($value, $for_table = false)
-{
-    if ( is_numeric( $value ) ) {
-        if ( $value == 0 ) {
-            return '-';
-        }
-        $formatted_value = number_format( 100 * $value, 1 ) . '%';
-        if ( $for_table && $value < 0.1 ) {
-            $formatted_value = '&#x2007;' . $formatted_value;
-        }
-        return $formatted_value;
-    }
-    return $value;
-}
-
-/**
- * @param $table_array
- * @param $columns
- * @return mixed
- */
-function ph_format_table_value($table_array, $columns)
-{
-    foreach ( $columns as $column => $column_data ) {
-        $max_value = 0;
-        $output_key = !empty( $column_data['output_column'] ) ? $column_data['output_column'] : $column;
-        foreach ( $table_array as $key => $array ) {
-            if ( !is_numeric( $table_array[$key][$column] ) ) {
-                ph_messages()->add( 'Non numeric value "<strong>' . $table_array[$key][$column] . '</strong>" in column "<strong>' . $column . '</strong>" sent to format function. You probably already formatted the value mistakenly' );
-                return $table_array;
-                break;
-            }
-            $max_value = max( $max_value, $table_array[$key][$column] );
-        }
-        switch( $column_data['type'] ) {
-            case 'currency' :
-                $max_order_of_magnitude = max( 0, floor( log10( $max_value ) ) );
-                foreach ( $table_array as $key => &$row ) {
-                    $row[$output_key] = ph_format_currency( $row[$column], $max_order_of_magnitude );
-                }
-                break;
-            case 'hoursminutes':
-                $max_order_of_magnitude = max( 0, floor( log10( $max_value / 60 ) ) );
-                foreach ( $table_array as $key => &$row ) {
-                    $row[$output_key] = ph_format_hours_minutes( $row[$column], $max_order_of_magnitude );
-                }
-                break;
-            case 'percentage':
-                $for_table = $max_value >= 0.1;
-                foreach ( $table_array as $key => &$row ) {
-                    $row[$output_key] = ph_format_percentage( $row[$column], $for_table );
-                }
-        }
-    }
-    return $table_array;
-}
-
-
-/**
  * @param $template_name
  * @param array $args
  */
@@ -795,9 +626,40 @@ function ph_generateOptionSelect(array $options = [], string $name = '', $select
  * Returns the main instance of WC to prevent the need to use globals.
  *
  * @param bool $ph_user
- * @return Messages|null
+ * @return Messages
  */
 function ph_messages($ph_user = false)
 {
     return Messages::instance( $ph_user );
 }
+
+/**
+ * GENERATE TIME DROPDOWN OPTIONS
+ * Probably not needed as we now directly enter time.
+ *
+ * @param $ts
+ * @return string
+ */
+/*
+function timeDropDown($ts)
+{
+
+    $html = '';
+    for ( $t = 8; $t < 18; $t++ ) {
+        $t_str = $t . ':';
+        if ( $t < 10 ) {
+            $t_str = '0' . $t . ':';
+        }
+        //$mins = ["00", "15", "30", "45"];
+        for ( $m = 0; $m < 60; $m += 6 ) {
+            $time = $t_str . str_pad( $m, 2, '0', STR_PAD_LEFT );
+            $selected = ($time . ':00') === $ts ? ' selected="selected"' : '';
+
+            $html .= '<option' . $selected . ' value="' . $time . ':00">' . $time . '</option>';
+        }
+    }
+
+
+    return $html;
+}
+*/

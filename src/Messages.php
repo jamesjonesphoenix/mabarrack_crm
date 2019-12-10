@@ -33,9 +33,9 @@ class Messages extends Base
 
 
     /**
-     * @return Messages|null
+     * @return Messages
      */
-    public static function instance(): ?Messages
+    public static function instance(): Messages
     {
         if ( self::$_instance === null ) {
             self::$_instance = new self();

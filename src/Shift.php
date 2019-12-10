@@ -65,6 +65,8 @@ class Shift extends Entity
     protected $_tableName = 'shifts';
 
     /**
+     * Return shift length in minutes
+     *
      * @return int
      */
     public function getShiftLength(): int
@@ -72,7 +74,7 @@ class Shift extends Entity
         if ( empty( $this->timeStarted ) || empty( $this->timeFinished ) ) {
             return 0;
         }
-        return DateTime::time_difference( $this->timeStarted, $this->timeFinished );
+        return DateTime::timeDifference( $this->timeStarted, $this->timeFinished );
     }
 
     /**
@@ -102,10 +104,10 @@ class Shift extends Entity
             return false;
         }
 
-        $currentTime = roundTime( date( 'H:i:s' ) ); //get current time
+        $currentTime = DateTime::roundTime( date( 'H:i:s' ) ); //get current time
         $cutOffTime = '17:00:00'; //5pm
         $finishTime = strtotime( $currentTime ) < strtotime( $cutOffTime ) ? $currentTime : $cutOffTime;
-        $minutes = DateTime::time_difference( $this->timeStarted, $finishTime );
+        $minutes = DateTime::timeDifference( $this->timeStarted, $finishTime );
         return $this->db->update( 'shifts',
             [
                 'time_finished' => $finishTime,

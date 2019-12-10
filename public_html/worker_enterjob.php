@@ -8,7 +8,10 @@ include '../src/crm_init.php';
 $newsText = PDOWrap::instance()->getRow( 'settings', array('name' => 'news_text') )['value'];
 $newsText = nl2br( $newsText );
 
-$userID = CurrentUser::instance()->id
+$userID = CurrentUser::instance()->id;
+
+$shiftFactory = new ShiftFactory(PDOWrap::instance(),Messages::instance());
+$jobFactory = new JobFactory(PDOWrap::instance(),Messages::instance());
 ?>
     <div class="row">
         <div class="col-md-12">
@@ -68,7 +71,7 @@ $userID = CurrentUser::instance()->id
                                 $todayMinutes += $shiftRow['minutes'];
                             }
                         }
-                        $todayHours = ph_format_hours_minutes( $todayMinutes );
+                        $todayHours = Format::minutesToHoursMinutes( $todayMinutes );
                         echo '<h3 class="well">' . $todayHours . '</h3>';
                         ?>
                     </div>
@@ -77,20 +80,10 @@ $userID = CurrentUser::instance()->id
                         <?php
 
                         //get week dates
-                        $date_s = '';
-                        $date_f = '';
+                        $weekDay = date( 'w' );
+                        $startDate = $weekDay === '5' /*Friday*/ ? date( 'd-m-Y' ) : date( 'd-m-Y', strtotime( 'previous friday' ) );
+                        $finishDate = $weekDay === '4' /*Thursday*/ ? date( 'd-m-Y' ) : date( 'd-m-Y', strtotime( 'next thursday' ) );
 
-                        if ( date( 'w' ) === '5' /*Friday*/ ) {
-                            $date_s = date( 'd-m-Y' );
-                        } else {
-                            $date_s = date( 'd-m-Y', strtotime( 'previous friday' ) );
-                        }
-
-                        if ( date( 'w' ) === '4' /*Thursday*/ ) {
-                            $date_f = date( 'd-m-Y' );
-                        } else {
-                            $date_f = date( 'd-m-Y', strtotime( 'next thursday' ) );
-                        }
 
                         //get shifts
 
@@ -100,8 +93,8 @@ $userID = CurrentUser::instance()->id
                             $query,
                             [
                                 'worker' => $userID,
-                                'startDate' => date( 'Y-m-d', strtotime( $date_s ) ),
-                                'finishDate' => date( 'Y-m-d', strtotime( $date_f ) )
+                                'startDate' => date( 'Y-m-d', strtotime( $startDate ) ),
+                                'finishDate' => date( 'Y-m-d', strtotime( $finishDate ) )
                             ]
                         )->fetchAll();
 
@@ -113,7 +106,7 @@ $userID = CurrentUser::instance()->id
                         }
 
                         ?>
-                        <h3 class='well'><?php echo ph_format_hours_minutes( $weekMinutes ); ?></h3></div>
+                        <h3 class='well'><?php echo Format::minutesToHoursMinutes( $weekMinutes ); ?></h3></div>
                 </div>
 
                 <h3>Current Job</h3>
@@ -126,14 +119,17 @@ $userID = CurrentUser::instance()->id
                             $lastShift = $shiftRow;
                         }
                     }
-                    $lastJob = PDOWrap::instance()->run( 'SELECT jobs.*, customers.name as customer FROM jobs INNER JOIN customers ON jobs.customer=customers.ID WHERE jobs.ID=:jobID', ['jobID' => $lastShift['job']] )->fetchAll()[0];
 
+
+
+                    $lastJob = PDOWrap::instance()->run( 'SELECT jobs.*, customers.name as customer FROM jobs INNER JOIN customers ON jobs.customer=customers.ID WHERE jobs.ID=:jobID', ['jobID' => $lastShift['job']] )->fetchAll()[0];
 
                     echo '<h3 class="well" style="margin-bottom: 0;">' . $lastJob['customer'] . '</h3>';
 
-                    $activities = new Activities( PDOWrap::instance() );
-                    $activity = $activities->getName( $lastShift['activity'] );
-                    echo !empty( $activity ) ? '<br><h3 class="well">' . $activity . '</h3>' : '';
+                    $activityFactory = new ActivityFactory( PDOWrap::instance(), Messages::instance() );
+                    $activity = $activityFactory->getActivity( $lastShift['activity'] );
+
+                    echo !empty( $activity->displayName ) ? '<br><h3 class="well">' . $activity->displayName . '</h3>' : '';
                     echo !empty( $lastJob['description'] ) && $lastShift['job'] !== 0 ? '<br><h3 class="well">' . $lastJob['description'] . '</h3>' : '';
 
 

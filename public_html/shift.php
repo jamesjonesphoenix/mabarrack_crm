@@ -57,7 +57,7 @@ include '../src/crm_init.php'; ?>
                 </tr>
                 <tr>
                     <td><b>Date: </b><input type='date' class='form-control viewinput w300' name='date'
-                                            value='<?php echo DateTime::validate_date( $shift->date ); ?>'
+                                            value='<?php echo DateTime::validateDate( $shift->date ); ?>'
                                             autocomplete='off'/>
                     </td>
                 </tr>

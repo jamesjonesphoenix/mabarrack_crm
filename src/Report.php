@@ -3,14 +3,16 @@
 namespace Phoenix;
 
 /**
+ * @property Activity[] $activities
+ *
  * Class Report
  */
 class Report extends AbstractCRM
 {
     /**
-     * @var Activities
+     * @var Activity[]
      */
-    protected $activities;
+    protected $_activities;
 
     /**
      * @var
@@ -27,24 +29,20 @@ class Report extends AbstractCRM
      */
     public $totals = array();
 
-
     /**
-     * Report constructor.
-     *
-     * @param Activities|null $activities
-     * @param PDOWrap|null $db
-     * @param Messages|null $messages
+     * @param Activity[] $activities
+     * @return Activity[]
      */
-    public function __construct(Activities $activities = null, PDOWrap $db = null, Messages $messages = null)
+    protected function activities(array $activities = []): array
     {
-        $this->activities = $activities;
-        parent::__construct( $db, $messages );
+        if ( !empty( $activities ) ) {
+            $this->_activities = $activities;
+        }
+        return $this->_activities ?? [];
     }
 
     /**
      * @param $shifts
-     * @param int $total_mins
-     * @param int $total_employee_cost
      * @return mixed
      */
     public function setupActivitySummary($shifts = array())
@@ -57,21 +55,20 @@ class Report extends AbstractCRM
             }
         }
 
-        $activities_summary = array();
-        $activities = new \Phoenix\Activities();
+        $activitiesSummary = array();
 
         foreach ( $shifts as $key => $shift ) {
-            if ( empty( $activities_summary[$shift['activity']] ) ) {
+            if ( empty( $activitiesSummary[$shift['activity']] ) ) {
                 //$activity_id = $activities->getID( $shift[ 'activity' ] );
-                $activities_summary[$shift['activity']] = array(
+                $activitiesSummary[$shift['activity']] = array(
                     'activity_ID' => $shift['activity_ID'] ?? 'N/A',
                     'activity' => $shift['activity'],
                     'activity_hours' => $shift['minutes'],
                     'activity_cost' => $shift['cost'],
                 );
             } else {
-                $activities_summary[$shift['activity']]['activity_hours'] += $shift['minutes'];
-                $activities_summary[$shift['activity']]['activity_cost'] += $shift['cost'];
+                $activitiesSummary[$shift['activity']]['activity_hours'] += $shift['minutes'];
+                $activitiesSummary[$shift['activity']]['activity_cost'] += $shift['cost'];
             }
         }
         $format_columns = array(
@@ -79,26 +76,29 @@ class Report extends AbstractCRM
             'activity_cost' => array('type' => 'currency')
         );
         if ( !empty( $this->totals['amount']['total_recorded_time'] ) && $this->totals['amount']['total_recorded_time'] > 0 ) {
-            foreach ( $activities_summary as &$activity ) {
+            foreach ( $activitiesSummary as &$activity ) {
                 $activity['%_of_total_hours'] = $activity['activity_hours'] / $this->totals['amount']['total_recorded_time'];
             }
+            unset( $activity );
             $format_columns['%_of_total_hours'] = array('type' => 'percentage');
         }
         if ( !empty( $this->totals['amount']['employee_cost'] ) && $this->totals['amount']['employee_cost'] > 0 ) {
-            foreach ( $activities_summary as &$activity ) {
+            foreach ( $activitiesSummary as &$activity ) {
                 $activity['%_of_total_employee_cost'] = $activity['activity_cost'] / $this->totals['amount']['employee_cost'];
             }
+            unset( $activity );
             $format_columns['%_of_total_employee_cost'] = array('type' => 'percentage');
         }
 
         if ( !empty( $this->totals['amount']['time_paid'] ) ) {
-            foreach ( $activities_summary as &$activity ) {
+            foreach ( $activitiesSummary as &$activity ) {
                 $activity['%_of_hours_paid'] = $activity['activity_hours'] / $this->totals['amount']['time_paid'];
             }
+            unset( $activity );
             $format_columns['%_of_hours_paid'] = array('type' => 'percentage');
         }
 
-        return ph_format_table_value( $activities_summary, $format_columns );
+        return Format::tableValues( $activitiesSummary, $format_columns );
     }
 
     /**
@@ -145,36 +145,40 @@ class Report extends AbstractCRM
             return false;
         }
 
-        $total_recorded_minutes = 0;
-        $total_employee_cost = 0;
-        $warning_string = '<strong>Not recorded</strong>';
+        $totalRecordedMinutes = 0;
+        $totalEmployeeCost = 0;
+        $warningString = '<strong>Not recorded</strong>';
         foreach ( $shifts as &$shift ) {
+            $messageString = 'No %s was recorded for <a href="shift.php?id=' . $shift['ID'] . '">shift ' . $shift['ID'] . '</a>. This could cause problems in the report.';
             if ( !empty( $shift['time_started'] ) && !empty( $shift['time_finished'] ) ) {
-                $time_difference = DateTime::time_difference( $shift['time_started'], $shift['time_finished'] );
+                $timeDifference = DateTime::timeDifference( $shift['time_started'], $shift['time_finished'] );
             } else {
                 if ( empty( $shift['time_started'] ) ) {
-                    $shift['time_started'] = $warning_string;
-                    $warning_type = 'start time';
+                    $messageString = sprintf( $messageString ,'start time');
+                    $shift['time_started'] = $warningString;
                 }
                 if ( empty( $shift['time_finished'] ) ) {
-                    $shift['time_finished'] = $warning_string;
-                    $warning_type = 'finish time';
+                    $messageString = sprintf( $messageString ,'finish time');
+                    $shift['time_started'] = $warningString;
                 }
-                $this->messages->add( 'No ' . $warning_type . ' was recorded for <a href="shift.php?id=' . $shift['ID'] . '">shift ' . $shift['ID'] . '</a>. This could cause problems in the report.' );
+                $this->messages->add( $messageString );
             }
+
+
             $shift['shift_ID'] = $shift['ID'];
             $shift['activity_ID'] = $shift['activity'];
 
-            $shift['activity'] = $this->activities->getDisplayName($shift['activity_ID'] );
+            $shift['activity'] = $this->activities[$shift['activity_ID']]->displayName;
 
-            $shift['minutes'] = !empty( $time_difference ) ? $time_difference : 0;
+            $shift['minutes'] = !empty( $timeDifference ) ? $timeDifference : 0;
             $shift['cost'] = ($shift['minutes'] / 60) * $shift['rate'];
             $shift['weekday'] = date( 'l', strtotime( $shift['date'] ) );
-            $total_recorded_minutes += $shift['minutes'];
-            $total_employee_cost += ($shift['minutes'] / 60) * $this->getWorker( $shift['worker'] )['rate'];
+            $totalRecordedMinutes += $shift['minutes'];
+            $totalEmployeeCost += ($shift['minutes'] / 60) * $this->getWorker( $shift['worker'] )['rate'];
         }
-        $this->setTotal( $total_recorded_minutes );
-        $this->setTotal( $total_employee_cost, 'employee_cost', 'money' );
+        unset( $shift );
+        $this->setTotal( $totalRecordedMinutes );
+        $this->setTotal( $totalEmployeeCost, 'employee_cost', 'money' );
 
         return $this->shifts = $shifts;
     }
@@ -197,14 +201,14 @@ class Report extends AbstractCRM
     {
         switch( $type ) {
             case 'money':
-                $this->totals['formatted'][$handle] = ph_format_currency( $amount );
+                $this->totals['formatted'][$handle] = Format::currency( $amount );
                 break;
             case 'percent':
-                $this->totals['formatted'][$handle] = ph_format_percentage( $amount );
+                $this->totals['formatted'][$handle] = Format::percentage( $amount );
                 break;
             case 'time':
             default:
-                $this->totals['formatted'][$handle] = ph_format_hours_minutes( $amount );
+                $this->totals['formatted'][$handle] = Format::minutesToHoursMinutes( $amount );
                 break;
         }
         $this->totals['amount'][$handle] = $amount;

@@ -3,8 +3,8 @@
 namespace Phoenix\Report;
 
 use DateTime;
+use Phoenix\Format;
 use Phoenix\Report;
-use function Phoenix\ph_format_table_value;
 use function Phoenix\ph_get_template_part;
 
 /**
@@ -22,7 +22,7 @@ class JobCosting extends Report
     /**
      * @var array
      */
-    public $activity_summary = array();
+    public $activitySummary = array();
 
 
     /**
@@ -49,7 +49,7 @@ class JobCosting extends Report
         }
 
         //output activities summary table
-        $this->activity_summary = $this->setupActivitySummary();
+        $this->activitySummary = $this->setupActivitySummary();
         //output customer hours
         $total_profit = $job['sale_price'] - $this->totals['amount']['employee_cost'] - $job['material_cost'] - $job['contractor_cost'] - $job['spare_cost'];
         $total_cost = $this->totals['amount']['employee_cost'] + $job['material_cost'] + $job['contractor_cost'] + $job['spare_cost'];
@@ -112,32 +112,32 @@ WHERE shifts.job = ?',
      */
     public function setupJobCosting()
     {
-        $job_costing = array();
+        $jobCosting = array();
         $shifts = $this->getShifts();
         if (!empty($shifts)) {
             foreach ($shifts as $shift) {
 
                 // Create a new DateTime object
-                $dateo = new DateTime($shift['date']);
+                $dateObject = new DateTime($shift['date']);
                 // Modify the date it contains
-                $dateo->modify('next thursday');
+                $dateObject->modify('next thursday');
 
-                $job_costing[] = array(
+                $jobCosting[] = array(
                     'ID' => $shift['ID'],
                     'shift_ID' => $shift['ID'],
                     'worker' => $shift['worker_name'],
-                    'W/ending' => $dateo->format('d-m-Y'),
+                    'W/ending' => $dateObject->format('d-m-Y'),
                     'minutes' => $shift['minutes'],
                     'activity' => $shift['activity'],
                     'rate' => $shift['rate'],
                     'line_item_cost' => $shift['cost'],
                 );
             }
-            $job_costing = ph_format_table_value($job_costing, [
+            $jobCosting = Format::tableValues($jobCosting, [
                 'minutes' => array('type' => 'hoursminutes', 'output_column' => 'hours'),
                 'rate' => array('type' => 'currency'),
                 'line_item_cost' => array('type' => 'currency')]);
-            return $this->job_costing = $job_costing;
+            return $this->jobCosting = $jobCosting;
         }
         return false;
     }
@@ -148,8 +148,8 @@ WHERE shifts.job = ?',
      */
     public function getJobCosting()
     {
-        if (!empty($this->job_costing)) {
-            return $this->job_costing;
+        if (!empty($this->jobCosting)) {
+            return $this->jobCosting;
         }
         return $this->setupJobCosting();
     }
@@ -164,7 +164,7 @@ WHERE shifts.job = ?',
             ph_get_template_part('report/job-costing/report', array(
                 'job' => $this->getJob(),
                 'shifts' => $this->getJobCosting(),
-                'activities_summary' => $this->activity_summary,
+                'activities_summary' => $this->activitySummary,
                 'totals' => $this->totals['formatted'],
             ));
         }

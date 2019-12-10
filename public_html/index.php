@@ -2,7 +2,8 @@
 
 namespace Phoenix;
 
-include '../src/crm_init.php'; ?>
+include '../src/crm_init.php';
+?>
     <div class="row">
         <?php
         $urgentJobCutoff = PDOWrap::instance()->getRow( 'settings', array('name' => 'joburg_th') )['value'];
@@ -18,7 +19,7 @@ include '../src/crm_init.php'; ?>
                 'name' => 'Urgent',
                 'url' => 'page.php?id=8',
                 'image' => 'urgent.svg',
-                'number' => PDOWrap::instance()->run( 'SELECT COUNT(*) as num FROM jobs WHERE status = "jobstat_red" AND priority < (' . $urgentJobCutoff . '+1) AND jobs.ID != 0' )->fetch()['num']
+                'number' => PDOWrap::instance()->run( 'SELECT COUNT(*) as num FROM jobs WHERE status ="jobstat_red" AND priority < (' . $urgentJobCutoff . '+1) AND jobs.ID != 0' )->fetch()['num']
             ),
             'All Jobs' => array(
                 'name' => 'All Jobs',

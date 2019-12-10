@@ -28,7 +28,7 @@ foreach ( $_POST as $key => $value ) {
         case 'date':
         case 'date_started':
         case 'date_finished':
-            if ( DateTime::validate_date( $value ) ) {
+            if ( DateTime::validateDate( $value ) ) {
                 {
                     $data[$key] = date( 'Y-m-d', strtotime( $value ) );
                 }
@@ -41,7 +41,7 @@ foreach ( $_POST as $key => $value ) {
             break;
         case 'password':
             $ph_user = new User( PDOWrap::instance(), Messages::instance() );
-            $data[$key] = password_hash( $value, PASSWORD_BCRYPT, $ph_user->cryptoOptions() );
+            $data[$key] = password_hash( $value, PASSWORD_BCRYPT, $ph_user->cryptoOptions );
             break;
 
         default:
@@ -49,27 +49,29 @@ foreach ( $_POST as $key => $value ) {
             break;
     }
 
-
 }
 
-$time_s = 0; //Time started
-$time_f = 0; //Time finished
+$startTime = 0; //Time started
+$finishTime = 0; //Time finished
 $minutes = 0; //Minutes
 
 //check if time_started given
 if ( isset( $_POST['time_started'] ) ) {
-    $time_s = strtotime( roundTime( $_POST['time_started'] ) );
+    $startTime = strtotime( DateTime::roundTime( $_POST['time_started'] ) );
 }
 //check if time_finished given
 if ( isset( $_POST['time_finished'] ) ) {
-    $time_f = strtotime( roundTime( $_POST['time_finished'] ) );
+    $finishTime = strtotime( DateTime::roundTime( $_POST['time_finished'] ) );
 }
 
 //if both times given, calculate the difference
-if ( ($time_s !== 0) && ($time_f !== 0) ) {
-    $minutes = ($time_f - $time_s) / 60;
+if ( ($startTime !== 0) && ($finishTime !== 0) ) {
+    $minutes = ($finishTime - $startTime) / 60;
     $data['minutes'] = $minutes;
 }
+
+$minutes = DateTime::timeDifference();
+
 $table = $_POST['table'];
 $message = array(
     'code' => 'add_entry',

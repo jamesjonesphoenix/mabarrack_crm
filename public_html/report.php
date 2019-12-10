@@ -45,21 +45,25 @@ if ( empty( $worker_id ) && empty( $jobID ) && $ph_user->role === 'admin' ) {
     }
 } else {
     $total_mins = 0;
-    $total_employee_cost = 0;
-    $activities = new Activities(PDOWrap::instance() );
+    $totalEmployeeCost = 0;
+    $activityFactory = new ActivityFactory( PDOWrap::instance(), Messages::instance() );
+    $activities = $activityFactory->getActivities( [], true );
+
 
     if ( !empty( $jobID ) ) {
         /*
          * job costing report
          */
-        $report = new Report\JobCosting( $activities, PDOWrap::instance(), Messages::instance() );
+        $report = new Report\JobCosting( PDOWrap::instance(), Messages::instance(), $activities );
+        $report->activities = $activities;
         $report->init( $jobID );
     } elseif ( !empty( $worker_id ) ) {
         /*
          * worker weekly time record
          */
         $dateStart = !empty( $_GET['date_start'] ) ? $_GET['date_start'] : '';
-        $report = new Report\WorkerWeek( $activities, PDOWrap::instance(), Messages::instance() );
+        $report = new Report\WorkerWeek( PDOWrap::instance(), Messages::instance(), $activities );
+        $report->activities = $activities;
         $report->init( $worker_id, $dateStart );
     }
     ph_messages()->display();
@@ -74,4 +78,4 @@ if ( empty( $worker_id ) && empty( $jobID ) && $ph_user->role === 'admin' ) {
             $("th:first-child").trigger("click");
         });
     </script>
-<?php ph_get_template_part( 'footer' ); ?>
+    <?php ph_get_template_part( 'footer' ); ?>

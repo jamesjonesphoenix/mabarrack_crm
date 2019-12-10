@@ -80,22 +80,24 @@ if ( $pageQueryString === '' ) {
             ?></div>
     </div><?php
     if ( array_key_exists( 'activity', $pageRows[0] ) ) {
-
-        $activityClass = new Activities( PDOWrap::instance() );
-
+        $activityFactory = new ActivityFactory( PDOWrap::instance(), Messages::instance() );
+        $activities = $activityFactory->getActivities( [], true );
         foreach ( $pageRows as $pageKey => $pageRow ) {
-            $activityRow = PDOWrap::instance()->getRow( 'activities', 'ID in (' . $pageRow['activity'] . ')' );
-            $pageRows[$pageKey]['activity'] = $activityClass->getDisplayName( $activityRow['ID'] );
+            $pageRows[$pageKey]['activity'] = $activities[$pageRow['activity']]->displayName;
         }
     }
     /*display correct Minutes on shifts page*/
     if ( array_key_exists( 'time_started', $pageRows[0] ) && array_key_exists( 'time_finished', $pageRows[0] ) ) {
         foreach ( $pageRows as $pageKey => $pageRow ) {
-            $shift_minutes = (strtotime( $pageRows[$pageKey]['time_finished'] ) - strtotime( $pageRows[$pageKey]['time_started'] )) / 60;
-            if ( $shift_minutes < 0 ) {
-                $shift_minutes = '<strong>Error: Finish time before start time</strong>';
+            if ( empty( $pageRows[$pageKey]['time_finished'] ) && !empty( $pageRows[$pageKey]['time_started'] ) ) {
+                $pageRows[$pageKey]['minutes'] = 'Unfinished Shift';
+            } else {
+                $shiftMinutes = DateTime::timeDifference( $pageRows[$pageKey]['time_started'], $pageRows[$pageKey]['time_finished'] );
+                if ( $shiftMinutes < 0 ) {
+                    $shiftMinutes = '<strong>Error: Finish time before start time</strong>';
+                }
+                $pageRows[$pageKey]['minutes'] = $shiftMinutes;
             }
-            $pageRows[$pageKey]['minutes'] = $shift_minutes;
         }
     }
 } else {
