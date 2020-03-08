@@ -41,10 +41,10 @@ if ( !empty( $_GET['message'] ) ) {
 ?>
     <div class="row" style="text-align: center;">
         <div class="col-md-12"><img src="img/logo.png" class="logo"/>
-            <h1 class='crmtitle' style="text-align: center"><?php echo SYSTEM_TITLE; ?></h1>
+            <h1 class='crm-title' style="text-align: center"><?php echo SYSTEM_TITLE; ?></h1>
         </div>
     </div>
-    <div class="row loginpanel">
+    <div class="row login-panel">
         <div class="col-md-12">
             <h2>LOGIN</h2>
             <?php ph_messages()->display(); ?>
@@ -59,7 +59,7 @@ if ( !empty( $_GET['message'] ) ) {
                     <label for="password">Your Password</label>
                     <input id="password-field" name='password' type='password' class='form-control' autofocus/>
                 </div>
-                <input id="loginbtn" type='submit' value='Login' class='btn btn-default'>
+                <input id="login-button" type='submit' value='Login' class='btn btn-default'>
                 <input name="login-attempt" type='hidden' value='submit'>
             </form>
         </div>

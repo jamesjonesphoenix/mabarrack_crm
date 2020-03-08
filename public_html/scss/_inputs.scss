@@ -22,7 +22,16 @@ input[type="checkbox"]:checked + label span {
   background: url(https://s3-us-west-2.amazonaws.com/s.cdpn.io/210284/check_radio_sheet.png) -19px top no-repeat;
 }
 
-.viewinput, .viewinput:hover, .viewinput:active, .viewinput:focus, .viewinput[disabled], .viewinputp, .viewinputp:hover, .viewinputp:active, .viewinputp:focus, .viewinputp[disabled] {
+.viewinput,
+.viewinput:hover,
+.viewinput:active,
+.viewinput:focus,
+.viewinput[disabled],
+.viewinputp,
+.viewinputp:hover,
+.viewinputp:active,
+.viewinputp:focus,
+.viewinputp[disabled] {
   background: #222;
   color: #fff;
   border: none;
@@ -48,22 +57,23 @@ input[type="checkbox"]:checked + label span {
   margin-right: 10px;
 }
 
-#editbtn, #addbtn {
-  right: 10px;
-  top: 10px;
-  position: absolute;
+#edit-button, #addbtn {
+  //right: 10px;
+  //top: 10px;
+  //position: absolute;
   background: #246cb3;
+
   &:hover, &:active, &:focus {
     background: #2b96ff;
   }
 }
 
-#cancelbtn {
+#cancel-button {
   display: none;
-  right: 10px;
-  top: 10px;
-  position: absolute;
-  background: #d42647;
+  //right: 10px;
+  //top: 10px;
+  //position: absolute;
+  //background: #d42647;
 }
 
 #asbtn {
@@ -71,19 +81,21 @@ input[type="checkbox"]:checked + label span {
   font-weight: 700;
 }
 
-#cancelbtn:hover, #cancelbtn:active, #cancelbtn:focus {
+#cancel-button:hover, #cancel-button:active, #cancel-button:focus {
   background: #f2385a;
 }
 
-#updatebtn {
-  display: none;
-  right: 100px;
-  top: 10px;
-  position: absolute;
-  background: #246cb3;
-  &:hover, &:active, &:focus {
-    background: #2b96ff;
-  }
+#update-button {
+  /*
+    display: none;
+    right: 100px;
+    top: 10px;
+    position: absolute;
+    background: #246cb3;
+    &:hover, &:active, &:focus {
+      background: #2b96ff;
+    }
+  */
 }
 
 .groupby_dd {

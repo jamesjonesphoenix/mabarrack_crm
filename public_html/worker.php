@@ -63,7 +63,7 @@ if ( isset( $_GET['add'] ) ) { //add a new worker
                                 class='currencyinput'></span></td>
                 </tr>
             </table>
-            <input type='submit' value='Update' class='btn btn-default' id='updatebtn'>
+            <input type='submit' value='Update' class='btn btn-default' id='update-button'>
         </form>
 
 
@@ -89,4 +89,7 @@ if ( isset( $_GET['add'] ) ) { //add a new worker
         echo 'no result';
     }
 }
+?>
+    </div>
+    <?php
 getDetailPageFooter( '#worker_form', 'users', 'page.php?id=1' );

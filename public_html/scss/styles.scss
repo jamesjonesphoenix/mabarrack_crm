@@ -19,6 +19,7 @@ h1, h2, h3, h4,
 .btn-default {
   color: #fff;
 }
+
 .main-btn {
   position: relative;
   background: none;
@@ -68,39 +69,9 @@ h3, h4, th {
   margin-top: 20px;
 }
 
-.crmhead {
-  margin-bottom: 20px;
 
-  img {
-    height: 60px;
-    margin-top: 10px;
-    margin-bottom: 10px;
-    vertical-align: top;
-  }
-}
 
-.crmheadbg {
-  background: #2d2e32;
-  height: 110px;
-  width: 100%;
-  position: absolute;
-}
 
-.usrnm {
-  float: left;
-  text-align: left;
-  clear: both;
-  margin-left: 15px;
-  font-size: 18px;
-}
-
-.crmtitle {
-  font-weight: 700;
-  display: inline-block;
-  line-height: 60px;
-  margin-top: 10px;
-
-}
 
 .page-header-breadcrumb {
   margin-bottom: 20px;
@@ -110,6 +81,20 @@ h3, h4, th {
 @import 'tables';
 
 /*///  PANELS  ///*/
+.container {
+  //padding: 10px;
+  /*
+  background: #2c2e30;
+  border-color: #444;
+  border: none;
+  margin-top: 10px;
+  width: 100%;
+   */
+}
+
+.row.grey-bg{
+  background: #2c2e30;
+}
 
 .panel {
   padding: 10px;
@@ -118,10 +103,6 @@ h3, h4, th {
   border: none;
   margin-top: 10px;
   width: 100%;
-
-  h3 {
-    margin-top: 5px;
-  }
 }
 
 /*///  BUTTONS  ///*/
@@ -129,17 +110,19 @@ h3, h4, th {
   border: none;
   /*background-color: #57595f;*/
   background: #246cb3;
-  font-size: 16px;
+  //font-size: 16px;
+
+  &hover, &:focus, &focus:hover, &:active, &active:hover {
+    border: none;
+  }
 
   &hover, &:focus, &focus:hover {
-    border: none;
     color: #fff;
     background-color: #2b96ff; /*#5094e4;*/
     box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(102, 175, 233, .6);
   }
 
   &:active, &active:hover {
-    border: none;
     color: #ddd;
     background-color: #4e77a7; /*#37506e;*/
   }
@@ -149,9 +132,14 @@ h3, h4, th {
   background-color: #4e5057;
 }
 
-.viewbtn.btn-default:hover, .viewbtn.btn-default:active, .viewbtn.btn-default:active:hover, .viewbtn.btn-default:focus:hover {
-  background: #eee;
-  color: #222;
+.viewbtn.btn-default {
+  &:hover,
+  &:active,
+  &:active:hover,
+  &:focus:hover {
+    background: #eee;
+    color: #222;
+  }
 }
 
 .searchbtn {
@@ -264,6 +252,7 @@ h3, h4, th {
   width: 100%;
   background: #111;
 
+
   .panel {
     /*max-width: 800px;*/
     position: relative;
@@ -281,14 +270,14 @@ h3, h4, th {
   }
 }
 
-.shft_finish {
+.shift-finish {
   position: absolute;
   right: 100px;
   top: 10px;
   background: #46b324;
 }
 
-.shft_finish.btn-default:hover, .shft_finish.btn-default:active, .shft_finish.btn-default:focus {
+.shift-finish.btn-default:hover, .shift-finish.btn-default:active, .shift-finish.btn-default:focus {
   background: #38f24e;
 }
 
@@ -350,27 +339,12 @@ h3, h4, th {
   width: 150px;
 }
 
-.removefur {
-  float: right;
-}
-
-.removefur.viewinput {
-  opacity: 0;
-}
-
-.fur-qty {
-  float: left;
-}
-
-#addfurbtn.viewinput {
-  opacity: 0;
-}
-
 @import 'inputs';
 @import 'generic_classes';
 @import 'mobile';
 @import 'print';
 @import 'activities';
+@import 'single_job_page';
 
 .messages {
   margin-bottom: 15px;

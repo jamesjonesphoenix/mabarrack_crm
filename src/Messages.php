@@ -254,11 +254,11 @@ class Messages extends Base
             return false;
         }
 
-        $messageHTML = '<div class="messages">';
+        $messageHTML = '<div class="container messages mt-5">';
         foreach ( $this->messages as $message ) {
             if ( !empty( $message['string'] ) ) {
                 $messageType = !empty( $message['type'] ) ? $message['type'] : 'danger';
-                $messageHTML .= sprintf( '<div class="alert alert-' . $messageType . '" role="alert">%s</div>', $message['string'] );
+                $messageHTML .= sprintf( '<div class="row"><div class="col"><div class="alert alert-' . $messageType . '" role="alert">%s</div></div></div>', $message['string'] );
             }
         }
         $messageHTML .= '</div>';

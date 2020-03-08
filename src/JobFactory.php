@@ -97,8 +97,10 @@ class JobFactory extends EntityFactory
             $furniture = $furnitureFactory->getFurniture( ['id' => ['operator' => 'IN', 'value' => $furnitureIDs]] );
             foreach ( $jobs as &$job ) {
                 foreach ( $job->furniture as $furnitureID => $item ) {
-                    $jobFurniture[$furnitureID] = $furniture[$furnitureID];
-                    $jobFurniture[$furnitureID]->quantity = $item['Quantity'];
+                    if(!empty($furniture[$furnitureID])) {
+                        $jobFurniture[$furnitureID] = $furniture[$furnitureID];
+                        $jobFurniture[$furnitureID]->quantity = $item['Quantity'];
+                    }
                 }
                 if ( !empty( $jobFurniture ) ) {
                     $job->furniture = $jobFurniture;

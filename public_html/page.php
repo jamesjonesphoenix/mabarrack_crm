@@ -8,11 +8,11 @@ include '../src/crm_init.php';
 $pageTitle = ''; //page title string
 $pageTableString = ''; //page table string
 $pageQueryString = ''; //page query string
-$p_qa = []; //page query arguments
-$p_groupcolumn = ''; //page group column string
+$pageQueryArguments = []; //page query arguments
+$pageGroupColumnString = ''; //page group column string
 $pageRows = []; //page rows
 $pageColumns = []; //page columns
-$f_excol = []; //form excluded columns
+$formExcludedColumns = []; //form excluded columns
 $pi = [];
 ////  LOAD URL PARAMETERS  ////
 if ( isset( $_GET['id'] ) ) {
@@ -24,7 +24,7 @@ if ( isset( $_GET['id'] ) ) {
         $pageTitle = $pi['name'];
         $pageTableString = $pi['table_name'];
         $pageQueryString = $pi['query'];
-        $p_qa = explode( ',', $pi['qargs'] );
+        $pageQueryArguments = explode( ',', $pi['qargs'] );
     }
 
 } else {
@@ -35,15 +35,15 @@ if ( isset( $_GET['id'] ) ) {
         $pageQueryString = $_GET['q'];
     } //check if query given
     if ( isset( $_GET['qa'] ) ) {
-        $p_qa = explode( ',', $_GET['qa'] );
+        $pageQueryArguments = explode( ',', $_GET['qa'] );
     } //check if query arguments given
 }
 
 if ( isset( $_GET['g'] ) ) {
-    $p_groupcolumn = $_GET['g'];
+    $pageGroupColumnString = $_GET['g'];
 } //check if group column given
 if ( isset( $_GET['fe'] ) ) {
-    $f_excol = explode( ',', $_GET['fe'] );
+    $formExcludedColumns = explode( ',', $_GET['fe'] );
 } //check if any form excluded columns
 
 ////  IF TABLE NOT GIVEN, DISPLAY ERROR AND RETURN TO MAIN MENU  ////
@@ -58,26 +58,28 @@ if ( $pageQueryString === '' ) {
 
     if ( $pageQueryString === 'jurg' ) {
         $joburg_th = PDOWrap::instance()->getRow( 'settings', array('name' => 'joburg_th') )['value'];
-        $p_qa = [$joburg_th];
+        $pageQueryArguments = [$joburg_th];
     }
 
-    $pageColumns = getColumnsQuery( $pageQueryString, $p_qa ); //get the columns of this query (works even if there are no results)
-    $pageRows = getRowsQuery( $pageQueryString, $p_qa ); //get the rows of this query
+    $pageColumns = getColumnsQuery( $pageQueryString, $pageQueryArguments ); //get the columns of this query (works even if there are no results)
+    $pageRows = getRowsQuery( $pageQueryString, $pageQueryArguments ); //get the rows of this query
     //$pageColumns = array_keys($pageRows[0]) ?? [];
 }
 
 ?>
-    <div class='row'>
-        <div class='col-md-3'>
-            <a href="index.php" class="page-header-breadcrumb">
-                <div class="btn btn-default">◀ &nbsp; Main Menu</div>
-            </a></div>
-        <?php
-        if ($pageRows !== false) { ?>
-        <div class='col-md-9'><?php
-            echo generateGroupByForm( $id, $pageTableString, $p_groupcolumn );
-            //echo generate_searchform($pageTableString);
-            ?></div>
+    <div class="container mt-3">
+        <div class='row'>
+            <div class='col-md-3'>
+                <a href="index.php" class="page-header-breadcrumb">
+                    <div class="btn btn-default">◀ &nbsp; Main Menu</div>
+                </a></div>
+            <?php
+            if ($pageRows !== false) { ?>
+            <div class='col-md-9'><?php
+                echo generateGroupByForm( $id, $pageTableString, $pageGroupColumnString );
+                //echo generate_searchform($pageTableString);
+                ?></div>
+        </div>
     </div><?php
     if ( array_key_exists( 'activity', $pageRows[0] ) ) {
         $activityFactory = new ActivityFactory( PDOWrap::instance(), Messages::instance() );
@@ -104,47 +106,49 @@ if ( $pageQueryString === '' ) {
     echo '</div>';
 }
 ?>
-    <div class='row'>
-        <div class='col-md-12'><h2 class='pgtitle'><?php echo $pageTitle ?></h2>
-            <?php
+    <div class="container">
+        <div class='row'>
+            <div class='col-md-12'><h2 class='pgtitle'><?php echo $pageTitle ?></h2>
+                <?php
 
-            if ( $_GET['id'] != 4 ) {
-                echo "<a class='btn btn-default addbtn' href='" . getDetailPage( $pageTableString ) . "?add'>Add</a>";
-            }
-            ?>
+                if ( $_GET['id'] != 4 ) {
+                    echo "<a class='btn btn-default addbtn' href='" . getDetailPage( $pageTableString ) . "?add'>Add</a>";
+                }
+                ?>
+            </div>
         </div>
     </div>
     <?php
 ////  IF GROUP COLUMN SET, DISPLAY ROWS IN GROUPS  ////
-if ( ($p_groupcolumn != '') and ($pageRows !== false) ) {
+if ( ($pageGroupColumnString != '') and ($pageRows !== false) ) {
     $groups = []; //List of unique group values
     //Generate a list of all the unique groups
     foreach ( $pageRows as $pageRow ) {
         //Add the group if not already in the list
 
-        if ( !in_array( $pageRow[$p_groupcolumn], $groups ) ) {
-            $groups[] = $pageRow[$p_groupcolumn];
+        if ( !in_array( $pageRow[$pageGroupColumnString], $groups ) ) {
+            $groups[] = $pageRow[$pageGroupColumnString];
         }
     }
     //$groups = array_keys($pageRows[0]);
     //Go through each group and output their rows
     foreach ( $groups as $group ) {
         $groupString = '';
-        if ( ($p_groupcolumn === 'job') && ($group == 0) ) { //row job id is 0 (internal)
+        if ( ($pageGroupColumnString === 'job') && ($group == 0) ) { //row job id is 0 (internal)
             $heading = 'Factory';
-        } else if ( $p_groupcolumn === 'status' ) {
+        } else if ( $pageGroupColumnString === 'status' ) {
             $jobStatus = PDOWrap::instance()->getRow( 'settings', array('name' => $group) )['value'];
             $groupString = $group;
-            $heading = $p_groupcolumn . ': ' . $jobStatus;
+            $heading = $pageGroupColumnString . ': ' . $jobStatus;
         } else {
-            $heading = str_replace( '_', ' ', $p_groupcolumn ) . ': ' . str_replace( '_', ' ', $group );
+            $heading = str_replace( '_', ' ', $pageGroupColumnString ) . ': ' . str_replace( '_', ' ', $group );
         }
-        echo sprintf( '<div class="row%s"><div class="col-md-12"><div class="panel panel-default"><h3>%s</h3>', $groupString, $heading );
+        echo sprintf( '<div class="container"><div class="row%s"><div class="col-md-12"><div class="panel panel-default"><h3>%s</h3>', $groupString, $heading );
         $g_rows = []; //List of rows that belong to this group
         //Generate list of rows with this group value
         foreach ( $pageRows as $pageRow ) {
-            if ( $pageRow[$p_groupcolumn] == $group ) {
-                unset( $pageRow[$p_groupcolumn] );
+            if ( $pageRow[$pageGroupColumnString] == $group ) {
+                unset( $pageRow[$pageGroupColumnString] );
 
                 $g_rows[] = $pageRow;
             }
@@ -152,15 +156,19 @@ if ( ($p_groupcolumn != '') and ($pageRows !== false) ) {
 
 
         echo generateTable( array_keys( $g_rows[0] ), $g_rows, $pageTableString ); //Output the table for this group
-        echo '</div></div></div>';
+        echo '</div></div></div></div>';
     }
 } ////  NO GROUP column GIVEN, DISPLAY ROWS AS SINGLE TABLE  ////
 else {
-    echo "<div class='panel panel-default'>";
-    echo generateTable( $pageColumns, $pageRows, $pageTableString );
-    echo '</div>';
-}
-?>
+    ?>
+    <div class="container">
+        <div class="row">
+            <div class='panel panel-default'>
+                <?php echo generateTable( $pageColumns, $pageRows, $pageTableString ); ?>
+            </div>
+        </div>
+    </div>
+<?php } ?>
 
     <script>
         var page_id = <?php echo $id; ?>;

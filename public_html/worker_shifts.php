@@ -78,7 +78,7 @@ if ( empty( $jobRow ) ) {
 
         ////  ACTIVITIES DATA  ////
         acts_list = []; //list of activities for the current shifts (cleared when shift added)
-        $(".shft_finish").prop('disabled', true);
+        $(".shift-finish").prop('disabled', true);
 
         // open the shift adder
         $("#asbtn").click(function () {
@@ -155,7 +155,7 @@ if ( empty( $jobRow ) ) {
             $("#actadder").hide();
             $(".act_comment").val(""); //clear the comment field
             $(".act_btn").removeClass("act_chosen"); //clear chosen activity
-            $(".shft_finish").prop('disabled', false);
+            $(".shift-finish").prop('disabled', false);
         });
 
 
@@ -174,7 +174,7 @@ if ( empty( $jobRow ) ) {
 
         //  ADD SHIFT  //
         $("#shft_add_form").submit(function (e) {
-            $(".shft_finish").prop('disabled', true);
+            $(".shift-finish").prop('disabled', true);
 
             var acts = {'activity': '', 'activity_values': '', 'activity_comments': ''}
             var firsta = true;
@@ -206,7 +206,7 @@ if ( empty( $jobRow ) ) {
                 success: function (data) {
                     console.log(data);
                     if (data != "success") {
-                        $(".shft_finish").prop('disabled', false);
+                        $(".shift-finish").prop('disabled', false);
                     } else {
                         console.log("shift added!");
                         $("#shiftadder").hide(); //close the shift adder

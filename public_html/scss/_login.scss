@@ -1,5 +1,5 @@
 /*///  LOGIN  ///*/
-.loginpanel {
+.login-panel {
   background: $panel-bg;
   max-width: 360px;
   margin: 0 auto;
@@ -26,14 +26,14 @@
   font-size: 24px;
   height: 40px;
 }
-
+/*
 #loginerror {
   display: none;
   color: #f00;
   font-size: 16px;
 }
-
-#loginbtn {
+*/
+#login-button {
   background: #46bc52;
   font-size: 20px;
   width: 200px;
@@ -43,8 +43,6 @@
 }
 
 .logout {
-  float: right;
-  margin-top: 35px;
   background: #f2385a;
   &:hover {
     background: #ff879d;
@@ -76,14 +74,11 @@
   }
 }
 
-textarea {
-  resize: none;
-}
 
 #setbtn {
-  float: right;
-  margin-top: 35px;
-  margin-right: 15px;
+  //float: right;
+  //margin-top: 35px;
+  //margin-right: 15px;
   background: #666;
   padding: 4px;
   &:hover {

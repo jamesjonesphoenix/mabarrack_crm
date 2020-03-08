@@ -44,7 +44,7 @@ if ( isset( $_GET['add'] ) ) { //add a new customer
     $customerID = ph_validate_number( $_GET['id'] );
     if ( $customerID ) {
 
-        $factory = new CustomerFactory(PDOWrap::instance(),Messages::instance());
+        $factory = new CustomerFactory( PDOWrap::instance(), Messages::instance() );
         $customer = $factory->getCustomer( $customerID );
 
         //$customerRow = PDOWrap::instance()->getRow( 'customers', array('ID' => $customerID) );
@@ -60,7 +60,7 @@ if ( isset( $_GET['add'] ) ) { //add a new customer
                 <td><b>Name: </b><input type='text' class='form-control viewinput w300' name='name' autocomplete='off'
                                         value='<?php echo $customer->name; ?>'/></td>
             </tr>
-            </table><input type='submit' value='Update' class='btn btn-default' id='updatebtn'>
+            </table><input type='submit' value='Update' class='btn btn-default' id='update-button'>
             </form>
             <h3>Jobs</h3>
             <?php
@@ -94,5 +94,7 @@ if ( isset( $_GET['add'] ) ) { //add a new customer
         }
     }
 }
-
+?>
+</div>
+<?php
 getDetailPageFooter( '#customer_form', 'customers', 'page.php?id=1' );

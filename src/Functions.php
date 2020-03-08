@@ -536,7 +536,7 @@ function addShiftForm($jobID, $workerID)
         . timeDropDown( '' )
         . "</select></td></tr><tr><td>Time Finished</td><td><select name='time_finished' class='time_dd form-control' autocomplete='off'>"
         . timeDropDown( '' ) .
-        "</select></td></tr><tr><td colspan='2'><h3>Activities</h3><div class='shft_acts'>no activities</div></td></tr></table><input type='submit' value='(F)inish Shift' class='btn btn-default shft_finish' ></form>";
+        "</select></td></tr><tr><td colspan='2'><h3>Activities</h3><div class='shft_acts'>no activities</div></td></tr></table><input type='submit' value='(F)inish Shift' class='btn btn-default shift-finish' ></form>";
 }
 
 /**
@@ -557,8 +557,8 @@ function getDetailPageHeader($prepageurl, $prepagename, $title)
     } else {
         echo '<h2>' . $title . " Details</h2>
 <div class='panel panel-default' style='position: relative'>
-<input type='button' id='editbtn' value='Edit' class='btn btn-default'/>
-<input type='button' id='cancelbtn' value='Cancel' class='btn btn-default'/>";
+<input type='button' id='edit-button' value='Edit' class='btn btn-default'/>
+<input type='button' id='cancel-button' value='Cancel' class='btn btn-default'/>";
     }
     return $redirectURL;
 }
@@ -573,7 +573,6 @@ function getDetailPageHeader($prepageurl, $prepagename, $title)
 function getDetailPageFooter($formid, $table, $redirectURL)
 {
     ?>
-    </div>
     <script>
     <?php
     if ( !empty( $redirectURL ) ) {
@@ -582,8 +581,8 @@ function getDetailPageFooter($formid, $table, $redirectURL)
         pagefunctions();
         ';
     }
-    echo "detailpagefunctions('" . $formid . "','" . $table . "');</script>";
-    ph_get_template_part( 'footer' );
+    echo "detailPageFunctions('" . $formid . "','" . $table . "');</script>";
+    ph_get_template_part('footer' );
 }
 
 /**
