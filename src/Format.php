@@ -38,8 +38,11 @@ class Format
         if ( $orderOfMagnitude === 0 ) {
             return '';
         }
+        if ( $value < 0 ) {
+            return '';
+        }
         $numberOfShims = $orderOfMagnitude - max( 0, floor( log10( $value ) ) );
-        return str_repeat( '&#x2007;', $numberOfShims );
+        return str_repeat( '&#x2007;', $numberOfShims ) ?? '';
     }
 
     /**
