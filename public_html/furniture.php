@@ -44,11 +44,14 @@ if ( isset( $_GET['add'] ) ) { //add a new customer
                     </td>
                 </tr>
             </table>
-            <input type='submit' value='Update' class='btn btn-default' id='updatebtn'>
+            <input type='submit' value='Update' class='btn btn-default' id='update-button'>
         </form>
         <?php
     } else {
         echo 'no result';
     }
 }
+?>
+</div>
+<?php
 getDetailPageFooter( '#furniture_form', 'furniture', 'page.php?id=1' );

@@ -24,8 +24,8 @@ include '../src/crm_init.php'; ?>
 
         ?>
 
-        <input type='button' id='editbtn' value='Edit' class='btn btn-default'/>
-        <input type='button' id='cancelbtn' value='Cancel' class='btn btn-default'/>
+        <input type='button' id='edit-button' value='Edit' class='btn btn-default'/>
+        <input type='button' id='cancel-button' value='Cancel' class='btn btn-default'/>
         <form id='update_shift_form' class='detailform'>
             <table>
                 <tr>
@@ -108,7 +108,7 @@ include '../src/crm_init.php'; ?>
                     </td>
                 </tr>
             </table>
-            <input type='submit' value='Update' class='btn btn-default' id='updatebtn'></form>
+            <input type='submit' value='Update' class='btn btn-default' id='update-button'></form>
         <?php
 
 
@@ -116,7 +116,7 @@ include '../src/crm_init.php'; ?>
         echo 'no result';
     }
     //ph_script_filename() . "?" . $_SERVER[ 'QUERY_STRING' ] /*the shift we were just on*/
-
-    getDetailPageFooter( '#update_shift_form', 'shifts', 'page.php?id=1' );
     ?>
-
+</div>
+<?php
+    getDetailPageFooter( '#update_shift_form', 'shifts', 'page.php?id=1' );

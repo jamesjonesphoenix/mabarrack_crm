@@ -3,257 +3,212 @@
 namespace Phoenix;
 
 include '../src/crm_init.php';
-$redirecturl = getDetailPageHeader( 'page.php?id=3', 'Jobs', 'Job' );
+//$redirecturl = getDetailPageHeader( 'page.php?id=3', 'Jobs', 'Job' );
 
-$customerFactory = new CustomerFactory(PDOWrap::instance(),Messages::instance());
+
+$customerFactory = new CustomerFactory( PDOWrap::instance(), Messages::instance() );
 $customers = $customerFactory->getAll();
 
-$furnitureFactory = new FurnitureFactory(PDOWrap::instance(),Messages::instance());
+$furnitureFactory = new FurnitureFactory( PDOWrap::instance(), Messages::instance() );
 $allFurniture = $furnitureFactory->getAll();
 
-if ( isset( $_GET['add'] ) ) { //add a new job
-    //add job form
-    ?>
-    <form id='job_form' class='detailform'>
-        <table>
-            <tr>
-                <td><b>ID: </b><input type='text' class='form-control w100' name='ID' value=''/></td>
-            <tr>
-                <td><b>Priority: </b><select class='form-control w100' name='priority' autocomplete='off'>
-                        <?php
-                        $pts = array(1, 2, 3, 4);
-                        foreach ( $pts as $pt ) {
-                            if ( $pt == 4 ) {
-                                echo '<option value="' . $pt . '" selected="selected">' . $pt . '</option>';
-                            } else {
-                                echo '<option value="' . $pt . '">' . $pt . '</option>';
-                            }
-                        }
-                        ?>
-                    </select></td>
-            </tr>
-            <tr>
-                <td width=310><b>Started: </b><input type='date' class='form-control w300' name='date_started'
-                                                     value='<?php echo date( 'd/m/Y' ); ?>' autocomplete='off'/></td>
-
-                <td><b>Finished: </b><input type='date' class='form-control w300' name='date_finished' value=''
-                                            autocomplete='off'/></td>
-            <tr>
-                <td><b>Customer: </b><select class='form-control' name='customer' autocomplete='off'>
-                        <?php
-                        foreach ( $customers as $customer ) {
-                            echo '<option value="' . $customer->id . '">' . $customer->name . '</option>';
-                        }
-                        ?>
-                    </select></td>
-            </tr>
-
-            <tr>
-                <td colspan=2><b>Description: </b><textarea class='form-control' name='description'
-                                                            autocomplete='off'></textarea><br></td>
-            </tr>
-
-            <tr>
-                <td><b>Sale Price: </b><input type='number' step='0.01' min='0' class='form-control w200'
-                                              name='sale_price'
-                                              autocomplete='off' value='0'/><span class='currencyinput'></span></td>
-            </tr>
-
-            <tr>
-                <td><b>Material Cost: </b><input type='number' step='0.01' min='0' class='form-control w200'
-                                                 name='material_cost' autocomplete='off' value='0'/><span
-                            class='currencyinput'></span></td>
-
-                <td><b>Contractor Cost: </b><input type='number' step='0.01' min='0' class='form-control w200'
-                                                   name='contractor_cost' autocomplete='off' value='0'/><span
-                            class='currencyinput'></span></td>
-
-                <td><b>Spare Cost: </b><input type='number' step='0.01' min='0' class='form-control w200'
-                                              name='spare_cost'
-                                              autocomplete='off' value='0'/><span class='currencyinput'></span></td>
-            </tr>
-
-            <tr>
-                <td><b>Furniture</b></td>
-            </tr>
-            <tr class='furrow'>
-                <td><select class='form-control w300 fur-name' autocomplete='off'>
-                        <?php
-                        foreach ( $allFurniture as $furniture ) {
-                            echo '<option value="' . $furniture->id . '">' . ucfirst( $furniture->name ) . '</option>';
-                        }
-                        ?>
-                    </select></td>
-
-                <td>
-                    <div class='w200'><input type='number' value='1' min='0' class='form-control w100 fur-qty'>
-                    </div>
-                </td>
-            </tr>
-            <tr>
-                <td><input id='addfurbtn' class='btn btn-default' value='&plus;' type='button'></td>
-            </tr>
-        </table>
-        <input type='submit' value='Add' class='btn btn-default' id='addbtn'>
-    </form>
-    <?php
-} else { //view existing job
-
+if ( !empty( $_GET['id'] ) ) {
     $jobID = ph_validate_number( $_GET['id'] );
     $jobFactory = new JobFactory( PDOWrap::instance(), Messages::instance() );
-    //$job = EntityFactory::instance()->getJob( $jobID );
-
     $job = $jobFactory->getJob( $jobID );
-
-    if ( $job->exists ) {
-
-        //job details form
-        ?>
-        <a href='delete_job.php?id=<?php echo $jobID; ?>' id='deletebtn' class='btn btn-default redbtn'>Delete</a>
-        <form id='job_form' class='detailform'>
-            <table>
-                <tr>
-                    <td>
-                        <table>
-                            <tr>
-                                <td><b>ID: </b><input type='text' class='form-control viewinputp w100' name='ID'
-                                                      value='<?php echo $job->id; ?>'/></td>
-                                <td><b>Priority: </b><select class='form-control viewinput' name='priority'
-                                                             autocomplete='off'>
-                                        <?php
-                                        $pts = array(1, 2, 3, 4);
-                                        foreach ( $pts as $pt ) {
-                                            $selected = $job->priority === $pt ? ' selected="selected"' : '';
-                                            echo '<option value="' . $pt . '"' . $selected . '>' . $pt . '</option>';
-                                        }
-                                        ?>
-                                    </select></td>
-                            </tr>
-                        </table>
-                    </td>
-
-                    <td><b>Status: </b><select class='form-control viewinput' id='jstatus' name='status'
-                                               autocomplete='off'>
-                            <?php
-                            $jobStatuses = PDOWrap::instance()->getRows( 'settings', array('name' => array(
-                                'value' => 'jobstat',
-                                'operator' => 'LIKE')
-                            ) );
-
-                            foreach ( $jobStatuses as $jobStatus ) {
-                                $selected = $job->status === $jobStatus['name'] ? ' selected="selected"' : '';
-                                echo '<option value="' . $jobStatus['name'] . '"' . $selected . '>' . ucwords( str_replace( '_', ' ', $jobStatus['value'] ) ) . '</option>';
-                            }
-                            ?>
-                <tr>
-                    <td width=310><b>Started: </b><input type='date' class='form-control viewinput w300'
-                                                         name='date_started'
-                                                         value='<?php echo DateTime::validateDate( $job->dateStarted ); ?>'
-                                                         autocomplete='off'/></td>
-                    <td><b>Finished: </b><input type='date' class='form-control viewinput w300' name='date_finished'
-                                                value='<?php echo DateTime::validateDate( $job->dateFinished ); ?>'
-                                                autocomplete='off'/></td>
-
-
-                <tr>
-                    <td><b>Customer: </b><select class='form-control viewinput' name='customer' autocomplete='off'>
-                            <?php
-                            foreach ( $customers as $customer ) {
-                                $selected = $customer->id === $job->customer ? ' selected="selected"' : '';
-                                echo '<option value="' . $customer->id . '"' . $selected . '>' . $customer->name . '</option>';
-                            }
-                            ?>
-                        </select></td>
-                </tr>
-
-                <tr>
-                    <td colspan=2><b>Description: </b><textarea class='form-control viewinput' name='description'
-                                                                autocomplete='off'><?php echo $job->description; ?></textarea>
-                    </td>
-                </tr>
-
-                <tr>
-                    <td><b>Sale Price: </b><input type='number' step='0.01' min='0' class='form-control viewinput w200'
-                                                  name='sale_price' autocomplete='off'
-                                                  value='<?php echo $job->salePrice; ?>'/><span
-                                class='currencyinput'></span></td>
-                </tr>
-
-                <tr>
-                    <td><b>Material Cost: </b><input type='number' step='0.01' min='0'
-                                                     class='form-control viewinput w200'
-                                                     name='material_cost' autocomplete='off'
-                                                     value='<?php echo $job->materialCost; ?>'/><span
-                                class='currencyinput'></span></td>
-
-                    <td><b>Contractor Cost: </b><input type='number' step='0.01' min='0'
-                                                       class='form-control viewinput w200'
-                                                       name='contractor_cost' autocomplete='off'
-                                                       value='<?php echo $job->contractorCost; ?>'/><span
-                                class='currencyinput'></span></td>
-
-                    <td><b>Spare Cost: </b><input type='number' step='0.01' min='0' class='form-control viewinput w200'
-                                                  name='spare_cost' autocomplete='off'
-                                                  value='<?php echo $job->spareCost; ?>'/><span
-                                class='currencyinput'></span></td>
-                </tr>
-
-                <tr>
-                    <td><b>Furniture</b></td>
-                </tr>
-                <?php
-                foreach ( $job->furniture as $jobFurniture ) {
-                    ?>
-                    <tr class='furrow'>
-                        <td><select class='form-control viewinput w300 fur-name' autocomplete='off'>
-                                <?php
-                                foreach ( $allFurniture as $furniture ) {
-                                    $selected = $furniture->id === $jobFurniture->id ? ' selected="selected"' : '';
-                                    echo '<option value="' . $furniture->id . '"' . $selected . '>' . ucfirst( $furniture->name ) . '</option>';
-                                }
-                                ?>
-                            </select>
-                        </td>
-                        <td>
-                            <div class='w200'><input type='number' min='0'
-                                                     value='<?php echo $jobFurniture->quantity; ?>'
-                                                     class='form-control viewinput w100 fur-qty'>
-                                <input class='btn btn-default viewinput removefur redbtn' value='&minus;' type='button'>
-                            </div>
-                        </td>
-                    </tr>
-                    <?php
-                } ?>
-                <tr>
-                    <td><input id='addfurbtn' class='btn btn-default viewinput' value='&plus;' type='button'>
-                    </td>
-                </tr>
-
-            </table>
-            <input type='submit' value='Update' class='btn btn-default' id='updatebtn'>
-        </form>
-        <h3>Shifts</h3>
-        <?php
-
-        $shifts = $job->shifts;
-        $shiftTableData = [];
-        foreach ( $shifts as $shift ) {
-            $shiftTableData[] = [
-                'ID' => $shift->id, //needed for View shift button
-                'worker' => $shift->worker->name,
-                'date' => $shift->date,
-                'time_started' => $shift->timeStarted,
-                'time_finished' => $shift->timeFinished,
-                'minutes' => $shift->getShiftLength(),
-                'activity' => $shift->activity->displayName
-            ];
-        }
-
-        echo generateTable( array('worker', 'date', 'time_started', 'time_finished', 'minutes', 'activity'), $shiftTableData, 'shifts' );
-
-    } else {
-        echo 'no result';
-    }
-
 }
+
+if ( $job->exists ) {
+    $title = 'Job Details';
+    $formArgs = [
+        'submit' => [
+            'value' => 'Update',
+            'id' => 'update-button'
+        ]
+    ];
+    $jobStatuses = PDOWrap::instance()->getRows( 'settings', array('name' => array(
+        'value' => 'jobstat',
+        'operator' => 'LIKE')
+    ) );
+    $jobStatusOptions = array_column( $jobStatuses, 'value', 'name' );
+    $jobStatusOptionsDropdown = Format::optionDropdown(
+        $jobStatusOptions, [
+        'selected' => $job->status,
+        'html' => ['id' => 'jstatus', 'class' => 'jobstat_green', 'name' => 'status']
+    ] );
+
+
+    $jobPriorityOptionsDropdown = Format::optionDropdown(
+        array(1 => 1, 2 => 2, 3 => 3, 4 => 4), [
+        'selected' => $job->priority,
+        'html' => ['name' => 'priority']
+    ] );
+
+
+    $customerOptions = array_column( $customers, 'name', 'id' );
+    $customerOptionsDropdown = Format::optionDropdown(
+        $customerOptions, [
+        'selected' => $job->customer->id,
+        'html' => ['name' => 'customer']
+    ] );
+
+    $furnitureOptions = array_column( $allFurniture, 'name', 'id' );
+    foreach ( $job->furniture as $jobFurniture ) {
+        $furnitureOptionsDropdowns[$jobFurniture->id] = Format::optionDropdown(
+            $furnitureOptions,
+            [
+                'selected' => $jobFurniture->id,
+                'html' => ['class' => 'w300 furniture-name'],
+                'placeholder' => 'Select Furniture'
+            ] );
+    }
+    d($job);
+} else {
+    $title = 'New Job';
+    $formArgs = [
+        'submit' => [
+            'value' => 'Add',
+            'id' => 'addbtn'
+        ]
+    ];
+}
+
+?>
+    <div class="container">
+        <div class="row pt-3 pb-2">
+            <div class="col">
+                <h2><?php echo $title; ?></h2>
+            </div>
+        </div>
+    </div>
+    <div class="container" style="position: relative">
+        <div class="row grey-bg pt-3">
+            <div class="col mb-3">
+                <a type="button" class="btn btn-danger btn-lg mr-2" href="delete_job.php?id=<?php echo $jobID; ?>"
+                   id="deletebtn">Delete
+                </a>
+                <button type="button" id="edit-button" class="btn btn-primary btn-lg mr-2">Edit</button>
+                <button type="button" id="cancel-button" class="btn btn-primary btn-lg btn-secondary mr-2">Cancel</button>
+            </div>
+        </div>
+        <div class="row grey-bg">
+            <div class="col mb-3">
+                <form id='job_form' class='detailform'>
+                    <div class="form-row">
+                        <div class="form-group col-md-4">
+                            <label for="inputID">ID:</label>
+                            <input type="text" class="form-control viewinput" id="inputID" placeholder="ID" name='ID'
+                                   value="<?php echo $job->id; ?>">
+                        </div>
+                        <div class="form-group col-md-4">
+                            <label for="inputPriority">Priority:</label>
+                            <?php echo $jobPriorityOptionsDropdown; ?>
+                        </div>
+                        <div class="form-group col-md-4">
+                            <label for="inputStatus">Status:</label>
+                            <?php echo $jobStatusOptionsDropdown; ?>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label for="inputDateStarted">Date Started:</label>
+                            <input type='date' class='form-control viewinput' id="inputDateStarted" name="date_started"
+                                   value="<?php echo $job->dateStarted; ?>" autocomplete='off'/>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="inputDateFinished">Date Finished:</label>
+                            <input type='date' class='form-control viewinput' id="inputDateFinished"
+                                   name="date_finished"
+                                   value="<?php echo $job->dateFinished; ?>"
+                                   autocomplete='off'/>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label for="inputCustomer">Customer:</label>
+                            <?php echo $customerOptionsDropdown; ?>
+                            <div class="mt-3">
+                                <label for="inputSalePrice">Sale Price:</label>
+                                <input class='form-control viewinput' id="inputSalePrice" type='number' step='0.01'
+                                       min='0'
+                                       name='sale_price' autocomplete='off' value='<?php echo $job->salePrice; ?>'/>
+                            </div>
+                        </div>
+                        <div class="form-group col-md-6 job-description">
+                            <label for="inputDescription">Description:</label>
+                            <textarea class="form-control viewinput" id="inputDescription" name="description"
+                                      autocomplete="off"><?php echo $job->description; ?></textarea>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-4">
+                            <label for="inputMaterialCost">Material Cost:</label>
+                            <input class='form-control viewinput' id="inputMaterialCost" type='number' step='0.01'
+                                   min='0'
+                                   name='material_cost' autocomplete='off' value='<?php echo $job->materialCost; ?>'/>
+                        </div>
+                        <div class="form-group col-md-4">
+                            <label for="inputContractorCost">Contractor Cost:</label>
+                            <input class='form-control viewinput' id="inputContractorCost" type='number' step='0.01'
+                                   min='0'
+                                   name='material_cost' autocomplete='off' value='<?php echo $job->contractorCost; ?>'/>
+                        </div>
+                        <div class="form-group col-md-4">
+                            <label for="inputSpareCost">Spare Cost:</label>
+                            <input class='form-control viewinput' id="inputSpareCost" type='number' step='0.01' min='0'
+                                   name='material_cost' autocomplete='off' value='<?php echo $job->spareCost; ?>'/>
+                        </div>
+                    </div>
+                    <div class="form-row job-furniture-row">
+                        <label for="inputFurniture">Furniture:</label>
+                        <?php
+                        foreach ( $job->furniture as $jobFurniture ) {
+                            //foreach ( $furnitureOptionsDropdowns as $furnitureOptionsDropdown ) {
+                            ?>
+                            <div class="form-group furniture-group col-sm-12">
+                                <?php echo $furnitureOptionsDropdowns[$jobFurniture->id]; ?>
+
+                                <input type="number" min="0" value="<?php echo $jobFurniture->quantity; ?>"
+                                       class="form-control viewinput w100 furniture-quantity">
+                                <a class="btn btn-default viewinput remove-furniture disabled" type="button">&minus;</a>
+                            </div>
+                        <?php } ?>
+                        <div class="form-group col-sm-12">
+                            <input id="add-furniture-button" class="btn btn-default viewinput disabled"
+                                   value="&plus; Add Furniture"
+                                   type="button" disabled>
+                        </div>
+                    </div>
+                    <div class="form-row mt-4">
+                        <input type="submit" value="<?php echo $formArgs['submit']['value']; ?>"
+                               class="btn btn-primary btn-lg"
+                               id="<?php echo $formArgs['submit']['id']; ?>">
+                    </div>
+                </form>
+            </div>
+            <div class="col mt-3 mb-3">
+                <?php
+                if ( $job->exists ) {
+                    ?><h3>Shifts</h3><?php
+                    $shifts = $job->shifts;
+                    $shiftTableData = [];
+                    foreach ( $shifts as $shift ) {
+                        $shiftTableData[] = [
+                            'ID' => $shift->id, //needed for View shift button
+                            'worker' => $shift->worker->name,
+                            'date' => $shift->date,
+                            'time_started' => $shift->timeStarted,
+                            'time_finished' => $shift->timeFinished,
+                            'minutes' => $shift->getShiftLength(),
+                            'activity' => $shift->activity->displayName
+                        ];
+                    }
+                    echo generateTable( array('worker', 'date', 'time_started', 'time_finished', 'minutes', 'activity'), $shiftTableData, 'shifts' );
+                }
+
+                ?>
+            </div>
+        </div>
+    </div>
+    <?php
 getDetailPageFooter( '#job_form', 'jobs', 'page.php?id=1' );

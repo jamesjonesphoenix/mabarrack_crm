@@ -7630,6 +7630,9 @@ h1, h2, h3, h4,
 h3, h4, th {
   text-transform: capitalize; }
 
+header {
+  background: #2d2e32; }
+
 .logo {
   width: 90px;
   padding: 10px;
@@ -7642,37 +7645,19 @@ h3, h4, th {
     .header_buttons a:first-child {
       margin-left: 0; }
 
+.logo_title img {
+  height: 70px;
+  vertical-align: top; }
+
+.crm-title {
+  font-weight: 700;
+  display: inline-block;
+  line-height: 70px; }
+
 .pgtitle {
   text-transform: capitalize;
   float: left;
   margin-top: 20px; }
-
-.crmhead {
-  margin-bottom: 20px; }
-  .crmhead img {
-    height: 60px;
-    margin-top: 10px;
-    margin-bottom: 10px;
-    vertical-align: top; }
-
-.crmheadbg {
-  background: #2d2e32;
-  height: 110px;
-  width: 100%;
-  position: absolute; }
-
-.usrnm {
-  float: left;
-  text-align: left;
-  clear: both;
-  margin-left: 15px;
-  font-size: 18px; }
-
-.crmtitle {
-  font-weight: 700;
-  display: inline-block;
-  line-height: 60px;
-  margin-top: 10px; }
 
 .page-header-breadcrumb {
   margin-bottom: 20px;
@@ -7774,12 +7759,8 @@ th, .viewth {
   font-style: italic;
   width: 100%; }
 
-.container {
-  position: relative; }
-
 #jstatus {
-  color: #fff;
-  max-width: 300px; }
+  color: #fff; }
   #jstatus option {
     background: #fff;
     color: #555; }
@@ -7822,6 +7803,18 @@ td.viewth {
   display: none; }
 
 /*///  PANELS  ///*/
+.container {
+  /*
+  background: #2c2e30;
+  border-color: #444;
+  border: none;
+  margin-top: 10px;
+  width: 100%;
+   */ }
+
+.row.grey-bg {
+  background: #2c2e30; }
+
 .panel {
   padding: 10px;
   background: #2c2e30;
@@ -7829,23 +7822,20 @@ td.viewth {
   border: none;
   margin-top: 10px;
   width: 100%; }
-  .panel h3 {
-    margin-top: 5px; }
 
 /*///  BUTTONS  ///*/
 .btn-default {
   border: none;
   /*background-color: #57595f;*/
-  background: #246cb3;
-  font-size: 16px; }
+  background: #246cb3; }
+  .btn-defaulthover, .btn-default:focus, .btn-defaultfocus:hover, .btn-default:active, .btn-defaultactive:hover {
+    border: none; }
   .btn-defaulthover, .btn-default:focus, .btn-defaultfocus:hover {
-    border: none;
     color: #fff;
     background-color: #2b96ff;
     /*#5094e4;*/
     box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(102, 175, 233, 0.6); }
   .btn-default:active, .btn-defaultactive:hover {
-    border: none;
     color: #ddd;
     background-color: #4e77a7;
     /*#37506e;*/ }
@@ -7924,7 +7914,7 @@ td.viewth {
   color: #222222; }
 
 /*///  LOGIN  ///*/
-.loginpanel {
+.login-panel {
   background: #2c2e30;
   max-width: 360px;
   margin: 0 auto;
@@ -7932,34 +7922,34 @@ td.viewth {
   text-align: center;
   padding: 10px;
   padding-bottom: 30px; }
-  .loginpanel input {
+  .login-panel input {
     text-align: center; }
-  .loginpanel .btn {
+  .login-panel .btn {
     margin: 0 auto;
     display: block;
     margin-top: 15px; }
-  .loginpanel .alert, .loginpanel .login-fields {
+  .login-panel .alert, .login-panel .login-fields {
     margin-bottom: 15px; }
 
 #pin-field {
   font-size: 24px;
   height: 40px; }
 
+/*
 #loginerror {
   display: none;
   color: #f00;
-  font-size: 16px; }
-
-#loginbtn {
+  font-size: 16px;
+}
+*/
+#login-button {
   background: #46bc52;
   font-size: 20px;
   width: 200px; }
-  #loginbtn:hover {
+  #login-button:hover {
     background: #60e44d; }
 
 .logout {
-  float: right;
-  margin-top: 35px;
   background: #f2385a; }
   .logout:hover {
     background: #ff879d; }
@@ -7983,13 +7973,7 @@ td.viewth {
   .detailform table tbody tr {
     background: none; }
 
-textarea {
-  resize: none; }
-
 #setbtn {
-  float: right;
-  margin-top: 35px;
-  margin-right: 15px;
   background: #666;
   padding: 4px; }
   #setbtn:hover {
@@ -8032,13 +8016,13 @@ textarea {
   #shft_add_form table {
     width: 100%; }
 
-.shft_finish {
+.shift-finish {
   position: absolute;
   right: 100px;
   top: 10px;
   background: #46b324; }
 
-.shft_finish.btn-default:hover, .shft_finish.btn-default:active, .shft_finish.btn-default:focus {
+.shift-finish.btn-default:hover, .shift-finish.btn-default:active, .shift-finish.btn-default:focus {
   background: #38f24e; }
 
 .shft_cancel {
@@ -8087,18 +8071,6 @@ textarea {
   display: none;
   width: 150px; }
 
-.removefur {
-  float: right; }
-
-.removefur.viewinput {
-  opacity: 0; }
-
-.fur-qty {
-  float: left; }
-
-#addfurbtn.viewinput {
-  opacity: 0; }
-
 /*///  INPUTS  ///*/
 input[type="checkbox"] {
   display: none; }
@@ -8118,7 +8090,16 @@ input[type="checkbox"] + label span {
 input[type="checkbox"]:checked + label span {
   background: url(https://s3-us-west-2.amazonaws.com/s.cdpn.io/210284/check_radio_sheet.png) -19px top no-repeat; }
 
-.viewinput, .viewinput:hover, .viewinput:active, .viewinput:focus, .viewinput[disabled], .viewinputp, .viewinputp:hover, .viewinputp:active, .viewinputp:focus, .viewinputp[disabled] {
+.viewinput,
+.viewinput:hover,
+.viewinput:active,
+.viewinput:focus,
+.viewinput[disabled],
+.viewinputp,
+.viewinputp:hover,
+.viewinputp:active,
+.viewinputp:focus,
+.viewinputp[disabled] {
   background: #222;
   color: #fff;
   border: none;
@@ -8141,36 +8122,32 @@ input[type="checkbox"]:checked + label span {
   margin-top: 20px;
   margin-right: 10px; }
 
-#editbtn, #addbtn {
-  right: 10px;
-  top: 10px;
-  position: absolute;
+#edit-button, #addbtn {
   background: #246cb3; }
-  #editbtn:hover, #editbtn:active, #editbtn:focus, #addbtn:hover, #addbtn:active, #addbtn:focus {
+  #edit-button:hover, #edit-button:active, #edit-button:focus, #addbtn:hover, #addbtn:active, #addbtn:focus {
     background: #2b96ff; }
 
-#cancelbtn {
-  display: none;
-  right: 10px;
-  top: 10px;
-  position: absolute;
-  background: #d42647; }
+#cancel-button {
+  display: none; }
 
 #asbtn {
   float: right;
   font-weight: 700; }
 
-#cancelbtn:hover, #cancelbtn:active, #cancelbtn:focus {
+#cancel-button:hover, #cancel-button:active, #cancel-button:focus {
   background: #f2385a; }
 
-#updatebtn {
-  display: none;
-  right: 100px;
-  top: 10px;
-  position: absolute;
-  background: #246cb3; }
-  #updatebtn:hover, #updatebtn:active, #updatebtn:focus {
-    background: #2b96ff; }
+#update-button {
+  /*
+    display: none;
+    right: 100px;
+    top: 10px;
+    position: absolute;
+    background: #246cb3;
+    &:hover, &:active, &:focus {
+      background: #2b96ff;
+    }
+  */ }
 
 .groupby_dd {
   margin-left: 10px;
@@ -8269,16 +8246,16 @@ body.page .alert {
     .main-btn h2 {
       font-size: 22px; }
 
-  .crmtitle {
+  .crm-title {
     font-size: 22px; }
 
   .logout {
     margin-top: 65px; }
 
-  .crmhead .logo_title {
+  .crm-head .logo_title {
     white-space: nowrap; }
 
-  .usrnm {
+  .username {
     margin-top: -25px; } }
 @media print {
   html, body {
@@ -8294,7 +8271,7 @@ body.page .alert {
     min-height: initial;
     box-shadow: initial; }
 
-  .crmheadbg, .crmhead, a, .btn, .header:after, .header.headerSortDown:after, .header.headerSortUp:after, .hidden-date {
+  .crm-header, .crm-head, a, .btn, .header:after, .header.headerSortDown:after, .header.headerSortUp:after, .hidden-date {
     display: none; }
 
   .headerSortDown, .headerSortUp {
@@ -8378,6 +8355,18 @@ table > tbody > tr:nth-of-type(2n) {
 .chooseactivity .table thead tr th:not(:first-child),
 .chooseactivity .table td.activityIcon {
   border-left: 2px solid #dee2e6; }
+
+.job-description textarea {
+  height: 124px; }
+
+.furniture-quantity {
+  display: inline-block; }
+
+.job-furniture-row .form-group input, .job-furniture-row .form-group select {
+  display: inline-block; }
+
+.remove-furniture {
+  margin-top: -4px; }
 
 .messages {
   margin-bottom: 15px; }

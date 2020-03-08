@@ -61,10 +61,10 @@ echo getTable(  'shifts');
     <br><br><br><br><br><br><br><br>
 
     <script>
-        load_dropdown_options( ".depots_dd", "depots", "ID", "name" );
-        load_dropdown_options( ".trucks_dd", "trucks", "ID", "ID" );
-        load_dropdown_options( ".jobs_dd", "jobs", "ID", "description" );
-        load_dropdown_options( ".workers_dd", "workers", "ID", "name" );
+        loadDropdownOptions( ".depots_dd", "depots", "ID", "name" );
+        loadDropdownOptions( ".trucks_dd", "trucks", "ID", "ID" );
+        loadDropdownOptions( ".jobs_dd", "jobs", "ID", "description" );
+        loadDropdownOptions( ".workers_dd", "workers", "ID", "name" );
         load_time_dropdown();
         $( ":date" ).dateinput( {
             format: 'dd-mm-yyyy'

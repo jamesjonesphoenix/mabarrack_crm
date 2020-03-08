@@ -1,0 +1,18 @@
+.job-description textarea {
+  height: 124px;
+}
+
+.furniture-quantity {
+  //float: left;
+  display: inline-block;
+}
+
+.job-furniture-row .form-group {
+  input, select {
+    display: inline-block;
+  }
+}
+
+.remove-furniture {
+  margin-top: -4px;
+}
