@@ -57,7 +57,6 @@ class ShiftFactory extends EntityFactory
             'activity' => ['operator' => '!=', 'value' => 0],
             'job' => ['operator' => '!=', 'value' => 0],
         ] );
-        d($lastShift);
         if(empty($lastShift)){
             return null;
         }

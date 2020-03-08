@@ -104,9 +104,15 @@ class Shift extends Entity
             return false;
         }
 
-        $currentTime = DateTime::roundTime( date( 'H:i:s' ) ); //get current time
-        $cutOffTime = '17:00:00'; //5pm
-        $finishTime = strtotime( $currentTime ) < strtotime( $cutOffTime ) ? $currentTime : $cutOffTime;
+        $currentTimeString = DateTime::roundTime( date( 'H:i:s' ) ); //get current time
+        $cutOffTimeString = '17:00:00'; //5pm
+        $cutOffTime = strtotime( $cutOffTimeString );
+        if ( strtotime( $this->timeStarted ) > $cutOffTime ) {
+            //If shift started after cutoff time set it's finish time to start time so it has 0 minutes length. Otherwise we have shifts starting after cutoff and finishing at cutoff making for negative shift length.
+            $finishTime = $this->timeStarted;
+        } else {
+            $finishTime = strtotime( $currentTimeString ) < $cutOffTime ? $currentTimeString : $cutOffTimeString;
+        }
         $minutes = DateTime::timeDifference( $this->timeStarted, $finishTime );
         return $this->db->update( 'shifts',
             [
