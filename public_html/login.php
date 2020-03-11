@@ -69,4 +69,4 @@ if ( !empty( $_GET['message'] ) ) {
     <?php
 //  $blegh = array('bla','ob','gib');
 //  echo reset($blegh);
-ph_get_template_part( 'footer' ); ?>
+getTemplatePart( 'footer' ); ?>

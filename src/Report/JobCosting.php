@@ -5,7 +5,7 @@ namespace Phoenix\Report;
 use DateTime;
 use Phoenix\Format;
 use Phoenix\Report;
-use function Phoenix\ph_get_template_part;
+use function Phoenix\getTemplatePart;
 
 /**
  * Class JobCosting
@@ -159,9 +159,9 @@ WHERE shifts.job = ?',
      */
     public function outputReport()
     {
-        ph_get_template_part('report/header/links-admin', array());
+        getTemplatePart('report/header/links-admin', array());
         if ($this->getShifts()) {
-            ph_get_template_part('report/job-costing/report', array(
+            getTemplatePart('report/job-costing/report', array(
                 'job' => $this->getJob(),
                 'shifts' => $this->getJobCosting(),
                 'activities_summary' => $this->activitySummary,

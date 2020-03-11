@@ -7759,29 +7759,11 @@ th, .viewth {
   font-style: italic;
   width: 100%; }
 
-#jstatus {
+#job-status {
   color: #fff; }
-  #jstatus option {
+  #job-status option {
     background: #fff;
     color: #555; }
-
-.jobstat_red td, #jstatus.jobstat_red {
-  background: rgba(255, 0, 0, 0.5); }
-
-.jobstat_yellow td, #jstatus.jobstat_yellow {
-  background: rgba(255, 157, 46, 0.9); }
-
-.jobstat_green td, #jstatus.jobstat_green {
-  background: rgba(105, 186, 49, 0.9); }
-
-.jobstat_red td {
-  border-top: 1px solid #9F0101 !important; }
-
-.jobstat_yellow td {
-  border-top: 1px solid #DA8526 !important; }
-
-.jobstat_green td {
-  border-top: 1px solid #5F9E34 !important; }
 
 td.viewth {
   background: #4a4c51;
@@ -7886,16 +7868,6 @@ td.viewth {
   top: 80px;
   color: #F00; }
 
-/*
-.actsbtns .main-btn {
-  max-height: 150px;
-  margin-bottom: 20px;
-
-  img {
-    height: 100%;
-  }
-}
-*/
 /*///  SEARCH FORM  ///*/
 .form-inline .sci {
   display: none; }
@@ -7967,10 +7939,10 @@ td.viewth {
   font-size: 22px;
   background: #880000; }
 
-.detailform table {
+.detail-form table {
   width: 100%;
   background: none; }
-  .detailform table tbody tr {
+  .detail-form table tbody tr {
     background: none; }
 
 #setbtn {
@@ -8090,6 +8062,14 @@ input[type="checkbox"] + label span {
 input[type="checkbox"]:checked + label span {
   background: url(https://s3-us-west-2.amazonaws.com/s.cdpn.io/210284/check_radio_sheet.png) -19px top no-repeat; }
 
+fieldset:disabled .form-control,
+.form-control[disabled] {
+  background: #222222;
+  color: #ffffff;
+  border: none;
+  box-shadow: none; }
+
+/*
 .viewinput,
 .viewinput:hover,
 .viewinput:active,
@@ -8104,8 +8084,9 @@ input[type="checkbox"]:checked + label span {
   color: #fff;
   border: none;
   box-shadow: none;
-  cursor: default; }
-
+  cursor: default;
+}
+*/
 .well {
   display: inline-block;
   background: #222;
@@ -8117,14 +8098,14 @@ input[type="checkbox"]:checked + label span {
   min-width: 75px;
   text-align: center; }
 
-.addbtn {
+.add-button {
   float: right;
   margin-top: 20px;
   margin-right: 10px; }
 
-#edit-button, #addbtn {
+#edit-button, #add-button {
   background: #246cb3; }
-  #edit-button:hover, #edit-button:active, #edit-button:focus, #addbtn:hover, #addbtn:active, #addbtn:focus {
+  #edit-button:hover, #edit-button:active, #edit-button:focus, #add-button:hover, #add-button:active, #add-button:focus {
     background: #2b96ff; }
 
 #cancel-button {
@@ -8367,6 +8348,19 @@ table > tbody > tr:nth-of-type(2n) {
 
 .remove-furniture {
   margin-top: -4px; }
+
+.remove-furniture.disabled {
+  display: none; }
+
+#job-status.form-control.jobstat_red {
+  background: rgba(255, 0, 0, 0.5);
+  border-color: #9F0101; }
+#job-status.form-control.jobstat_yellow {
+  background: rgba(255, 157, 46, 0.9);
+  border-color: #DA8526; }
+#job-status.form-control.jobstat_green {
+  background: rgba(105, 186, 49, 0.9);
+  border-color: #5F9E34; }
 
 .messages {
   margin-bottom: 15px; }

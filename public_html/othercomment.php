@@ -12,7 +12,7 @@ $activityID = ph_validate_number($_GET['activity_id']);
             <div class="panel panel-default container">
                 <h1>Description of Work</h1>
                 <div style="text-align: center;">
-                    <form action="nextshift.php" class="detailform" method="get">
+                    <form action="nextshift.php" class="detail-form" method="get">
                         <input type="hidden" name="job_id" value="<?php echo $jobID; ?>">
                         <input type="hidden" name="activity_id" value="<?php echo $activityID; ?>">
                         <input type="text" class='form-control' name="comment" value="" autocomplete="off" autofocus>
@@ -23,4 +23,4 @@ $activityID = ph_validate_number($_GET['activity_id']);
             </div>
         </div>
     </div>
-<?php ph_get_template_part('footer') ?>
+<?php getTemplatePart('footer') ?>

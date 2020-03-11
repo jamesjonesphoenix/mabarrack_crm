@@ -9,7 +9,7 @@ include '../src/crm_init.php'; ?>
     <h2>Settings</h2>
     <div class='panel panel-default' style='position: relative'>
         <h3>Job Settings</h3>
-        <form id='settings_form' class='detailform'>
+        <form id='settings_form' class='detail-form'>
             <h4>Job Status Text</h4>
             <?php
 
@@ -49,7 +49,7 @@ include '../src/crm_init.php'; ?>
 
     </div>
     <script>
-        pagefunctions();
+        pageFunctions();
 
         success_count = 0;
 
@@ -153,4 +153,4 @@ include '../src/crm_init.php'; ?>
 
     </script>
 
-    <?php ph_get_template_part( 'footer' ); ?>
+    <?php getTemplatePart( 'footer' ); ?>

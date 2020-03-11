@@ -1,3 +1,6 @@
+//$(document).ready(function () {});
+
+
 /**
  * add leading zeros to numbers
  *
@@ -84,7 +87,7 @@ function dateInputInit() {
 /**
  * javascript for page.php
  */
-function pagefunctions() {
+function pageFunctions() {
     //var table_sorter_options = ;
     //table_sorter_options.push();
     var options_array = {
@@ -113,16 +116,9 @@ function addFurniture() {
 
 }
 
-/**
- *
- */
-function initRemoveFurniture() {
-    $(".remove-furniture").click(function () {
-        $(this).parent().remove();
-    });
-}
 
 /**
+ * Get data from job form furniture rows and convert to JSON
  *
  * @returns {string}
  */
@@ -130,7 +126,7 @@ function furnitureJSON() {
     var jsonString = '[';
     $(".furniture-name").each(function (index) {
         var furnitureID = $(this).val();
-        if(furnitureID > 0) {
+        if (furnitureID > 0) {
             if (index != 0) {
                 jsonString += ',';
             }
@@ -147,18 +143,18 @@ function furnitureJSON() {
 }
 
 /**
- * javascript for detail pages
- *
- * @param detailform
- * @param detailtable
+ * Function for single job page.
  */
-function detailPageFunctions(detailform, detailtable) {
-    $("#jstatus").addClass($("#jstatus").val());
-    $("#jstatus").change(function () {
+function jobDetailPageFunctions() {
+
+    initRemoveFurnitureButton();
+
+    var jobStatusField = $("#job-status");
+    //jobStatusField.addClass(jobStatusField.val());
+    jobStatusField.change(function () {
         this.className = 'form-control';
         $(this).addClass($(this).val());
     });
-
 
     $("#add-furniture-button").click(function () {
         console.log('howdy');
@@ -168,99 +164,112 @@ function detailPageFunctions(detailform, detailtable) {
         var jobFurnitureNew = jobFurnitureHTML.clone().insertAfter(jobFurnitureHTML);
         jobFurnitureNew.children('select').val('');
         jobFurnitureNew.children('input.furniture-quantity').val(1);
+        jobFurnitureNew.children('a.remove-furniture').removeClass('disabled');
 
-        initRemoveFurniture();
-    });
-
-    initRemoveFurniture();
-
-    $(".viewinput").prop('disabled', true); //disabled all the inputs
-    $(".viewinputp").prop('disabled', true); //disabled all the inputs
-
-    $("#edit-button").click(function () {
-        $(".viewinput").prop('disabled', false); //enable all the inputs
-        $(".viewinput").removeClass('viewinput');
-        $("#update-button").show();
-        $("#update-button").prop('disabled', false);
-        $("#cancel-button").show();
-        $("#edit-button").hide();
-
-
-        $(".remove-furniture, #add-furniture-button").removeClass('disabled');
-        $("#add-furniture-button").prop('disabled', false);
+        initRemoveFurnitureButton();
 
     });
 
-    $("#cancel-button").click(function () {
+    /**
+     *
+     */
+    function initRemoveFurnitureButton() {
+        $(".remove-furniture").click(function () {
+            $(this).parent().remove();
+        });
+    }
+
+}
+
+/**
+ * javascript for detail pages
+ *
+ * @param detailForm
+ * @param detailTable
+ */
+function detailPageFunctions(detailForm, detailTable) {
+    var cancelButton = $("#cancel-button");
+    var editButton = $("#edit-button");
+    var updateButton = $("#update-button");
+    var formFieldset = $(".detail-form fieldset");
+
+    editButton.click(function () {
+
+        formFieldset.prop('disabled', false);
+        cancelButton.show().prop('disabled', false);
+
+        updateButton.show().prop('disabled', false);
+        editButton.hide().prop('disabled', true);
+    });
+
+    cancelButton.click(function () {
         location.reload();
-        $(detailform + " input").addClass('viewinput');
-        $(detailform + " select").addClass('viewinput');
-        $(detailform + " textarea").addClass('viewinput');
-        $(".viewinput").prop('disabled', true); //enable all the inputs
-        $("#update-button").hide();
-        $("#update-button").prop('disabled', true);
-        $("#cancel-button").hide();
-        $("#edit-button").show();
+        formFieldset.prop('disabled', false);
+        cancelButton.hide().prop('disabled', true);
+        updateButton.hide().prop('disabled', true);
+        editButton.show().prop('disabled', false);
     });
 
     //  ADD / UPDATE ENTRY  //
-    $(detailform).submit(function (e) {
+    $(detailForm).submit(function (e) {
         console.log('submitted');
         e.preventDefault();
         $(".alert").alert('close');
 
         //if start time set to be after finish time -> throws error
-        var time_started = $(detailform + " input[name='time_started']").val();
-        var time_finished = $(detailform + " input[name='time_finished']").val();
+        var time_started = $(detailForm + " input[name='time_started']").val();
+        var time_finished = $(detailForm + " input[name='time_finished']").val();
         //alert(time_started + ' - ' + time_finished);
         //alert(compareTime( time_started, time_finished ));
         if (compareTime(time_started, time_finished) == 1) {
-            errorAlert("<strong>Error!</strong> The start time should be before the finish time. Please change times and resumbit.", detailform);
+            errorAlert('<strong>Error!</strong> The start time should be before the finish time. Please change times and resubmit.', detailForm);
             return false;
         }
 
-        //if start date set to be after finish date -> throws error
-        var date_started = Date.parse($(detailform + " input[name='date_started']").val());
-        var date_finished = Date.parse($(detailform + " input[name='date_finished']").val());
+        //If start date set to be after finish date -> throws error
+        var date_started = Date.parse($(detailForm + " input[name='date_started']").val());
+        var date_finished = Date.parse($(detailForm + " input[name='date_finished']").val());
         if ((date_finished > 0) && (date_started > date_finished)) {
-            errorAlert("<strong>Error!</strong> The start date should be before the finish date. Please change dates and resubmit", detailform);
+            errorAlert('<strong>Error!</strong> The start date should be before the finish date. Please change dates and resubmit', detailForm);
             return false;
         }
 
-        ajax_url = "add_entry.php";
+        var ajaxURL = "add_entry.php";
         if ($('#update-button').length > 0) {
-            ajax_url += "?update";
+            ajaxURL += "?update";
         }
-        $("#addbtn").prop('disabled', true);
+        $("#add-button").prop('disabled', true);
         $("#update-button").prop('disabled', true);
         $(".viewinputp").prop('disabled', false); //temp enable permanent disabled inputs so their data can still be sent
 
         /*
-        var detailform_array = $( detailform ).serializeArray();
-        switch(detailform){
+        var detailForm_array = $( detailForm ).serializeArray();
+        switch(detailForm){
             case '#customer_form'
-                redirecturl .=
+                redirectURL .=
                 break;
         }
         */
-        //console.log( detailform_array );
-        console.log($(detailform).serialize());
+        var redirectURL = '';
 
-        console.log($(detailform).serialize() + furnitureJSON() + "&table=" + detailtable);
+        console.log($(detailForm).serialize() + furnitureJSON() + "&table=" + detailTable);
 
         $.ajax({
-            url: ajax_url,
+            url: ajaxURL,
             type: 'POST',
-            data: $(detailform).serialize() + furnitureJSON() + "&table=" + detailtable,
+            data: $(detailForm).serialize() + furnitureJSON() + "&table=" + detailTable,
             success: function (data) {
                 console.log(data);
-                if (data != "success") {
-                    $("#addbtn").prop('disabled', false);
-                    $("#update-button").prop('disabled', false);
-                    errorAlert(data);
-                } else {
+                data = JSON.parse(data);
+                if (data['result']) {
                     console.log("success");
-                    location.assign(redirecturl);
+                    redirectURL = 'job.php?id=' + data['id'];
+                    location.assign(redirectURL);
+
+                } else {
+                    $("#add-button").prop('disabled', false);
+                    $("#update-button").prop('disabled', false);
+                    errorAlert(data['message']);
                 }
             },
             error: function (xhr, desc, err) {
@@ -281,8 +290,9 @@ function detailPageFunctions(detailform, detailtable) {
  * @param message
  * @param location
  */
-function errorAlert(message = '', location = '.detailform') {
-    var error_html = "<div class=\"alert alert-danger alert-dismissible fade show\" role=\"alert\">" + message + "<button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-label=\"Close\"> <span aria-hidden=\"true\">&times;</span> </button> </div>";
+function errorAlert(message = '', location = '.detail-form') {
+    var error_html = '<div class="alert alert-danger alert-dismissible fade show" role="alert">' + message + '<button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span aria-hidden="true">&times;</span> </button> </div>';
+
     $(location).prepend(error_html);
 }
 

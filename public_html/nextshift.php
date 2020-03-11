@@ -41,7 +41,7 @@ $heading = $activityID === 0 ? 'Lunch Started!' : 'Shift Started!';
 if ( PDOWrap::instance()->add( 'shifts', $data ) ) { ?>
     <div class="row">
         <div class="col-md-12">
-            <div class="panel panel-default container actsbtns">
+            <div class="panel panel-default container">
                 <h1><?php echo $heading; ?></h1>
             </div>
         </div>
@@ -53,7 +53,7 @@ if ( PDOWrap::instance()->add( 'shifts', $data ) ) { ?>
     </script>
     <?php
 }
-ph_get_template_part( 'footer' ) ?>
+getTemplatePart( 'footer' ) ?>
 
 
 

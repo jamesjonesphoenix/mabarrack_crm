@@ -23,7 +23,7 @@
         <?php echo generateTable( array( 'activity_ID', 'activity', 'activity_hours', '%_of_total_hours', 'activity_cost', '%_of_total_employee_cost' ), $activities_summary );
     endif;
     if ( !empty( $totals ) ) :
-        ph_get_template_part( 'report/job-costing/totals-summary', array(
+        getTemplatePart( 'report/job-costing/totals-summary', array(
             'totals' => $totals,
         ) );
     endif;

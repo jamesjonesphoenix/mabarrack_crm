@@ -90,10 +90,9 @@ abstract class EntityFactory extends AbstractCRM
             $joinPropertyName = strtolower( $additionFactory->className );
         }
         $additionIDs = $this->getEntityIDs( $entities, $joinPropertyName );
-
         $propertyQueryArgs = $this->getPropertyQueryArgs( $additionIDs );
-        $additions = $additionFactory->getEntities( $propertyQueryArgs );
 
+        $additions = $additionFactory->getEntities( $propertyQueryArgs );
         foreach ( $entities as &$entity ) {
             if ( !empty( $additions[$entity->$joinPropertyName] ) ) {
                 $entity->$joinPropertyName = $additions[$entity->$joinPropertyName];
@@ -151,7 +150,10 @@ abstract class EntityFactory extends AbstractCRM
     protected function getEntityIDs(array $entities = [], string $propertyName = 'id'): array
     {
         foreach ( $entities as $entity ) {
-            $entityIDs[$entity->$propertyName] = $entity->$propertyName;
+            if ( (!empty( $entity->$propertyName ) || $entity->$propertyName === 0)
+                && (is_numeric( $entity->$propertyName ) || is_string( $entity->$propertyName )) ) {
+                $entityIDs[$entity->$propertyName] = $entity->$propertyName;
+            }
         }
         return $entityIDs ?? [];
     }

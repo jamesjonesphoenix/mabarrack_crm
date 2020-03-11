@@ -106,6 +106,6 @@ if ( !defined( 'DOING_CRON' ) ) {
         }
     }
     if ( !defined( 'DOING_AJAX' ) ) {
-        ph_get_template_part( 'header' );
+        getTemplatePart( 'header' );
     }
 }

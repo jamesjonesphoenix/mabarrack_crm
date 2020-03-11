@@ -73,19 +73,38 @@ class JobFactory extends EntityFactory
     }
 
     /**
+     * Alias for getEntities()
+     *
+     * @param int $id
+     * @return Job
+     */
+    public function getNewJob(): Job
+    {
+        $job = $this->instantiateEntityClass();
+        //$job->id = ;
+        $job->dateStarted = date( 'Y-m-d' );
+        $job->status = 'jobstat_red';
+        $furnitureFactory = new FurnitureFactory( $this->db, $this->messages );
+        $furniture = $furnitureFactory->getNewFurniture();
+        $job->furniture = [$furniture->id => $furniture];
+        return $job;
+    }
+
+    /**
      * @param array $queryArgs
      * @param bool $provision
      * @return Job[]
      */
     public function getEntities(array $queryArgs = [], $provision = false): array
     {
-        $jobs = $this->getClassesFromDBWrapper( $queryArgs );
 
+
+        $jobs = $this->getClassesFromDBWrapper( $queryArgs );
         if ( !$provision || empty( $jobs ) ) {
             return $jobs;
         }
 
-        //add Furniture to each job
+        //Add Furniture to each job
         $furnitureIDs = [];
         foreach ( $jobs as $job ) {
             foreach ( $job->furniture as $item ) {
@@ -97,7 +116,7 @@ class JobFactory extends EntityFactory
             $furniture = $furnitureFactory->getFurniture( ['id' => ['operator' => 'IN', 'value' => $furnitureIDs]] );
             foreach ( $jobs as &$job ) {
                 foreach ( $job->furniture as $furnitureID => $item ) {
-                    if(!empty($furniture[$furnitureID])) {
+                    if ( !empty( $furniture[$furnitureID] ) ) {
                         $jobFurniture[$furnitureID] = $furniture[$furnitureID];
                         $jobFurniture[$furnitureID]->quantity = $item['Quantity'];
                     }
@@ -108,11 +127,11 @@ class JobFactory extends EntityFactory
             }
             unset( $job );
         }
-        //add shifts for each job to Job
+        //Add shifts for each job to Job
         $shiftFactory = new ShiftFactory( $this->db, $this->messages );
         $jobs = $this->addManyToOneEntityProperties( $jobs, $shiftFactory );
 
-        //add customers for each job to Job
+        //Add customers for each job to Job
         $customerFactory = new CustomerFactory( $this->db, $this->messages );
         $jobs = $this->addOneToOneEntityProperties( $jobs, $customerFactory );
 

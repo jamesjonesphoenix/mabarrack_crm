@@ -20,7 +20,7 @@ include '../src/crm_init.php'; ?>
     </div>
 
     <script>
-        pagefunctions();
+        pageFunctions();
     </script>
 
-<?php ph_get_template_part('footer'); ?>
+<?php getTemplatePart('footer'); ?>

@@ -25,7 +25,7 @@ $id = ph_validate_number($_GET['id']);
 ?>
 
     <script>
-        pagefunctions();
+        pageFunctions();
     </script>
 
-    <?php ph_get_template_part('footer'); ?>
+    <?php getTemplatePart('footer'); ?>

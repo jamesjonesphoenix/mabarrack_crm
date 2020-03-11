@@ -4,19 +4,19 @@ namespace Phoenix;
 
 include '../src/crm_init.php';
 
-$redirecturl = getDetailPageHeader( 'page.php?id=7', 'Furniture', 'Furniture' );
+$redirectURL = getDetailPageHeader( 'page.php?id=7', 'Furniture', 'Furniture' );
 
 if ( isset( $_GET['add'] ) ) { //add a new customer
     //Add Customer Form
     ?>
-    <form id='furniture_form' class='detailform'>
+    <form id='furniture_form' class='detail-form'>
         <table>
             <tr>
                 <td><b>Name: </b><input type='text' class='form-control w300' name='name' autocomplete='off' value=''/>
                 </td>
             </tr>
         </table>
-        <input type='submit' value='Add' class='btn btn-default' id='addbtn'>
+        <input type='submit' value='Add' class='btn btn-default' id='add-button'>
     </form>
     <?php
 } else {
@@ -31,7 +31,7 @@ if ( isset( $_GET['add'] ) ) { //add a new customer
 
         //Customer details
         ?>
-        <form id='furniture_form' class='detailform'>
+        <form id='furniture_form' class='detail-form'>
             <table>
                 <tr>
                     <td><b>ID: </b><input type='text' class='form-control viewinputp w300' name='ID' autocomplete='off'
