@@ -10,12 +10,12 @@ if ( !defined( 'SYSTEM_TITLE' ) ) { //check if crm_init included
 }
 
 $messages = Messages::instance();
-$messages->emailArgs( array(
+$messages->emailArgs = array(
     'prepend' => SYSTEM_TITLE . ' CRM - CRON autoclockoff - ',
     'subject' => SYSTEM_TITLE . ' CRM - CRON autoclockoff',
     'to' => TO_EMAIL,
     'from' => FROM_EMAIL
-) );
+);
 
 $messages->add( 'Starting.' );
 $minFinishTime = '16:30:00';

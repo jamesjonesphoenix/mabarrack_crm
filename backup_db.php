@@ -9,12 +9,12 @@ if ( !defined( 'SYSTEM_TITLE' ) ) { //check if crm_init included
     exit();
 }
 $messages = Messages::instance();
-$messages->emailArgs( array(
+$messages->emailArgs = array(
     'prepend' => SYSTEM_TITLE . ' CRM - CRON backup database - ',
     'subject' => SYSTEM_TITLE . ' CRM - CRON backup database',
     'to' => TO_EMAIL,
     'from' => FROM_EMAIL
-) );
+);
 
 $messages->add( 'Starting.' );
 $filename = __DIR__ . '/backups/' . date( 'Y-m-d-H_i_s' ) . '-' . DB_NAME . '-database_backup.sql.gz';
