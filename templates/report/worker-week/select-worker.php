@@ -1,6 +1,6 @@
 <h2>Weekly Worker Time Record</h2>
 <div class='panel panel-default' style='position: relative'>
-    <form id='wtr_form' method='get' class='detailform'>
+    <form id='wtr_form' method='get' class='detail-form'>
         <h3>Choose Worker: </h3>
         <select class='form-control w300' name='worker_id' autocomplete='off'>
             <?php foreach ( $workers as $worker ) {

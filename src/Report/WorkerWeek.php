@@ -7,7 +7,7 @@ use Phoenix\Format;
 use Phoenix\Report;
 use Phoenix\DateTime;
 
-use function Phoenix\ph_get_template_part;
+use function Phoenix\getTemplatePart;
 use function Phoenix\ph_validate_number;
 
 /**
@@ -518,7 +518,7 @@ class WorkerWeek extends Report
     public
     function outputReport(): void
     {
-        ph_get_template_part( 'report/header/links-' . CurrentUser::instance()->role, array(
+        getTemplatePart( 'report/header/links-' . CurrentUser::instance()->role, array(
             'worker_id' => $this->workerID,
             'date_next' => date( 'd-m-Y', strtotime( $this->dateFinish ) ),
             'date_previous' => date( 'd-m-Y', strtotime( $this->dateStart . ' - 7 days' ) ),
@@ -526,7 +526,7 @@ class WorkerWeek extends Report
 
 
         if ( $this->getShifts() ) {
-            ph_get_template_part( 'report/worker-week/weekly-shifts', array(
+            getTemplatePart( 'report/worker-week/weekly-shifts', array(
                 'worker' => $this->getWorker( $this->workerID ),
                 'date_start' => $this->dateStart,
                 'date_finish' => $this->dateFinish,

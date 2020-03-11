@@ -3,11 +3,11 @@
 namespace Phoenix;
 
 include '../src/crm_init.php';
-$redirecturl = getDetailPageHeader( 'page.php?id=6', 'Workers', 'Worker' );
+$redirectURL = getDetailPageHeader( 'page.php?id=6', 'Workers', 'Worker' );
 if ( isset( $_GET['add'] ) ) { //add a new worker
     //Add Worker Form
     ?>
-    <form id='worker_form' class='detailform'>
+    <form id='worker_form' class='detail-form'>
         <table>
             <input type='hidden' name='type' value='staff'/>
             <tr>
@@ -28,7 +28,7 @@ if ( isset( $_GET['add'] ) ) { //add a new worker
                                         autocomplete='off' value='0'/><span class='currencyinput'></span></td>
             </tr>
         </table>
-        <input type='submit' value='Add' class='btn btn-default' id='addbtn'>
+        <input type='submit' value='Add' class='btn btn-default' id='add-button'>
     </form>
     <?php
 } else { //view existing worker
@@ -41,7 +41,7 @@ if ( isset( $_GET['add'] ) ) { //add a new worker
     if ( $worker->exists ) {
 //Worker Details Form
         ?>
-        <form id='worker_form' class='detailform'>
+        <form id='worker_form' class='detail-form'>
             <table>
                 <tr>
                     <td><b>ID: </b><input type='text' class='form-control viewinputp w300' name='ID' autocomplete='off'

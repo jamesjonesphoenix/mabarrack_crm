@@ -576,20 +576,23 @@ function getDetailPageFooter($formid, $table, $redirectURL)
     <script>
     <?php
     if ( !empty( $redirectURL ) ) {
+        /*
         echo '
-        redirecturl = "' . $redirectURL . '";
-        pagefunctions();
+        redirectURL = "' . $redirectURL . '";
+        pageFunctions();
         ';
+        */
+        echo 'pageFunctions();';
     }
     echo "detailPageFunctions('" . $formid . "','" . $table . "');</script>";
-    ph_get_template_part('footer' );
+    getTemplatePart('footer' );
 }
 
 /**
  * @param $template_name
  * @param array $args
  */
-function ph_get_template_part($template_name, $args = array())
+function getTemplatePart($template_name, $args = array())
 {
     if ( !empty( $args ) && is_array( $args ) ) {
         extract( $args, null );

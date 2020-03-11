@@ -130,7 +130,9 @@ class Shift extends Entity
     protected function activity($activity = 0)
     {
         if ( !empty( $activity ) ) {
-            //$activity = is_string($activity) ? intval($activity) : '';
+            if ( is_string( $activity ) ) {
+                $activity = (int)$activity;
+            }
             $this->_activity = $activity;
         }
         return $this->_activity ?? 0;

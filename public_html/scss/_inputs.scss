@@ -22,6 +22,16 @@ input[type="checkbox"]:checked + label span {
   background: url(https://s3-us-west-2.amazonaws.com/s.cdpn.io/210284/check_radio_sheet.png) -19px top no-repeat;
 }
 
+fieldset:disabled .form-control,
+.form-control[disabled]
+{
+  background: #222222;
+  color: #ffffff;
+  border: none;
+  box-shadow: none;
+}
+
+/*
 .viewinput,
 .viewinput:hover,
 .viewinput:active,
@@ -38,6 +48,8 @@ input[type="checkbox"]:checked + label span {
   box-shadow: none;
   cursor: default;
 }
+*/
+
 
 .well {
   display: inline-block;
@@ -51,13 +63,13 @@ input[type="checkbox"]:checked + label span {
   text-align: center;
 }
 
-.addbtn {
+.add-button {
   float: right;
   margin-top: 20px;
   margin-right: 10px;
 }
 
-#edit-button, #addbtn {
+#edit-button, #add-button {
   //right: 10px;
   //top: 10px;
   //position: absolute;

@@ -53,6 +53,7 @@ class Entity extends AbstractCRM
         if ( empty( $row['ID'] ) && $row['ID'] !== 0 ) {
             return $this->exists = false;
         }
+
         foreach ( $row as $key => $item ) {
             if ( $item === null ) {
                 continue;
@@ -77,6 +78,8 @@ class Entity extends AbstractCRM
     }
 
     /**
+     * Is it an actual entity pulled from the DB?
+     *
      * @param bool $exists
      * @return bool
      */
@@ -85,7 +88,7 @@ class Entity extends AbstractCRM
         if ( isset( $exists ) ) {
             $this->_exists = $exists;
         }
-        return $this->_exists;
+        return $this->_exists ?? false;
     }
 
     /**

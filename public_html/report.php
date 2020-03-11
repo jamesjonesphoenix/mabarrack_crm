@@ -18,7 +18,7 @@ if ( $ph_user->role === 'staff' ) {
 if ( empty( $workerID ) && empty( $jobID ) && $ph_user->role === 'admin' ) {
     if ( !empty( $_GET['report'] ) ) {
 
-        ph_get_template_part( 'report/header/links-admin' );
+        getTemplatePart( 'report/header/links-admin' );
         ph_messages()->display();
         if ( $_GET['report'] === 'jcr' ) {
             if ( isset( $_GET['customer_id'] ) ) {
@@ -28,19 +28,19 @@ if ( empty( $workerID ) && empty( $jobID ) && $ph_user->role === 'admin' ) {
                 FROM jobs
                 INNER JOIN customers ON jobs.customer=customers.ID WHERE jobs.ID != 0 AND jobs.customer = ?', [$customerID] )->fetchAll();
                 $template_args = array('jobs' => $jobs);
-                ph_get_template_part( 'report/job-costing/select-job', array('jobs' => $jobs) );
+                getTemplatePart( 'report/job-costing/select-job', array('jobs' => $jobs) );
             } else {
                 $customers = PDOWrap::instance()->getRows(
                     'customers',
                     array('ID' => array('value' => 0, 'operator' => '!=')) ); //"WHERE ID != 0"
-                ph_get_template_part( 'report/job-costing/select-customer', array('customers' => $customers) );
+                getTemplatePart( 'report/job-costing/select-customer', array('customers' => $customers) );
             }
         } elseif ( $_GET['report'] === 'wtr' ) {
             $workers = PDOWrap::instance()->getRows( 'users', array('type' => 'staff'), array('ID', 'name') );
-            ph_get_template_part( 'report/worker-week/select-worker', array('workers' => $workers,) );
+            getTemplatePart( 'report/worker-week/select-worker', array('workers' => $workers,) );
         }
     } else {
-        ph_get_template_part( 'report/select-report' );
+        getTemplatePart( 'report/select-report' );
     }
 } else {
     $total_mins = 0;
@@ -71,10 +71,10 @@ if ( empty( $workerID ) && empty( $jobID ) && $ph_user->role === 'admin' ) {
 
 ?>
     <script>
-        pagefunctions();
+        pageFunctions();
         $(document).ready(function () {
-            pagefunctions();
+            pageFunctions();
             $("th:first-child").trigger("click");
         });
     </script>
-    <?php ph_get_template_part( 'footer' ); ?>
+    <?php getTemplatePart( 'footer' ); ?>

@@ -74,4 +74,4 @@ $menuItems = array(
     </div>
     </div>
     <?php
-ph_get_template_part( 'footer' );
+getTemplatePart( 'footer' );

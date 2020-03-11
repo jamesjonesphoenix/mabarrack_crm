@@ -3,7 +3,7 @@
 <div class='panel panel-default' style='position: relative'>
     <?php if ( !empty( $customers ) ) { ?>
         <h3>Choose Customer: </h3>
-        <form id='jcr_form' action='report.php' method='get' class='detailform'>
+        <form id='jcr_form' action='report.php' method='get' class='detail-form'>
             <input type="hidden" name="report" value="jcr">
             <select class='form-control w300' name='customer_id' autocomplete='off'>
                 <?php foreach ( $customers as $customer ) {
@@ -13,6 +13,6 @@
             <br>
             <input type='submit' value='Next' class='btn btn-default'>
         </form>
-        <?php ph_get_template_part( 'report/job-costing/enter-job' ); ?>
+        <?php getTemplatePart( 'report/job-costing/enter-job' ); ?>
     <?php } ?>
 </div>

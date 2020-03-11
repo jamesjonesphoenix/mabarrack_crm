@@ -198,8 +198,8 @@ class PDOWrap
                         $sqlWhereString .= ')';
                         break;
                     //case '!=':
-                      //  $sqlWhereString .= 'blag';
-                        //break;
+                    //  $sqlWhereString .= 'blag';
+                    //break;
                     default:
                         $sqlWhereString .= ' ' . $queryArg['operator'] . ' :' . $columnName;
                         break;
@@ -288,9 +288,9 @@ class PDOWrap
     /**
      * @param string $table
      * @param array $data
-     * @return bool
+     * @return bool|string
      */
-    public function add(string $table = '', array $data = []): bool
+    public function add(string $table = '', array $data = [])
     {
         if ( !$this->tableExists( $table ) ) {
             return false;
@@ -316,7 +316,11 @@ class PDOWrap
             return $this->pdo->query( $sql );
         }
         $statement = $this->pdo->prepare( $sql );
-        return $statement->execute( $args );
+        $result = $statement->execute( $args );
+        if ( empty( $result ) ) {
+            return false;
+        }
+        return $this->pdo->lastInsertId();
     }
 
     /**

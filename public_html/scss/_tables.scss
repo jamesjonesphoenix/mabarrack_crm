@@ -116,7 +116,7 @@ th, .viewth {
 }
 
 
-#jstatus {
+#job-status {
   color: #fff;
   //max-width: 300px;
 
@@ -126,29 +126,7 @@ th, .viewth {
   }
 }
 
-.jobstat_red td, #jstatus.jobstat_red {
-  background: rgba(255, 0, 0, 0.5);
-}
 
-.jobstat_yellow td, #jstatus.jobstat_yellow {
-  background: rgba(255, 157, 46, 0.9);
-}
-
-.jobstat_green td, #jstatus.jobstat_green {
-  background: rgba(105, 186, 49, 0.9);
-}
-
-.jobstat_red td {
-  border-top: 1px solid #9F0101 !important;
-}
-
-.jobstat_yellow td {
-  border-top: 1px solid #DA8526 !important;
-}
-
-.jobstat_green td {
-  border-top: 1px solid #5F9E34 !important;
-}
 
 td.viewth {
   background: #4a4c51;

@@ -48,6 +48,7 @@ class CustomerFactory extends EntityFactory
     public function getEntities(array $queryArgs = [], $provision = false): array
     {
         $customers = $this->getClassesFromDBWrapper( $queryArgs );
+
         if ( !$provision || empty( $customers ) ) {
             return $customers;
         }

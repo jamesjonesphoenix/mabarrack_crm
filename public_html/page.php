@@ -112,7 +112,7 @@ if ( $pageQueryString === '' ) {
                 <?php
 
                 if ( $_GET['id'] != 4 ) {
-                    echo "<a class='btn btn-default addbtn' href='" . getDetailPage( $pageTableString ) . "?add'>Add</a>";
+                    echo "<a class='btn btn-default add-button' href='" . getDetailPage( $pageTableString ) . "?add'>Add</a>";
                 }
                 ?>
             </div>
@@ -178,7 +178,7 @@ else {
         else if( page_id == 4 )
         var table_sorter_options = [ [ 0, 0 ], [ 0, 1 ] ];
         */
-        pagefunctions();
+        pageFunctions();
     </script>
 
-    <?php ph_get_template_part( 'footer' ); ?>
+    <?php getTemplatePart( 'footer' ); ?>

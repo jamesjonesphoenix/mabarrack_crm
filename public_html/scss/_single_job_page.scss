@@ -16,3 +16,24 @@
 .remove-furniture {
   margin-top: -4px;
 }
+
+.remove-furniture.disabled {
+  display: none;
+}
+
+#job-status.form-control {
+  &.jobstat_red {
+    background: rgba(255, 0, 0, 0.5);
+    border-color: #9F0101;
+  }
+
+  &.jobstat_yellow {
+    background: rgba(255, 157, 46, 0.9);
+    border-color: #DA8526;
+  }
+
+  &.jobstat_green {
+    background: rgba(105, 186, 49, 0.9);
+    border-color: #5F9E34;
+  }
+}

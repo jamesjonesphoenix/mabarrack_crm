@@ -6,7 +6,7 @@ include '../src/crm_init.php';
 getDetailPageHeader( 'page.php?id=5', 'Customers', 'Customer' );
 
 ?>
-    <form id='customer_form' class='detailform'>
+    <form id='customer_form' class='detail-form'>
     <table>
     <?php
 
@@ -16,7 +16,7 @@ if ( isset( $_GET[ 'add' ] ) ) //add a new customer
 else {
     $modifier = 'update';
 }
-    <form id='customer_form' class='detailform'>
+    <form id='customer_form' class='detail-form'>
         <table>
             <tr>
                 <td><b>Name: </b><input type='text' class='form-control w300' name='name' autocomplete='off' value=''/>
@@ -35,7 +35,7 @@ if ( isset( $_GET['add'] ) ) { //add a new customer
     <tr>
         <td><b>Name: </b><input type='text' class='form-control w300' name='name' autocomplete='off' value=''/></td>
     </tr>
-    </table><input type='submit' value='Add' class='btn btn-default' id='addbtn'>
+    </table><input type='submit' value='Add' class='btn btn-default' id='add-button'>
     </form>
     <?php
 

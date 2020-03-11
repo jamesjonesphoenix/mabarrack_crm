@@ -15,9 +15,9 @@ $allActivityTypes = [];
 
 $activityURLs = [];
 
-$activityFactory = new ActivityFactory(PDOWrap::instance(),Messages::instance());
+$activityFactory = new ActivityFactory( PDOWrap::instance(), Messages::instance() );
 
-foreach ($activityFactory->getAll() as $activity ) {
+foreach ( $activityFactory->getAll() as $activity ) {
     if ( $activity->name === 'Lunch' ) {
         continue;
     }
@@ -40,7 +40,7 @@ foreach ($activityFactory->getAll() as $activity ) {
     $unsortedActivities[$activity->category][$activity->type][$activity->name] = $activity;
 }
 
-
+$sortedActivities = [];
 //terrible code
 if ( $jobID > 0 ) {
     $activityCategories = array(
@@ -64,44 +64,42 @@ if ( $jobID > 0 ) {
 }
 
 ?>
-
-<div class="row panel panel-default actsbtns">
-    <div class="col-md-12 col-sm-12 col-xs-12">
-        <h1>Choose Activity</h1>
-    </div>
-    <table class="table">
-        <thead>
-        <tr>
-            <th scope="col">Activity Category</th>
-            <th scope="col"><?php echo $jobID > 0 ? 'Manual ' : ''; ?>Activities</th>
-
-
-            <?php echo $jobID > 0 ? '<th scope="col">CNC Activities</th>' : ''; ?>
-
-        </tr>
-        </thead>
-        <tbody>
-        <?php foreach ( $sortedActivities as $categoryName => $activityTypes ) : ?>
+<div class="container">
+    <div class="row panel panel-default">
+        <div class="col-md-12 col-sm-12 col-xs-12">
+            <h1>Choose Activity</h1>
+        </div>
+        <table class="table">
+            <thead>
             <tr>
-                <th scope="row"><span><?php echo $categoryName; ?></span></th>
-                <?php foreach ( $allActivityTypes as $type ) : ?>
-                    <td class="activityIcon">
-                        <?php if ( !empty( $activityTypes[$type] ) ) :
-                            foreach ( $activityTypes[$type] as $activity ) : ?>
-                                <a href="<?php echo $activityURLs[$activity->id]; ?>">
-                                    <div class="activityIconImageContainer"><img
-                                                src="img/activities/<?php echo $activity->image; ?>"
-                                                alt="<?php echo $activity->name; ?>"/></div>
-                                    <span><?php echo $activity->displayName; ?></span>
-                                </a>
-                            <?php
-                            endforeach;
-                        endif; ?>
-                    </td>
-                <?php endforeach; ?>
+                <th scope="col">Activity Category</th>
+                <th scope="col"><?php echo $jobID > 0 ? 'Manual ' : ''; ?>Activities</th>
+                <?php echo $jobID > 0 ? '<th scope="col">CNC Activities</th>' : ''; ?>
             </tr>
-        <?php endforeach; ?>
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+            <?php foreach ( $sortedActivities as $categoryName => $activityTypes ) : ?>
+                <tr>
+                    <th scope="row"><span><?php echo $categoryName; ?></span></th>
+                    <?php foreach ( $allActivityTypes as $type ) : ?>
+                        <td class="activityIcon">
+                            <?php if ( !empty( $activityTypes[$type] ) ) :
+                                foreach ( $activityTypes[$type] as $activity ) : ?>
+                                    <a href="<?php echo $activityURLs[$activity->id]; ?>">
+                                        <div class="activityIconImageContainer"><img
+                                                    src="img/activities/<?php echo $activity->image; ?>"
+                                                    alt="<?php echo $activity->name; ?>"/></div>
+                                        <span><?php echo $activity->displayName; ?></span>
+                                    </a>
+                                <?php
+                                endforeach;
+                            endif; ?>
+                        </td>
+                    <?php endforeach; ?>
+                </tr>
+            <?php endforeach; ?>
+            </tbody>
+        </table>
+    </div>
 </div>
-<?php ph_get_template_part( 'footer' ) ?>
+<?php getTemplatePart( 'footer' ) ?>

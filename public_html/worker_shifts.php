@@ -69,7 +69,7 @@ if ( empty( $jobRow ) ) {
         </div>
     </div>
     <script>
-        pagefunctions();
+        pageFunctions();
 
         // go back to job enter page
         $(".jobselect").click(function () {
@@ -227,4 +227,4 @@ if ( empty( $jobRow ) ) {
         });
 
     </script>
-    <?php ph_get_template_part( 'footer' ) ?>
+    <?php getTemplatePart( 'footer' ) ?>

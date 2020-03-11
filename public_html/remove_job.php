@@ -29,10 +29,10 @@ if ( $result ) { ?>
 
 ?>
     <script>
-        pagefunctions();
+        pageFunctions();
         setTimeout(function () {
             location.href = 'page.php?id=3';
         }, 600);
     </script>
 
-    <?php ph_get_template_part( 'footer' ); ?>
+    <?php getTemplatePart( 'footer' ); ?>

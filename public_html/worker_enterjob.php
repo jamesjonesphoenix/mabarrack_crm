@@ -148,4 +148,4 @@ $jobFactory = new JobFactory(PDOWrap::instance(),Messages::instance());
     <?php
 
 
-ph_get_template_part( 'footer' ) ?>
+getTemplatePart( 'footer' ) ?>

@@ -5,7 +5,7 @@
             </span>
         </div>
         <div class="col-md-4">
-            <a href="choosefur.php?job_id=<?php echo $job->id; ?>" class="btn btn-default">Select</a>
+            <a href="choosefur.php?job_id=<?php echo $job->id; ?>" class="btn btn-primary btn-lg">Select</a>
         </div>
     </div>
 <?php } ?>

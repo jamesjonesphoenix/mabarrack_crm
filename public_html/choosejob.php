@@ -11,15 +11,15 @@ $lastWorkedJob = $jobFactory->getLastWorkedJob( CurrentUser::instance()->id );
 
 
 ?>
+
     <div class="row">
         <div class="col-md-12">
-            <div class="panel panel-default container actsbtns">
+            <div class="panel panel-default container">
                 <h1>Choose Job</h1>
-
                 <?php
                 if ( $lastWorkedJob !== null && $lastWorkedJob->id !== 0 ) {
                     echo '<h2>Last Worked Job</h2>';
-                    ph_get_template_part( 'choose-job-fragment', ['job' => $lastWorkedJob] ); ?>
+                    getTemplatePart( 'choose-job-fragment', ['job' => $lastWorkedJob] ); ?>
                     <?php
                 }
                 ?>
@@ -32,11 +32,10 @@ $lastWorkedJob = $jobFactory->getLastWorkedJob( CurrentUser::instance()->id );
                 </div>
                 <h2>Active Jobs</h2>
                 <?php foreach ( $activeJobs as $job ) {
-                    ph_get_template_part( 'choose-job-fragment', ['job' => $job] );
+                    getTemplatePart( 'choose-job-fragment', ['job' => $job] );
                 } ?>
-
             </div>
         </div>
     </div>
 
-    <?php ph_get_template_part( 'footer' ); ?>
+    <?php getTemplatePart( 'footer' ); ?>

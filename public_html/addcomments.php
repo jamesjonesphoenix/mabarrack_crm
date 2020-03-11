@@ -46,7 +46,7 @@ if ( PDOWrap::instance()->add( 'shifts', array(
 ?>
     <div class="row">
         <div class="col-md-12">
-            <div class="panel panel-default container actsbtns">
+            <div class="panel panel-default container">
                 <h1>Comments for previous shift</h1>
             </div>
         </div>
@@ -57,4 +57,4 @@ if ( PDOWrap::instance()->add( 'shifts', array(
         }, 1000);
     </script>
 
-    <?php ph_get_template_part( 'footer' ); ?>
+    <?php getTemplatePart( 'footer' ); ?>

@@ -44,7 +44,7 @@ namespace Phoenix;
         <?php echo generateTable( $activitiesColumns, $factory_hours_no_job_number );
     endif;
     if ( !empty( $totals ) ) :
-        ph_get_template_part( 'report/worker-week/totals-summary', array( 'totals' => $totals, ) );
+        getTemplatePart( 'report/worker-week/totals-summary', array( 'totals' => $totals, ) );
     endif;
     ?>
 </div>

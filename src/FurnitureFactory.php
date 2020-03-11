@@ -40,6 +40,11 @@ class FurnitureFactory extends EntityFactory
         return $this->getEntities( ['ID' => $id], true )[$id];
     }
 
+    public function getNewFurniture(): Furniture
+    {
+        return $this->instantiateEntityClass();
+    }
+
     /**
      * @param array $queryArgs
      * @param bool $provision Not used in FurnitureFactory

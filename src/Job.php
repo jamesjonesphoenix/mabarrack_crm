@@ -106,12 +106,12 @@ class Job extends Entity
      * @param int|Customer $customer
      * @return int|Customer
      */
-    protected function customer($customer = 0)
+    protected function customer($customer = null)
     {
-        if ( !empty( $customer ) ) {
+        if ( !empty( $customer ) || $customer === 0) {
             $this->_customer = $customer;
         }
-        return $this->_customer ?? 0;
+        return $this->_customer ?? new Customer();
     }
 
     /**
@@ -159,7 +159,14 @@ class Job extends Entity
     protected function furniture($input = ''): array
     {
         if ( empty( $input ) ) {
-            return $this->_furniture ?? [];
+            if ( !empty( $this->_furniture ) ) {
+                return $this->_furniture;
+            }
+            return [];
+            //return ['ID' => 0, 'Quantity' => 0];
+            //$furnitureFactory = new FurnitureFactory( $this->db, $this->messages );
+            //$singleFurniture = $furnitureFactory->getNewFurniture();
+            //return [$singleFurniture->id => $singleFurniture];
         }
         if ( !is_string( $input ) ) {
             return $this->_furniture = $input ?? [];
@@ -172,6 +179,8 @@ class Job extends Entity
             $quantity = array_shift( $item );
             $furniture[$id] = ['ID' => $id, 'Quantity' => $quantity];
         }
+
+
         return $this->_furniture = $furniture ?? [];
     }
 

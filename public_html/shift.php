@@ -26,7 +26,7 @@ include '../src/crm_init.php'; ?>
 
         <input type='button' id='edit-button' value='Edit' class='btn btn-default'/>
         <input type='button' id='cancel-button' value='Cancel' class='btn btn-default'/>
-        <form id='update_shift_form' class='detailform'>
+        <form id='update_shift_form' class='detail-form'>
             <table>
                 <tr>
                     <td width='310'><b>ID: </b><input type='text' class='form-control viewinputp w300' name='ID'

@@ -77,5 +77,5 @@ echo getTable(  'shifts');
     </script>
 
 <?php
-ph_get_template_part('footer');
+getTemplatePart('footer');
 ?>
