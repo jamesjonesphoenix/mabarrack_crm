@@ -8,26 +8,36 @@ $icon-padding: 15px;
 $icon-font-size: 18px;
 $icon-image-size: $icon-size - (2 * $icon-padding) - ($icon-font-size * 1.333);
 //$icon-line-height: $icon-size - $icon-image-size;
-table > tbody > tr:nth-of-type(2n) {
 
-  background-color: #66676b;
-  border: 0;
-
-}
-
-.chooseactivity .table {
+body.worker .table.choose-activity {
+  thead,
   tbody {
-    td.activityIcon {
+    td:not(:first-child),
+    th:not(:first-child) {
+      border-left: 3px solid #535353;
+    }
+  }
+
+  thead tr {
+    td, th {
+      text-align: center;
+    }
+  }
+
+  tbody {
+    td.activityIcon,
+    td {
       padding: 7.5px;
       position: relative;
 
-      a,
-      .no-activity {
+      > div {
+        line-height: 0;
       }
 
       a {
-        display: block;
-        float: left;
+        display: inline-block;
+        //display: block;
+        //float: left;
         width: $icon-size;
         height: $icon-size;
         margin: 7.5px;
@@ -72,31 +82,43 @@ table > tbody > tr:nth-of-type(2n) {
       }
     }
 
-    td.activityIcon:last-child a {
-      background: $icon-colour-3;
+    td.activityIcon,
+    td {
+      &:last-child a {
+        background: $icon-colour-3;
+      }
     }
-
 
     tr th span {
       @include centre-vertically();
     }
 
     > tr:nth-of-type(2n) {
-      td.activityIcon a {
-        background: $icon-colour-2;
+      td.activityIcon, td {
+        a {
+          background: $icon-colour-2;
+        }
       }
 
-      td.activityIcon:last-child a {
-        background: $icon-colour-4;
+      td.activityIcon, td {
+        &:last-child a {
+          background: $icon-colour-4;
+        }
       }
     }
   }
 }
 
-.chooseactivity .table {
-  thead tr th:not(:first-child),
-  td.activityIcon {
-    border-left: 2px solid #dee2e6;
-  }
 
+@media (min-width: 1200px) {
+  body.worker .table.choose-activity {
+    tbody {
+      td.activityIcon,
+      td {
+        > div {
+          white-space: nowrap !important;
+        }
+      }
+    }
+  }
 }

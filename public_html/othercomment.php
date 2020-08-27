@@ -4,8 +4,8 @@ namespace Phoenix;
 
 include '../src/crm_init.php';
 
-$jobID = ph_validate_number($_GET['job_id']);
-$activityID = ph_validate_number($_GET['activity_id']);
+$jobID = phValidateID($_GET['job_id']);
+$activityID = phValidateID($_GET['activity_id']);
 ?>
     <div class="row">
         <div class="col-md-12">
@@ -17,7 +17,7 @@ $activityID = ph_validate_number($_GET['activity_id']);
                         <input type="hidden" name="activity_id" value="<?php echo $activityID; ?>">
                         <input type="text" class='form-control' name="comment" value="" autocomplete="off" autofocus>
                         <br>
-                        <input type="submit" class='btn btn-default' value="Done">
+                        <input type="submit" class='btn' value="Done">
                     </form>
                 </div>
             </div>

@@ -7,21 +7,45 @@
   display: inline-block;
 }
 
-.job-furniture-row .form-group {
-  input, select {
-    display: inline-block;
+.job-furniture-row {
+  .form-group {
+    input, select {
+      display: inline-block;
+    }
+
+    .option-dropdown-label-row {
+      width: 100%;
+    }
+
+    label {
+      display: none;
+    }
+
+    .remove-furniture {
+      margin-top: -4px;
+    }
+  }
+
+  .form-group:first-child {
+    label {
+      display: block;
+    }
+
+    .remove-furniture {
+      display: none;
+    }
+  }
+
+  .form-group.furniture-group > .row {
+    float: left;
+    margin-right: 0.5rem;
   }
 }
 
-.remove-furniture {
-  margin-top: -4px;
-}
-
-.remove-furniture.disabled {
-  display: none;
-}
 
 #job-status.form-control {
+    color: #ffffff;
+
   &.jobstat_red {
     background: rgba(255, 0, 0, 0.5);
     border-color: #9F0101;

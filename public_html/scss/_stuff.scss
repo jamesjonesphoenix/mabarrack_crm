@@ -1,0 +1,171 @@
+
+form.search-by-id input {
+  max-width: 9rem;
+}
+
+form.search-by-id.search-by-id-customer input {
+  max-width: 8.65rem;
+}
+
+form.search-by-id.search-by-id-job input {
+  max-width: 6rem;
+}
+
+form.search-by-id.search-by-id-shift input {
+  max-width: 6.4rem;
+}
+
+form.search-by-id.search-by-id-user input {
+  max-width: 6.3rem;
+
+}
+
+form.search-by-id.search-by-id-furniture input {
+  max-width: 8.4rem;
+
+}
+
+body {
+  background: #111111;
+  //font-family: 'Open Sans', sans-serif;
+
+  display: flex; //Make messages appear at top
+  flex-direction: column;
+
+  > div:not(.messages) {
+    order: 10;
+  }
+}
+
+.main-menu-btn {
+  float: left;
+
+  .btn {
+    position: relative;
+    background: none;
+    width: 180px;
+    height: 180px;
+    padding: 0;
+    border-radius: 15px;
+    //margin: 0 auto;
+    display: block;
+    white-space: normal;
+
+    border: 0;
+
+    &:hover {
+      background: #333;
+    }
+
+    .col-md-3 {
+      padding: 15px;
+    }
+
+    img {
+      margin: 0;
+      padding: 0;
+    }
+
+    h2 {
+      position: absolute;
+      width: 100%;
+      left: 0;
+      bottom: 10px;
+      margin: 0;
+      padding: 0px 3px;
+      margin-top: -16px;
+      font-weight: 300;
+      font-size: 24px;
+    }
+  }
+}
+
+header {
+  background: #2d2e32;
+
+  .logo_title {
+    img {
+      height: 70px;
+      vertical-align: top;
+    }
+  }
+
+  .crm-title {
+    font-weight: 700;
+    display: inline-block;
+    line-height: 70px;
+    //margin-top: 10px;
+  }
+
+  #settings-button {
+    padding: 4px;
+
+    img {
+      height: 27px;
+      margin: 0;
+    }
+  }
+}
+
+
+.row.grey-bg,
+.grey-bg {
+  background: #2c2e30;
+}
+
+.notification {
+  position: absolute;
+  right: 15px;
+  font-size: 28px;
+  font-weight: 700;
+  background: #fff;
+  padding-top: 5px;
+  border-radius: 15px;
+  width: 50px;
+  height: 50px;
+  text-align: center;
+  top: 80px;
+  color: #F00;
+}
+
+
+.collapse-messages-column .alert .close {
+  display: none;
+}
+
+.navbar-brand {
+  font-size: 2rem;
+  line-height: 1.25;
+}
+
+.navbar-brand.h1 {
+  font-size: 2.5rem;
+  line-height: 1;
+}
+
+.navbar-brand.h2 {
+  font-size: 2rem;
+  line-height: 1.25;
+}
+
+.navbar-brand.h3 {
+  font-size: 1.75rem;
+  line-height: 1.42857143;
+}
+
+.btn {
+  white-space: nowrap;
+}
+
+.entity-count .badge {
+  position: relative;
+  top: -0.15em;
+}
+
+form.group-by-form .custom-select.form-control {
+  max-width: 15rem;
+}
+
+.archive-table-column h4 ul {
+  font-size: 1rem;
+}

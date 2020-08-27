@@ -1,0 +1,41 @@
+// FontAwesome Variables
+// --------------------------
+
+$fa-font-path:         "../fonts/font-awesome";
+
+// Bootstrap Variables
+// --------------------------
+
+//$success:   #28a745;
+//$panel-bg: #24963e;
+$theme-colors: (
+        "job": #c0392b,
+        "shift": #ff5e00,
+        "customer": #27ae60,
+        "worker": #f39c12,
+        "furniture": #2980b9,
+);
+
+$gray-900: #212529;
+$success: #208537;
+
+$body-color: #ffffff;
+//redd$list-group-color: $gray-900;
+
+//$list-group-color
+
+
+$font-family-sans-serif: Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji" !default;
+$grid-breakpoints: (
+        xs: 0,
+        sm: 576px,
+        md: 768px,
+        lg: 1024px,
+        xl: 1200px
+);
+$container-max-widths: (
+        sm: 540px,
+        md: 720px,
+        lg: 1024px, //lg: 960px,
+        xl: 1176px
+);

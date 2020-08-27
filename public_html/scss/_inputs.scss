@@ -1,66 +1,11 @@
 /*///  INPUTS  ///*/
 
-input[type="checkbox"] {
-  display: none;
-}
-
-input[type="checkbox"] + label {
-  color: #f2f2f2;
-}
-
-input[type="checkbox"] + label span {
-  display: inline-block;
-  width: 19px;
-  height: 19px;
-  margin: -2px 10px 0 0;
-  vertical-align: middle;
-  background: url(https://s3-us-west-2.amazonaws.com/s.cdpn.io/210284/check_radio_sheet.png) left top no-repeat;
-  cursor: pointer;
-}
-
-input[type="checkbox"]:checked + label span {
-  background: url(https://s3-us-west-2.amazonaws.com/s.cdpn.io/210284/check_radio_sheet.png) -19px top no-repeat;
-}
-
 fieldset:disabled .form-control,
-.form-control[disabled]
-{
+.form-control[disabled] {
   background: #222222;
   color: #ffffff;
   border: none;
   box-shadow: none;
-}
-
-/*
-.viewinput,
-.viewinput:hover,
-.viewinput:active,
-.viewinput:focus,
-.viewinput[disabled],
-.viewinputp,
-.viewinputp:hover,
-.viewinputp:active,
-.viewinputp:focus,
-.viewinputp[disabled] {
-  background: #222;
-  color: #fff;
-  border: none;
-  box-shadow: none;
-  cursor: default;
-}
-*/
-
-
-.well {
-  display: inline-block;
-  background: #222;
-  color: #fff;
-  border: none;
-  box-shadow: none;
-  cursor: default;
-  padding: 5px 10px;
-  min-width: 75px;
-  text-align: center;
 }
 
 .add-button {
@@ -69,54 +14,35 @@ fieldset:disabled .form-control,
   margin-right: 10px;
 }
 
-#edit-button, #add-button {
-  //right: 10px;
-  //top: 10px;
-  //position: absolute;
-  background: #246cb3;
-
+#cancel-button {
+  display: none;
   &:hover, &:active, &:focus {
-    background: #2b96ff;
+    background: #f2385a;
   }
 }
 
-#cancel-button {
-  display: none;
-  //right: 10px;
-  //top: 10px;
-  //position: absolute;
-  //background: #d42647;
+#submit-button {
+  position: relative;
+  bottom: 1px;
 }
 
-#asbtn {
-  float: right;
-  font-weight: 700;
-}
-
-#cancel-button:hover, #cancel-button:active, #cancel-button:focus {
-  background: #f2385a;
-}
-
-#update-button {
-  /*
-    display: none;
-    right: 100px;
-    top: 10px;
-    position: absolute;
-    background: #246cb3;
-    &:hover, &:active, &:focus {
-      background: #2b96ff;
-    }
-  */
-}
-
-.groupby_dd {
-  margin-left: 10px;
-  text-transform: capitalize;
-}
-
-#printbtn {
+#print-button { //to be assigned to print buttons
   float: right;
   cursor: pointer;
 
+}
+
+.input-group {
+  > .custom-select:not(:first-child),
+  > .form-control:not(:first-child) {
+    border-left-width: 2px;
+  }
+
+  > .form-control#inputPassword-2[disabled]:not(:first-child) {
+    border-left: 2px solid #17a2b8;
+  }
+
+  #change-password-button {
+    min-width: 160px;
+  }
 }

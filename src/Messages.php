@@ -12,24 +12,19 @@ namespace Phoenix;
 class Messages extends Base
 {
     /**
-     * @var null
+     * @var null|Messages
      */
-    protected static $_instance;
+    protected static ?Messages $_instance = null;
 
     /**
      * @var array
      */
-    public $messages = array();
-
-    /**
-     * @var User
-     */
-    public $currentUser;
+    public array $messages = [];
 
     /**
      * @var array
      */
-    protected $_emailArgs;
+    protected array $_emailArgs;
 
 
     /**
@@ -45,65 +40,58 @@ class Messages extends Base
 
     /**
      * Messages constructor.
+     */
+    private function __construct()
+    {
+        //$this->init();
+    }
+
+    /**
+     * @return $this
+     */
+    public function init(): self
+    {
+        if ( defined( 'DOING_CRON' ) && DOING_CRON ) {
+            return $this;
+        }
+        if ( !empty( $_SESSION['messages'] ) ) {
+            $this->addStatefulMessages( $_SESSION['messages'] );
+        }
+        if ( !empty( $_GET['messages'] ) ) {
+            $this->addStatefulMessages( $_GET['messages'] );
+        }
+        return $this;
+    }
+
+    /**
+     * Adds a message to the queue
      *
-     * @param User $user
-     */
-    private function __construct(User $user = null)
-    {
-        $this->currentUser = $user;
-        $this->init();
-    }
-
-    /**
-     * @return bool
-     */
-    public function init(): bool
-    {
-        if ( !defined( 'DOING_CRON' ) || !DOING_CRON ) {
-            if ( !empty( $_SESSION['message'] ) ) {
-                $this->addStatefulMessages( $_SESSION['message'] );
-                unset( $_SESSION['message'] );
-            }
-            if ( !empty( $_GET['message'] ) ) {
-                $this->addStatefulMessages( $_GET['message'] );
-            }
-        }
-        return true;
-    }
-
-    /**
-     * @param array $emailArgs
-     * @return array
-     */
-    protected function emailArgs(array $emailArgs = []): array
-    {
-        if ( !empty( $this->_emailArgs ) ) {
-            return $this->_emailArgs;
-        }
-
-        $this->_emailArgs['prepend'] = $emailArgs['prepend'] ?? '';
-        $this->_emailArgs['subject'] = $emailArgs['subject'] ?? 'CRON log';
-        $this->_emailArgs['to'] = $emailArgs['to'] ?? TO_EMAIL ?? '';
-        $this->_emailArgs['from'] = $emailArgs['from'] ?? FROM_EMAIL ?? '';
-        return $this->_emailArgs;
-    }
-
-    /**
-     * @param string $message
+     * @param string $messageText
      * @param string $messageType
      * @return bool
      */
-    public function add(string $message = '', $messageType = 'danger'): bool
+    public function add(string $messageText = '', string $messageType = 'danger'): bool
     {
-        if ( empty( $message ) ) {
+        //d( $messageText );
+        if ( empty( $messageText ) ) {
             return false;
         }
-        if ( defined( 'DOING_CRON' ) && DOING_CRON ) {
-            trigger_error( $this->emailArgs['prepend'] . $message );
-            echo $message . "\r\n";
+
+        foreach ( $this->messages as $message ) {
+            if ( $message['string'] === $messageText ) {
+                return false;
+            }
         }
 
-        $this->messages[] = array('string' => $message, 'type' => $messageType);
+        if ( defined( 'DOING_CRON' ) && DOING_CRON ) {
+            trigger_error( $this->emailArgs['prepend'] . $messageText );
+            echo $messageText . "\r\n";
+        }
+
+        $message = ['string' => $messageText, 'type' => $messageType];
+
+        $this->messages[] = $message;
+        $_SESSION['messages'][] = $message;
         return true;
     }
 
@@ -121,39 +109,23 @@ class Messages extends Base
 
 
     /**
-     *
-     */
-    public function addSessionMessages()
-    {
-        if ( empty( $_SESSION['messages'] ) || !is_array( $_SESSION['messages'] ) ) {
-            return false;
-        }
-        foreach ( $_SESSION['messages'] as $message ) {
-            $this->formulate( $message );
-        }
-        return true;
-    }
-
-    /**
-     * @param array|string $messageInput
+     * @param array $messages
      * @return bool
      */
-    public function addStatefulMessages($messageInput): bool
+    public function addStatefulMessages(array $messages = []): bool
     {
-        if ( empty( $messageInput ) ) {
+        if ( empty( $messages ) ) {
             return false;
         }
-        if ( is_string( $messageInput ) ) {
-            $messages[] = array('code' => $messageInput);
-        } elseif ( !empty( $messageInput['code'] ) ) {
-            $messages[] = $messageInput;
-        } else {
-            $messages = $messageInput;
-        }
+
+
         foreach ( $messages as $message ) {
-            if ( is_string( $message['code'] ) ) {
-                $this->formulate( $message );
+            if ( empty( $message['string'] ) ) {
+                continue;
             }
+            $messageType = $message['type'] ?? '';
+            $this->add( $message['string'], $messageType );
+
         }
         return true;
     }
@@ -168,21 +140,6 @@ class Messages extends Base
             return false;
         }
         switch( $message['code'] ) {
-            case 'denied':
-                if ( $this->currentUser ) {
-                    $messageString = 'You were redirected to the ' . $this->currentUser->role . ' homepage because you are not allowed to visit ';
-                } else {
-                    $messageString = 'You were redirected to this page because you are not allowed to visit ';
-                }
-                $messageString .= !empty( $_GET['page'] ) ? $_GET['page'] : 'the previous page';
-                $this->add( $messageString, 'warning' );
-                break;
-            case 'finished_day':
-                $this->add( 'Day finished successfully.', 'success' );
-                break;
-            case 'loggedIn':
-                $this->add( 'Logged in successfully.', 'success' );
-                break;
             case 'add_entry':
                 if ( $message['status'] === 'success' ) {
                     $messageString = 'Successfully';
@@ -246,34 +203,131 @@ class Messages extends Base
     }
 
     /**
-     * @return bool
+     * @param bool $showTitle
+     * @return string
      */
-    public function display(): bool
+    public function getMessagesHTML(bool $showTitle = true): string
     {
-        if ( count( $this->messages ) === 0 ) {
+        $numberOfMessages = count( $this->messages );
+        if ( $numberOfMessages === 0 ) {
             return false;
         }
+        /*
+         * primary
+         * secondary
+         * success
+         * danger
+         * warning
+         * info
+         * light
+         * dark
+         */
+        $messages = $this->messages;
+        end( $messages );
+        $lastKey = key( $messages );
 
-        $messageHTML = '<div class="container messages mt-5">';
-        foreach ( $this->messages as $message ) {
-            if ( !empty( $message['string'] ) ) {
-                $messageType = !empty( $message['type'] ) ? $message['type'] : 'danger';
-                $messageHTML .= sprintf( '<div class="row"><div class="col"><div class="alert alert-' . $messageType . '" role="alert">%s</div></div></div>', $message['string'] );
-            }
+        $messagesDisplayLimit = 3;
+        ob_start();
+        ?>
+        <div class="row">
+            <div class="col">
+                <?php
+                if ( $showTitle ) { ?>
+                    <div class="px-3">
+                        <h2><i class="fas fa-sticky-note"></i> Messages</h2>
+                    </div>
+                <?php } ?>
+                <div class="grey-bg px-3 py-2">
+                    <?php
+                    $i = 0;
+                    foreach ( $messages as $key => $message ) {
+                        if ( empty( $message['string'] ) ) {
+                            continue;
+                        }
+                        $i++;
+                        if ( $i > $messagesDisplayLimit ) {
+                            $collapsedMessages[$key] = $message;
+                        } else {
+                            echo $this->getMessageHTML( $message['string'], $message['type'] ?? 'danger' );
+                        }
+                    }
+                    ?>
+                    <?php if ( !empty( $collapsedMessages ) ) {
+                        ?>
+                        <div class="collapse-messages-column">
+                            <?php
+                            echo $this->getMessageHTML(
+                                '<span class="mr-2"><strong>' . ($numberOfMessages - $messagesDisplayLimit) . '</strong> additional messages not shown.</span><button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#collapse-messages" aria-expanded="false"
+                            aria-controls="collapse-messages">Expand to display</button>'
+                                , 'primary' );
+                            ?>
+                        </div>
+                        <div class="collapse" id="collapse-messages">
+                            <?php foreach ( $collapsedMessages as $key => $message ) {
+                                echo $this->getMessageHTML( $message['string'], $message['type'] ?? 'danger' );
+                            } ?>
+                        </div>
+                        <?php
+                    } ?>
+                </div>
+            </div>
+        </div>
+        <?php
+        unset( $_SESSION['messages'] );
+        $_SESSION['messages'] = [];
+        return ob_get_clean();
+    }
+
+    /**
+     * @param string $string
+     * @param string $type
+     * @param bool   $showCloseButton
+     * @return string
+     */
+    public function getMessageHTML(string $string = '', string $type = '', bool $showCloseButton = true): string
+    {
+        $type ??= 'danger';
+        ob_start();
+        ?>
+        <div class="alert alert-<?php echo $type; ?>  my-2" role="alert">
+            <?php if ( $showCloseButton ) { ?>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            <?php } ?>
+            <?php echo $string; ?>
+        </div>
+        <?php
+        return ob_get_clean();
+    }
+
+    /**
+     * @param array $emailArgs
+     * @return array
+     */
+    protected
+    function emailArgs(array $emailArgs = []): array
+    {
+        if ( !empty( $this->_emailArgs ) ) {
+            return $this->_emailArgs;
         }
-        $messageHTML .= '</div>';
-        echo $messageHTML;
-        return true;
+
+        $this->_emailArgs['prepend'] = $emailArgs['prepend'] ?? '';
+        $this->_emailArgs['subject'] = $emailArgs['subject'] ?? 'CRON log';
+        $this->_emailArgs['to'] = $emailArgs['to'] ?? TO_EMAIL ?? '';
+        $this->_emailArgs['from'] = $emailArgs['from'] ?? FROM_EMAIL ?? '';
+        return $this->_emailArgs;
     }
 
     /**
      * @return bool
      */
-    public function email(): bool
+    public
+    function email(): bool
     {
         $emailArgs = $this->emailArgs;
         if ( empty( $emailArgs['from'] ) || empty( $emailArgs['to'] ) || empty( $emailArgs['subject'] ) ) {
-            $this->add( 'Can\'t email messages. Email args missing' );
+            $this->add( "Can't email messages. Email args missing." );
             return false;
         }
 

@@ -2,6 +2,8 @@
 
 namespace Phoenix;
 
+use Phoenix\Entity\CurrentUser;
+
 include '../src/crm_init.php';
 
 $startTime = date( 'H:i:s' ); //get current time

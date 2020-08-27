@@ -1,109 +1,27 @@
-/*/// GENERIC CLASSES ///*/
-.w50 {
-  width: 50px;
+/*/// TO BE REMOVED///*/
+
+.well { //to be removed
+  display: inline-block;
+  background: #222;
+  color: #fff;
+  border: none;
+  box-shadow: none;
+  cursor: default;
+  padding: 5px 10px;
+  min-width: 75px;
+  text-align: center;
 }
 
+/*/// GENERIC CLASSES ///*/
 .w100 {
   width: 100px;
 }
 
-.w150 {
-  width: 150px;
-  min-width: 150px;
-}
 
-.w200 {
-  width: 200px;
-  min-width: 200px;
-}
-
-.w300 {
-  width: 300px;
-}
-
-.cjob {
-  background: #444;
-  overflow: auto;
-  margin: 1em 15px;
-  padding: 15px 0;
-  span {
-    float: left;
-    font-size: 20px;
-  }
-  .btn {
-    float: right;
-    font-size: 20px;
-  }
-}
-
-.redbtn {
-  background: #f2385a;
-  &:hover {
-    background: #ff879d;
-  }
-}
-
-.currencyinput {
-  display: inline-block;
-  position: absolute;
-  color: #555;
-  &:before {
-    content: "$";
-    position: absolute;
-    top: -30px;
-    left: 3px;
-  }
-}
-
-.viewinput + .currencyinput {
-  color: #fff;
-}
-
-table.table {
-  tr td.date {
-    white-space: nowrap;
-  }
-}
-
-.desctd {
-  width: 100%;
-}
-
-.nocolor, .nocolor tr {
-  background: none !important;
-}
-
-.nocolor h4 {
-  margin: 0;
-}
-
-.tcrtbl .w100 {
-  white-space: nowrap;
-}
-
-#newsbox {
-  height: 200px;
-}
 
 .alert {
-  //max-width: 610px;
   margin: 0;
-}
-
-body.page .alert {
-  margin-bottom: 30px;
-}
-
-@media (max-width: 1200px) {
-  .header {
-    white-space: normal;
-  }
-
-  .w50, .w100, .w150, .w200, .w300 {
-    min-width: 0px;
-  }
-
-  .jcr .w200 {
-    min-width: 200px !important;
+  p:last-child {
+    margin-bottom: 0;
   }
 }

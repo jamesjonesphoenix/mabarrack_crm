@@ -1,77 +1,109 @@
 <?php
 
 namespace Phoenix;
-include '../src/crm_init.php';
 
-$urgentJobCutoff = PDOWrap::instance()->getRow( 'settings', array('name' => 'joburg_th') )['value'];
+use Phoenix\Page\ArchivePage\ArchivePageBuilderCustomer;
+use Phoenix\Page\ArchivePage\ArchivePageBuilderFurniture;
+use Phoenix\Page\ArchivePage\ArchivePageBuilderJob;
+use Phoenix\Page\ArchivePage\ArchivePageBuilderSettings;
+use Phoenix\Page\ArchivePage\ArchivePageBuilderShift;
+use Phoenix\Page\ArchivePage\ArchivePageBuilderUser;
+use Phoenix\Page\CRMReportPageBuilder;
+use Phoenix\Page\DetailPage\DetailPageBuilderCustomer;
+use Phoenix\Page\DetailPage\DetailPageBuilderFurniture;
+use Phoenix\Page\DetailPage\DetailPageBuilderJob;
+use Phoenix\Page\DetailPage\DetailPageBuilderSetting;
+use Phoenix\Page\DetailPage\DetailPageBuilderShift;
+use Phoenix\Page\DetailPage\DetailPageBuilderUser;
+use Phoenix\Page\IndexPageBuilder;
 
-$menuItems = array(
-    'In Progress' => array(
-        'name' => 'In Progress',
-        'url' => 'page.php?id=1',
-        'image' => 'inprogress.svg',
-        'number' => PDOWrap::instance()->run( 'SELECT COUNT(*) as num FROM jobs WHERE jobs.status = "jobstat_red" AND jobs.ID != 0' )->fetch()['num']
-    ),
-    'Urgent' => array(
-        'name' => 'Urgent',
-        'url' => 'page.php?id=8',
-        'image' => 'urgent.svg',
-        'number' => PDOWrap::instance()->run( 'SELECT COUNT(*) as num FROM jobs WHERE status ="jobstat_red" AND priority < (' . $urgentJobCutoff . '+1) AND jobs.ID != 0' )->fetch()['num']
-    ),
-    'All Jobs' => array(
-        'name' => 'All Jobs',
-        'url' => 'page.php?id=3',
-        'image' => 'jobs.svg'
-    ),
-    'Shifts' => array(
-        'name' => 'Shifts',
-        'url' => 'page.php?id=4&g=job',
-        'image' => 'shifts.svg'
-    ),
-    'Customers' => array(
-        'name' => 'Customers',
-        'url' => 'page.php?id=5',
-        'image' => 'customer.svg'
-    ),
-    'Workers' => array(
-        'name' => 'Workers',
-        'url' => 'page.php?id=6',
-        'image' => 'worker.svg'
-    ),
-    'Reports' => array(
-        'name' => 'Reports',
-        'url' => 'reports.php',
-        'image' => 'reports.svg'
-    ),
-    'Furniture' => array(
-        'name' => 'Furniture',
-        'url' => 'page.php?id=7',
-        'image' => 'furniture.svg'
-    )
-);
-?>
-    <div class="container">
-    <div class="row"><?php
-        if ( $menuItems !== false ) {
-            foreach ( $menuItems as $menuItem ) { ?>
-                <div class="col-md-3 col-sm-4 col-xs-6">
-                    <a href="<?php echo $menuItem['url']; ?>">
-                        <div class="btn main-btn">
-                            <img src="img/admin/<?php echo $menuItem['image']; ?>"/>
-                            <h2><?php echo $menuItem['name']; ?></h2>
-                            <?php
-                            if ( !empty( $menuItem['number'] ) ) { //has notification query
-                                echo "<div class='notifs'>" . $menuItem['number'] . '</div>';
-                            }
-                            ?>
-                        </div>
-                    </a>
-                </div>
-                <?php
-            }
+require_once __DIR__ . '/../vendor/autoload.php';
+
+$init = (new Init())->startUp();
+$db = $init->getDB();
+$messages = $init->getMessages();
+$entityType = $_GET['entity'] ?? '';
+
+switch( $_GET['page'] ?? '' ) {
+    case 'archive':
+        switch( $entityType ) {
+            case 'customer':
+            case 'customers':
+                $pageBuilder = new ArchivePageBuilderCustomer( $db, $messages );
+                break;
+            case 'furniture':
+                $pageBuilder = new ArchivePageBuilderFurniture( $db, $messages );
+                break;
+            case 'job':
+            case 'jobs':
+                $pageBuilder = new ArchivePageBuilderJob( $db, $messages );
+                break;
+            case 'shift':
+            case 'shifts':
+                $pageBuilder = new ArchivePageBuilderShift( $db, $messages );
+                break;
+            case 'user':
+            case 'users':
+                $pageBuilder = new ArchivePageBuilderUser( $db, $messages );
+                break;
+            case 'setting':
+            case 'settings':
+                $pageBuilder = new ArchivePageBuilderSettings( $db, $messages );
+                break;
+            default:
+                if ( empty( $entityType ) ) {
+                    $messages->add( 'Redirected to main page because no entity type requested for archive page.' );
+                } else {
+                    $messages->add( 'Redirected to main page because archive exists for <strong>' . $entityType . '</strong> entity type.' );
+                }
+                redirect( 'index.php' );
+                exit;
+            //$pageBuilder = new 404PageBuilderSettings( $db, $messages );
         }
-        ?>
-    </div>
-    </div>
-    <?php
-getTemplatePart( 'footer' );
+        $pageBuilder->setInputArgs( $_GET ?? [] );
+        break;
+    case 'detail':
+        switch( $entityType ) {
+            case 'customer':
+            case 'customers':
+                $pageBuilder = new DetailPageBuilderCustomer( $db, $messages );
+                break;
+            case 'furniture':
+                $pageBuilder = new DetailPageBuilderFurniture( $db, $messages );
+                break;
+            case 'job':
+            case 'jobs':
+                $pageBuilder = new DetailPageBuilderJob( $db, $messages );
+                break;
+            case 'shift':
+            case 'shifts':
+                $pageBuilder = new DetailPageBuilderShift( $db, $messages );
+                break;
+            case 'user':
+            case 'users':
+                $pageBuilder = (new DetailPageBuilderUser( $db, $messages ))->setStartDate( $_GET['start_date'] ?? '' );
+                break;
+            case 'setting':
+            case 'settings':
+                $pageBuilder = new DetailPageBuilderSetting( $db, $messages );
+                break;
+            default:
+                if ( empty( $entityType ) ) {
+                    $messages->add( 'Redirected to main page because no entity type requested for detail page.' );
+                } else {
+                    $messages->add( 'Redirected to main page because no detail page exists for <strong>' . $entityType . '</strong> entity type.' );
+                }
+                redirect( 'index.php' );
+                exit;
+        }
+        $pageBuilder->setInputArgs( $_GET ?? [] );
+        break;
+    case 'report':
+        $pageBuilder = (new CRMReportPageBuilder( $db, $messages ));
+        break;
+    default:
+        $pageBuilder = new IndexPageBuilder( $db, $messages );
+        break;
+}
+
+$pageBuilder->buildPage()->getPage()->render();

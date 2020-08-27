@@ -14,7 +14,11 @@
     "components/jquery": "*",
     "ext-json": "*",
     "ext-pdo": "*",
-    "ext-mysqli": "*"
+    "ext-mysqli": "*",
+    "ext-ctype": "*",
+    "donquixote/cellbrush" : "*",
+    "fortawesome/font-awesome" : "*",
+    "mottie/tablesorter" : "*"
   },
   "autoload": {
     "psr-4": {
@@ -29,7 +33,9 @@
     "post-install-cmd": "@front-end-stuff",
     "front-end-stuff": [
       "cp vendor/twbs/bootstrap/dist/js/* public_html/js/",
-      "cp vendor/components/jquery/jquery.min.js public_html/js/jquery.min.js; cp vendor/components/jquery/jquery.min.map public_html/js/jquery.min.map;"
+      "cp vendor/components/jquery/jquery.min.js public_html/js/jquery.min.js; cp vendor/components/jquery/jquery.min.map public_html/js/jquery.min.map;",
+      "cp vendor/fortawesome/font-awesome/scss/* public_html/scss/font-awesome/; cp vendor/fortawesome/font-awesome/webfonts/* public_html/fonts/font-awesome/",
+      "cp vendor/mottie/tablesorter/dist/js/jquery.tablesorter.combined.min.js public_html/js/jquery.tablesorter.combined.js"
     ]
   },
   "require-dev": {

@@ -9,12 +9,7 @@ namespace Phoenix;
  */
 class Roles
 {
-    /**
-     * @var null
-     */
-    protected static $_instance;
     /*
-     *
      * addcomments
      * backup_db (moved out of public_html)
      * othercomment
@@ -23,47 +18,33 @@ class Roles
      * search
      * test
      * worker_shifts
-     *
      */
-
-    /**
-     * @return Roles|null
-     */
-    public static function instance(): ?Roles
-    {
-        if ( self::$_instance === null ) {
-            self::$_instance = new self();
-        }
-        return self::$_instance;
-    }
 
     /**
      * @var array
      */
-    public $roles = array(
-        'admin' => array(
-            'file_capabilities' => array(
+    protected array $roles = [
+        'admin' => [
+            'file_capabilities' => [
                 'add_entry',
-                'customer',
-                'delete_job',
-                'furniture',
+                'archive_page',
+                'detail_page',
+                'entity',
+                'fix-shift-furniture',
                 'index',
                 'jcr',
-                'job',
                 'page',
-                'remove_job',
                 'settings',
-                'shift',
+                'settings-old',
                 'tcr',
-                'worker',
                 'wtr',
                 'report',
                 'tables_test'
-            ),
+            ],
             'level' => 10
-        ),
-        'staff' => array(
-            'file_capabilities' => array(
+        ],
+        'staff' => [
+            'file_capabilities' => [
                 'chooseactivity',
                 'choosefur',
                 'choosejob',
@@ -74,17 +55,17 @@ class Roles
                 'report',
                 'reports',
                 'worker_enterjob',
-            ),
+                'worker',
+            ],
             'level' => 1
-        ),
-        'anyone' => array(
-            'file_capabilities' => array(
+        ],
+        'anyone' => [
+            'file_capabilities' => [
                 'login'
-            ),
+            ],
             'level' => 0
-        )
-    );
-
+        ]
+    ];
 
     /**
      * @param string $role
@@ -118,18 +99,6 @@ class Roles
         return $capabilities;
     }
 
-    /**
-     * @param string $role
-     * @return string
-     */
-    public function getHomePage(string $role = ''): string
-    {
-        if ( $role == 'admin' ) {
-            return 'index.php';
-        }
-        if ( $role == 'staff' ) {
-            return 'worker_enterjob.php';
-        }
-    }
+
 
 }
