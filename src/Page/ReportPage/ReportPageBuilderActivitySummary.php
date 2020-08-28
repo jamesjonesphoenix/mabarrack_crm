@@ -1,26 +1,26 @@
 <?php
 
 
-namespace Phoenix\Page;
+namespace Phoenix\Page\ReportPage;
 
-
-use Phoenix\Entity\JobFactory;
 use Phoenix\Entity\ShiftFactory;
-use Phoenix\Report\ProfitLoss;
+use Phoenix\Entity\Shifts;
+use Phoenix\Page\PageBuilder;
+use Phoenix\Report\Shifts\ActivitySummary;
 
 /**
- * Class CRMReportPageBuilder
+ * Class ReportPageBuilderActivitySummary
  *
  * @author James Jones
  * @package Phoenix\Page
  *
  */
-class CRMReportPageBuilder extends PageBuilder
+class ReportPageBuilderActivitySummary extends PageBuilder
 {
     /**
-     * @var CRMReportPage
+     * @var ReportPage
      */
-    protected CRMReportPage $page;
+    protected ReportPage $page;
 
     /**
      * @return $this
@@ -33,12 +33,11 @@ class CRMReportPageBuilder extends PageBuilder
         return $this;
     }
 
-    public function getJobs(): array
+    public function getShifts(): array
     {
         $startDate = '2019-07-01';
         $endDate = '2020-06-30';
-        $shiftsFactory = new ShiftFactory( $this->db, $this->messages );
-        $shifts = $shiftsFactory->getEntities( [
+        return (new ShiftFactory( $this->db, $this->messages ))->getEntities( [
             'date' => [
                 'value' => [
                     'start' => $startDate,
@@ -46,19 +45,10 @@ class CRMReportPageBuilder extends PageBuilder
                 ],
                 'operator' => 'BETWEEN'
             ]
+        ],[
+            'activity' => true,
+            'worker' => true
         ] );
-        return (new JobFactory( $this->db, $this->messages ))->getEntities( [
-            'id' => [
-                'value' => $shiftsFactory::getEntityIDs( $shifts, 'job' ),
-                'operator' => 'IN'
-            ]
-        ], [
-                'shifts' => [
-                    'worker' => true,
-                    'activity' => true
-                ]
-            ]
-        );
     }
 
     /**
@@ -66,21 +56,21 @@ class CRMReportPageBuilder extends PageBuilder
      */
     public function addReport(): self
     {
-        $jobs = $this->getJobs();
+        $shifts = new Shifts($this->getShifts());
         $format = $this->format;
         $htmlUtility = $this->HTMLUtility;
 
         $this->page->setReport(
-            (new ProfitLoss(
+            (new ActivitySummary(
                 $htmlUtility,
                 $format,
                 $this->messages
-            ))->init( $jobs, '2019-07-01', '2020-06-30' ) );
+            ))->init( $shifts ) );
         return $this;
     }
 
-    protected function getNewPage(): CRMReportPage
+    protected function getNewPage(): ReportPage
     {
-        return new CRMReportPage( $this->HTMLUtility );
+        return new ReportPage( $this->HTMLUtility );
     }
 }

@@ -8,7 +8,8 @@ use Phoenix\Page\ArchivePage\ArchivePageBuilderJob;
 use Phoenix\Page\ArchivePage\ArchivePageBuilderSettings;
 use Phoenix\Page\ArchivePage\ArchivePageBuilderShift;
 use Phoenix\Page\ArchivePage\ArchivePageBuilderUser;
-use Phoenix\Page\CRMReportPageBuilder;
+use Phoenix\Page\ReportPage\ReportPageBuilderActivitySummary;
+use Phoenix\Page\ReportPage\ReportPageBuilderProfitLoss;
 use Phoenix\Page\DetailPage\DetailPageBuilderCustomer;
 use Phoenix\Page\DetailPage\DetailPageBuilderFurniture;
 use Phoenix\Page\DetailPage\DetailPageBuilderJob;
@@ -99,7 +100,23 @@ switch( $_GET['page'] ?? '' ) {
         $pageBuilder->setInputArgs( $_GET ?? [] );
         break;
     case 'report':
-        $pageBuilder = (new CRMReportPageBuilder( $db, $messages ));
+        $report = $_GET['report'] ?? '';
+        switch( $report ) {
+            case 'profit_loss':
+                $pageBuilder = new ReportPageBuilderProfitLoss( $db, $messages );
+                break;
+            case 'activity_summary':
+                $pageBuilder = new ReportPageBuilderActivitySummary( $db, $messages );
+                break;
+            default:
+                if ( empty( $report ) ) {
+                    $messages->add( 'Redirected to main page because no report type was requested for report page.' );
+                } else {
+                    $messages->add( 'Redirected to main page because <strong>' . $report . "</strong> report type doesn't exist." );
+                }
+                redirect( 'index.php' );
+                exit;
+        }
         break;
     default:
         $pageBuilder = new IndexPageBuilder( $db, $messages );

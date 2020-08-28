@@ -200,7 +200,6 @@ class HTMLTags
         if ( empty( $args['title'] ) && empty( $args['nav_links'] ) && empty( $args['html_left_aligned'] ) && empty( $args['html_right_aligned'] ) ) {
             return '';
         }
-        //$args['html_left_aligned'] = '<p class="mb-0">Blah you pog collector Blrgh.</p>';
         ob_start();
         ?>
         <nav class="navbar navbar-expand-lg navbar-dark">
@@ -226,7 +225,7 @@ class HTMLTags
                             <li class="nav-item ml-2 my-1">
                                 <a class="nav-link text-white text-nowrap <?php echo $navLink['class'] ?? 'bg-primary'; ?>"
                                    href="<?php echo $navLink['url']; ?>"><?php echo $navLink['text'];
-                                    if ( !empty( $navLink['number'] ) ) { ?>
+                                    if ( isset( $navLink['number'] ) ) { ?>
                                         <span class="badge badge-light"><?php echo $navLink['number'] ?? ''; ?></span><?php
                                     }
                                     ?></a>

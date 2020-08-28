@@ -88,13 +88,19 @@ class IndexPageBuilder extends PageBuilder
                 'items' => (new MenuItems( $furnitureFactory ))->getMenuItems( $countErrors )
             ],
             'Report' => [
-                'icon' =>  $this->HTMLUtility::getIconHTML( 'clipboard-list' ),
+                'icon' => $this->HTMLUtility::getIconHTML( 'clipboard-list' ),
                 'contextual_class' => 'report',
-                'items' => [[
-                    'icon' => 'dollar-sign',
-                    'text' => 'Report',
-                    'url' => 'index.php?page=report',
-                ]]
+                'items' => [
+                    [
+                        'icon' => 'dollar-sign',
+                        'text' => 'Profit/Loss',
+                        'url' => 'index.php?page=report&report=profit_loss',
+                    ], [
+                        'icon' => 'chart-bar',
+                        'text' => 'Activity Summary',
+                        'url' => 'index.php?page=report&report=activity_summary',
+                    ]
+                ]
             ]
         ] );
         return $this;

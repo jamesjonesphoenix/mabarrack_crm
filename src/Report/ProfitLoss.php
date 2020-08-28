@@ -142,6 +142,7 @@ class ProfitLoss extends Report
             'sale_price' => 'Sales Revenue',
             'profit_header' => 'Profit',
             'total_profit' => 'Total Profit',
+            'p_header' => 'Profit',
         ];
     }
 

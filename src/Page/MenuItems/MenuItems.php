@@ -92,7 +92,6 @@ class MenuItems
     public function getMenuArray(): array
     {
         $entity = $this->entityFactory->getNew();
-
         return [
             'icon' => $entity->getIcon(),
             'contextual_class' => $entity->entityName,

@@ -1,24 +1,24 @@
 <?php
 
 
-namespace Phoenix\Page;
+namespace Phoenix\Page\ReportPage;
 
-
-use Phoenix\Report\ProfitLoss;
+use Phoenix\Page\Page;
+use Phoenix\Report\Report;
 
 /**
- * Class CRMReportPage
+ * Class ReportPage
  *
  * @author James Jones
  * @package Phoenix\Page
  *
  */
-class CRMReportPage extends Page
+class ReportPage extends Page
 {
     /**
-     * @var ProfitLoss
+     * @var Report
      */
-    private ProfitLoss $report;
+    private Report $report;
 
     /**
      * @return string
@@ -36,12 +36,20 @@ class CRMReportPage extends Page
     }
 
     /**
-     * @param ProfitLoss $report
+     * @param Report $report
      * @return $this
      */
-    public function setReport(ProfitLoss $report): self
+    public function setReport(Report $report): self
     {
         $this->report = $report;
         return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPageHeadTitle(): string
+    {
+        return 'Report';
     }
 }

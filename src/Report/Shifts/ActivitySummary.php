@@ -34,8 +34,8 @@ class ActivitySummary extends ShiftsReport
             return [];
         }
         foreach ( $shifts->getAll() as $shift ) {
-            $type = $shift->activity->type ?? '';
-            if ( !isset( $shift->activity->id ) ) {
+            $type = $shift->activity->type ?? $shift->activity->category ?? '';
+            if ( $shift->activity->id === null ) {
                 $missingActivities[$shift->id] = $shift;
                 continue;
             }
@@ -52,6 +52,12 @@ class ActivitySummary extends ShiftsReport
             $activitiesSummary[$type][$shift->activity->id]['activity_cost'] += $shift->getShiftCost();
         }
         //d($missingActivities ?? []);
+        //krsort( $activitiesSummary );
+        if(!empty($activitiesSummary['Lunch'])) {
+            $v = $activitiesSummary['Lunch'];
+            unset( $activitiesSummary['Lunch'] );
+            $activitiesSummary['Lunch'] = $v;
+        }
         foreach ( $activitiesSummary as $activityType => $summary ) {
             ksort( $summary );
             foreach ( $summary as $activityID => $activity ) {
@@ -67,7 +73,7 @@ class ActivitySummary extends ShiftsReport
 
         //Activities recorded before we started recording CNC and Manual work separately.
         $returnData['total_time'] = [
-            'activity' => 'Total Job Hours',
+            'activity' => 'Total Hours',
             'activity_hours' => $shifts->getTotalWorkerMinutes(),
             'activity_cost' => $shifts->getTotalWorkerCost(),
         ];
@@ -118,6 +124,7 @@ class ActivitySummary extends ShiftsReport
                 'employee_time_manual' => 'bg-secondary',
                 'employee_time_cnc' => 'bg-secondary',
                 'employee_time_all' => 'bg-secondary',
+                'employee_time_lunch' => 'bg-secondary',
                 'total_time' => 'bg-primary'
             ]
         ] );

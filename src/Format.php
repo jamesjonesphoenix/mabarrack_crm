@@ -42,27 +42,6 @@ class Format
         return $hoursAndMinutes;
     }
 
-
-    /**
-     * Inserts spaces so that different length strings will end up equal length
-     *
-     * @param float $value
-     * @param int   $orderOfMagnitude
-     * @return string
-     */
-    public static function insertShim(float $value, int $orderOfMagnitude = 0): string
-    {
-        if ( $orderOfMagnitude === 0 ) {
-            return '';
-        }
-        if ( $value < 0 ) {
-            return '';
-        }
-        $numberOfShims = $orderOfMagnitude - max( 0, floor( log10( $value ) ) );
-        $numberOfShims = max( $numberOfShims, 0 );
-        return str_repeat( '&#x2007;', $numberOfShims ) ?? '';
-    }
-
     /**
      * @param array $array
      * @param array $args
@@ -88,6 +67,9 @@ class Format
         unset( $arg );
         foreach ( $args as &$arg ) {
             foreach ( $array as $key => &$item ) {
+                if($item === '-' || $item === 'N/A'){
+                    continue;
+                }
                 $shimsToAdd = max( $arg['count'] ) - $arg['count'][$key];
                 $item = str_repeat( $arg['shim'], $shimsToAdd ) . $item;
             }
