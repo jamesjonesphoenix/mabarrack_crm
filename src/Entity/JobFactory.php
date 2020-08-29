@@ -128,7 +128,7 @@ class JobFactory extends EntityFactory
             $jobs = $this->addManyToOneEntityProperties( $jobs, $shiftFactory, $provisionShifts );
         }
 
-        if ( $this->canProvision( $provision, 'customers' ) ) { //Add customers for each job to Job
+        if ( $this->canProvision( $provision, 'customer' ) ) { //Add customers for each job to Job
             $customerFactory = new CustomerFactory( $this->db, $this->messages );
             $jobs = $this->addOneToOneEntityProperties( $jobs, $customerFactory );
         }

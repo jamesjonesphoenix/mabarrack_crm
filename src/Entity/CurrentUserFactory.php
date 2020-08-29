@@ -33,8 +33,7 @@ class CurrentUserFactory extends UserFactory
         $users = $this->getEntities( ['pin' => $pin], ['shifts' => [
             'activity' => true,
             'furniture' => true,
-            'job' => true,
-            'customer' => true,
+            'job' => ['customer' => true],
             'worker' => false //Don't waste CPU time provisioning shifts with worker - we already have the worker
         ]] );
         if ( count( $users ) > 1 ) {

@@ -64,7 +64,15 @@ class Init
             if ( $this->userID === null ) {
                 return null;
             }
-            $user = $userFactory->getEntity( $this->userID );
+            $user = $userFactory->getEntity( $this->userID);
+
+            $user = $userFactory->provisionEntities([$user->id => $user], ['shifts' => [
+                'activity' => true,
+                'furniture' => true,
+                'job' => ['customer' => true],
+                'worker' => false //Don't waste CPU time provisioning shifts with worker - we already have the worker
+            ]])[$user->id];
+
             if ( $user === null ) {
                 $this->messages->add( 'Could not get current user with ID: <strong>' . $this->userID . '</strong>.' );
             }

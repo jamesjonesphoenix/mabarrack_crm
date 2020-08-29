@@ -202,10 +202,11 @@ abstract class EntityFactory extends AbstractCRM
      *
      * @param Entity[]           $entities Entity instances
      * @param EntityFactory|null $additionFactory Factory to create the array of additions
+     * @param array|bool               $provisionArgs
      * @param string             $joinPropertyName Required if Entity property name is different to addition class name. Analogous to field in DB JOIN query.
      * @return Entity[]
      */
-    protected function addOneToOneEntityProperties(array $entities = [], EntityFactory $additionFactory = null, string $joinPropertyName = ''): array
+    protected function addOneToOneEntityProperties(array $entities = [], EntityFactory $additionFactory = null, $provisionArgs = false, string $joinPropertyName = ''): array
     {
         if ( empty( $entities ) || $additionFactory === null ) {
             return $entities;
@@ -220,9 +221,9 @@ abstract class EntityFactory extends AbstractCRM
             //$this->messages->add('At least one ID should have been returned');
             return $entities;
         }
+        //d($additionIDs);
         $propertyQueryArgs = $this->getPropertyQueryArgs( $additionIDs );
-
-        $additions = $additionFactory->getEntities( $propertyQueryArgs );
+        $additions = $additionFactory->getEntities( $propertyQueryArgs, $provisionArgs );
 
         foreach ( $entities as &$entity ) {
 
@@ -239,11 +240,11 @@ abstract class EntityFactory extends AbstractCRM
      *
      * @param Entity[]           $entities Entity instances
      * @param EntityFactory|null $additionFactory Factory to create the array of additions
-     * @param array|bool         $provision
+     * @param array|bool         $provisionArgs
      * @param string             $joinPropertyName Required if addition property name is different to Entity class name. Analogous to field in DB JOIN query.
      * @return Entity[]
      */
-    protected function addManyToOneEntityProperties(array $entities = [], EntityFactory $additionFactory = null, $provision = false, $joinPropertyName = ''): array
+    protected function addManyToOneEntityProperties(array $entities = [], EntityFactory $additionFactory = null, $provisionArgs = false, $joinPropertyName = ''): array
     {
         if ( empty( $entities ) || $additionFactory === null ) {
             return $entities;
@@ -257,7 +258,7 @@ abstract class EntityFactory extends AbstractCRM
             }
         }
         $propertyQueryArgs = $this->getPropertyQueryArgs( $entityIDs, $joinPropertyName );
-        $additions = $additionFactory->getEntities( $propertyQueryArgs, $provision ); //provision additions in all uses so far
+        $additions = $additionFactory->getEntities( $propertyQueryArgs, $provisionArgs ); //provision additions in all uses so far
 
         $propertyName = $additionFactory->getTableName();
 

@@ -3,7 +3,7 @@
 namespace Phoenix\Entity;
 
 /**
- * @method Shift[] addOneToOneEntityProperties(array $entities = [], EntityFactory $additionFactory = null, string $joinPropertyName = '')
+ * @method Shift[] addOneToOneEntityProperties(array $entities = [], EntityFactory $additionFactory = null, $provisionArgs = false, string $joinPropertyName = '')
  *
  * Class ShiftFactory
  */
@@ -109,14 +109,14 @@ class ShiftFactory extends EntityFactory
     public function provisionEntities(array $shifts = [], $provision = false): array
     {
         if ( $this->canProvision( $provision, 'job' ) ) { //add job details to each shift to Shift
-            $shifts = $this->addOneToOneEntityProperties( $shifts, new JobFactory( $this->db, $this->messages ) );
+            $shifts = $this->addOneToOneEntityProperties( $shifts, new JobFactory( $this->db, $this->messages ), $provision['job'] ?? false );
         }
         if ( $this->canProvision( $provision, 'furniture' ) ) { //add furniture to each shift. We must have populated the shifts with Job instances to be able to obtain quantity of shift furniture.
             $shifts = $this->addFurniture( $shifts );
         }
         // * @method Shift[] addOneToOneEntityProperties($entities, $additionFactory, $joinPropertyName = '')
         if ( $this->canProvision( $provision, 'worker' ) ) { //add workers details to each shift to Shift
-            $shifts = $this->addOneToOneEntityProperties( $shifts, new UserFactory( $this->db, $this->messages ), 'worker' );
+            $shifts = $this->addOneToOneEntityProperties( $shifts, new UserFactory( $this->db, $this->messages ), $provision['worker'] ?? false,  'worker' );
         }
         if ( $this->canProvision( $provision, 'activity' ) ) { //add activities to each shift to Shift
             $shifts = $this->addOneToOneEntityProperties( $shifts, new ActivityFactory( $this->db, $this->messages ) );

@@ -129,7 +129,6 @@ class WorkerHomePageBuilder extends PageBuilder
         $htmlUtility = $this->HTMLUtility;
 
         $shiftsCurrent = $user->shifts->getUnfinishedShifts();
-
         $this->page->reports = [
             'current_shift_table' => (new WorkerHomeShiftTable(
                 $htmlUtility,
@@ -142,7 +141,9 @@ class WorkerHomePageBuilder extends PageBuilder
                 $htmlUtility,
                 $format,
                 $this->messages
-            ))->init( $user->shifts->getLastWorkedShifts( 5 ) )
+            ))->init(
+                $user->shifts->getLastWorkedShifts( 5 )
+            )
                 ->setNoShiftsMessage( 'No recent shifts found.' )
                 ->setTitle( 'Your Recent Shifts' ),
             'time_clock_record' => (new WorkerTimeClockRecord(

@@ -65,7 +65,6 @@ class ChooseJobTable extends Report
     {
         foreach ( $this->jobs as $job ) {
             $shift = $job->shifts->getOne();
-//d($shifts);
             $url = $this->getSelectLinkURL( $job );
             $healthCheck = $job->healthCheck();
             $jobTableData[$job->id] = [

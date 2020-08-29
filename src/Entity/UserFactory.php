@@ -39,8 +39,7 @@ class UserFactory extends EntityFactory
             $provisionShifts = [
                 'activity' => true,
                 'furniture' => true,
-                'job' => true,
-                'customer' => true,
+                'job' => ['customer' => true],
                 'worker' => false //Don't waste CPU time provisioning shifts with worker - we already have the worker
             ];
         } else {
