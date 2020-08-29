@@ -3,7 +3,6 @@
 
 namespace Phoenix;
 
-use http\Message;
 use Phoenix\Entity\CurrentUser;
 use Phoenix\Entity\CurrentUserFactory;
 
