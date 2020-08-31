@@ -80,7 +80,7 @@ abstract class ArchivePageBuilder extends EntityPageBuilder
             $entities = (new Entities( $entities ))->getEntitiesWithErrors();
         }
 
-
+//d($entities);
         return $this->entities = $entities;
 
     }

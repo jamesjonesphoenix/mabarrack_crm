@@ -20,7 +20,7 @@ class ArchivePageBuilderShift extends ArchivePageBuilder
      */
     protected array $provisionArgs = [
         'activity' => true,
-        'worker' => true,
+        'worker' => ['shifts' => false],
         'furniture' => false,
         'job' => false
     ];

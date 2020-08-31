@@ -77,7 +77,7 @@ class Ajax extends AbstractCRM
                     return $this->addError( "Can't update " . $entityName . '. ID is not a valid number.' );
                 }
                 //$provision = $this->action === 'delete-dry-run';
-                $this->entity = $entityFactory->getEntities( ['ID' => $id], true )[$id] ?? null;
+                $this->entity = $entityFactory->getEntity( $id );
                 if ( $this->entity === null || !$this->entity->exists ) {
                     return $this->addError( ucwords( $this->entity->entityName ) . ' with ID: ' . $id . " doesn't exist in database." );
                 }
@@ -132,7 +132,7 @@ class Ajax extends AbstractCRM
         if ( !$this->initialised ) {
             return false;
         }
-        $entity = $this->entity->init($this->inputData );
+        $entity = $this->entity->init( $this->inputData );
 
         if ( $this->action === 'add' || $this->action === 'update' ) {
             $result = $entity->save();

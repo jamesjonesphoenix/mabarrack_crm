@@ -117,6 +117,8 @@ switch( $_GET['page'] ?? '' ) {
                 redirect( 'index.php' );
                 exit;
         }
+        $pageBuilder->setDates('2019-07-01','2020-06-30' );
+
         break;
     default:
         $pageBuilder = new IndexPageBuilder( $db, $messages );

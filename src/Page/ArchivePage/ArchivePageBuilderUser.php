@@ -21,12 +21,15 @@ class ArchivePageBuilderUser extends ArchivePageBuilder
      * @var array
      */
     protected array $provisionArgs = [
-        'shifts' => [
+        'shifts' => false
+        /*
+            [
             'activity' => false,
             'furniture' => false,
             'worker' => ['shifts' => false],
             'job' => false
         ]
+        */
     ];
 
     /**

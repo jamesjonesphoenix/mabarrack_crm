@@ -4,6 +4,7 @@
 namespace Phoenix\Page\ReportPage;
 
 
+use PDO;
 use Phoenix\Entity\JobFactory;
 use Phoenix\Entity\ShiftFactory;
 use Phoenix\Page\PageBuilder;
@@ -16,13 +17,8 @@ use Phoenix\Report\ProfitLoss;
  * @package Phoenix\Page
  *
  */
-class ReportPageBuilderProfitLoss extends PageBuilder
+class ReportPageBuilderProfitLoss extends ReportPageBuilder
 {
-    /**
-     * @var ReportPage
-     */
-    protected ReportPage $page;
-
     /**
      * @return $this
      */
@@ -30,32 +26,23 @@ class ReportPageBuilderProfitLoss extends PageBuilder
     {
         $this->page = $this->getNewPage();
         $this->addReport();
-        $this->page->setTitle('Report for Period - ' . '2019-07-01' . ' to ' . '2020-06-30');
+        $this->page->setTitle( 'Report for Period - ' . date( 'd-m-Y', strtotime( $this->dateStart ) ) . ' to ' . date( 'd-m-Y', strtotime( $this->dateFinish ) ) );
         return $this;
     }
 
+    /**
+     * @return array
+     */
     public function getJobs(): array
     {
-        $startDate = '2019-07-01';
-        $endDate = '2020-06-30';
-        $shiftsFactory = new ShiftFactory( $this->db, $this->messages );
-        $shifts = $shiftsFactory->getEntities( [
-            'date' => [
-                'value' => [
-                    'start' => $startDate,
-                    'finish' => $endDate
-                ],
-                'operator' => 'BETWEEN'
-            ]
-        ] );
         return (new JobFactory( $this->db, $this->messages ))->getEntities( [
             'id' => [
-                'value' => $shiftsFactory::getEntityIDs( $shifts, 'job' ),
+                'value' => $this->db->run( 'SELECT job FROM shifts WHERE date BETWEEN ? AND ?', [$this->dateStart, $this->dateFinish] )->fetchAll( PDO::FETCH_COLUMN | PDO::FETCH_UNIQUE, 'job' ),
                 'operator' => 'IN'
             ]
         ], [
                 'shifts' => [
-                    'worker' => true,
+                    'worker' => ['shifts' => false],
                     'activity' => true
                 ]
             ]
@@ -76,12 +63,7 @@ class ReportPageBuilderProfitLoss extends PageBuilder
                 $htmlUtility,
                 $format,
                 $this->messages
-            ))->init( $jobs, '2019-07-01', '2020-06-30' ) );
+            ))->init( $jobs, $this->dateStart, $this->dateFinish ) );
         return $this;
-    }
-
-    protected function getNewPage(): ReportPage
-    {
-        return new ReportPage( $this->HTMLUtility );
     }
 }

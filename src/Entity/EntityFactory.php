@@ -95,6 +95,16 @@ abstract class EntityFactory extends AbstractCRM
     }
 
     /**
+     * @param Entity $entity
+     * @param false  $provision
+     * @return Entity
+     */
+    public function provisionEntity(Entity $entity, $provision = false): Entity
+    {
+        return $this->provisionEntities([$entity->id => $entity], $provision)[$entity->id];
+    }
+
+    /**
      * @param int $id
      * @return Entity|null
      */

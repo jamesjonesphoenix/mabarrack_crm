@@ -40,7 +40,7 @@ class ArchiveTableCustomers extends ArchiveTable
     {
         return [
             'name' => $customer->name ?? '&minus;',
-            'email_address' => $customer->emailAddress ?? 'N/A',
+            'email_address' => $customer->emailAddress ?? '-',
             'number_of_jobs' => count( $customer->jobs ),
         ];
     }

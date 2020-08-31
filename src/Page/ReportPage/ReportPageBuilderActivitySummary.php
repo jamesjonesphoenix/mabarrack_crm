@@ -5,8 +5,7 @@ namespace Phoenix\Page\ReportPage;
 
 use Phoenix\Entity\ShiftFactory;
 use Phoenix\Entity\Shifts;
-use Phoenix\Page\PageBuilder;
-use Phoenix\Report\Shifts\ActivitySummary;
+=use Phoenix\Report\Shifts\ActivitySummary;
 
 /**
  * Class ReportPageBuilderActivitySummary
@@ -15,7 +14,7 @@ use Phoenix\Report\Shifts\ActivitySummary;
  * @package Phoenix\Page
  *
  */
-class ReportPageBuilderActivitySummary extends PageBuilder
+class ReportPageBuilderActivitySummary extends ReportPageBuilder
 {
     /**
      * @var ReportPage
@@ -29,25 +28,23 @@ class ReportPageBuilderActivitySummary extends PageBuilder
     {
         $this->page = $this->getNewPage();
         $this->addReport();
-        $this->page->setTitle('Report for Period - ' . '2019-07-01' . ' to ' . '2020-06-30');
+        $this->page->setTitle( 'Report for Period - ' . date( 'd-m-Y', strtotime( $this->dateStart ) ) . ' to ' . date( 'd-m-Y', strtotime( $this->dateFinish ) ) );
         return $this;
     }
 
     public function getShifts(): array
     {
-        $startDate = '2019-07-01';
-        $endDate = '2020-06-30';
         return (new ShiftFactory( $this->db, $this->messages ))->getEntities( [
             'date' => [
                 'value' => [
-                    'start' => $startDate,
-                    'finish' => $endDate
+                    'start' => $this->dateStart,
+                    'finish' => $this->dateFinish
                 ],
                 'operator' => 'BETWEEN'
             ]
         ],[
             'activity' => true,
-            'worker' => true
+            'worker' => ['shifts' => false]
         ] );
     }
 
@@ -67,10 +64,5 @@ class ReportPageBuilderActivitySummary extends PageBuilder
                 $this->messages
             ))->init( $shifts ) );
         return $this;
-    }
-
-    protected function getNewPage(): ReportPage
-    {
-        return new ReportPage( $this->HTMLUtility );
     }
 }

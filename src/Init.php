@@ -64,15 +64,15 @@ class Init
             if ( $this->userID === null ) {
                 return null;
             }
-            $user = $userFactory->getEntity( $this->userID);
-
-            $user = $userFactory->provisionEntities([$user->id => $user], ['shifts' => [
+            $user = $userFactory->getEntity( $this->userID );
+/*
+            $user = $userFactory->provisionEntity( $user, ['shifts' => [
                 'activity' => true,
                 'furniture' => true,
                 'job' => ['customer' => true],
                 'worker' => false //Don't waste CPU time provisioning shifts with worker - we already have the worker
-            ]])[$user->id];
-
+            ]] );
+*/
             if ( $user === null ) {
                 $this->messages->add( 'Could not get current user with ID: <strong>' . $this->userID . '</strong>.' );
             }
@@ -114,7 +114,8 @@ class Init
         if ( empty( $_POST['login-attempt'] ) ) {
             return;
         }
-        if ( ($user = $this->getCurrentUser( true )) === null ) {
+        $user = $this->getCurrentUser( true );
+        if ( $user === null ) {
             return;
         }
 
@@ -215,9 +216,7 @@ class Init
      */
     private function secureSessionStart(): void
     {
-
         $secure = USING_SSL;
-
         // Forces sessions to only use cookies.
         if ( ini_set( 'session.use_only_cookies', 1 ) === false ) {
             $this->messages->add( 'Could not initiate a safe session (ini_set)' );
@@ -238,9 +237,7 @@ class Init
             $this->messages->add( 'Your login timed out due to inactivity. Please login again.' );
             redirect( 'login' );
         } else {
-
             $_SESSION['LAST_ACTIVITY'] = time(); // update last activity time stamp
-
             if ( empty( $_SESSION['CREATED'] ) ) {
                 $_SESSION['CREATED'] = time();
             } elseif ( !defined( 'DOING_AJAX' ) && time() - $_SESSION['CREATED'] > 1800 ) {

@@ -30,12 +30,7 @@ class CurrentUserFactory extends UserFactory
      */
     public function getUserFromPin(int $pin = 0): ?CurrentUser
     {
-        $users = $this->getEntities( ['pin' => $pin], ['shifts' => [
-            'activity' => true,
-            'furniture' => true,
-            'job' => ['customer' => true],
-            'worker' => false //Don't waste CPU time provisioning shifts with worker - we already have the worker
-        ]] );
+        $users = $this->getEntities( ['pin' => $pin], false );
         if ( count( $users ) > 1 ) {
             $this->addError( '<strong>Error:</strong> More than 1 user found with pin ' . $pin . '.' );
             return null;
