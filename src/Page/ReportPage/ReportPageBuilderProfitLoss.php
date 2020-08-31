@@ -6,8 +6,6 @@ namespace Phoenix\Page\ReportPage;
 
 use PDO;
 use Phoenix\Entity\JobFactory;
-use Phoenix\Entity\ShiftFactory;
-use Phoenix\Page\PageBuilder;
 use Phoenix\Report\ProfitLoss;
 
 /**

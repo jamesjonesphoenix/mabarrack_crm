@@ -5,7 +5,7 @@ namespace Phoenix\Page\ReportPage;
 
 use Phoenix\Entity\ShiftFactory;
 use Phoenix\Entity\Shifts;
-=use Phoenix\Report\Shifts\ActivitySummary;
+use Phoenix\Report\Shifts\ActivitySummary;
 
 /**
  * Class ReportPageBuilderActivitySummary
