@@ -46,7 +46,7 @@ class ArchivePageBuilderShift extends ArchivePageBuilder
      */
     protected function getNewArchiveTableReport(): ArchiveTableShifts
     {
-        return new ArchiveTableShifts( $this->HTMLUtility, $this->format, $this->messages );
+        return new ArchiveTableShifts( $this->HTMLUtility, $this->format);
     }
 
     /**

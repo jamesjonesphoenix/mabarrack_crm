@@ -96,8 +96,7 @@ class WorkerHomePageBuilder extends PageBuilder
     {
         $timeClockRecordThisWeek = (new WorkerTimeClockRecord(
             $this->HTMLUtility,
-            $this->format,
-            $this->messages
+            $this->format
         ))->init( $this->user->shifts, $this->user->name );
 
         $timeClockRecordThisWeek->extractData();
@@ -133,14 +132,12 @@ class WorkerHomePageBuilder extends PageBuilder
             'current_shift_table' => (new WorkerHomeShiftTable(
                 $htmlUtility,
                 $format,
-                $this->messages
             ))->init( $shiftsCurrent )
                 ->setNoShiftsMessage( 'You are not currently clocked into any shifts.' )
                 ->setTitle( 'Your Current ' . ucfirst( $shiftsCurrent->getPluralOrSingular() ) ),
             'shift_latest_table' => (new WorkerHomeShiftTable(
                 $htmlUtility,
                 $format,
-                $this->messages
             ))->init(
                 $user->shifts->getLastWorkedShifts( 5 )
             )
@@ -149,7 +146,6 @@ class WorkerHomePageBuilder extends PageBuilder
             'time_clock_record' => (new WorkerTimeClockRecord(
                 $htmlUtility,
                 $format,
-                $this->messages
             ))->init(
                 $user->shifts,
                 $user->name,
@@ -168,7 +164,7 @@ class WorkerHomePageBuilder extends PageBuilder
         $class = 'btn btn-lg btn-block mb-3';
         $user = $this->user;
         if ( !empty($user->healthCheck() )) {
-            $this->page->actions = $this->messages->getMessageHTML( 'No actions available due to error.', 'warning', false );
+            $this->page->actions = $this->HTMLUtility::getAlertHTML( 'No actions available due to error.', 'warning', false );
             return $this;
         }
         $todayShifts = $user->shifts->getShiftsToday();

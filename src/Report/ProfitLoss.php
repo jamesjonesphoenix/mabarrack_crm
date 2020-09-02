@@ -45,7 +45,7 @@ class ProfitLoss extends Report
      */
     public function getTitle(): string
     {
-        return 'Profit/Loss' ;
+        return 'Profit/Loss';
     }
 
     /**
@@ -71,7 +71,9 @@ class ProfitLoss extends Report
             $validJobs[$job->id] = $job;
         }
         $this->numberOfValidJobs = count( $validJobs );
-        d($this->numberOfValidJobs);
+        if ( $this->numberOfValidJobs === 0 ) {
+            return [];
+        }
         foreach ( $validJobs as $job ) {
             // $reportPeriodShifts = $jobShifts->getShiftsOverTimespan( $this->dateStart, $this->dateFinish );
             $totalValues['sale_price'] += $job->salePrice;
@@ -115,7 +117,7 @@ class ProfitLoss extends Report
                 //'notes' => ''
             ];
         }
-        $data['total_profit']['weighted'] = $this->format::percentage($weightedGrossMargin);
+        $data['total_profit']['weighted'] = $this->format::percentage( $weightedGrossMargin );
         $data['profit_header'] = array_merge( $data['profit_header'], [
             'total' => 'Total',
             'average' => 'Average',
@@ -153,6 +155,9 @@ class ProfitLoss extends Report
     public function renderReport(): string
     {
         $data = $this->extractData();
+        if ( empty( $data ) ) {
+            return $this->htmlUtility::getAlertHTML( 'No jobs to report.','warning' );
+        }
         return $this->htmlUtility::getTableHTML( [
             'data' => $data,
             'columns' => [

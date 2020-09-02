@@ -1,6 +1,6 @@
 <?php
 
-namespace Phoenix\Form;
+namespace Phoenix\Form\DetailPageForm;
 
 use Phoenix\Entity\Job;
 use stdClass;
@@ -9,12 +9,12 @@ use stdClass;
  * @author  James Jones
  * @property  Job entity
  *
- * Class JobForm
+ * Class JobEntityForm
  *
  * @package Phoenix
  *
  */
-class JobForm extends DetailPageForm
+class JobEntityForm extends DetailPageEntityForm
 {
     /**
      * HTML id property of form

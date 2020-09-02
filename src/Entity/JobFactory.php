@@ -84,7 +84,7 @@ class JobFactory extends EntityFactory
     /**
      * Queries DB for all entities.
      * Returns entities as array to make a <select> form field.
-     * Used by Phoenix/Form->getOptionDropdownFieldHTML()
+     * Used by Phoenix/EntityForm->getOptionDropdownFieldHTML()
      *
      * @return array [<option> value1 => <option> name1, <option> value2 => <option> name2, ...]
      */

@@ -1,26 +1,26 @@
 <?php
 
-namespace Phoenix\Form;
+namespace Phoenix\Form\DetailPageForm;
 
-use Phoenix\Entity\Customer;
+use Phoenix\Entity\Setting;
 
 /**
  * @author James Jones
- * @property  Customer entity
+ * @property  Setting entity
  *
- * Class CustomerForm
+ * Class SettingEntityForm
  *
- * @package Phoenix\Form
+ * @package Phoenix\EntityForm
  *
  */
-class CustomerForm extends DetailPageForm
+class SettingEntityForm extends DetailPageEntityForm
 {
     /**
      * HTML id property of form
      *
      * @var string
      */
-    public string $formID = 'customer_form';
+    public string $formID = 'setting_form';
 
     /**
      * @return $this
@@ -33,11 +33,11 @@ class CustomerForm extends DetailPageForm
             'label' => 'Name',
             'disabled' => $this->isDisabled()
         ] );
-        $this->fields['email_address'] = $this->htmlUtility::getEmailFieldHTML( [
-            'name' => 'email_address',
-            'value' => $this->entity->emailAddress,
-            'label' => 'Email Address',
-            'disabled' => $this->isDisabled()
+        $this->fields['value'] = $this->htmlUtility::getTextFieldHTML( [
+            'name' => 'value',
+            'value' => $this->entity->value,
+            'label' => 'Value',
+            'disabled' => $this->isDisabled(),
         ] );
         return $this;
     }
@@ -57,10 +57,11 @@ class CustomerForm extends DetailPageForm
                 <?php echo $this->fields['name']; ?>
             </div>
             <div class="form-group col-md-4">
-                <?php echo $this->fields['email_address']; ?>
+                <?php echo $this->fields['value']; ?>
             </div>
         </div>
         <?php
         return ob_get_clean();
     }
+
 }

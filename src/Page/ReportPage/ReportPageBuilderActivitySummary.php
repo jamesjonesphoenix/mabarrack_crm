@@ -22,18 +22,13 @@ class ReportPageBuilderActivitySummary extends ReportPageBuilder
     protected ReportPage $page;
 
     /**
-     * @return $this
+     * @return array
      */
-    public function buildPage(): self
-    {
-        $this->page = $this->getNewPage();
-        $this->addReport();
-        $this->page->setTitle( 'Report for Period - ' . date( 'd-m-Y', strtotime( $this->dateStart ) ) . ' to ' . date( 'd-m-Y', strtotime( $this->dateFinish ) ) );
-        return $this;
-    }
-
     public function getShifts(): array
     {
+        if ( !$this->validateDates() ) {
+            return [];
+        }
         return (new ShiftFactory( $this->db, $this->messages ))->getEntities( [
             'date' => [
                 'value' => [
@@ -42,7 +37,7 @@ class ReportPageBuilderActivitySummary extends ReportPageBuilder
                 ],
                 'operator' => 'BETWEEN'
             ]
-        ],[
+        ], [
             'activity' => true,
             'worker' => ['shifts' => false]
         ] );
@@ -53,15 +48,14 @@ class ReportPageBuilderActivitySummary extends ReportPageBuilder
      */
     public function addReport(): self
     {
-        $shifts = new Shifts($this->getShifts());
+        $shifts = new Shifts( $this->getShifts() );
         $format = $this->format;
         $htmlUtility = $this->HTMLUtility;
 
         $this->page->setReport(
             (new ActivitySummary(
                 $htmlUtility,
-                $format,
-                $this->messages
+                $format
             ))->init( $shifts ) );
         return $this;
     }

@@ -8,7 +8,7 @@ use Phoenix\Entity\Job;
 use Phoenix\Entity\JobFactory;
 use Phoenix\Entity\SettingFactory;
 use Phoenix\Entity\ShiftFactory;
-use Phoenix\Form\JobForm;
+use Phoenix\Form\DetailPageForm\JobEntityForm;
 use Phoenix\Page\MenuItems\MenuItemsJobs;
 use Phoenix\Report\Archive\ArchiveTableJobShifts;
 use Phoenix\Report\JobSummary;
@@ -34,9 +34,9 @@ class DetailPageBuilderJob extends DetailPageBuilder
     }
 
     /**
-     * @return JobForm
+     * @return JobEntityForm
      */
-    public function getForm(): JobForm
+    public function getForm(): JobEntityForm
     {
         $entity = $this->getEntity();
         $jobStatuses = $this->db->getRows( 'settings', ['name' => [
@@ -46,7 +46,7 @@ class DetailPageBuilderJob extends DetailPageBuilder
 
         //$settingsFactory = (new SettingFactory($this->db, $this->messages))->getOptionsArray();
 
-        return (new JobForm(
+        return (new JobEntityForm(
             $this->HTMLUtility,
             $entity
         ))->makeOptionsDropdownFields(
@@ -83,17 +83,14 @@ class DetailPageBuilderJob extends DetailPageBuilder
             'job_summary' => (new JobSummary(
                 $htmlUtility,
                 $format,
-                $this->messages
             ))->init( $entity ),
             'activity_summary' => (new ActivitySummary(
                 $htmlUtility,
                 $format,
-                $this->messages
             ))->init( $entity->shifts ),
             'job_shifts' => (new ArchiveTableJobShifts(
                 $htmlUtility,
                 $format,
-                $this->messages
             ))->setEntities(
                 $entity->shifts->getAll(),
                 (new ShiftFactory( $this->db, $this->messages ))->getNew()

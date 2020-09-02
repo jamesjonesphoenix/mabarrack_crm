@@ -109,7 +109,7 @@ class ActivitySummary extends ShiftsReport
     {
         $data = $this->extractData();
         if ( empty( $data ) ) {
-            return $this->messages->getMessageHTML( $this->noShiftsMessage, 'warning', false );
+            return $this->htmlUtility::getAlertHTML( $this->noShiftsMessage, 'warning', false );
         }
         $data = $this->format::formatColumnValues( $data, 'percentage', '%_of_total_hours' );
         $data = $this->format::formatColumnValues( $data, 'percentage', '%_of_total_employee_cost' );

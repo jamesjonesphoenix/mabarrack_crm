@@ -145,11 +145,11 @@ class WorkerTimeClockRecord extends WorkerReport
     {
         $html = '';
         if ( $this->shifts->getCount() === 0 ) {
-            $html .= $this->messages->getMessageHTML( 'No completed shifts found from <strong>' . $this->getDateStart() . '</strong> to <strong>' . $this->getDateFinish() . '</strong> to report.', 'warning' );
+            $html .= $this->htmlUtility::getAlertHTML( 'No completed shifts found from <strong>' . $this->getDateStart() . '</strong> to <strong>' . $this->getDateFinish() . '</strong> to report.', 'warning' );
         }
         $data = $this->extractData();
         if ( empty( $data ) ) {
-            return $this->messages->getMessageHTML( 'Shifts found from <strong>' . $this->getDateStart() . '</strong> to <strong>' . $this->getDateFinish() . '</strong> but no report data generated. Something has gone wrong.', 'danger' );
+            return $this->htmlUtility::getAlertHTML( 'Shifts found from <strong>' . $this->getDateStart() . '</strong> to <strong>' . $this->getDateFinish() . '</strong> but no report data generated. Something has gone wrong.', 'danger' );
         }
 
 

@@ -139,7 +139,7 @@ class ChooseActivityTable extends Report
     {
         $activityTableData = $this->extractData();
         if ( empty( $activityTableData ) ) {
-            return $this->messages->getMessageHTML( 'Job ' . /*$this->job->id*/ 45 . ' has no furniture to choose from.', 'info' );
+            return $this->htmlUtility::getAlertHTML( 'Job ' . /*$this->job->id*/ 45 . ' has no furniture to choose from.', 'info' );
         }
         $activityTypes = $this->getActivityTypes();
         $columns = ['activity-category' => ''];

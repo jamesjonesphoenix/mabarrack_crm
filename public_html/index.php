@@ -117,7 +117,9 @@ switch( $_GET['page'] ?? '' ) {
                 redirect( 'index.php' );
                 exit;
         }
-        $pageBuilder->setDates('2019-07-01','2020-06-30' );
+        $pageBuilder
+            ->setDates( $_GET['date_start'] ?? '',$_GET['date_finish'] ?? '' )
+            ->setReportType( $report );
 
         break;
     default:

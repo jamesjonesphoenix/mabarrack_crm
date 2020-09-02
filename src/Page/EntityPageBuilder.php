@@ -3,7 +3,7 @@
 namespace Phoenix\Page;
 
 use Phoenix\Entity\EntityFactory;
-use Phoenix\Form\GoToIDForm;
+use Phoenix\Form\GoToIDEntityForm;
 use Phoenix\Page\MenuItems\MenuItems;
 
 /**
@@ -46,10 +46,10 @@ abstract class EntityPageBuilder extends PageBuilder
     }
 
     /**
-     * @return GoToIDForm
+     * @return GoToIDEntityForm
      */
-    public function getGoToIDForm(): GoToIDForm
+    public function getGoToIDForm(): GoToIDEntityForm
     {
-        return (new GoToIDForm( $this->HTMLUtility, $this->getEntityFactory()->getNew() ))->makeFields();
+        return (new GoToIDEntityForm( $this->HTMLUtility, $this->getEntityFactory()->getNew() ))->makeFields();
     }
 }

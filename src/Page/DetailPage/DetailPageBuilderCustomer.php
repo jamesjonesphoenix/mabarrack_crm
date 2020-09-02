@@ -6,7 +6,7 @@ namespace Phoenix\Page\DetailPage;
 use Phoenix\Entity\Customer;
 use Phoenix\Entity\CustomerFactory;
 use Phoenix\Entity\JobFactory;
-use Phoenix\Form\CustomerForm;
+use Phoenix\Form\DetailPageForm\CustomerEntityForm;
 use Phoenix\Report\Archive\ArchiveTableCustomerJobs;
 
 /**
@@ -29,11 +29,11 @@ class DetailPageBuilderCustomer extends DetailPageBuilder
     }
 
     /**
-     * @return CustomerForm
+     * @return CustomerEntityForm
      */
-    public function getForm(): CustomerForm
+    public function getForm(): CustomerEntityForm
     {
-        return new CustomerForm(
+        return new CustomerEntityForm(
             $this->HTMLUtility,
             $this->getEntity()
         );
@@ -52,7 +52,6 @@ class DetailPageBuilderCustomer extends DetailPageBuilder
             'customer_jobs_table' => (new ArchiveTableCustomerJobs(
                 $this->HTMLUtility,
                 $this->format,
-                $this->messages
             ))->setEntities( $customer->jobs, (new JobFactory( $this->db, $this->messages ) )->getNew())
                 ->setTitle(
                     ($customer->getNamePossessive() ?? 'Customer') . ' Jobs'

@@ -1,6 +1,6 @@
 <?php
 
-namespace Phoenix\Form;
+namespace Phoenix\Form\DetailPageForm;
 
 use Phoenix\Entity\User;
 
@@ -8,12 +8,12 @@ use Phoenix\Entity\User;
  * @author  James Jones
  * @property  User entity
  *
- * Class UserForm
+ * Class UserEntityForm
  *
  * @package Phoenix
  *
  */
-class UserForm extends DetailPageForm
+class UserEntityForm extends DetailPageEntityForm
 {
     /**
      * HTML id property of form

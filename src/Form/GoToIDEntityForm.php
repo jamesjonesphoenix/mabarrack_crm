@@ -5,13 +5,13 @@ namespace Phoenix\Form;
 
 
 /**
- * Class GoToIDForm
+ * Class GoToIDEntityForm
  *
  * @author James Jones
- * @package Phoenix\Form
+ * @package Phoenix\EntityForm
  *
  */
-class GoToIDForm extends Form
+class GoToIDEntityForm extends EntityForm
 {
     /**
      * HTML id property of form
@@ -50,8 +50,7 @@ class GoToIDForm extends Form
      */
     public function render(): string
     {
-        ob_start();
-        ?>
+        ob_start(); ?>
         <form action="<?php echo $this->entity->getLink( false ); ?>" class="form-inline my-2 my-lg-0 ml-3 search-by-id search-by-id-<?php echo $this->entity->entityName; ?> float-left">
             <div class="input-group">
                 <?php echo $this->fields['id'] . $this->fields['entity'] . $this->fields['page']; ?>
@@ -60,7 +59,6 @@ class GoToIDForm extends Form
                 </div>
             </div>
         </form>
-        <?php
-        return ob_get_clean();
+        <?php return ob_get_clean();
     }
 }

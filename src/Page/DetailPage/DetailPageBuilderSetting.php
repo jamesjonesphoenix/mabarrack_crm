@@ -4,7 +4,7 @@
 namespace Phoenix\Page\DetailPage;
 
 use Phoenix\Entity\SettingFactory;
-use Phoenix\Form\SettingForm;
+use Phoenix\Form\DetailPageForm\SettingEntityForm;
 
 /**
  *
@@ -25,11 +25,11 @@ class DetailPageBuilderSetting extends DetailPageBuilder
     }
 
     /**
-     * @return SettingForm
+     * @return SettingEntityForm
      */
-    public function getForm(): SettingForm
+    public function getForm(): SettingEntityForm
     {
-        return new SettingForm(
+        return new SettingEntityForm(
             $this->HTMLUtility,
             $this->getEntity()
         );

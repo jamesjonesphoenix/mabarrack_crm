@@ -3,7 +3,7 @@
 
 namespace Phoenix\Page\DetailPage;
 
-use Phoenix\Form\GoToIDForm;
+use Phoenix\Form\GoToIDEntityForm;
 use Phoenix\Page\EntityPage;
 use Phoenix\Report\Report;
 

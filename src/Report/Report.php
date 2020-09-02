@@ -3,10 +3,8 @@
 
 namespace Phoenix\Report;
 
-
 use Phoenix\Base;
 use Phoenix\Format;
-use Phoenix\Messages;
 use Phoenix\Utility\HTMLTags;
 
 /**
@@ -25,11 +23,6 @@ abstract class Report extends Base
     protected Format $format;
 
     /**
-     * @var Messages
-     */
-    protected Messages $messages;
-
-    /**
      * @var HTMLTags
      */
     public HTMLTags $htmlUtility;
@@ -44,13 +37,11 @@ abstract class Report extends Base
      *
      * @param HTMLTags $htmlUtility
      * @param Format   $format
-     * @param Messages $messages
      */
-    public function __construct(HTMLTags $htmlUtility, Format $format, Messages $messages)
+    public function __construct(HTMLTags $htmlUtility, Format $format )
     {
         $this->htmlUtility = $htmlUtility;
         $this->format = $format;
-        $this->messages = $messages;
     }
 
     /**

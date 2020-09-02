@@ -68,7 +68,7 @@ class ChooseFurnitureTable extends Report
     {
         $furnitureTableData = $this->extractData();
         if ( empty( $furnitureTableData ) ) {
-            return $this->messages->getMessageHTML( 'Job ' . $this->job->id . ' has no furniture to choose from.', 'info' );
+            return $this->htmlUtility::getAlertHTML( 'Job ' . $this->job->id . ' has no furniture to choose from.', 'info' );
         }
         return $this->htmlUtility::getTableHTML( [
             'data' => $furnitureTableData,

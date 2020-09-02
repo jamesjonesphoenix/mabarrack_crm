@@ -21,14 +21,22 @@ class ReportPage extends Page
     private Report $report;
 
     /**
+     * @var string|null
+     */
+    private string $form = '';
+
+    /**
      * @return string
      */
     public function renderBody(): string
     {
         ob_start(); ?>
         <div class="container mb-4 position-relative">
-            <?php echo ''; //$this->formHTML;
+        <div class="row">
+        <div class="col">
+            <?php echo $this->form; //$this->formHTML;
             ?>
+        </div></div>
         </div>
         <?php
         echo $this->report->render();
@@ -42,6 +50,12 @@ class ReportPage extends Page
     public function setReport(Report $report): self
     {
         $this->report = $report;
+        return $this;
+    }
+
+    public function setReportDatesForm(string $form): self
+    {
+        $this->form = $form;
         return $this;
     }
 

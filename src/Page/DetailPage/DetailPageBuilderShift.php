@@ -4,13 +4,12 @@
 namespace Phoenix\Page\DetailPage;
 
 use Phoenix\Entity\ActivityFactory;
-use Phoenix\Entity\Furniture;
 use Phoenix\Entity\FurnitureFactory;
 use Phoenix\Entity\JobFactory;
 use Phoenix\Entity\Shift;
 use Phoenix\Entity\ShiftFactory;
 use Phoenix\Entity\UserFactory;
-use Phoenix\Form\ShiftForm;
+use Phoenix\Form\DetailPageForm\ShiftEntityForm;
 use Phoenix\Page\MenuItems\MenuItemsShifts;
 
 /**
@@ -41,12 +40,12 @@ class DetailPageBuilderShift extends DetailPageBuilder
     }
 
     /**
-     * @return ShiftForm
+     * @return ShiftEntityForm
      */
-    public function getForm(): ShiftForm
+    public function getForm(): ShiftEntityForm
     {
         $entity = $this->getEntity();
-        return (new ShiftForm(
+        return (new ShiftEntityForm(
             $this->HTMLUtility,
             $entity
         ))->makeOptionsDropdownFields(

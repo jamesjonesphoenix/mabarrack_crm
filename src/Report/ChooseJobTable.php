@@ -85,7 +85,7 @@ class ChooseJobTable extends Report
                     'furniture-select-worked.last_worked' =>  $shift->date ?? ''
                 ] );
             } else {
-                $jobTableData[$job->id]['furniture-select-worked'] = $this->messages->getMessageHTML(
+                $jobTableData[$job->id]['furniture-select-worked'] = $this->htmlUtility::getAlertHTML(
                     '<p class="">Job ' . $job->id . ' cannot be selected:</p>' . $healthCheck,
                     'danger', false );
             }
@@ -101,7 +101,7 @@ class ChooseJobTable extends Report
     {
         $jobTableData = $this->extractData();
         if ( empty( $jobTableData ) ) {
-            return $this->messages->getMessageHTML( 'No jobs to choose from.', 'info', false );
+            return $this->htmlUtility::getAlertHTML( 'No jobs to choose from.', 'info', false );
         }
 
         foreach ( $jobTableData as &$tableRow ) {

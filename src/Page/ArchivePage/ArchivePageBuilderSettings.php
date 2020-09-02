@@ -24,6 +24,6 @@ class ArchivePageBuilderSettings extends ArchivePageBuilder
      */
     protected function getNewArchiveTableReport(): ArchiveTableSettings
     {
-        return new ArchiveTableSettings($this->HTMLUtility, $this->format, $this->messages);
+        return new ArchiveTableSettings($this->HTMLUtility, $this->format);
     }
 }

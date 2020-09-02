@@ -2,6 +2,8 @@
 
 namespace Phoenix;
 
+use Phoenix\Utility\HTMLTags;
+
 /**
  * @property array $emailArgs
  *
@@ -26,6 +28,11 @@ class Messages extends Base
      */
     protected array $_emailArgs;
 
+    /**
+     * @var HTMLTags
+     */
+    private HTMLTags $htmlUtility;
+
 
     /**
      * @return Messages
@@ -47,10 +54,12 @@ class Messages extends Base
     }
 
     /**
+     * @param HTMLTags $htmlUtility
      * @return $this
      */
-    public function init(): self
+    public function init(HTMLTags $htmlUtility): self
     {
+        $this->htmlUtility = $htmlUtility;
         if ( defined( 'DOING_CRON' ) && DOING_CRON ) {
             return $this;
         }
@@ -117,8 +126,6 @@ class Messages extends Base
         if ( empty( $messages ) ) {
             return false;
         }
-
-
         foreach ( $messages as $message ) {
             if ( empty( $message['string'] ) ) {
                 continue;
@@ -152,8 +159,6 @@ class Messages extends Base
          */
         $messages = $this->messages;
         end( $messages );
-        $lastKey = key( $messages );
-
         $messagesDisplayLimit = 3;
         ob_start();
         ?>
@@ -176,7 +181,7 @@ class Messages extends Base
                         if ( $i > $messagesDisplayLimit ) {
                             $collapsedMessages[$key] = $message;
                         } else {
-                            echo $this->getMessageHTML( $message['string'], $message['type'] ?? 'danger' );
+                            echo $this->htmlUtility::getAlertHTML( $message['string'], $message['type'] ?? 'danger' );
                         }
                     }
                     ?>
@@ -184,7 +189,7 @@ class Messages extends Base
                         ?>
                         <div class="collapse-messages-column">
                             <?php
-                            echo $this->getMessageHTML(
+                            echo $this->htmlUtility::getAlertHTML(
                                 '<span class="mr-2"><strong>' . ($numberOfMessages - $messagesDisplayLimit) . '</strong> additional messages not shown.</span><button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#collapse-messages" aria-expanded="false"
                             aria-controls="collapse-messages">Expand to display</button>'
                                 , 'primary' );
@@ -192,7 +197,7 @@ class Messages extends Base
                         </div>
                         <div class="collapse" id="collapse-messages">
                             <?php foreach ( $collapsedMessages as $key => $message ) {
-                                echo $this->getMessageHTML( $message['string'], $message['type'] ?? 'danger' );
+                                echo $this->htmlUtility::getAlertHTML( $message['string'], $message['type'] ?? 'danger' );
                             } ?>
                         </div>
                         <?php
@@ -203,29 +208,6 @@ class Messages extends Base
         <?php
         unset( $_SESSION['messages'] );
         $_SESSION['messages'] = [];
-        return ob_get_clean();
-    }
-
-    /**
-     * @param string $string
-     * @param string $type
-     * @param bool   $showCloseButton
-     * @return string
-     */
-    public function getMessageHTML(string $string = '', string $type = '', bool $showCloseButton = true): string
-    {
-        $type ??= 'danger';
-        ob_start();
-        ?>
-        <div class="alert alert-<?php echo $type; ?>  my-2" role="alert">
-            <?php if ( $showCloseButton ) { ?>
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            <?php } ?>
-            <?php echo $string; ?>
-        </div>
-        <?php
         return ob_get_clean();
     }
 

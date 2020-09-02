@@ -1,6 +1,6 @@
 <?php
 
-namespace Phoenix\Form;
+namespace Phoenix\Form\DetailPageForm;
 
 use Phoenix\Entity\Shift;
 
@@ -8,12 +8,12 @@ use Phoenix\Entity\Shift;
  * @author  James Jones
  * @property  Shift entity
  *
- * Class ShiftForm
+ * Class ShiftEntityForm
  *
  * @package Phoenix
  *
  */
-class ShiftForm extends DetailPageForm
+class ShiftEntityForm extends DetailPageEntityForm
 {
     /**
      * HTML id property of form

@@ -6,12 +6,12 @@ namespace Phoenix\Form;
 /**
  * @author James Jones
  *
- * Class GroupByForm
+ * Class GroupByEntityForm
  *
- * @package Phoenix\Form
+ * @package Phoenix\EntityForm
  *
  */
-class GroupByForm extends Form
+class GroupByEntityForm extends EntityForm
 {
     /**
      * HTML id property of form
@@ -89,15 +89,13 @@ class GroupByForm extends Form
      */
     public function render(): string
     {
-        ob_start();
-        ?>
+        ob_start(); ?>
         <form action="<?php echo $this->formAction; ?>" class="form-inline group-by-form"><?php
             echo $this->fields['group_by'];
             foreach ( $this->fields['hidden'] ?? [] as $field ) {
                 echo $field;
             } ?>
         </form>
-        <?php
-        return ob_get_clean();
+        <?php return ob_get_clean();
     }
 }

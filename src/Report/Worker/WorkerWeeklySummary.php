@@ -103,11 +103,11 @@ class WorkerWeeklySummary extends WorkerReport
     {
         $html = '';
         if ( $this->shifts->getCount() === 0 ) {
-            $html .= $this->messages::instance()->getMessageHTML( 'No completed shifts found from <strong>' . $this->getDateStart() . '</strong> to <strong>' . $this->getDateFinish() . '</strong> to summarise.', 'warning', false );
+            $html .= $this->htmlUtility::getAlertHTML( 'No completed shifts found from <strong>' . $this->getDateStart() . '</strong> to <strong>' . $this->getDateFinish() . '</strong> to summarise.', 'warning', false );
         }
         $data = $this->extractData();
         if ( empty( $data ) ) {
-            return $this->messages::instance()->getMessageHTML( 'Shifts found from <strong>' . $this->getDateStart() . '</strong> to <strong>' . $this->getDateFinish() . '</strong> but no summary data generated. Something has gone wrong.', 'danger' );
+            return $this->htmlUtility::getAlertHTML( 'Shifts found from <strong>' . $this->getDateStart() . '</strong> to <strong>' . $this->getDateFinish() . '</strong> but no summary data generated. Something has gone wrong.', 'danger' );
         }
         $data = $this->format::formatColumnValues( $data, 'hoursminutes', 'hours' );
         $data = $this->format::formatColumnValues( $data, 'percentage', 'percent_hours_paid' );

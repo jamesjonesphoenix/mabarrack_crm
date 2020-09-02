@@ -3,14 +3,9 @@
 
 namespace Phoenix\Form;
 
-use Phoenix\Entity\Entity;
+
 use Phoenix\Utility\FormFields;
 
-/**
- * Class Form
- *
- * @package Phoenix
- */
 abstract class Form
 {
     /**
@@ -19,9 +14,9 @@ abstract class Form
     public array $fields = [];
 
     /**
-     * @var Entity
+     * @var FormFields
      */
-    public Entity $entity;
+    public FormFields $htmlUtility;
 
     /**
      * HTML id property of <form> element
@@ -31,24 +26,12 @@ abstract class Form
     public string $formID = '';
 
     /**
-     * @var FormFields
-     */
-    public FormFields $htmlUtility;
-
-    /**
-     * Form constructor.
-     *
-     * @param FormFields $htmlUtility
-     * @param Entity     $entity
-     */
-    public function __construct(FormFields $htmlUtility, Entity $entity)
-    {
-        $this->entity = $entity;
-        $this->htmlUtility = $htmlUtility;
-    }
-
-    /**
      * @return string
      */
     abstract public function render(): string;
+
+    /**
+     * @return $this
+     */
+    abstract public function makeFields(): self;
 }

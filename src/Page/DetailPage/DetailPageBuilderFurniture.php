@@ -5,7 +5,7 @@ namespace Phoenix\Page\DetailPage;
 
 
 use Phoenix\Entity\FurnitureFactory;
-use Phoenix\Form\FurnitureForm;
+use Phoenix\Form\DetailPageForm\FurnitureEntityForm;
 
 /**
  *
@@ -29,11 +29,11 @@ class DetailPageBuilderFurniture extends DetailPageBuilder
 
 
     /**
-     * @return FurnitureForm
+     * @return FurnitureEntityForm
      */
-    public function getForm(): FurnitureForm
+    public function getForm(): FurnitureEntityForm
     {
-        return new FurnitureForm(
+        return new FurnitureEntityForm(
             $this->HTMLUtility,
             $this->getEntity()
         );

@@ -26,14 +26,12 @@ class ChoosePageBuilderJob extends ChoosePageBuilder
     {
         $format = $this->format;
         $htmlUtility = $this->HTMLUtility;
-        $messages = $this->messages;
         $jobFactory = new JobFactory( $this->db, $this->messages );
 
         $recentJobs = $this->user->getLastWorkedJobs( 3 );
         $recentJobsTables = (new ChooseJobTable(
             $htmlUtility,
-            $format,
-            $messages
+            $format
         ))->init( $recentJobs );
         $recentJobsTables->setTitle( 'Most Recent Jobs' );
         $this->page->addChooseTable( $recentJobsTables );
@@ -50,7 +48,6 @@ class ChoosePageBuilderJob extends ChoosePageBuilder
             $factoryJobTable = (new ChooseJobTable(
                 $htmlUtility,
                 $format,
-                $this->messages
             ))->init( [0 => $factoryJob] );
             $factoryJobTable->setTitle( 'Factory Work' );
 
@@ -70,7 +67,6 @@ class ChoosePageBuilderJob extends ChoosePageBuilder
         $activeJobsTable = (new ChooseJobTable(
             $htmlUtility,
             $format,
-            $this->messages
         ))->init( $activeJobs );
         $activeJobsTable->setTitle( 'All Active Jobs' );
         $this->page->addChooseTable( $activeJobsTable );

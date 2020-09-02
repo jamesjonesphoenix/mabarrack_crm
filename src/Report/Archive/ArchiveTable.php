@@ -4,8 +4,8 @@
 namespace Phoenix\Report\Archive;
 
 use Phoenix\Entity\Entity;
-use Phoenix\Form\GoToIDForm;
-use Phoenix\Form\GroupByForm;
+use Phoenix\Form\GoToIDEntityForm;
+use Phoenix\Form\GroupByEntityForm;
 use Phoenix\Report\Report;
 
 /**
@@ -89,11 +89,11 @@ abstract class ArchiveTable extends Report
     }
 
     /**
-     * @param GroupByForm $groupByForm
-     * @param string      $groupedBy
+     * @param GroupByEntityForm $groupByForm
+     * @param string            $groupedBy
      * @return $this
      */
-    public function setGroupByForm(GroupByForm $groupByForm, string $groupedBy = ''): self
+    public function setGroupByForm(GroupByEntityForm $groupByForm, string $groupedBy = ''): self
     {
         foreach ( $this->getColumns( 'title' ) as $key => $column ) {
             if ( !empty( $key ) && !empty( $column ) ) {
@@ -108,10 +108,10 @@ abstract class ArchiveTable extends Report
     }
 
     /**
-     * @param GoToIDForm $goToIDForm
+     * @param GoToIDEntityForm $goToIDForm
      * @return $this
      */
-    public function setGoToIDForm(GoToIDForm $goToIDForm): self
+    public function setGoToIDForm(GoToIDEntityForm $goToIDForm): self
     {
         $this->goToIDForm = $goToIDForm->render();
         return $this;
@@ -166,7 +166,7 @@ abstract class ArchiveTable extends Report
      */
     public function getEmptyReportMessage(): string
     {
-        return $this->emptyReportMessage ?? $this->messages->getMessageHTML( 'No ' . $this->entity->entityNamePlural . ' found to report.', 'warning', false );
+        return $this->emptyReportMessage ?? $this->htmlUtility::getAlertHTML( 'No ' . $this->entity->entityNamePlural . ' found to report.', 'warning', false );
     }
 
     /**
@@ -176,7 +176,7 @@ abstract class ArchiveTable extends Report
      */
     public function setEmptyReportMessage(string $message = '', string $type = 'warning'): self
     {
-        $this->emptyReportMessage = $this->messages->getMessageHTML( $message, $type, false );
+        $this->emptyReportMessage = $this->htmlUtility::getAlertHTML( $message, $type, false );
         return $this;
     }
 

@@ -28,6 +28,6 @@ class ArchivePageBuilderFurniture extends ArchivePageBuilder
      */
     protected function getNewArchiveTableReport(): ArchiveTableFurniture
     {
-        return new ArchiveTableFurniture($this->HTMLUtility, $this->format, $this->messages);
+        return new ArchiveTableFurniture($this->HTMLUtility, $this->format);
     }
 }

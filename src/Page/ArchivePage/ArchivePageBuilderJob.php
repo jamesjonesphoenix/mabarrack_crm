@@ -82,6 +82,6 @@ class ArchivePageBuilderJob extends ArchivePageBuilder
      */
     protected function getNewArchiveTableReport(): ArchiveTableJobs
     {
-        return new ArchiveTableJobs( $this->HTMLUtility, $this->format, $this->messages );
+        return new ArchiveTableJobs( $this->HTMLUtility, $this->format );
     }
 }

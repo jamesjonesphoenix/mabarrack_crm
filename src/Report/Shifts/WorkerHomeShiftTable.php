@@ -58,7 +58,7 @@ class WorkerHomeShiftTable extends ShiftsReport
     {
         $shiftTableData = $this->extractData();
         if ( empty( $shiftTableData ) ) {
-            return $this->messages->getMessageHTML( $this->noShiftsMessage, 'info' );
+            return $this->htmlUtility::getAlertHTML( $this->noShiftsMessage, 'info' );
         }
         $shiftTableData = $this->format::formatColumnValues( $shiftTableData, 'date', 'date' );
         //annotate first date

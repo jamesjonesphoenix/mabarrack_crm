@@ -9,7 +9,7 @@ namespace Phoenix\Page\MenuItems;
  * @package Phoenix\Page
  *
  */
-class MenuItemsShifts extends MenuItems
+class MenuItemsShifts extends MenuItemsEntities
 {
     /**
      * @return array[]

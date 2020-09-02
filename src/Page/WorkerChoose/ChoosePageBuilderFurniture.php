@@ -62,8 +62,7 @@ class ChoosePageBuilderFurniture extends ChoosePageBuilder
 
         $this->page->addChooseTable( (new ChooseFurnitureTable(
             $this->HTMLUtility,
-            $this->format,
-            $this->messages
+            $this->format
         ))->init( $job ) );
 
         return $this;

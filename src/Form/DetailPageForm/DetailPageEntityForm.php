@@ -1,29 +1,23 @@
 <?php
 
 
-namespace Phoenix\Form;
+namespace Phoenix\Form\DetailPageForm;
 
-
-use Phoenix\Entity\Entity;
-use Phoenix\Utility\FormFields;
+use Phoenix\Form\EntityForm;
 
 /**
- * Class DetailPageForm
+ * Class DetailPageEntityForm
  *
  * @author James Jones
- * @package Phoenix\Form
+ * @package Phoenix\EntityForm
  *
  */
-abstract class DetailPageForm extends Form
+abstract class DetailPageEntityForm extends EntityForm
 {
     /**
      * @var array
      */
     public array $buttons = [];
-
-
-
-
 
     /**
      * @return string
@@ -81,7 +75,7 @@ abstract class DetailPageForm extends Form
         <div class="row">
             <div class="col">
                 <div class="grey-bg px-3 pt-3">
-                    <form id='<?php echo $this->formID; ?>' class='detail-form'>
+                    <form id="<?php echo $this->formID; ?>" class="detail-form">
                         <fieldset>
                             <?php echo $this->renderFields(); ?>
                             <div class="form-row mt-1">

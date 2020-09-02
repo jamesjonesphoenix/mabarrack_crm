@@ -71,6 +71,6 @@ class ArchivePageBuilderUser extends ArchivePageBuilder
      */
     protected function getNewArchiveTableReport(): ArchiveTableUsers
     {
-        return new ArchiveTableUsers( $this->HTMLUtility, $this->format, $this->messages );
+        return new ArchiveTableUsers( $this->HTMLUtility, $this->format );
     }
 }

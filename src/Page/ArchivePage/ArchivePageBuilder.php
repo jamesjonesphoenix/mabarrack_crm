@@ -5,8 +5,7 @@ namespace Phoenix\Page\ArchivePage;
 
 use Phoenix\Entity\Entities;
 use Phoenix\Entity\Entity;
-use Phoenix\Form\GoToIDForm;
-use Phoenix\Form\GroupByForm;
+use Phoenix\Form\GroupByEntityForm;
 use Phoenix\Page\EntityPageBuilder;
 use Phoenix\Report\Archive\ArchiveTable;
 
@@ -190,7 +189,7 @@ abstract class ArchivePageBuilder extends EntityPageBuilder
                     $this->getEntities(),
                     $this->getEntityFactory()->getNew(),
                 )->setGroupByForm(
-                    (new GroupByForm( $this->HTMLUtility, $this->getEntityFactory()->getNew() ))
+                    (new GroupByEntityForm( $this->HTMLUtility, $this->getEntityFactory()->getNew() ))
                         ->makeHiddenFields( $this->inputArgs ),
                     $this->groupBy
                 )->setGoToIDForm(

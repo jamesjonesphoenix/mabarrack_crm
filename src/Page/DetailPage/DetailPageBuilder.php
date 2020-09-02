@@ -4,8 +4,8 @@
 namespace Phoenix\Page\DetailPage;
 
 use Phoenix\Entity\Entity;
-use Phoenix\Form\DetailPageForm;
-use Phoenix\Form\GroupByForm;
+use Phoenix\Form\DetailPageForm\DetailPageEntityForm;
+use Phoenix\Form\GroupByEntityForm;
 use Phoenix\Page\EntityPageBuilder;
 use function Phoenix\redirect;
 
@@ -76,9 +76,9 @@ abstract class DetailPageBuilder extends EntityPageBuilder
     }
 
     /**
-     * @return DetailPageForm
+     * @return DetailPageEntityForm
      */
-    abstract protected function getForm(): DetailPageForm;
+    abstract protected function getForm(): DetailPageEntityForm;
 
     /**
      * @return array
@@ -150,12 +150,12 @@ abstract class DetailPageBuilder extends EntityPageBuilder
     }
 
     /**
-     * @return GroupByForm
+     * @return GroupByEntityForm
      */
-    public function getGroupByForm(): GroupByForm
+    public function getGroupByForm(): GroupByEntityForm
     {
         $entity = $this->getEntity();
-        return (new GroupByForm( $this->HTMLUtility, $entity ))
+        return (new GroupByEntityForm( $this->HTMLUtility, $entity ))
             ->makeHiddenFields( [
                 'page' => 'detail',
                 'entity' => $entity->entityName,

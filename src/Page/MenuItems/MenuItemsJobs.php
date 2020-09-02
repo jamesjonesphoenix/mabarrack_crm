@@ -13,7 +13,7 @@ use Phoenix\Entity\SettingFactory;
  * @package Phoenix\Page
  *
  */
-class MenuItemsJobs extends MenuItems
+class MenuItemsJobs extends MenuItemsEntities
 {
     /**
      * @var int

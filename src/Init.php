@@ -5,6 +5,7 @@ namespace Phoenix;
 
 use Phoenix\Entity\CurrentUser;
 use Phoenix\Entity\CurrentUserFactory;
+use Phoenix\Utility\HTMLTags;
 
 /**
  * Class Init
@@ -48,7 +49,7 @@ class Init
         $this->scriptFilename = basename( $_SERVER['SCRIPT_FILENAME'] );
         $this->getConfig();
         $this->secureSessionStart();
-        $this->messages = Messages::instance()->init();
+        $this->messages = Messages::instance()->init( new HTMLTags() );
         $this->userID = $_SESSION['user_id'] ?? null;
 
     }
@@ -65,14 +66,14 @@ class Init
                 return null;
             }
             $user = $userFactory->getEntity( $this->userID );
-/*
-            $user = $userFactory->provisionEntity( $user, ['shifts' => [
-                'activity' => true,
-                'furniture' => true,
-                'job' => ['customer' => true],
-                'worker' => false //Don't waste CPU time provisioning shifts with worker - we already have the worker
-            ]] );
-*/
+            /*
+                        $user = $userFactory->provisionEntity( $user, ['shifts' => [
+                            'activity' => true,
+                            'furniture' => true,
+                            'job' => ['customer' => true],
+                            'worker' => false //Don't waste CPU time provisioning shifts with worker - we already have the worker
+                        ]] );
+            */
             if ( $user === null ) {
                 $this->messages->add( 'Could not get current user with ID: <strong>' . $this->userID . '</strong>.' );
             }

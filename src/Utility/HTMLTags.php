@@ -15,6 +15,27 @@ use Donquixote\Cellbrush\Table\Table;
 class HTMLTags
 {
     /**
+     * @param string $string
+     * @param string $type
+     * @param bool   $showCloseButton
+     * @return string
+     */
+    public static function getAlertHTML(string $string = '', string $type = '', bool $showCloseButton = true): string
+    {
+        $type ??= 'danger';
+        ob_start(); ?>
+        <div class="alert alert-<?php echo $type; ?> my-2" role="alert">
+            <?php if ( $showCloseButton ) { ?>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            <?php } ?>
+            <?php echo $string; ?>
+        </div>
+        <?php return ob_get_clean();
+    }
+
+    /**
      * @param array  $args
      * @param string $type
      * @return array

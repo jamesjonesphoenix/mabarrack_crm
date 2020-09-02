@@ -1,27 +1,26 @@
 <?php
 
-namespace Phoenix\Form;
+namespace Phoenix\Form\DetailPageForm;
 
-
-use Phoenix\Entity\Setting;
+use Phoenix\Entity\Furniture;
 
 /**
  * @author James Jones
- * @property  Setting entity
+ * @property  Furniture entity
  *
- * Class SettingForm
+ * Class FurnitureEntityForm
  *
- * @package Phoenix\Form
+ * @package Phoenix\EntityForm
  *
  */
-class SettingForm extends DetailPageForm
+class FurnitureEntityForm extends DetailPageEntityForm
 {
     /**
      * HTML id property of form
      *
      * @var string
      */
-    public string $formID = 'setting_form';
+    public string $formID = 'furniture_form';
 
     /**
      * @return $this
@@ -34,11 +33,12 @@ class SettingForm extends DetailPageForm
             'label' => 'Name',
             'disabled' => $this->isDisabled()
         ] );
-        $this->fields['value'] = $this->htmlUtility::getTextFieldHTML( [
-            'name' => 'value',
-            'value' => $this->entity->value,
-            'label' => 'Value',
+        $this->fields['plural_name'] = $this->htmlUtility::getTextFieldHTML( [
+            'name' => 'plural_name',
+            'value' => $this->entity->namePlural,
+            'label' => 'Plural Name',
             'disabled' => $this->isDisabled(),
+            'small' => '<small>Enter plural of name manually if it is different to simply appending an "s".</small>'
         ] );
         return $this;
     }
@@ -58,11 +58,10 @@ class SettingForm extends DetailPageForm
                 <?php echo $this->fields['name']; ?>
             </div>
             <div class="form-group col-md-4">
-                <?php echo $this->fields['value']; ?>
+                <?php echo $this->fields['plural_name']; ?>
             </div>
         </div>
         <?php
         return ob_get_clean();
     }
-
 }

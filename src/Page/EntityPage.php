@@ -5,7 +5,7 @@ namespace Phoenix\Page;
 
 
 use Phoenix\Entity\Entity;
-use Phoenix\Form\GoToIDForm;
+use Phoenix\Form\GoToIDEntityForm;
 
 /**
  * Class EntityPage

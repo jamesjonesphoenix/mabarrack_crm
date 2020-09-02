@@ -40,6 +40,6 @@ class ArchivePageBuilderCustomer extends ArchivePageBuilder
      */
     protected function getNewArchiveTableReport(): ArchiveTableCustomers
     {
-        return new ArchiveTableCustomers($this->HTMLUtility, $this->format, $this->messages);
+        return new ArchiveTableCustomers($this->HTMLUtility, $this->format);
     }
 }

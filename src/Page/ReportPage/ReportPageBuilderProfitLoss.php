@@ -18,21 +18,13 @@ use Phoenix\Report\ProfitLoss;
 class ReportPageBuilderProfitLoss extends ReportPageBuilder
 {
     /**
-     * @return $this
-     */
-    public function buildPage(): self
-    {
-        $this->page = $this->getNewPage();
-        $this->addReport();
-        $this->page->setTitle( 'Report for Period - ' . date( 'd-m-Y', strtotime( $this->dateStart ) ) . ' to ' . date( 'd-m-Y', strtotime( $this->dateFinish ) ) );
-        return $this;
-    }
-
-    /**
      * @return array
      */
     public function getJobs(): array
     {
+        if(!$this->validateDates()){
+            return [];
+        }
         return (new JobFactory( $this->db, $this->messages ))->getEntities( [
             'id' => [
                 'value' => $this->db->run( 'SELECT job FROM shifts WHERE date BETWEEN ? AND ?', [$this->dateStart, $this->dateFinish] )->fetchAll( PDO::FETCH_COLUMN | PDO::FETCH_UNIQUE, 'job' ),
@@ -56,11 +48,12 @@ class ReportPageBuilderProfitLoss extends ReportPageBuilder
         $format = $this->format;
         $htmlUtility = $this->HTMLUtility;
 
+
+
         $this->page->setReport(
             (new ProfitLoss(
                 $htmlUtility,
-                $format,
-                $this->messages
+                $format
             ))->init( $jobs, $this->dateStart, $this->dateFinish ) );
         return $this;
     }

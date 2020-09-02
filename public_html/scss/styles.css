@@ -13256,6 +13256,10 @@ fieldset:disabled .form-control,
   border-left: 2px solid #17a2b8; }
 .input-group #change-password-button {
   min-width: 160px; }
+.input-group > .input-group-text {
+  border-radius: 0; }
+.input-group > .input-group-text + .form-control {
+  border-left-width: 1px; }
 
 /*/// TO BE REMOVED///*/
 .well {

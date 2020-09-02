@@ -6,7 +6,7 @@ namespace Phoenix\Page\DetailPage;
 use Phoenix\Entity\ShiftFactory;
 use Phoenix\Entity\User;
 use Phoenix\Entity\UserFactory;
-use Phoenix\Form\UserForm;
+use Phoenix\Form\DetailPageForm\UserEntityForm;
 use Phoenix\Page\MenuItems\MenuItemsUsers;
 use Phoenix\Report\Archive\ArchiveTableUserShifts;
 use Phoenix\Report\Worker\WorkerTimeClockRecord;
@@ -45,11 +45,11 @@ class DetailPageBuilderUser extends DetailPageBuilder
     }
 
     /**
-     * @return UserForm
+     * @return UserEntityForm
      */
-    public function getForm(): UserForm
+    public function getForm(): UserEntityForm
     {
-        return new UserForm(
+        return new UserEntityForm(
             $this->HTMLUtility,
             $this->getEntity()
         );
@@ -79,7 +79,6 @@ class DetailPageBuilderUser extends DetailPageBuilder
         $startDate = $this->startDate ?? '';
         $htmlUtility = $this->HTMLUtility;
         $format = $this->format;
-        $messages = $this->messages;
 
         $shifts = $user->shifts->orderLatestToEarliest();
         $shift = (new ShiftFactory( $this->db, $this->messages ))->getNew();
@@ -87,24 +86,20 @@ class DetailPageBuilderUser extends DetailPageBuilder
             'current_shifts' => (new ArchiveTableUserShifts(
                 $htmlUtility,
                 $format,
-                $messages
             ))->setEntities( $user->shifts->getUnfinishedShifts()->getAll(), $shift )
                 ->setTitle( 'Current Shifts' )
                 ->setEmptyReportMessage( ucfirst( $user->name ?? 'user' ) . ' is not currently clocked onto any shifts.', 'info' ),
             'time_clock_record' => (new WorkerTimeClockRecord(
                 $htmlUtility,
                 $format,
-                $messages
             ))->init( $shifts, $user->name, $startDate ),
             'weekly_summary' => (new WorkerWeeklySummary(
                 $htmlUtility,
                 $format,
-                $messages
             ))->init( $shifts, $user->name, $startDate ),
             'worker_shifts_table' => (new ArchiveTableUserShifts(
                 $htmlUtility,
                 $format,
-                $messages
             ))->setEntities( $shifts->getAll(), $shift )
                 ->setTitle( 'All Worker Shifts' )
         ] );

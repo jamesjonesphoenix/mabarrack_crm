@@ -98,8 +98,7 @@ class ChoosePageBuilderActivity extends ChoosePageBuilder
 
         $this->page->addChooseTable( (new chooseActivityTable(
             $this->HTMLUtility,
-            $this->format,
-            $this->messages
+            $this->format
         ))->init(
             $activities ?? [],
             $activityURLs ?? []

@@ -356,7 +356,7 @@ function entityPageFunctions() {
     });
 
 
-    detailForm.submit(function (e) { //Form submitted
+    detailForm.submit(function (e) { //EntityForm submitted
         console.log('submitted');
         e.preventDefault();
         const formAction = $j('input[name="submit_action"]').val();

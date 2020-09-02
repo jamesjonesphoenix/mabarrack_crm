@@ -9,8 +9,9 @@ use Phoenix\Entity\JobFactory;
 use Phoenix\Entity\SettingFactory;
 use Phoenix\Entity\ShiftFactory;
 use Phoenix\Entity\UserFactory;
-use Phoenix\Page\MenuItems\MenuItems;
+use Phoenix\Page\MenuItems\MenuItemsEntities;
 use Phoenix\Page\MenuItems\MenuItemsJobs;
+use Phoenix\Page\MenuItems\MenuItemsReports;
 use Phoenix\Page\MenuItems\MenuItemsShifts;
 use Phoenix\Page\MenuItems\MenuItemsUsers;
 
@@ -80,27 +81,17 @@ class IndexPageBuilder extends PageBuilder
             'Customers' => [
                 'icon' => $customerFactory->getNew()->getIcon(),
                 'contextual_class' => 'customer',
-                'items' => (new MenuItems( $customerFactory ))->getMenuItems( $countErrors )
+                'items' => (new MenuItemsEntities( $customerFactory ))->getMenuItems( $countErrors )
             ],
             'Furniture' => [
                 'icon' => $furnitureFactory->getNew()->getIcon(),
                 'contextual_class' => 'furniture',
-                'items' => (new MenuItems( $furnitureFactory ))->getMenuItems( $countErrors )
+                'items' => (new MenuItemsEntities( $furnitureFactory ))->getMenuItems( $countErrors )
             ],
             'Report' => [
                 'icon' => $this->HTMLUtility::getIconHTML( 'clipboard-list' ),
                 'contextual_class' => 'report',
-                'items' => [
-                    [
-                        'icon' => 'dollar-sign',
-                        'text' => 'Profit/Loss',
-                        'url' => 'index.php?page=report&report=profit_loss',
-                    ], [
-                        'icon' => 'chart-bar',
-                        'text' => 'Activity Summary',
-                        'url' => 'index.php?page=report&report=activity_summary',
-                    ]
-                ]
+                'items' => (new MenuItemsReports())->getMenuItems()
             ]
         ] );
         return $this;
