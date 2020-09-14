@@ -13341,77 +13341,96 @@ fieldset:disabled .form-control,
     color: #000 !important;
     background: transparent !important;
     box-shadow: none !important; } }
-body.worker .table.choose-activity thead td:not(:first-child),
-body.worker .table.choose-activity thead th:not(:first-child),
-body.worker .table.choose-activity tbody td:not(:first-child),
-body.worker .table.choose-activity tbody th:not(:first-child) {
-  border-left: 3px solid #535353; }
-body.worker .table.choose-activity thead tr td, body.worker .table.choose-activity thead tr th {
-  text-align: center; }
-body.worker .table.choose-activity tbody td.activityIcon,
-body.worker .table.choose-activity tbody td {
-  padding: 7.5px;
-  position: relative; }
-  body.worker .table.choose-activity tbody td.activityIcon > div,
-  body.worker .table.choose-activity tbody td > div {
-    line-height: 0; }
-  body.worker .table.choose-activity tbody td.activityIcon a,
-  body.worker .table.choose-activity tbody td a {
-    display: inline-block;
-    width: 208px;
-    height: 208px;
-    margin: 7.5px;
-    background: #299626;
-    border-radius: 15px;
-    text-align: center;
-    padding: 15px;
-    position: relative; }
-    body.worker .table.choose-activity tbody td.activityIcon a .activityIconImageContainer,
-    body.worker .table.choose-activity tbody td a .activityIconImageContainer {
-      height: 154.006px;
-      position: relative; }
-      body.worker .table.choose-activity tbody td.activityIcon a .activityIconImageContainer img,
-      body.worker .table.choose-activity tbody td a .activityIconImageContainer img {
-        display: block;
-        margin: 0 auto;
-        max-width: 100%;
-        max-height: 154.006px;
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%); }
-    body.worker .table.choose-activity tbody td.activityIcon a span,
-    body.worker .table.choose-activity tbody td a span {
-      color: #ffffff;
-      position: absolute;
-      width: 100%;
-      left: 0;
-      bottom: 15px;
+body.worker div.row.choose-activity {
+  clear: both;
+  border-top: 6px solid #2A80B9;
+  border-bottom: 6px solid #2A80B9; }
+  body.worker div.row.choose-activity div.col {
+    position: relative;
+    margin-right: -1px; }
+    body.worker div.row.choose-activity div.col a.activity-icon-link:nth-child(4n) {
+      margin-right: 0 !important; }
+  body.worker div.row.choose-activity div.col-auto {
+    width: 188px; }
+    body.worker div.row.choose-activity div.col-auto span {
+      font-size: 16px;
       font-weight: 300;
-      font-size: 18px;
-      line-height: 18px; }
-  body.worker .table.choose-activity tbody td.activityIcon .no-activity,
-  body.worker .table.choose-activity tbody td .no-activity {
+      display: inline-block;
+      position: relative;
+      height: 36px;
+      line-height: 36px;
+      background: #2A80B9;
+      padding-left: 0.75rem;
+      padding-right: 0.75rem; }
+      body.worker div.row.choose-activity div.col-auto span:before {
+        content: "";
+        position: absolute;
+        border-style: solid;
+        border-width: 18px 0 18px 24px;
+        border-color: transparent transparent transparent #2A80B9;
+        line-height: 0;
+        _border-color: #000000 #000000 #000000 #2A80B9;
+        _filter: progid:DXImageTransform.Microsoft.Chroma(color='#000000');
+        right: -1.5rem; }
+
+a.activity-icon-link {
+  display: block;
+  float: left;
+  width: 11.225rem;
+  height: 11.225rem;
+  background: #299626;
+  border-radius: 1rem;
+  text-align: center;
+  padding: 0.75rem;
+  position: relative;
+  transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out; }
+  a.activity-icon-link:hover, a.activity-icon-link:active {
+    background: #248722; }
+  a.activity-icon-link .activity-icon-image-container {
+    height: 8.392rem;
+    position: relative; }
+    a.activity-icon-link .activity-icon-image-container img {
+      display: block;
+      margin: 0 auto;
+      max-width: 100%;
+      max-height: 8.392rem;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%); }
+  a.activity-icon-link span {
+    color: #ffffff;
     position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    padding: 7.5px; }
-body.worker .table.choose-activity tbody td.activityIcon:last-child a,
-body.worker .table.choose-activity tbody td:last-child a {
-  background: #299626; }
-body.worker .table.choose-activity tbody tr th span {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%); }
-body.worker .table.choose-activity tbody > tr:nth-of-type(2n) td.activityIcon a, body.worker .table.choose-activity tbody > tr:nth-of-type(2n) td a {
+    width: 100%;
+    left: 0;
+    bottom: 0.75rem;
+    font-weight: 300;
+    font-size: 1rem;
+    line-height: 1rem; }
+
+a.activity-icon-link:nth-of-type(2n) {
   background: #2A80B9; }
-body.worker .table.choose-activity tbody > tr:nth-of-type(2n) td.activityIcon:last-child a, body.worker .table.choose-activity tbody > tr:nth-of-type(2n) td:last-child a {
-  background: #2A80B9; }
+  a.activity-icon-link:nth-of-type(2n):hover, a.activity-icon-link:nth-of-type(2n):active {
+    background: #2573a6; }
 
 @media (min-width: 1200px) {
-  body.worker .table.choose-activity tbody td.activityIcon > div,
-  body.worker .table.choose-activity tbody td > div {
-    white-space: nowrap !important; } }
+  body.worker div.row.choose-activity div.col-auto {
+    width: 218px; }
+    body.worker div.row.choose-activity div.col-auto span {
+      font-size: 1.25rem; }
+
+  a.activity-icon-link {
+    width: 13.125rem;
+    height: 13.125rem;
+    padding: 1rem; }
+    a.activity-icon-link .activity-icon-image-container {
+      height: 9.792rem; }
+      a.activity-icon-link .activity-icon-image-container img {
+        max-height: 9.792rem; }
+    a.activity-icon-link span {
+      bottom: 1rem;
+      font-size: 1.25rem;
+      line-height: 1.25rem; } }
 .job-description textarea {
   height: 124px; }
 

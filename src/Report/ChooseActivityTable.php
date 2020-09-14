@@ -21,61 +21,34 @@ class ChooseActivityTable extends Report
     protected string $title = 'Choose Activity';
 
     /**
-     * @var Activity[]
+     * @var Activity[][]
      */
-    private array $activities;
+    private array $activities = [];
 
     /**
      * @var array
      */
     private array $activityURLs;
 
+    private string $type = '';
+
     /**
-     * @param Activity[][][] $activities
-     * @param array          $activityURLs
+     * @param Activity[] $activities
+     * @param array      $activityURLs
+     * @param string     $type
      * @return $this
      */
-    public function init(array $activities = [], array $activityURLs = []): self
+    public function init(array $activities = [], array $activityURLs = [], string $type = ''): self
     {
-        $this->activities = $activities;
         $this->activityURLs = $activityURLs;
+        $this->type = $type;
+        $this->setTitle( $type . ' Activities' );
 
-        //$this->title = '<small>Job ID:</small> ' . $job->id  . '';
+
+        foreach ( $activities as $activity ) {
+            $this->activities[$activity->category][$activity->name] = $activity;
+        }
         return $this;
-    }
-
-    /**
-     * @return array
-     */
-    public function getSortedActivities(): array
-    {
-        $activityCategories = [];
-        $unsortedActivities = [];
-        foreach ( $this->activities as $activity ) {
-            $unsortedActivities[$activity->category][$activity->type][$activity->name] = $activity;
-            if ( !in_array( $activity->category, $activityCategories, true ) ) {
-                $activityCategories[$activity->id] = $activity->category;
-            }
-        }
-        $sortedActivities = [];
-        foreach ( $activityCategories as $activityCategory ) {
-            $sortedActivities[$activityCategory] = $unsortedActivities[$activityCategory];
-        }
-        return $sortedActivities ?? [];
-    }
-
-    /**
-     * @return array
-     */
-    public function getActivityTypes(): array
-    {
-        foreach ( $this->activities as $activity ) {
-            //if ( !in_array( $activity->type, $activityTypes, true ) ) {
-            $activityTypes[$activity->type] = $activity->type;
-            //}
-
-        }
-        return $activityTypes ?? [];
     }
 
     /**
@@ -87,14 +60,13 @@ class ChooseActivityTable extends Report
     function getActivityIcon(Activity $activity, string $url = ''): string
     {
         ob_start(); ?>
-        <a href="<?php echo $url; ?>">
-            <div class="activityIconImageContainer"><img
+        <a class="activity-icon-link m-2" href="<?php echo $url; ?>">
+            <div class="activity-icon-image-container"><img
                         src="img/activities/<?php echo $activity->image; ?>"
                         alt="<?php echo $activity->name; ?>"/></div>
             <span><?php echo $activity->displayName; ?></span>
         </a>
-        <?php
-        return ob_get_clean();
+        <?php return ob_get_clean();
     }
 
     /**
@@ -103,31 +75,44 @@ class ChooseActivityTable extends Report
     public
     function extractData(): array
     {
-        $sortedActivities = $this->getSortedActivities();
-
         $activityURLs = $this->activityURLs;
-        foreach ( $sortedActivities as $categoryName => $activityTypes ) {
-            $activityTableData[$categoryName]['activity-category'] = $categoryName;
-            foreach ( $this->getActivityTypes() as $type ) {
-                $cell = '';
-                if ( !empty( $activityTypes[$type] ) ) {
-                    $i = 0;
-                    //$cell .= '<div class="text-nowrap">';
-                    $cell .= '<div>';
-                    foreach ( $activityTypes[$type] as $activity ) {
-                        if ( $i > 1 && ($i % 2) === 0 ) { //even
-                            //$cell .= '</div><div class="text-nowrap">';
-                            $cell .= '</div><div>';
-                        }
-                        $cell .= $this->getActivityIcon( $activity, $activityURLs[$activity->id] );
-                        $i++;
-                    }
-                    $cell .= '</div>';
-                }
-                $activityTableData[$categoryName]['activity-category-' . $type] = $cell;
+        foreach ( $this->activities as $categoryName => $activities ) {
+            if ( count( $activities ) === 1 ) {
+                $activity = current( $activities );
+                $returnData[$categoryName] = $this->getActivityIcon( $activity, $activityURLs[$activity->id] );
+                continue;
+            }
+            foreach ( $activities as $activityName => $activity ) {
+                $returnData[$categoryName][$activity->name] = $this->getActivityIcon( $activity, $activityURLs[$activity->id] );
             }
         }
-        return $activityTableData ?? [];
+        return $returnData ?? [];
+
+    }
+
+    /**
+     * @param array  $activities
+     * @param string $categoryName
+     * @return string
+     * @throws \Exception
+     */
+    public
+    function makeTable(array $activities, string $categoryName = ''): string
+    {
+        d( $activities );
+        return '<div class="row align-items-center choose-activity mx-2 my-2 py-2"><div class="col-auto px-0"><span>'. $categoryName . '</span></div><div class="col px-0">'. implode('', $activities) . '</div>';
+        /*
+        $columns = [
+            'header' => ['subheader' => true],
+            'activity' => ''
+        ];
+        $data[0] = ['header' => '<span>'. $categoryName . '</span>' , 'activity' => implode('', $activities)];
+        return $this->htmlUtility::getTableHTML( [
+            'data' => $data ?? [],
+            'class' => ['choose-activity m-2'],
+            'columns' => $columns
+        ] );
+        */
     }
 
     /**
@@ -137,26 +122,24 @@ class ChooseActivityTable extends Report
     public
     function renderReport(): string
     {
-        $activityTableData = $this->extractData();
-        if ( empty( $activityTableData ) ) {
-            return $this->htmlUtility::getAlertHTML( 'Job ' . /*$this->job->id*/ 45 . ' has no furniture to choose from.', 'info' );
-        }
-        $activityTypes = $this->getActivityTypes();
-        $columns = ['activity-category' => ''];
-        foreach ( $activityTypes as $activityType ) {
-            $columns['activity-category-' . $activityType] = $activityType;
-        }
 
-        return $this->htmlUtility::getTableHTML( [
-            'data' => $activityTableData,
-            'columns' => $columns,
-            'class' => ['choose-activity'],
-            'subheaders' => [
-                'columns' => ['activity-category']
-            ],
-            'columnsClasses' => [
-                'activity-category' => 'text-right'
-            ]
-        ] );
+        $activityChooseButtons = $this->extractData();
+        if ( empty( $activityChooseButtons ) ) {
+            return $this->htmlUtility::getAlertHTML( 'No activities available to choose from.', 'danger' );
+        }
+        $html = '<div class="clearfix">';
+        foreach ( $activityChooseButtons as $categoryName => $activities ) {
+            if ( is_string( $activities ) ) {
+                $html .= $activities;
+            }
+        }
+        $html .= '</div>';
+        foreach ( $activityChooseButtons as $categoryName => $activities ) {
+            if ( is_array( $activities ) ) {
+                $html .= $this->makeTable( $activities, $this->type . ' ' . $categoryName );
+            }
+
+        }
+        return '<div class="m-n2 clearfix">' . $html . '</div>';
     }
 }

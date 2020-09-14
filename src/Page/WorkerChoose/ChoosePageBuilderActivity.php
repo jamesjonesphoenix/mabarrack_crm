@@ -93,16 +93,20 @@ class ChoosePageBuilderActivity extends ChoosePageBuilder
             }
             $nextPage = strtolower( $activity->name ) === 'other' ? 'other-comment' : 'next_shift';
             $activityURLs[$activity->id] = 'worker.php?job=' . $jobID . '&activity=' . $activity->id . '&furniture=' . $furnitureID . '&' . $nextPage . '=1';
-            $activities[$activity->id] = $activity;
+            $sortedActivities[$activity->type][$activity->id] = $activity;
         }
 
-        $this->page->addChooseTable( (new chooseActivityTable(
-            $this->HTMLUtility,
-            $this->format
-        ))->init(
-            $activities ?? [],
-            $activityURLs ?? []
-        ) );
+        foreach ( $sortedActivities ?? [] as $activityType => $activities ) {
+            $this->page->addChooseTable( (new chooseActivityTable(
+                $this->HTMLUtility,
+                $this->format
+            ))->init(
+                $activities,
+                $activityURLs ?? [],
+                $activityType
+            ) );
+        }
+
 
         return $this;
     }

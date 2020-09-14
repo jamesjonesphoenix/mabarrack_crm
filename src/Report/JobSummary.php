@@ -120,13 +120,11 @@ class JobSummary extends Report
                 'percent_sum_cost' => '% of Sum Cost',
                 'notes' => ''
             ],
-            'rowsClasses' => [
-                'employee_cost' => 'bg-primary',
-                'sum_cost' => 'bg-primary',
-                'total_profit' => 'bg-primary',
-            ],
-            'subheaders' => [
-                'rows' => ['profit_header']
+            'rows' => [
+                'employee_cost' => ['class' => 'bg-primary'],
+                'sum_cost' => ['class' => 'bg-primary'],
+                'total_profit' => ['class' => 'bg-primary'],
+                'profit_header' => ['subheader' => true]
             ]
         ] );
 

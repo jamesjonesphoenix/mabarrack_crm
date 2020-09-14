@@ -166,14 +166,12 @@ class ProfitLoss extends Report
                 'average' => 'Average Per Job',
                 'weighted' => 'Weighted Average Per Job',
             ],
-            'rowsClasses' => [
-                'employee_cost' => 'bg-primary',
-                'sum_cost' => 'bg-primary',
-                'total_profit' => 'bg-primary',
+            'rows' => [
+                'employee_cost' => ['class' => 'bg-primary'],
+                'sum_cost' => ['class' => 'bg-primary'],
+                'total_profit' => ['class' => 'bg-primary'],
+                'profit_header' => ['subheader' => true]
             ],
-            'subheaders' => [
-                'rows' => ['profit_header']
-            ]
         ] );
     }
 }

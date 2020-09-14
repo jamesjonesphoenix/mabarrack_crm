@@ -114,18 +114,19 @@ class WorkerWeeklySummary extends WorkerReport
         $data = $this->format::formatColumnValues( $data, 'percentage', 'percent_hours_total' );
 
         return $html . $this->htmlUtility::getTableHTML( [
-            'data' => $data,
-            'columns' => [
-                'item' => 'Item',
-                'hours' => 'Hours',
-                'percent_hours_paid' => 'Percent of Hours Paid',
-                'percent_hours_total' => 'Percent of Total Recorded'
-            ],
-            'rowsClasses' => [
-                'total_recorded' => 'bg-primary',
-                'total_paid' => 'bg-primary',
-                'factory_all' => 'bg-secondary',
-            ]
-        ] );
+                'data' => $data,
+                'columns' => [
+                    'item' => 'Item',
+                    'hours' => 'Hours',
+                    'percent_hours_paid' => 'Percent of Hours Paid',
+                    'percent_hours_total' => 'Percent of Total Recorded'
+                ],
+                'rows' => [
+                    'total_recorded' => ['class' => 'bg-primary'],
+                    'total_paid' => ['class' => 'bg-primary'],
+                    'factory_all' => ['class' => 'bg-primary'],
+                ],
+
+            ] );
     }
 }

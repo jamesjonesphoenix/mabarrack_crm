@@ -3,122 +3,150 @@ $icon-colour-2: #2A80B9;
 $icon-colour-3: #299626;
 $icon-colour-4: #2A80B9;
 
-$icon-size: 208px;
-$icon-padding: 15px;
-$icon-font-size: 18px;
-$icon-image-size: $icon-size - (2 * $icon-padding) - ($icon-font-size * 1.333);
-//$icon-line-height: $icon-size - $icon-image-size;
 
-body.worker .table.choose-activity {
-  thead,
-  tbody {
-    td:not(:first-child),
-    th:not(:first-child) {
-      border-left: 3px solid #535353;
+$icon-font-size: 1rem;
+
+$icon-padding-1024: 0.75rem;
+$icon-size-1024: 11.225rem;
+
+$icon-image-size-1024: $icon-size-1024 - (2 * $icon-padding-1024) - ($icon-font-size * 1.333);
+
+$icon-font-size-1200: 1.25rem;
+$icon-padding-1200: 1rem;
+$icon-size-1200: 13.125rem;
+$icon-image-size-1200: $icon-size-1200 - (2 * $icon-padding-1200) - ($icon-font-size * 1.333);
+
+body.worker div.row.choose-activity {
+  clear: both;
+  border-top: 6px solid #2A80B9;
+  border-bottom: 6px solid #2A80B9;
+
+  //background:rgba(255, 255, 255, 0.05);
+
+  div.col {
+    position: relative;
+    margin-right: -1px;//hack
+    //left: -0.5rem;
+    a.activity-icon-link:nth-child(4n) {
+      margin-right: 0 !important;
     }
   }
 
-  thead tr {
-    td, th {
-      text-align: center;
-    }
-  }
+  div.col-auto {
+    width: 188px;
 
-  tbody {
-    td.activityIcon,
-    td {
-      padding: 7.5px;
+    span {
+      font-size: 16px;
+      font-weight: 300;
+
+      display: inline-block;
       position: relative;
 
-      > div {
+      height: 36px;
+      line-height: 36px;
+      background: #2A80B9;
+      padding-left: 0.75rem;
+      padding-right: 0.75rem;
+
+      &:before {
+        content: "";
+        position: absolute;
+        //width: 50px;
+        //height: 100px;
+        border-style: solid;
+        border-width: 18px 0 18px 24px;
+        border-color: transparent transparent transparent #2A80B9;
         line-height: 0;
+        _border-color: #000000 #000000 #000000 #2A80B9;
+        _filter: progid:DXImageTransform.Microsoft.Chroma(color='#000000');
+        right: -1.5rem;
       }
 
-      a {
-        display: inline-block;
-        //display: block;
-        //float: left;
-        width: $icon-size;
-        height: $icon-size;
-        margin: 7.5px;
-        background: $icon-colour-1;
-        border-radius: 15px;
-        text-align: center;
-        padding: $icon-padding;
-        position: relative;
-
-        .activityIconImageContainer {
-          height: $icon-image-size;
-          position: relative;
-
-          img {
-            display: block;
-            margin: 0 auto;
-            max-width: 100%;
-            max-height: $icon-image-size;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-          }
-        }
-
-
-        span {
-          color: #ffffff;
-          position: absolute;
-          width: 100%;
-          left: 0;
-          bottom: $icon-padding; // + ($icon-line-height / 6);
-          font-weight: 300;
-          font-size: $icon-font-size;
-          line-height: $icon-font-size;
-        }
-      }
-
-      .no-activity {
-        @include centre-vertically();
-        padding: 7.5px;
-      }
     }
 
-    td.activityIcon,
-    td {
-      &:last-child a {
-        background: $icon-colour-3;
-      }
-    }
-
-    tr th span {
-      @include centre-vertically();
-    }
-
-    > tr:nth-of-type(2n) {
-      td.activityIcon, td {
-        a {
-          background: $icon-colour-2;
-        }
-      }
-
-      td.activityIcon, td {
-        &:last-child a {
-          background: $icon-colour-4;
-        }
-      }
-    }
   }
 }
 
+a.activity-icon-link {
+  //display: inline-block;
+  display: block;
+  float: left;
+  width: $icon-size-1024;
+  height: $icon-size-1024;
+  background: $icon-colour-1;
+  border-radius: 1rem;
+  text-align: center;
+  padding: $icon-padding-1024;
+  position: relative;
+
+  transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+
+  &:hover, &:active{
+    background: #248722;
+  }
+  .activity-icon-image-container {
+    height: $icon-image-size-1024;
+    position: relative;
+
+    img {
+      display: block;
+      margin: 0 auto;
+      max-width: 100%;
+      max-height: $icon-image-size-1024;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+  }
+
+
+  span {
+    color: #ffffff;
+    position: absolute;
+    width: 100%;
+    left: 0;
+    bottom: $icon-padding-1024; // + ($icon-line-height / 6);
+    font-weight: 300;
+    font-size: $icon-font-size;
+    line-height: $icon-font-size;
+  }
+}
+
+a.activity-icon-link:nth-of-type(2n) {
+  background: $icon-colour-2;
+  &:hover, &:active{
+    background: #2573a6;
+  }
+}
 
 @media (min-width: 1200px) {
-  body.worker .table.choose-activity {
-    tbody {
-      td.activityIcon,
-      td {
-        > div {
-          white-space: nowrap !important;
-        }
+
+  body.worker div.row.choose-activity {
+    div.col-auto {
+      width: 218px; //188px;
+      span {
+        font-size: $icon-font-size-1200;
       }
     }
   }
+  a.activity-icon-link {
+    width: $icon-size-1200;
+    height: $icon-size-1200;
+    padding: $icon-padding-1200;
+
+    .activity-icon-image-container {
+      height: $icon-image-size-1200;
+      img {
+        max-height: $icon-image-size-1200;
+      }
+    }
+
+    span {
+      bottom: $icon-padding-1200;
+      font-size: $icon-font-size-1200;
+      line-height: $icon-font-size-1200;
+    }
+  }
+
 }

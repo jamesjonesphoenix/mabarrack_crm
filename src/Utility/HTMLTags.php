@@ -90,16 +90,19 @@ class HTMLTags
     public static function makeTable(array $args = []): Table
     {
         $args = self::mergeDefaultArgs( $args, 'table' );
-        $columns = $args['columns'];
-        //d($columns);
-        $columnIDs = array_keys( $columns );
-        $columnIDsToCheckForValues = $columnIDs;
+        $columns = $args['columns'] ?? [];
+        $columnIDsToCheckForValues = $columnIDs = array_keys( $columns );
         foreach ( $columnIDs as $columnID ) {
             $explodedID = explode( '.', $columnID );
             if ( (count( $explodedID ) === 2) && !in_array( $explodedID[0], $columnIDsToCheckForValues, true ) ) {
                 $columnIDsToCheckForValues[] = $explodedID[0];
             }
         }
+        if ( empty( $columnIDsToCheckForValues ) ) {
+            $columnIDsToCheckForValues = array_keys( current( $args['data'] ?? [] ) );
+            $columnIDs = $columnIDsToCheckForValues;
+        }
+
         if ( is_string( $args['class'] ) ) {
             $args['class'] = [$args['class']];
         }
@@ -109,34 +112,37 @@ class HTMLTags
             ->addColNames( $columnIDs )
             ->addColClasses( array_combine( $columnIDs, $columnIDs ) );
         $table->addClasses( $classes );
-        $table->headRow( 'head' )
-            ->thMultiple( $columns );
+        if ( !empty( $columns ) ) {
+            foreach ( $columns as $columnID => $columnArgs ) {
+                $title = is_string( $columnArgs ) ? $columnArgs : $columnArgs['title'] ?? '';
+                if ( !empty( $title ) ) {
+                    $headerColumns[$columnID] = $title;
+                }
+                if ( !empty( $columnArgs['class'] ) ) {
+                    $table->addColClass( $columnID, $columnArgs['class'] );
+                }
+            }
+            if ( !empty( $headerColumns ) ) {
+                $table->headRow( 'head' )
+                    ->thMultiple( $headerColumns ?? [] );
+            }
+        }
+        foreach ( $args['data'] ?? [] as $rowID => $row ) {
+            $table->addRowName( $rowID );
+            foreach ( $columnIDsToCheckForValues as $columnID ) {
 
-        //$args['subheaders'] => ['rows'=>'profit_header']
-        $subheaderRows = $args['subheaders']['rows'] ?? [];
-        $subheaderColumns = $args['subheaders']['columns'] ?? [];
-
-        foreach ( $args['data'] ?? [] as $rowName => $row ) {
-            $table->addRowName( $rowName );
-            $isSubheaderRow = in_array( $rowName, $subheaderRows, true );
-            foreach ( $columnIDsToCheckForValues as $columnName ) {
-                $isSubheaderColumn = in_array( $columnName, $subheaderColumns, true );
-
-                if ( !array_key_exists( $columnName, $row ) ) {
+                if ( !array_key_exists( $columnID, $row ) ) {
                     continue;
                 }
-                if ( $isSubheaderRow || $isSubheaderColumn ) {
-                    $table->th( $rowName, $columnName, $row[$columnName] );
+                if ( !empty( $args['rows'][$rowID]['subheader'] ) || !empty( $args['columns'][$columnID]['subheader'] ) ) {
+                    $table->th( $rowID, $columnID, $row[$columnID] );
                 } else {
-                    $table->td( $rowName, $columnName, $row[$columnName] );
+                    $table->td( $rowID, $columnID, $row[$columnID] );
                 }
             }
         }
-        foreach ( $args['rowsClasses'] ?? [] as $row => $class ) {
-            $table->addRowClass( $row, $class );
-        }
-        foreach ( $args['columnsClasses'] ?? [] as $column => $class ) {
-            $table->addColClass( $column, $class );
+        foreach ( $args['rows'] ?? [] as $rowID => $row ) {
+            $table->addRowClass( $rowID, $row['class'] ?? '' );
         }
         return $table;
     }

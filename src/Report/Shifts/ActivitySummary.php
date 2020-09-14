@@ -120,13 +120,13 @@ class ActivitySummary extends ShiftsReport
         return $this->htmlUtility::getTableHTML( [
             'data' => $data,
             'columns' => $this->getColumns(),
-            'rowsClasses' => [
-                'employee_time_manual' => 'bg-secondary',
-                'employee_time_cnc' => 'bg-secondary',
-                'employee_time_all' => 'bg-secondary',
-                'employee_time_lunch' => 'bg-secondary',
-                'total_time' => 'bg-primary'
-            ]
+            'rows' => [
+                'employee_time_manual' => ['class' => 'bg-secondary'],
+                'employee_time_cnc' => ['class' => 'bg-secondary'],
+                'employee_time_all' => ['class' => 'bg-secondary'],
+                'employee_time_lunch' => ['class' => 'bg-secondary'],
+                'total_time' => ['class' => 'bg-primary']
+            ],
         ] );
     }
 }

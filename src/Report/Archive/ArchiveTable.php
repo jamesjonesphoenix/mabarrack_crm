@@ -261,7 +261,7 @@ abstract class ArchiveTable extends Report
             return '';
         }
         ksort( $sortedData );
-        $columns = $this->getColumns( 'title' );
+        $columns = $this->getColumns();
         if ( empty( $this->thereIsAnError ) ) {
             unset( $columns['errors'] );
         }
@@ -286,22 +286,21 @@ abstract class ArchiveTable extends Report
     public function renderSingleArchive(array $data, array $columns = [], string $groupName = ''): string
     {
         ob_start();
-        $hiddenColumns = $this->getColumns( 'hidden' );
-        foreach ( $hiddenColumns as $columnName => $hiddenColumn ) {
-            $columnsClasses[$columnName] = 'd-none';
+        foreach ( $columns as $columnID => &$columnArgs ) {
+            if(!empty($columnArgs['hidden'])) {
+                $columnArgs['class'] = !empty($columnArgs['class']) ? $columnArgs['class'] . 'd-none' : 'd-none';
+            }
         }
+        unset($columnArgs);
         $groupedBy = $this->groupedBy;
         ?>
         <div class="grey-bg p-3 mb-5">
             <?php if ( !empty( $groupedBy ) ) { ?>
-                <h4><small><?php echo ucfirst( $columns[$this->groupedBy] ) . ' - '; ?></small><?php echo !empty( $groupName ) ? $groupName : 'N/A'; ?></h4>
+                <h4><small><?php echo ucfirst( $columns[$groupedBy] ) . ' - '; ?></small><?php echo !empty( $groupName ) ? $groupName : 'N/A'; ?></h4>
             <?php } ?>
             <?php echo $this->htmlUtility::getTableHTML( [
                 'data' => $data,
                 'columns' => $columns,
-                'rowsClasses' => [],
-                'columnsClasses' => $columnsClasses ?? [],
-                'subheaders' => [],
                 'class' => 'archive table-sorter',
             ] ); ?>
         </div>
