@@ -77,42 +77,22 @@ class ChooseActivityTable extends Report
     {
         $activityURLs = $this->activityURLs;
         foreach ( $this->activities as $categoryName => $activities ) {
-            if ( count( $activities ) === 1 ) {
-                $activity = current( $activities );
-                $returnData[$categoryName] = $this->getActivityIcon( $activity, $activityURLs[$activity->id] );
-                continue;
-            }
+            $i = 0;
+            $iconHTML = '';
             foreach ( $activities as $activityName => $activity ) {
-                $returnData[$categoryName][$activity->name] = $this->getActivityIcon( $activity, $activityURLs[$activity->id] );
+                $i++;
+                $iconHTML .= $this->getActivityIcon( $activity, $activityURLs[$activity->id] );
+            }
+            if ( $i > 1 ) {
+                $activityIconsMulti[$categoryName] = $iconHTML;
+            } else {
+                $activityIconsSingle[$categoryName] = $iconHTML;
             }
         }
-        return $returnData ?? [];
-
-    }
-
-    /**
-     * @param array  $activities
-     * @param string $categoryName
-     * @return string
-     * @throws \Exception
-     */
-    public
-    function makeTable(array $activities, string $categoryName = ''): string
-    {
-        d( $activities );
-        return '<div class="row align-items-center choose-activity mx-2 my-2 py-2"><div class="col-auto px-0"><span>'. $categoryName . '</span></div><div class="col px-0">'. implode('', $activities) . '</div>';
-        /*
-        $columns = [
-            'header' => ['subheader' => true],
-            'activity' => ''
+        return [
+            'multiple' => $activityIconsMulti ?? [],
+            'single' => $activityIconsSingle ?? []
         ];
-        $data[0] = ['header' => '<span>'. $categoryName . '</span>' , 'activity' => implode('', $activities)];
-        return $this->htmlUtility::getTableHTML( [
-            'data' => $data ?? [],
-            'class' => ['choose-activity m-2'],
-            'columns' => $columns
-        ] );
-        */
     }
 
     /**
@@ -122,24 +102,23 @@ class ChooseActivityTable extends Report
     public
     function renderReport(): string
     {
-
-        $activityChooseButtons = $this->extractData();
-        if ( empty( $activityChooseButtons ) ) {
-            return $this->htmlUtility::getAlertHTML( 'No activities available to choose from.', 'danger' );
-        }
-        $html = '<div class="clearfix">';
-        foreach ( $activityChooseButtons as $categoryName => $activities ) {
-            if ( is_string( $activities ) ) {
-                $html .= $activities;
-            }
-        }
-        $html .= '</div>';
-        foreach ( $activityChooseButtons as $categoryName => $activities ) {
-            if ( is_array( $activities ) ) {
-                $html .= $this->makeTable( $activities, $this->type . ' ' . $categoryName );
-            }
-
-        }
-        return '<div class="m-n2 clearfix">' . $html . '</div>';
+        $activityIcons = $this->extractData();
+        ob_start(); ?>
+        <div class="m-n2 clearfix">
+            <div class="clearfix"><?php echo implode( '', $activityIcons['single'] ); ?></div>
+            <div class="my-2"><?php
+                foreach ( $activityIcons['multiple'] as $categoryName => $iconHTML ) {
+                    ?>
+                    <div class="row align-items-center choose-activity mx-2 my-2 py-2">
+                        <div class="col-auto px-0">
+                            <span><?php echo $this->type . ' ' . $categoryName; ?></span>
+                        </div>
+                        <div class="col px-0"><?php echo $iconHTML; ?>
+                        </div>
+                    </div>
+                <?php } ?>
+            </div>
+        </div>
+        <?php return ob_get_clean();
     }
 }

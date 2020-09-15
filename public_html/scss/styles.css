@@ -13343,8 +13343,7 @@ fieldset:disabled .form-control,
     box-shadow: none !important; } }
 body.worker div.row.choose-activity {
   clear: both;
-  border-top: 6px solid #2A80B9;
-  border-bottom: 6px solid #2A80B9; }
+  border-top: 6px solid #2A80B9; }
   body.worker div.row.choose-activity div.col {
     position: relative;
     margin-right: -1px; }
@@ -13372,6 +13371,9 @@ body.worker div.row.choose-activity {
         _border-color: #000000 #000000 #000000 #2A80B9;
         _filter: progid:DXImageTransform.Microsoft.Chroma(color='#000000');
         right: -1.5rem; }
+
+body.worker div.row.choose-activity:last-child {
+  border-bottom: 6px solid #2A80B9; }
 
 a.activity-icon-link {
   display: block;
