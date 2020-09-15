@@ -106,6 +106,7 @@ class JobFactory extends EntityFactory
     public function provisionEntities(array $jobs = [], $provision = false): array
     {
         if ( $this->canProvision( $provision, 'furniture' ) ) { //Add Furniture to each job. Similar to addManyToOneEntityProperties() but furniture is a little more unique
+            d(current($jobs)->furniture);
             $jobs = $this->addFurniture( $jobs );
             $jobs = $this->addFurnitureNames( $jobs );
         }

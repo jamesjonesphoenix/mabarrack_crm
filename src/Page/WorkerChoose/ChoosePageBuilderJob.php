@@ -27,15 +27,21 @@ class ChoosePageBuilderJob extends ChoosePageBuilder
         $format = $this->format;
         $htmlUtility = $this->HTMLUtility;
         $jobFactory = new JobFactory( $this->db, $this->messages );
-
-        $recentJobs = $this->user->getLastWorkedJobs( 3 );
+        /**
+         * Recent Jobs
+         */
+        $recentJobs = $jobFactory->addFurnitureNames(
+            $this->user->getLastWorkedJobs( 3 )
+        );
         $recentJobsTables = (new ChooseJobTable(
             $htmlUtility,
             $format
         ))->init( $recentJobs );
         $recentJobsTables->setTitle( 'Most Recent Jobs' );
         $this->page->addChooseTable( $recentJobsTables );
-
+        /**
+         * Factory Job
+         */
         $factoryJob = $jobFactory->getJob( 0 );
         if ( $factoryJob !== null ) {
             $lastShift = $factoryJob->getLastShift( $this->user->id );
@@ -50,11 +56,11 @@ class ChoosePageBuilderJob extends ChoosePageBuilder
                 $format,
             ))->init( [0 => $factoryJob] );
             $factoryJobTable->setTitle( 'Factory Work' );
-
             $this->page->addChooseTable( $factoryJobTable );
         }
-
-
+        /**
+         * Active Jobs
+         */
         $activeJobs = $jobFactory->getActiveJobs();
         krsort( $activeJobs );
         foreach ( $activeJobs as $activeJob ) {
