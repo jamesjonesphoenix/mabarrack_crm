@@ -82,7 +82,7 @@ class ChoosePageBuilderActivity extends ChoosePageBuilder
             if ( $activity->name === 'Lunch' || $activity->category === 'Lunch' ) {
                 continue;
             }
-            if ( (empty( $jobID ) || $jobID === 0) && !$activity->factoryOnly ) {
+            if ( $jobID === 0 && !$activity->factoryOnly ) {
                 continue;
             }
             if ( $jobID > 0 && $activity->factoryOnly ) {
@@ -91,20 +91,25 @@ class ChoosePageBuilderActivity extends ChoosePageBuilder
             if ( !$activity->isActive() ) {
                 continue;
             }
-            $nextPage = strtolower( $activity->name ) === 'other' ? 'other-comment' : 'next_shift';
-            $activityURLs[$activity->id] = 'worker.php?job=' . $jobID . '&activity=' . $activity->id . '&furniture=' . $furnitureID . '&' . $nextPage . '=1';
+            // $nextPage = strtolower( $activity->name ) === 'other' ? 'other_comment' : 'next_shift';
+            // $activityURLs[$activity->id] = 'worker.php?job=' . $jobID . '&activity=' . $activity->id . '&' . $nextPage . '=1';
+            $comment = strtolower( $activity->name ) === 'other' ? '&other_comment=1' : '';
+            $activityURLs[$activity->id] = 'worker.php?job=' . $jobID . '&activity=' . $activity->id . '&next_shift=1' . $comment;
+            if ( $furnitureID !== null ) {
+                $activityURLs[$activity->id] .= '&furniture=' . $furnitureID;
+            }
             $sortedActivities[$activity->type][$activity->id] = $activity;
         }
 
         foreach ( $sortedActivities ?? [] as $activityType => $activities ) {
-            $this->page->addChooseTable( (new chooseActivityTable(
+            $this->page->addContent( (new chooseActivityTable(
                 $this->HTMLUtility,
                 $this->format
             ))->init(
                 $activities,
                 $activityURLs ?? [],
                 $activityType
-            ) );
+            )->render() );
         }
 
 

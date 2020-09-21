@@ -5,6 +5,7 @@ namespace Phoenix\Page;
 use Phoenix\Entity\EntityFactory;
 use Phoenix\Form\GoToIDEntityForm;
 use Phoenix\Page\MenuItems\MenuItems;
+use Phoenix\Page\MenuItems\MenuItemsEntities;
 
 /**
  * Class PageBuilder
@@ -27,11 +28,11 @@ abstract class EntityPageBuilder extends PageBuilder
     abstract protected function getNewEntityFactory(): EntityFactory;
 
     /**
-     * @return MenuItems
+     * @return MenuItemsEntities
      */
-    public function getMenuItems(): MenuItems
+    public function getMenuItems(): MenuItemsEntities
     {
-        return new MenuItems( $this->getEntityFactory() );
+        return new MenuItemsEntities( $this->getEntityFactory() );
     }
 
     /**

@@ -435,13 +435,13 @@ class User extends Entity
      * Clocks off previous shift and starts new shift
      *
      * @param int      $activityID
-     * @param int      $jobID
+     * @param int|null $jobID
      * @param int|null $furnitureID
      * @param string   $comment
-     * @return bool
+     * @return bool|Shift
      * @throws \Exception
      */
-    public function startNewShift(int $activityID, int $jobID, int $furnitureID = null, string $comment = ''): bool
+    public function startNewShift(int $activityID, int $jobID, $furnitureID = null, string $comment = '')
     {
         if ( !empty( $this->healthCheck() ) ) {
             return false;
@@ -455,17 +455,21 @@ class User extends Entity
         */
         $newShift = (new ShiftFactory( $this->db, $this->messages ))->getNew();
         $newShift->worker = $this;
-        $newShift->job = (new JobFactory( $this->db, $this->messages ))->getEntity( $jobID );
-        if ( $newShift->job->id === null ) {
-            $errors[] = 'Job with ID: <strong>' . $jobID . "</strong> doesn't exist.";
-        }
+            $newShift->job = (new JobFactory( $this->db, $this->messages ))->getEntity( $jobID );
+            if ( $newShift->job->id === null ) {
+                $errors[] = 'Job with ID: <strong>' . $jobID . "</strong> doesn't exist.";
+            }
+
         $newShift->activity = (new ActivityFactory( $this->db, $this->messages ))->getEntity( $activityID );
         if ( $newShift->activity->id === null ) {
             $errors[] = 'Activity with ID: <strong>' . $activityID . "</strong> doesn't exist.";
         }
-        $newShift->furniture = (new FurnitureFactory( $this->db, $this->messages ))->getEntity( $furnitureID );
-        if ( $newShift->furniture->id === null ) {
-            $errors[] = 'Furniture with ID: <strong>' . $furnitureID . "</strong> doesn't exist.";
+
+        if ( $furnitureID !== null && $furnitureID !== '') {
+            $newShift->furniture = (new FurnitureFactory( $this->db, $this->messages ))->getEntity( $furnitureID );
+            if ( $newShift->furniture->id === null ) {
+                $errors[] = 'Furniture with ID: <strong>' . $furnitureID . "</strong> doesn't exist.";
+            }
         }
         if ( !empty( $errors ) ) {
             return $this->addError( '<h5 class="alert-heading">Can\'t ' . $newShift->getActionString( 'present', 'start' ) . ':</h5>' . parent::healthCheck( $errors ) );
@@ -490,9 +494,9 @@ class User extends Entity
         if ( $newShift->save() ) {
             $newShift->activity = (new ActivityFactory( $this->db, $this->messages ))->getEntity( $activityID );
             $newShift->job = (new JobFactory( $this->db, $this->messages ))->getJob( $jobID );
-            $newShift->furniture = $newShift->job->furniture[$furnitureID];
+            $newShift->furniture = $newShift->job->furniture[$furnitureID] ?? null;
             $this->shifts->addOrReplaceShift( $newShift );
-            return true;
+            return $newShift;
         }
         return false;
     }
@@ -552,11 +556,10 @@ class User extends Entity
     }
 
     /**
-     * @param Shift|null $newShift
      * @return bool
      * @throws \Exception
      */
-    public function finishCurrentShift(Shift $newShift = null): bool
+    public function finishCurrentShift(): bool
     {
         if ( !empty( $this->healthCheck() ) ) {
             return false;
@@ -579,8 +582,8 @@ class User extends Entity
      */
     public function hadLunchToday(): bool
     {
-        foreach ( $this->shifts->getShiftsToday() as $shift ) {
-            if ( $shift->activity === 0 || $shift->activity->name === 'Lunch' ) {
+        foreach ( $this->shifts->getShiftsToday()->getAll() as $shift ) {
+            if ( $shift->activity->id === 0 || $shift->activity->name === 'Lunch' ) {
                 return true;
             }
         }

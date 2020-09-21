@@ -1,6 +1,9 @@
 $j = jQuery.noConflict();
 
 $j(document).ready(function () {
+
+    entityPageFunctions();
+
     $j("#print-button").click(function () {
         window.print();
     });
@@ -89,8 +92,10 @@ $j(document).ready(function () {
         }
     }
 
-    matchTableWidths('body.archive-page table.table.archive');
+    matchTableWidths('table.table.archive');
     matchTableWidths('table.table.choose-job');
+    matchTableWidths('table.table.home-shift-table');
+
 
     /**
      *
@@ -103,9 +108,13 @@ $j(document).ready(function () {
         }
         let numberOfColumns = tables.find('tr')[0].cells.length;
         let itemsToMatch = [];
-        for (let i = 0; i < numberOfColumns; i++) {
-            itemsToMatch[i] = tableSelector + ' thead th:nth-child(' + i + ')';
+        for (let i = 1; i <= numberOfColumns; i++) {
+            let cssClass = $j(tableSelector + ' thead th:nth-child(' + i + ')').attr('class');
+            //itemsToMatch[i] = tableSelector + ' thead th:nth-child(' + i + ')';
+            itemsToMatch[i] = tableSelector + ' thead th[class="' + cssClass + '"]';
+
         }
+        console.log(itemsToMatch);
         matchHeight(itemsToMatch,
             {
                 byRow: false,
@@ -155,68 +164,6 @@ $j(document).ready(function () {
     }
 });
 
-/**
- * return all the rows from a table in JSON format
- *
- * @param table
- * @param qry
- * @param callback
- */
-function getRows(table, qry, callback) {
-    $j.ajax({
-        url: 'getRows.php',
-        type: 'POST',
-        dataType: 'json',
-        data: {'table': table, 'query': qry},
-        success: function (data) {
-            //console.log(data);
-            callback(data);
-        },
-        error: function (xhr, desc, err) {
-            console.log(xhr);
-            console.log("Details: " + desc + "\nError:" + err);
-            return false;
-        }
-    });
-}
-
-/**
- * Function for single job page.
- */
-function jobDetailPageFunctions() {
-
-    initRemoveFurnitureButton();
-
-    let jobStatusField = $j("#job-status");
-    //jobStatusField.addClass(jobStatusField.val());
-    jobStatusField.change(function () {
-        this.className = 'form-control';
-        $j(this).addClass($j(this).val());
-    });
-
-    $j("#add-furniture-button").click(function () {
-        let jobFurnitureLast = $j('.job-furniture-row .furniture-group').last();
-        let jobFurnitureNew = jobFurnitureLast.clone();
-        jobFurnitureNew.find('select').removeAttr('id').val('');
-        jobFurnitureNew.find('select option').prop("selected", false).removeAttr("selected");
-
-        jobFurnitureNew.find('input.furniture-quantity').val(1); //Set Quantity to 1
-        jobFurnitureNew.find('a.remove-furniture').removeClass('disabled').prop('disabled', false); //Enable remove furniture button.
-        jobFurnitureNew.insertAfter(jobFurnitureLast);
-
-        initRemoveFurnitureButton();
-
-    });
-
-    /**
-     *
-     */
-    function initRemoveFurnitureButton() {
-        $j(".remove-furniture").click(function () {
-            $j(this).parent().remove();
-        });
-    }
-}
 
 /**
  * javascript for detail pages
@@ -224,8 +171,16 @@ function jobDetailPageFunctions() {
  */
 function entityPageFunctions() {
     let formClass = '.detail-form',
-        detailForm = $j(formClass),
-        cancelButton = $j('#cancel-button'),
+        detailForm = $j(formClass);
+    if (detailForm.length === 0) {
+        return;
+    }
+
+    if ($j('#job_form' + formClass).length === 1) {
+        jobDetailPageFunctions();
+    }
+
+    let cancelButton = $j('#cancel-button'),
         editButton = $j('#edit-button'),
         submitButton = $j('#submit-button'),
         passwordToggleButton = $j('#change-password-button'),
@@ -355,7 +310,9 @@ function entityPageFunctions() {
         doEntityAction('delete-dry-run');
     });
 
-
+    /**
+     *
+     */
     detailForm.submit(function (e) { //EntityForm submitted
         console.log('submitted');
         e.preventDefault();
@@ -451,6 +408,42 @@ function entityPageFunctions() {
         }
 
         return '&furniture=' + JSON.stringify(furnitureArray);
+    }
+
+    /**
+     * Function for single job page.
+     */
+    function jobDetailPageFunctions() {
+
+        initRemoveFurnitureButton();
+
+        $j("#job-status").change(function () {
+            this.className = 'form-control';
+            $j(this).addClass($j(this).val());
+        });
+
+        $j("#add-furniture-button").click(function () {
+            let jobFurnitureLast = $j('.job-furniture-row .furniture-group').last();
+            let jobFurnitureNew = jobFurnitureLast.clone();
+            jobFurnitureNew.find('select').removeAttr('id').val('');
+            jobFurnitureNew.find('select option').prop("selected", false).removeAttr("selected");
+
+            jobFurnitureNew.find('input.furniture-quantity').val(1); //Set Quantity to 1
+            jobFurnitureNew.find('a.remove-furniture').removeClass('disabled').prop('disabled', false); //Enable remove furniture button.
+            jobFurnitureNew.insertAfter(jobFurnitureLast);
+
+            initRemoveFurnitureButton();
+
+        });
+
+        /**
+         *
+         */
+        function initRemoveFurnitureButton() {
+            $j(".remove-furniture").click(function () {
+                $j(this).parent().remove();
+            });
+        }
     }
 }
 

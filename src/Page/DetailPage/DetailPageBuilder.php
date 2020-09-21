@@ -1,6 +1,5 @@
 <?php
 
-
 namespace Phoenix\Page\DetailPage;
 
 use Phoenix\Entity\Entity;
@@ -11,8 +10,8 @@ use function Phoenix\redirect;
 
 /**
  * Class DetailPageBuilder
- *
  * @author James Jones
+ *
  * @package Phoenix\DetailPage
  */
 abstract class DetailPageBuilder extends EntityPageBuilder
@@ -21,11 +20,6 @@ abstract class DetailPageBuilder extends EntityPageBuilder
      * @var Entity
      */
     protected Entity $entity;
-
-    /**
-     * @var DetailPage
-     */
-    protected DetailPage $page;
 
     /**
      * @var string
@@ -89,14 +83,6 @@ abstract class DetailPageBuilder extends EntityPageBuilder
     }
 
     /**
-     * @return DetailPage
-     */
-    protected function getNewPage(): DetailPage
-    {
-        return new DetailPage( $this->HTMLUtility );
-    }
-
-    /**
      * @return $this
      */
     public function addForm(): self
@@ -106,22 +92,11 @@ abstract class DetailPageBuilder extends EntityPageBuilder
         if ( $form->isDisabled() && $form->getDBAction() === 'add' ) {
             $this->messages->add( '<strong>Error:</strong> Adding a new ' . $this->getEntityFactory()->getEntityName() . ' is not allowed.' );
         }
-
-        $this->page->setForm(
+        $this->page->addContent(
             $form->makeFields()->render()
         );
         return $this;
     }
-
-    /**
-     * @return $this
-     */
-    public function addReports(): self
-    {
-        return $this;
-    }
-
-
 
     /**
      * @return $this
@@ -131,21 +106,40 @@ abstract class DetailPageBuilder extends EntityPageBuilder
         $this->page = $this->getNewPage();
         $entity = $this->getEntity();
         $this->page
-            ->setEntity( $entity )
             ->setNavLinks(
                 ($this->getMenuItems())->getMenuItems()
             )
-            ->setGoToIDForm(
+            ->setNavbarRightContent(
                 $this->getGoToIDForm()->render()
             );
-        if ( $entity->exists && !empty( $healthCheck = $entity->healthCheck()) ) {
+        if ( $entity->exists && !empty( $healthCheck = $entity->healthCheck() ) ) {
             $this->addError( '<h5 class="alert-heading">Problems with ' . $entity->entityName . ' ID: <strong>' . $entity->id . '</strong>:</h5>' . $healthCheck );
         }
-
-        //setGoToIDForm
-
         $this->addForm();
         $this->addReports();
+
+        $this->addTitle();
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    public function addTitle(): self
+    {
+        $entity = $this->getEntity();
+        $entityName = ucwords( $entity->entityName ) ?? 'Entity';
+        $title = $this->entity->id !== null ? $entityName . ' Details' : 'New ' . $entityName;
+        $this->page->setTitle( $entity->getIcon() . ' ' . $title );
+        $this->page->setHeadTitle( $title );
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    public function addReports(): self
+    {
         return $this;
     }
 
@@ -163,5 +157,4 @@ abstract class DetailPageBuilder extends EntityPageBuilder
             ] )
             ->setFormAction( '#archive-table' );
     }
-
 }

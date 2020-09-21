@@ -7,7 +7,7 @@ use Phoenix\DateTimeUtility;
 
 /**
  * @property integer|Activity  $activity
- * @property integer           $activityComments
+ * @property string           $activityComments
  * @property string            $date
  * @property integer|Furniture $furniture
  * @property integer|Job       $job
@@ -173,9 +173,11 @@ class Shift extends Entity
      */
     public function getFurnitureString(): string
     {
-        if ( empty( $this->furniture ) ) {
+        //d($this->furniture );
+        if ( $this->furniture->id === null ) {
+
             if ( $this->job->id === 0 ) {
-                return 'N/A - Factory Job';
+                return 'N/A';
             }
             return 'Unknown';
         }
@@ -377,6 +379,7 @@ class Shift extends Entity
             return parent::getActionString( $tense, $action );
         }
         if ( $action === 'update'
+            && !empty( $this->timeFinished )
             && $this->date === date( 'Y-m-d' ) ) { //probably finishing a shift
             if ( $tense === 'past' ) {
                 $string = 'finished ';
@@ -384,7 +387,7 @@ class Shift extends Entity
                 $string = 'finish';
             }
         } elseif ( $action === 'start' || ($action === 'create'
-            && empty( $this->timeFinished ) )) { //probably starting a new shift
+                && empty( $this->timeFinished )) ) { //probably starting a new shift
             if ( $tense === 'past' ) {
                 $string = 'started new';
             } else {
@@ -447,10 +450,10 @@ class Shift extends Entity
             //$dummyFurniture->id = $furnitureID;
             $errors[] = '<p>Shift ID: <strong>' . $this->id . '</strong> is assigned with furniture ID <strong>' . $this->furniture->id . '</strong> but unknown furniture name. Does this furniture exist?</p>';
         }
-        if(empty($this->job->furniture )){
-            $errors[] = 'Job ID: <strong>'. $this->job->id . '</strong> has no furniture assigned for this shift to be assigned to.';
+        if ( empty( $this->job->furniture ) ) {
+            $errors[] = 'Job ID: <strong>' . $this->job->id . '</strong> has no furniture assigned for this shift to be assigned to.';
         }
-        if(!array_key_exists($this->furniture->id, $this->job->furniture ?? [] )){
+        if ( !array_key_exists( $this->furniture->id, $this->job->furniture ?? [] ) ) {
             $errors[] = 'Shift is assigned furniture <strong>' . $this->furniture->name . '</strong> which is not part of the assigned job ID: <strong>' . $this->job->id . '</strong>.';
         }
 

@@ -30,7 +30,6 @@ class FormFields extends HTMLTags
     }
 
 
-
     /**
      * @param array $args
      * @return string
@@ -84,11 +83,9 @@ class FormFields extends HTMLTags
     {
         $args = self::mergeDefaultArgs( $args, 'hidden' );
         $args['class'] .= ' form-control';
-        ob_start();
-        ?>
+        ob_start(); ?>
         <input autocomplete="off" type="hidden"<?php echo self::getAttributes( $args ); ?>>
-        <?php
-        return ob_get_clean();
+        <?php return ob_get_clean();
     }
 
     /**
@@ -130,6 +127,7 @@ class FormFields extends HTMLTags
      */
     public static function getCurrencyFieldHTML(array $args = []): string
     {
+        $args['prepend'] = '$';
         return self::getFormFieldHTML( 'currency', $args );
     }
 
@@ -256,26 +254,33 @@ class FormFields extends HTMLTags
             $args['label'] ?? '',
             $args['id']
         );
+        if ( !empty( $args['append'] ) || !empty( $args['prepend'] ) ) {
+            $doInputGroup = true;
+        }
+        if ( !empty( $doInputGroup ) ) { ?>
+            <div class="input-group">
+        <?php }
+        if ( !empty( $args['prepend'] ) ) { ?>
+            <div class="input-group-prepend">
+                <span class="input-group-text"><?php echo $args['prepend']; ?></span>
+            </div>
+        <?php }
         switch( $type ) {
             case 'date':
             case 'email':
             case 'text':
-                $type = self::makeElementProperty( $type, 'type' );
-                ?><input
-                autocomplete="off"<?php echo $type . self::getAttributes( $args ); ?>><?php
-                break;
-            case 'textarea':
-                ?><textarea
-                autocomplete="off"<?php echo self::getAttributes( $args ); ?>><?php echo $args['value'] ?? ''; ?></textarea>
-                <?php
-                break;
+                $type = self::makeElementProperty( $type, 'type' ); ?>
+                <input autocomplete="off"<?php echo $type . self::getAttributes( $args ); ?>>
+                <?php break;
+            case 'textarea': ?>
+                <textarea autocomplete="off"<?php echo self::getAttributes( $args ); ?>><?php echo $args['value'] ?? ''; ?></textarea>
+                <?php break;
             case 'time':
                 if ( !empty( $args['value'] ) ) {
                     $args['value'] = date( 'H:i', strtotime( $args['value'] ) );
-                }
-                ?><input type="time"
-                         autocomplete="off"<?php echo self::getAttributes( $args ); ?>><?php
-                break;
+                } ?>
+                <input type="time" autocomplete="off"<?php echo self::getAttributes( $args ); ?>>
+                <?php break;
             case 'number':
                 $max = self::makeElementProperty( $args['max'] ?? 9999, 'max' );
                 ?><input type="number" autocomplete="off" step="1"
@@ -283,30 +288,26 @@ class FormFields extends HTMLTags
                 <?php
                 break;
             case 'currency':
-                $args['value'] = number_format( $args['value'], 2, '.', '' );
-                ?>
-                <div class="input-group">
-                    <div class="input-group-prepend">
-                        <span class="input-group-text">$</span>
-                    </div>
-                    <input type="number" autocomplete="off" step="0.01" min="0" aria-label="Amount"<?php echo self::getAttributes( $args ); ?>>
-                    <?php if ( !empty( $args['append'] ) ) { ?>
-                        <div class="input-group-append">
-                            <span class="input-group-text"><?php echo $args['append']; ?></span>
-                        </div>
-                    <?php } ?>
-                </div>
-                <?php
-                break;
+                $args['value'] = number_format( $args['value'], 2, '.', '' ); ?>
+                <input type="number" autocomplete="off" step="0.01" min="0" aria-label="Amount"<?php echo self::getAttributes( $args ); ?>>
+                <?php break;
             case 'file':
                 ?>
                 <div class="custom-file">
                     <input type="file" class="custom-file-input" id="customFile">
                     <label class="custom-file-label" for="customFile">Choose file</label>
                 </div>
-                <?php
-                break;
+                <?php break;
         }
+        if ( !empty( $args['append'] ) ) { ?>
+            <div class="input-group-append">
+                <?php echo $args['append']; ?>
+            </div>
+        <?php }
+        if ( !empty( $doInputGroup ) ) {
+            ?>
+            </div>
+        <?php }
         return ob_get_clean();
     }
 }

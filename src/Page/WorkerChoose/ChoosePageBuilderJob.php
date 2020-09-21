@@ -38,7 +38,7 @@ class ChoosePageBuilderJob extends ChoosePageBuilder
             $format
         ))->init( $recentJobs );
         $recentJobsTables->setTitle( 'Most Recent Jobs' );
-        $this->page->addChooseTable( $recentJobsTables );
+        $this->page->addContent( $recentJobsTables->render() );
         /**
          * Factory Job
          */
@@ -48,15 +48,12 @@ class ChoosePageBuilderJob extends ChoosePageBuilder
             if ( $lastShift !== null ) {
                 $factoryJob->shifts = [$lastShift->id => $lastShift];
             }
-            if ( $factoryJob !== null ) {
-                $factoryJob->furniture = 'N/A';
-            }
             $factoryJobTable = (new ChooseJobTable(
                 $htmlUtility,
                 $format,
             ))->init( [0 => $factoryJob] );
-            $factoryJobTable->setTitle( 'Factory Work' );
-            $this->page->addChooseTable( $factoryJobTable );
+            $factoryJobTable->setTitle( 'Factory' );
+            $this->page->addContent( $factoryJobTable->render() );
         }
         /**
          * Active Jobs
@@ -75,7 +72,7 @@ class ChoosePageBuilderJob extends ChoosePageBuilder
             $format,
         ))->init( $activeJobs );
         $activeJobsTable->setTitle( 'All Active Jobs' );
-        $this->page->addChooseTable( $activeJobsTable );
+        $this->page->addContent( $activeJobsTable->render() );
 
         return $this;
     }

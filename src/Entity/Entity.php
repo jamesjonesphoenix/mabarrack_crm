@@ -367,6 +367,8 @@ abstract class Entity extends AbstractCRM
                 $value = '********************************';
             } elseif ( $item === null ) {
                 $value = 'null';
+            } elseif ( $item instanceof self ) {
+                $value = $item->id;
             } else {
                 $value = $item;
             }
@@ -481,10 +483,10 @@ abstract class Entity extends AbstractCRM
         $result = $this->db->update( $this->tableName, $data, ['ID' => $this->id] );
         $dataHTMLTable = $this->getDataHTMLTable( $data );
         if ( $result === 0 ) {
-            return $this->addError( $messageNoChanges . 'Attempted to update the following data:' . $dataHTMLTable );
+            return $this->addError( $messageNoChanges . ' Attempted to update the following data:' . $dataHTMLTable );
         }
         if ( empty( $result ) ) {
-            return $this->addError( 'Failed to ' . $this->getActionString( 'present', $action ) . $idString . 'Attempted to update the following data:' . $dataHTMLTable );
+            return $this->addError( 'Failed to ' . $this->getActionString( 'present', $action ) . $idString . ' Attempted to update the following data:' . $dataHTMLTable );
         }
         $this->messages->add( ucfirst( $this->getActionString( 'past', $action ) ) . $idString . ' Updated the following data:' . $dataHTMLTable, 'success' );
         $this->changed = [];
@@ -557,7 +559,12 @@ abstract class Entity extends AbstractCRM
         if ( $this->exists ) {
             return $this->updateDBRow( $data );
         }
-        return $this->addDBRow( $data );
+        $addRow = $this->addDBRow( $data );
+        if ( is_int( $addRow ) ) {
+            $this->id = $addRow;
+            $this->exists = true;
+        }
+        return $addRow;
     }
 
     /**

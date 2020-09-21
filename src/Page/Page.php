@@ -17,7 +17,7 @@ use function Phoenix\getScriptFilename;
  * @package Phoenix
  *
  */
-abstract class Page extends Base
+class Page extends Base
 {
     /**
      * @var string
@@ -35,6 +35,21 @@ abstract class Page extends Base
     private array $menuItems = [];
 
     /**
+     * @var string
+     */
+    protected string $content = '';
+
+    /**
+     * @var string
+     */
+    private string $headTitle;
+
+    /**
+     * @var string
+     */
+    private string $navRightContent;
+
+    /**
      * Page constructor.
      *
      * @param HTMLTags $htmlUtility
@@ -45,9 +60,22 @@ abstract class Page extends Base
     }
 
     /**
+     * @param string $content
+     * @return $this
+     */
+    public
+    function addContent(string $content = ''): self
+    {
+        $this->content .= $content;
+        return $this;
+    }
+
+    /**
      * @return string
      */
-    abstract public function renderBody(): string;
+    public function renderBody(): string{
+        return $this->content;
+    }
 
     /**
      * @return string
@@ -103,7 +131,7 @@ abstract class Page extends Base
         if ( !empty( $this->title ) ) {
             return $this->title;
         }
-        return $this->getPageHeadTitle();
+        return $this->getHeadTitle();
     }
 
     /**
@@ -118,11 +146,21 @@ abstract class Page extends Base
     }
 
     /**
+     * @param string $title
+     * @return $this
+     */
+    public function setHeadTitle(string $title = ''): self
+    {
+        $this->headTitle = $title;
+        return $this;
+    }
+
+    /**
      * @return string
      */
-    public function getPageHeadTitle(): string
+    public function getHeadTitle(): string
     {
-        return ucfirst( getScriptFilename( '.php' ) );
+        return $this->headTitle ?? ucfirst( getScriptFilename( '.php' ) );
     }
 
     /**
@@ -146,7 +184,7 @@ abstract class Page extends Base
     /**
      * @return string
      */
-    public function renderMainNavbar(): ?string
+    public function renderNavbar(): ?string
     {
         ob_start(); ?>
         <div class="container mb-3">
@@ -154,7 +192,7 @@ abstract class Page extends Base
             echo $this->htmlUtility::getNavHTML( [
                 'title' => $this->getTitle(),
                 'nav_links' => $this->getNavLinks(),
-                'html_right_aligned' => $this->getMainNavbarNonMenuItems()
+                'html_right_aligned' => $this->getNavbarRightContent()
             ] );
             ?>
         </div>
@@ -173,7 +211,7 @@ abstract class Page extends Base
         <!DOCTYPE html>
         <html lang="en">
         <head>
-            <title><?php echo $this->getPageHeadTitle() . ' - ' . SYSTEM_TITLE; ?></title>
+            <title><?php echo $this->getHeadTitle() . ' - ' . SYSTEM_TITLE; ?></title>
             <link rel="stylesheet" type="text/css" href="css/styles.css">
             <link rel="stylesheet" type="text/css" href="css/datepicker.min.css">
             <link rel="stylesheet" type="text/css" href="css/fonts.css">
@@ -205,7 +243,7 @@ abstract class Page extends Base
         </header>
         <?php
 
-        echo $this->renderMainNavbar();
+        echo $this->renderNavbar();
         echo $this->renderBody();
 
         //</div>
@@ -226,15 +264,25 @@ abstract class Page extends Base
     public function getBodyClasses(): string
     {
         return str_replace( ' ', '-',
-            strtolower( $this->getPageHeadTitle() )
+            strtolower( $this->getHeadTitle() )
         );
+    }
+
+    /**
+     * @param string $navRightContent
+     * @return $this
+     */
+    public function setNavbarRightContent(string $navRightContent = ''): self
+    {
+        $this->navRightContent = $navRightContent;
+        return $this;
     }
 
     /**
      * @return string
      */
-    public function getMainNavbarNonMenuItems(): string
+    public function getNavbarRightContent(): string
     {
-        return '';
+        return $this->navRightContent ?? '';
     }
 }

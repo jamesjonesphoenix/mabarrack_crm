@@ -41,6 +41,7 @@ class DetailPageBuilderCustomer extends DetailPageBuilder
 
     /**
      * @return $this
+     * @throws \Exception
      */
     public function addReports(): self
     {
@@ -48,20 +49,18 @@ class DetailPageBuilderCustomer extends DetailPageBuilder
         if ( empty( $customer->jobs ) ) {
             return $this;
         }
-        $this->page->setReports( [
-            'customer_jobs_table' => (new ArchiveTableCustomerJobs(
-                $this->HTMLUtility,
-                $this->format,
-            ))->setEntities( $customer->jobs, (new JobFactory( $this->db, $this->messages ) )->getNew())
-                ->setTitle(
-                    ($customer->getNamePossessive() ?? 'Customer') . ' Jobs'
-                )
-                ->setGroupByForm(
-                    $this->getGroupByForm(),
-                    $this->groupBy
-                )
-
-        ] );
+        $this->page->addContent((new ArchiveTableCustomerJobs(
+            $this->HTMLUtility,
+            $this->format,
+        ))->setEntities( $customer->jobs, (new JobFactory( $this->db, $this->messages ) )->getNew())
+            ->setTitle(
+                ($customer->getNamePossessive() ?? 'Customer') . ' Jobs'
+            )
+            ->setGroupByForm(
+                $this->getGroupByForm(),
+                $this->groupBy
+            )->render()
+        );
         return $this;
     }
 }

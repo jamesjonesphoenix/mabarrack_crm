@@ -5,11 +5,14 @@ namespace Phoenix;
 
 
 use Phoenix\Entity\CurrentUser;
+use Phoenix\Entity\ShiftFactory;
+use Phoenix\Page\AddCommentPageBuilder;
 use Phoenix\Page\PageBuilder;
 use Phoenix\Page\WorkerChoose\ChoosePageBuilderActivity;
 use Phoenix\Page\WorkerChoose\ChoosePageBuilderFurniture;
 use Phoenix\Page\WorkerChoose\ChoosePageBuilderJob;
 use Phoenix\Page\WorkerHomePageBuilder;
+use Phoenix\Utility\HTMLTags;
 
 /**
  * Class WorkerDirector
@@ -26,15 +29,22 @@ class WorkerDirector extends AbstractCRM
     private CurrentUser $user;
 
     /**
+     * @var HTMLTags
+     */
+    private HTMLTags $htmlUtility;
+
+    /**
      * Base constructor.
      *
      * @param PDOWrap|null     $db
      * @param Messages|null    $messages
+     * @param HTMLTags         $htmlUtility
      * @param CurrentUser|null $user
      */
-    public function __construct(PDOWrap $db, Messages $messages, CurrentUser $user = null)
+    public function __construct(PDOWrap $db, Messages $messages, HTMLTags $htmlUtility, CurrentUser $user = null)
     {
         parent::__construct( $db, $messages );
+        $this->htmlUtility = $htmlUtility;
         if ( $user !== null ) {
             $this->user = $user;
         }
@@ -64,10 +74,15 @@ class WorkerDirector extends AbstractCRM
                     ->setFurnitureID( $inputArray['furniture'] ?? null );
                 break;
             default:
-                $pageBuilder = (new WorkerHomePageBuilder( $this->db, $this->messages ))
-                    ->addStartDate( $inputArray['start_date'] ?? '' );
+                if ( !empty( $inputArray['other_comment'] ) ) {
+                    $pageBuilder = (new AddCommentPageBuilder( $this->db, $this->messages ))
+                        ->setShiftID( $inputArray['shift'] ?? null );
+                } else {
+                    $pageBuilder = (new WorkerHomePageBuilder( $this->db, $this->messages ))
+                        ->setStartDate( $inputArray['start_date'] ?? '' );
+                }
         }
-        return $pageBuilder->addUser( $this->user );
+        return $pageBuilder->setUser( $this->user );
     }
 
     /**
@@ -94,8 +109,15 @@ class WorkerDirector extends AbstractCRM
                 redirect( 'worker' );
             }
         }
-
-        $success = true;
+        //when trying to start lunch after already having lunch
+        if ( !empty( $inputArray['additional_lunch'] ) && $this->user->hadLunchToday() ) {
+            $this->messages->add( "Are you sure you want to start lunch? You've already clocked a lunch period today." . $this->htmlUtility::getButton( [
+                    'class' => 'btn btn-primary ml-3',
+                    'element' => 'a',
+                    'content' => 'Yes, Start Lunch',
+                    'href' => 'worker.php?job=0&activity=0&next_shift=1',
+                ] ), 'warning' );
+        }
         if ( !empty( $inputArray['finish_day'] ) ) {
             $this->finishDay();
         }
@@ -106,14 +128,30 @@ class WorkerDirector extends AbstractCRM
             if ( !isset( $inputArray['job'] ) ) {
                 return $this->addError( "Can't start new shift without a job ID." );
             }
-            $this->user->startNewShift(
+            $newShift = $this->user->startNewShift(
                 $inputArray['activity'],
                 $inputArray['job'],
                 $inputArray['furniture'] ?? null,
                 $inputArray['comment'] ?? '',
             );
-            //redirect( 'worker' );
-            //exit;
+            if ( empty( $inputArray['other_comment'] ) ) {
+                redirect( 'worker' );
+                exit;
+            }
+            redirect( 'worker', ['other_comment' => 1, 'shift' => $newShift->id] );
+            exit;
+        }
+
+        if ( !empty( $inputArray['add_comment'] ) ) {
+            $shiftID = $inputArray['shift'] ?? null;
+            if($shiftID !== null) {
+                $shift = (new ShiftFactory( $this->db, $this->messages ))->getEntity( $inputArray['shift'] ?? null );
+                if ( empty( $shift ) ) {
+
+                }
+                $shift->activityComments = $inputArray['comment'] ?? '';
+                $shift->save();
+            }
         }
         return true;
     }

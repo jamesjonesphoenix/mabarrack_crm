@@ -170,3 +170,19 @@ form.group-by-form .custom-select.form-control {
   font-size: 1rem;
 }
 
+table.table.choose-job {
+
+  th[class="right.last_worked"] {
+    white-space: nowrap;
+  }
+
+  .alert {
+    //display: inline-block;
+
+    > p {
+      white-space: nowrap;
+    }
+
+    //width: 18.75rem; //260px;
+  }
+}

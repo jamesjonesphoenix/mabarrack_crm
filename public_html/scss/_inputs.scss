@@ -55,4 +55,13 @@ fieldset:disabled .form-control,
     border-left-width: 1px;
   }
 
+  .input-group-prepend,
+  .input-group-append {
+    a.btn {
+      position: relative;
+      span.centre-vertically {
+        @include centre-vertically();
+      }
+    }
+  }
 }

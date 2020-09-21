@@ -50,11 +50,11 @@ class ReportPageBuilderProfitLoss extends ReportPageBuilder
 
 
 
-        $this->page->setReport(
+        $this->page->addContent(
             (new ProfitLoss(
                 $htmlUtility,
                 $format
-            ))->init( $jobs, $this->dateStart, $this->dateFinish ) );
+            ))->init( $jobs, $this->dateStart, $this->dateFinish )->render() );
         return $this;
     }
 }

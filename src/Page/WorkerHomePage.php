@@ -3,15 +3,8 @@
 
 namespace Phoenix\Page;
 
-use Phoenix\Report\Report;
-
 /**
  * @author James Jones
- *
- * @property string   $actions
- * @property string   $news
- * @property Report[] $reports
- * @property string   $workerHoursTable
  *
  * Class WorkerPage
  *
@@ -23,73 +16,59 @@ class WorkerHomePage extends Page
     /**
      * @var string
      */
-    private string $_actions;
+    private string $actions;
 
     /**
      * @var string
      */
-    private string $_news;
+    private string $news;
 
     /**
      * @var string
      */
-    private string $_workerHoursTable;
-
-    /**
-     * @var Report[]
-     */
-    private array $_reports;
+    private string $workerHoursTable;
 
 
     /**
      * @param string $actions
-     * @return string
+     * @return $this
      */
-    public function actions(string $actions = ''): string
+    public function setActions(string $actions = ''): self
     {
         if ( !empty( $actions ) ) {
-            $this->_actions = $actions;
+            $this->actions = $actions;
         }
-        return $this->_actions ?? 'No actions available.';
+        return $this;
     }
 
     /**
      * @param string $news
-     * @return string
+     * @return $this
      */
-    public function news(string $news = ''): string
+    public function setNews(string $news = ''): self
     {
         if ( !empty( $news ) ) {
-            $this->_news = $news;
+            $this->news = $news;
         }
-        return $this->_news ?? 'No news right now.';
+        return $this;
     }
 
     /**
      * @param string $workerHoursTable
-     * @return string
+     * @return $this
      */
-    public function workerHoursTable(string $workerHoursTable = ''): string
+    public function setWorkerHoursTable(string $workerHoursTable = ''): self
     {
         if ( !empty( $workerHoursTable ) ) {
-            $this->_workerHoursTable = $workerHoursTable;
+            $this->workerHoursTable = $workerHoursTable;
         }
-        return $this->_workerHoursTable ?? 'No worker hours available.';
+        return $this;
     }
 
     /**
-     * @param Report[] $reports
-     * @return Report[]
+     * @return string
      */
-    public function reports(array $reports = []): array
-    {
-        if ( !empty( $reports ) ) {
-            $this->_reports = $reports;
-        }
-        return $this->_reports ?? [];
-    }
-
-    public function renderBody(): string
+    public function renderDashboard(): string
     {
         ob_start(); ?>
         <div class="container mb-4">
@@ -99,7 +78,7 @@ class WorkerHomePage extends Page
                         <h2>Actions</h2>
                     </div>
                     <div class="grey-bg p-3 clearfix">
-                        <?php echo $this->actions; ?>
+                        <?php echo $this->actions ?? 'No actions available.'; ?>
                     </div>
                 </div>
                 <div class="col-md-5">
@@ -107,7 +86,7 @@ class WorkerHomePage extends Page
                         <h2>Hours</h2>
                     </div>
                     <div class="grey-bg p-3">
-                        <?php echo $this->workerHoursTable; ?>
+                        <?php echo $this->workerHoursTable ?? 'No worker hours available.'; ?>
                     </div>
                 </div>
                 <div class="col-md-3">
@@ -120,9 +99,14 @@ class WorkerHomePage extends Page
                 </div>
             </div>
         </div>
-        <?php foreach ( $this->reports as $report ) {
-        echo $report->render();
+        <?php return ob_get_clean();
     }
-        return ob_get_clean();
+
+    /**
+     * @return string
+     */
+    public function renderBody(): string
+    {
+        return $this->renderDashboard() . $this->content;
     }
 }

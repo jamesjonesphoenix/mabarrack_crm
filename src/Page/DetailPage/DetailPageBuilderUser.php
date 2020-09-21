@@ -82,7 +82,8 @@ class DetailPageBuilderUser extends DetailPageBuilder
 
         $shifts = $user->shifts->orderLatestToEarliest();
         $shift = (new ShiftFactory( $this->db, $this->messages ))->getNew();
-        $this->page->setReports( [
+
+        $reports = [
             'current_shifts' => (new ArchiveTableUserShifts(
                 $htmlUtility,
                 $format,
@@ -102,7 +103,10 @@ class DetailPageBuilderUser extends DetailPageBuilder
                 $format,
             ))->setEntities( $shifts->getAll(), $shift )
                 ->setTitle( 'All Worker Shifts' )
-        ] );
+        ];
+        foreach ( $reports as $report ) {
+            $this->page->addContent( $report->render() );
+        }
         return $this;
     }
 }

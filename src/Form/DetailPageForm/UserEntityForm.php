@@ -76,7 +76,7 @@ class UserEntityForm extends DetailPageEntityForm
             'name' => 'rate',
             'label' => 'Rate',
             'value' => $this->entity->rate,
-            'append' => '$/Hour',
+            'append' => '<span class="input-group-text">$/Hour</span>',
             'disabled' => $this->isDisabled()
         ] );
 

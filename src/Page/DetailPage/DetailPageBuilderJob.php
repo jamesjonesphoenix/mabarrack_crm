@@ -78,8 +78,7 @@ class DetailPageBuilderJob extends DetailPageBuilder
         }
         $format = $this->format;
         $htmlUtility = $this->HTMLUtility;
-
-        $this->page->setReports( [
+        $reports = [
             'job_summary' => (new JobSummary(
                 $htmlUtility,
                 $format,
@@ -98,7 +97,10 @@ class DetailPageBuilderJob extends DetailPageBuilder
                 $this->getGroupByForm(),
                 $this->groupBy
             )->setTitle( 'Job <small>ID: ' . $entity->id . '</small> Shifts' )
-        ] );
+        ];
+        foreach ( $reports as $report ) {
+            $this->page->addContent( $report->render() );
+        }
         return $this;
     }
 }

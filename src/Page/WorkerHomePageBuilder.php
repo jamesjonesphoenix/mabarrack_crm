@@ -11,44 +11,26 @@ use Phoenix\Report\Shifts\WorkerHomeShiftTable;
 /**
  * Class WorkerPageBuilder
  *
+ * @property WorkerHomePage $page
+ *
  * @author James Jones
  * @package Phoenix\Page
  *
  */
-class WorkerHomePageBuilder extends PageBuilder
+class WorkerHomePageBuilder extends WorkerPageBuilder
 {
-    /**
-     * @var WorkerHomePage
-     */
-    protected WorkerHomePage $page;
-
     /**
      * @var string
      */
     private string $startDate = '';
 
     /**
-     * @var User
-     */
-    protected User $user;
-
-    /**
      * @param string $startDate
      * @return $this
      */
-    public function addStartDate(string $startDate = ''): self
+    public function setStartDate(string $startDate = ''): self
     {
         $this->startDate = $startDate;
-        return $this;
-    }
-
-    /**
-     * @param CurrentUser $user
-     * @return $this
-     */
-    public function addUser(CurrentUser $user): self
-    {
-        $this->user = $user;
         return $this;
     }
 
@@ -58,13 +40,12 @@ class WorkerHomePageBuilder extends PageBuilder
      */
     public function buildPage(): self
     {
-        $this->page = $this->getNewPage()->setTitle($this->user->getNamePossessive() . ' Dashboard');
+        $this->page = $this->getNewPage()->setTitle( $this->user->getNamePossessive() . ' Dashboard' );
         $this->addActionButtons();
         $this->addNews();
         $this->addWorkerHoursSummary();
         $this->addReports();
         return $this;
-
     }
 
     /**
@@ -72,7 +53,7 @@ class WorkerHomePageBuilder extends PageBuilder
      */
     protected function getNewPage(): WorkerHomePage
     {
-        return new WorkerHomePage($this->HTMLUtility);
+        return new WorkerHomePage( $this->HTMLUtility );
     }
 
     /**
@@ -81,10 +62,12 @@ class WorkerHomePageBuilder extends PageBuilder
     public function addNews(): self
     {
         $news = (new SettingFactory( $this->db, $this->messages ))->getSetting( 'news_text' ) ?? '';
-
-        if ( !empty( $news ) ) {
-            $this->page->news = $news;
+        if ( empty( $news ) ) {
+            $news = 'No news right now.';
         }
+        $this->page->setNews(
+            $this->HTMLUtility::getAlertHTML( $news, 'info', false )
+        );
         return $this;
     }
 
@@ -101,7 +84,7 @@ class WorkerHomePageBuilder extends PageBuilder
 
         $timeClockRecordThisWeek->extractData();
 
-        $this->page->workerHoursTable = $this->HTMLUtility::getTableHTML( [
+        $this->page->setWorkerHoursTable( $this->HTMLUtility::getTableHTML( [
             'data' => [[
                 'had_lunch_today' => $this->user->hadLunchToday() ? 'Yes' : 'No',
                 'hours_today' => $timeClockRecordThisWeek->getTotalHoursToday(),
@@ -113,7 +96,7 @@ class WorkerHomePageBuilder extends PageBuilder
                 'hours_this_week' => 'Total Hours This Week'
             ],
             'class' => 'mb-0'
-        ] );
+        ] ) );
         return $this;
     }
 
@@ -128,30 +111,37 @@ class WorkerHomePageBuilder extends PageBuilder
         $htmlUtility = $this->HTMLUtility;
 
         $shiftsCurrent = $user->shifts->getUnfinishedShifts();
-        $this->page->reports = [
-            'current_shift_table' => (new WorkerHomeShiftTable(
-                $htmlUtility,
-                $format,
-            ))->init( $shiftsCurrent )
-                ->setNoShiftsMessage( 'You are not currently clocked into any shifts.' )
-                ->setTitle( 'Your Current ' . ucfirst( $shiftsCurrent->getPluralOrSingular() ) ),
-            'shift_latest_table' => (new WorkerHomeShiftTable(
-                $htmlUtility,
-                $format,
-            ))->init(
-                $user->shifts->getLastWorkedShifts( 5 )
-            )
-                ->setNoShiftsMessage( 'No recent shifts found.' )
-                ->setTitle( 'Your Recent Shifts' ),
-            'time_clock_record' => (new WorkerTimeClockRecord(
-                $htmlUtility,
-                $format,
-            ))->init(
-                $user->shifts,
-                $user->name,
-                $this->startDate
-            )
-        ];
+
+        foreach ( [
+                      'current_shift_table' => (new WorkerHomeShiftTable(
+                          $htmlUtility,
+                          $format,
+                      ))->init( $shiftsCurrent )
+                          ->setNoShiftsMessage( 'You are not currently clocked into any shifts.' )
+                          ->setTitle( 'Your Current ' . ucfirst( $shiftsCurrent->getPluralOrSingular() ) ),
+
+
+                      'shift_latest_table' => (new WorkerHomeShiftTable(
+                          $htmlUtility,
+                          $format,
+                      ))->init(
+                          $user->shifts->getLastWorkedShifts( 5 )
+                      )
+                          ->setNoShiftsMessage( 'No recent shifts found.' )
+                          ->setTitle( 'Your Recent Shifts' ),
+
+
+                      'time_clock_record' => (new WorkerTimeClockRecord(
+                          $htmlUtility,
+                          $format,
+                      ))->init(
+                          $user->shifts,
+                          $user->name,
+                          $this->startDate
+                      )
+                  ] as $report ) {
+            $this->page->addContent( $report->render() );
+        }
         return $this;
     }
 
@@ -163,12 +153,18 @@ class WorkerHomePageBuilder extends PageBuilder
     {
         $class = 'btn btn-lg btn-block mb-3';
         $user = $this->user;
-        if ( !empty($user->healthCheck() )) {
-            $this->page->actions = $this->HTMLUtility::getAlertHTML( 'No actions available due to error.', 'warning', false );
+        if ( !empty( $user->healthCheck() ) ) {
+            $this->page->setActions( $this->HTMLUtility::getAlertHTML( 'No actions available due to error.', 'warning', false ) );
             return $this;
         }
         $todayShifts = $user->shifts->getShiftsToday();
-        $startShiftText = $todayShifts->getCount() === 0 ? 'Start Day' : 'Next Shift';
+        $unfinishedShift = $user->shifts->getUnfinishedShifts()->getOne();
+        if ( $todayShifts->getCount() === 0 ) {
+            $startShiftText = 'Start Day';
+        } else {
+            $startShiftText = $unfinishedShift !== null ? 'Next Shift' : 'Start New Shift';
+        }
+        //$startShiftText = $todayShifts->getCount() === 0 ? 'Start Day' : 'Next Shift';
         $actionButtons = [
             [
                 'class' => $class . ' btn-success',
@@ -178,24 +174,33 @@ class WorkerHomePageBuilder extends PageBuilder
                 'disabled' => true
             ]
         ];
-        if ( $user->hadLunchToday() ) {
-            $actionButtons[] = [
-                'class' => $class . ' btn-danger',
-                'type' => 'button',
-                'content' => 'Finish Day'
-            ];
-        } elseif ( $todayShifts->getCount() > 0 ) {
+
+        //if ( $unfinishedShift !== null && $unfinishedShift->activity->id !== 0 && $todayShifts->getCount() > 0 ) {
+        if ( ($unfinishedShift === null || $unfinishedShift->activity->id !== 0) && $todayShifts->getCount() > 0 ) {
+            $href = $this->user->hadLunchToday() ? 'worker.php?additional_lunch=1' : 'worker.php?job=0&activity=0&next_shift=1';
             $actionButtons[] = [
                 'class' => $class . ' btn-primary',
-                'type' => 'button',
-                'content' => 'Start Lunch'
+                'element' => 'a',
+                'content' => 'Start Lunch',
+                'href' => $href,
             ];
         }
+        if ( $unfinishedShift !== null && $todayShifts->getCount() > 0  /*$user->hadLunchToday()*/ ) {
+            $content = $unfinishedShift->activity->id === 0 ? 'Finish Lunch' : 'Clock Off';
+            $actionButtons[] = [
+                'class' => $class . ' btn-danger',
+                'element' => 'a',
+                'content' => $content,
+                'href' => 'worker.php?finish_day=1',
+
+            ];
+        }
+
         $actions = '';
         foreach ( $actionButtons as $button ) {
             $actions .= $this->HTMLUtility::getButton( $button );
         }
-        $this->page->actions = $actions;
+        $this->page->setActions( $actions );
         return $this;
     }
 

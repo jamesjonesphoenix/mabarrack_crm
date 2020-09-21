@@ -13114,6 +13114,11 @@ form.group-by-form .custom-select.form-control {
 .archive-table-column h4 ul {
   font-size: 1rem; }
 
+table.table.choose-job th[class="right.last_worked"] {
+  white-space: nowrap; }
+table.table.choose-job .alert > p {
+  white-space: nowrap; }
+
 /*///  TABLES  ///*/
 table.table caption {
   caption-side: top; }
@@ -13260,6 +13265,14 @@ fieldset:disabled .form-control,
   border-radius: 0; }
 .input-group > .input-group-text + .form-control {
   border-left-width: 1px; }
+.input-group .input-group-prepend a.btn,
+.input-group .input-group-append a.btn {
+  position: relative; }
+  .input-group .input-group-prepend a.btn span.centre-vertically,
+  .input-group .input-group-append a.btn span.centre-vertically {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%); }
 
 /*/// TO BE REMOVED///*/
 .well {

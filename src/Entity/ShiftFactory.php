@@ -4,6 +4,7 @@ namespace Phoenix\Entity;
 
 /**
  * @method Shift[] addOneToOneEntityProperties(array $entities = [], EntityFactory $additionFactory = null, $provisionArgs = false, string $joinPropertyName = '')
+ * @method Shift getEntity(int $id = 0)
  *
  * Class ShiftFactory
  */
@@ -103,7 +104,7 @@ class ShiftFactory extends EntityFactory
 
     /**
      * @param Shift[] $shifts
-     * @param false $provision
+     * @param false   $provision
      * @return Shift[]
      */
     public function provisionEntities(array $shifts = [], $provision = false): array
@@ -116,7 +117,7 @@ class ShiftFactory extends EntityFactory
         }
         // * @method Shift[] addOneToOneEntityProperties($entities, $additionFactory, $joinPropertyName = '')
         if ( $this->canProvision( $provision, 'worker' ) ) { //add workers details to each shift to Shift
-            $shifts = $this->addOneToOneEntityProperties( $shifts, new UserFactory( $this->db, $this->messages ), $provision['worker'] ?? false,  'worker' );
+            $shifts = $this->addOneToOneEntityProperties( $shifts, new UserFactory( $this->db, $this->messages ), $provision['worker'] ?? false, 'worker' );
         }
         if ( $this->canProvision( $provision, 'activity' ) ) { //add activities to each shift to Shift
             $shifts = $this->addOneToOneEntityProperties( $shifts, new ActivityFactory( $this->db, $this->messages ) );
@@ -162,7 +163,7 @@ class ShiftFactory extends EntityFactory
         ]] );
         foreach ( $shifts as $shift ) {
             $shiftFurnitureID = $shift->furniture->id ?? null;
-            if ( is_int($shiftFurnitureID) && !empty( $furnitureInstances[$shiftFurnitureID] ) ) {
+            if ( is_int( $shiftFurnitureID ) && !empty( $furnitureInstances[$shiftFurnitureID] ) ) {
                 $shift->furniture = $furnitureInstances[$shiftFurnitureID];
                 $shiftJobFurniture = $jobs[$shift->job->id]->furniture;
 

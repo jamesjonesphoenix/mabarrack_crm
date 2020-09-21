@@ -18,6 +18,8 @@ use Phoenix\Page\MenuItems\MenuItemsUsers;
 /**
  * Class IndexPageBuilder
  *
+ * @property IndexPage $page
+ *
  * @author James Jones
  * @package Phoenix\Page
  *
@@ -25,16 +27,12 @@ use Phoenix\Page\MenuItems\MenuItemsUsers;
 class IndexPageBuilder extends PageBuilder
 {
     /**
-     * @var IndexPage
-     */
-    protected IndexPage $page;
-
-    /**
      * @return $this
      */
     public function buildPage(): self
     {
         $this->page = $this->getNewPage();
+        $this->page->setHeadTitle('Main Menu');
         $this->addMenu();
         return $this;
     }

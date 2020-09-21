@@ -296,7 +296,7 @@ abstract class ArchiveTable extends Report
         ?>
         <div class="grey-bg p-3 mb-5">
             <?php if ( !empty( $groupedBy ) ) { ?>
-                <h4><small><?php echo ucfirst( $columns[$groupedBy] ) . ' - '; ?></small><?php echo !empty( $groupName ) ? $groupName : 'N/A'; ?></h4>
+                <h4><small><?php echo ucfirst( $columns[$groupedBy]['title'] ) . ' - '; ?></small><?php echo !empty( $groupName ) ? $groupName : 'N/A'; ?></h4>
             <?php } ?>
             <?php echo $this->htmlUtility::getTableHTML( [
                 'data' => $data,

@@ -264,7 +264,7 @@ class Job extends Entity
         $jobFurniture = $this->furniture;
 
         if ( empty( $jobFurniture ) ) {
-            return '<strong>None</strong>';
+            return 'None';
         }
         if ( !is_array( $jobFurniture ) ) {
             return $jobFurniture;

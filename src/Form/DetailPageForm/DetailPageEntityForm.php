@@ -57,47 +57,48 @@ abstract class DetailPageEntityForm extends EntityForm
         $submitButtonString = ucwords( $dbAction . ' ' . $this->entity->entityName );
 
 //grey-bg
-        ob_start();
-        if ( $dbAction === 'update' ) {
-            ?>
-            <div class="row">
-                <div class="col">
-                    <div class="grey-bg p-3 clearfix">
-                        <?php
-                        foreach ( $this->getButtonsArray() as $button ) {
-                            echo $this->htmlUtility::getButton( $button );
-                        }
-                        ?>
+        ob_start(); ?>
+        <div class="container mb-4 position-relative">
+            <?php if ( $dbAction === 'update' ) { ?>
+                <div class="row">
+                    <div class="col">
+                        <div class="grey-bg p-3 clearfix">
+                            <?php
+                            foreach ( $this->getButtonsArray() as $button ) {
+                                echo $this->htmlUtility::getButton( $button );
+                            }
+                            ?>
+                        </div>
                     </div>
                 </div>
-            </div>
-        <?php } ?>
-        <div class="row">
-            <div class="col">
-                <div class="grey-bg px-3 pt-3">
-                    <form id="<?php echo $this->formID; ?>" class="detail-form">
-                        <fieldset>
-                            <?php echo $this->renderFields(); ?>
-                            <div class="form-row mt-1">
-                                <div class="form-group col-auto mb-3">
-                                    <?php echo $this->htmlUtility::getButton( [
-                                        'element' => 'input',
-                                        'type' => 'submit',
-                                        'class' => ['btn', 'btn-primary', 'btn-lg', 'mt-3', 'mr-1'],
-                                        'id' => 'submit-button',
-                                        'disabled' => $this->isDisabled(),
-                                        'value' => $submitButtonString
-                                    ] ); ?>
+            <?php } ?>
+            <div class="row">
+                <div class="col">
+                    <div class="grey-bg px-3 pt-3">
+                        <form id="<?php echo $this->formID; ?>" class="detail-form">
+                            <fieldset>
+                                <?php echo $this->renderFields(); ?>
+                                <div class="form-row mt-1">
+                                    <div class="form-group col-auto mb-3">
+                                        <?php echo $this->htmlUtility::getButton( [
+                                            'element' => 'input',
+                                            'type' => 'submit',
+                                            'class' => ['btn', 'btn-primary', 'btn-lg', 'mt-3', 'mr-1'],
+                                            'id' => 'submit-button',
+                                            'disabled' => $this->isDisabled(),
+                                            'value' => $submitButtonString
+                                        ] ); ?>
+                                    </div>
+                                    <div class="form-group col">
+                                        <div class="messages"></div>
+                                    </div>
                                 </div>
-                                <div class="form-group col">
-                                    <div class="messages"></div>
-                                </div>
-                            </div>
-                            <input type="hidden" name="entity" value="<?php echo $this->entity->entityName; ?>">
-                            <input type="hidden" name="submit_action" value="<?php echo $dbAction; ?>">
-                        </fieldset>
+                                <input type="hidden" name="entity" value="<?php echo $this->entity->entityName; ?>">
+                                <input type="hidden" name="submit_action" value="<?php echo $dbAction; ?>">
+                            </fieldset>
 
-                    </form>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>

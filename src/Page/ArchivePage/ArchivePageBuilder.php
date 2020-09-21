@@ -39,11 +39,6 @@ abstract class ArchivePageBuilder extends EntityPageBuilder
     private $archiveTableReport;
 
     /**
-     * @var ArchivePage
-     */
-    protected ArchivePage $page;
-
-    /**
      * @var array
      */
     protected array $inputArgs = [];
@@ -79,9 +74,7 @@ abstract class ArchivePageBuilder extends EntityPageBuilder
             $entities = (new Entities( $entities ))->getEntitiesWithErrors();
         }
 
-//d($entities);
         return $this->entities = $entities;
-
     }
 
     /**
@@ -91,14 +84,13 @@ abstract class ArchivePageBuilder extends EntityPageBuilder
     public function buildPage(): self
     {
         $this->page = $this->getNewPage()
-            ->setEntity(
-                $this->getEntityFactory()->getNew()
-            )->setNavLinks(
+            ->setNavLinks(
                 ($this->getMenuItems())->getMenuItems()
-            );
+            )->setHeadTitle(ucwords( $this->getEntityFactory()->getEntityNamePlural()  ));
         $this->addArchives();
         $this->addTitle();
 
+        ;
         return $this;
     }
 
@@ -183,7 +175,7 @@ abstract class ArchivePageBuilder extends EntityPageBuilder
      */
     public function addArchives(): self
     {
-        $this->page->setArchives(
+        $this->page->addContent(
             $this->getArchiveTableReport()
                 ->setEntities(
                     $this->getEntities(),
@@ -198,15 +190,6 @@ abstract class ArchivePageBuilder extends EntityPageBuilder
                 ->render()
         );
         return $this;
-    }
-
-
-    /**
-     * @return ArchivePage
-     */
-    protected function getNewPage(): ArchivePage
-    {
-        return new ArchivePage( $this->HTMLUtility );
     }
 
     /**

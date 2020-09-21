@@ -27,7 +27,7 @@ class ArchiveTableJobShifts extends ArchiveTable
             'title' => 'Date',
             'format' => 'date'
         ],
-        'W/ending' => [
+        'week_ending' => [
             'title' => 'Week Ending',
             'format' => 'date'
         ],
@@ -78,7 +78,7 @@ class ArchiveTableJobShifts extends ArchiveTable
         return [
             'worker' => $shift->worker->name,
             'date' => $shift->date,
-            'W/ending' => $this->dateObjects[$shift->date]->format( 'd-m-Y' ),
+            'week_ending' => $this->dateObjects[$shift->date]->format( 'd-m-Y' ),
             'time_started' => $shift->timeStarted,
             'time_finished' => $shift->timeFinished,
             'hours' => $shift->getShiftLength(),

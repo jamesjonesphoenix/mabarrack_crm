@@ -57,6 +57,7 @@ class Shifts extends Entities
 
         foreach ( $this->entities as $shift ) {
             $dateShift = date_create( $shift->date );
+            //if($shift->id === 21727){}
             if ( $dateShift
                 && (integer)$dateStarted->diff( $dateShift )->format( '%R%a' ) >= 0
                 && (integer)$dateShift->diff( $dateFinished )->format( '%R%a' ) >= 0 ) {

@@ -29,6 +29,11 @@ abstract class PageBuilder extends AbstractCRM
     private Format $_format;
 
     /**
+     * @var Page
+     */
+    protected Page $page;
+
+    /**
      * @return Page
      */
     public function getPage(): Page
@@ -39,7 +44,10 @@ abstract class PageBuilder extends AbstractCRM
     /**
      * @return Page
      */
-    abstract protected function getNewPage(): Page;
+    protected function getNewPage(): Page
+    {
+        return new Page( $this->HTMLUtility );
+    }
 
     /**
      * @return FormFields

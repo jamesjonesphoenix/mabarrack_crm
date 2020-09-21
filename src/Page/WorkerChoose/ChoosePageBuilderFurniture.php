@@ -60,10 +60,10 @@ class ChoosePageBuilderFurniture extends ChoosePageBuilder
         }
         $job = (new JobFactory( $this->db, $this->messages ))->getJob( $jobID );
 
-        $this->page->addChooseTable( (new ChooseFurnitureTable(
+        $this->page->addContent( (new ChooseFurnitureTable(
             $this->HTMLUtility,
             $this->format
-        ))->init( $job ) );
+        ))->init( $job )->render() );
 
         return $this;
     }

@@ -89,6 +89,7 @@ class HTMLTags
      */
     public static function makeTable(array $args = []): Table
     {
+       // d($args);
         $args = self::mergeDefaultArgs( $args, 'table' );
         $columns = $args['columns'] ?? [];
         $columnIDsToCheckForValues = $columnIDs = array_keys( $columns );
@@ -115,9 +116,8 @@ class HTMLTags
         if ( !empty( $columns ) ) {
             foreach ( $columns as $columnID => $columnArgs ) {
                 $title = is_string( $columnArgs ) ? $columnArgs : $columnArgs['title'] ?? '';
-                if ( !empty( $title ) ) {
                     $headerColumns[$columnID] = $title;
-                }
+
                 if ( !empty( $columnArgs['class'] ) ) {
                     $table->addColClass( $columnID, $columnArgs['class'] );
                 }

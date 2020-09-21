@@ -59,36 +59,62 @@ class ChooseJobTable extends Report
     }
 
     /**
+     * @param Job $job
+     * @return array
+     */
+    public function extractJobData(Job $job): array
+    {
+        $lastWorked = $job->shifts->getOne()->date ?? '';
+        if ( !empty( $lastWorked ) ) {
+            $lastWorked = '<span class="text-nowrap">'
+                . $this->format::daysFromTodayToWords( $this->format::date( $lastWorked ), true )
+                . '</span>';
+        } else {
+            $lastWorked = '-';
+        }
+
+        $rightHandCells = [
+            'right.select' => '<p class="text-right mb-0">' . $this->htmlUtility::getButton( [
+                    'element' => 'a',
+                    'href' => $this->getSelectLinkURL( $job ),
+                    'class' => 'btn btn-primary btn-lg',
+                    'content' => 'Select',
+                    'disabled' => true
+                ] ) . '</p>',
+            'right.last_worked' => $lastWorked
+        ];
+        if ( $job->id === 0 ) {
+            return array_merge( [
+                'left' => 'Non-billable internal factory work.',
+            ], $rightHandCells );
+        }
+        $healthCheck = $job->healthCheck();
+        $data = [
+            'left.id' => $job->id,
+            'left.customer' => $job->customer->name ?? 'N/A',
+            'left.description' => $job->description,
+            'left.furniture' => $job->getFurnitureString( false ),
+        ];
+
+
+
+        if ( empty( $healthCheck ) ) {
+            return array_merge( $data, $rightHandCells );
+        }
+        $data['right'] = $this->htmlUtility::getAlertHTML(
+            '<p class="">Job ' . $job->id . ' cannot be selected:</p>' . $healthCheck,
+            'danger', false );
+        return $data;
+
+    }
+
+    /**
      * @return array
      */
     public function extractData(): array
     {
         foreach ( $this->jobs as $job ) {
-            $shift = $job->shifts->getOne();
-            $url = $this->getSelectLinkURL( $job );
-            $healthCheck = $job->healthCheck();
-            $jobTableData[$job->id] = [
-                'id' => $job->id,
-                'customer' => $job->customer->name ?? 'N/A',
-                'description' => $job->description
-            ];
-            if ( empty( $healthCheck ) ) {
-                $jobTableData[$job->id] = array_merge( $jobTableData[$job->id], [
-                    'furniture-select-worked.furniture' => $job->getFurnitureString(false),
-                    'furniture-select-worked.select' => '<p class="text-right mb-0">' . $this->htmlUtility::getButton( [
-                            'element' => 'a',
-                            'href' => $url,
-                            'class' => 'btn btn-primary btn-lg',
-                            'content' => 'Select',
-                            'disabled' => true
-                        ] ) . '</p>',
-                    'furniture-select-worked.last_worked' =>  $shift->date ?? ''
-                ] );
-            } else {
-                $jobTableData[$job->id]['furniture-select-worked'] = $this->htmlUtility::getAlertHTML(
-                    '<p class="">Job ' . $job->id . ' cannot be selected:</p>' . $healthCheck,
-                    'danger', false );
-            }
+            $jobTableData[$job->id] = $this->extractJobData( $job );
         }
         return $jobTableData ?? [];
     }
@@ -103,26 +129,27 @@ class ChooseJobTable extends Report
         if ( empty( $jobTableData ) ) {
             return $this->htmlUtility::getAlertHTML( 'No jobs to choose from.', 'info', false );
         }
-
-        foreach ( $jobTableData as &$tableRow ) {
-            if ( !empty( $tableRow['last_worked'] ) ) {
-                $tableRow['last_worked'] = $this->format::date( $tableRow['last_worked'] );
-                $tableRow['last_worked'] = '<span class="text-nowrap">' . $this->format::daysFromTodayToWords( $tableRow['last_worked'], true ) . '</span>';
-            } else {
-                $tableRow['last_worked'] = '-';
-            }
+        $columnTitles = [
+            'left.id' => 'ID',
+            'left.customer' => 'Customer',
+            'left.description' => 'Description',
+            'left.furniture' => 'Furniture',
+            'right.select' => '',
+            'right.last_worked' => 'Last Worked By You',
+        ];
+        if ( count( $jobTableData ) === 1 && key( $jobTableData ) === 0 ) {
+            $columnTitles = [
+                'left.description' => 'Description',
+                'left.id' => '',
+                'left.customer' => '',
+                'left.furniture' => '',
+                'right.select' => '',
+                'right.last_worked' => 'Last Worked By You',
+            ];
         }
-
         return $this->htmlUtility::getTableHTML( [
             'data' => $jobTableData,
-            'columns' => [
-                'id' => 'ID',
-                'customer' => 'Customer',
-                'description' => 'Description',
-                'furniture-select-worked.furniture' => 'Furniture',
-                'furniture-select-worked.select' => '',
-                'furniture-select-worked.last_worked' => 'Last Worked By You',
-            ],
+            'columns' => $columnTitles ?? [],
             'class' => 'choose-job'
         ] );
     }

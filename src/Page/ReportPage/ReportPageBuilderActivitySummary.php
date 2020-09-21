@@ -17,11 +17,6 @@ use Phoenix\Report\Shifts\ActivitySummary;
 class ReportPageBuilderActivitySummary extends ReportPageBuilder
 {
     /**
-     * @var ReportPage
-     */
-    protected ReportPage $page;
-
-    /**
      * @return array
      */
     public function getShifts(): array
@@ -52,11 +47,11 @@ class ReportPageBuilderActivitySummary extends ReportPageBuilder
         $format = $this->format;
         $htmlUtility = $this->HTMLUtility;
 
-        $this->page->setReport(
+        $this->page->addContent(
             (new ActivitySummary(
                 $htmlUtility,
                 $format
-            ))->init( $shifts ) );
+            ))->init( $shifts )->render() );
         return $this;
     }
 }

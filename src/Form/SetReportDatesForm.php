@@ -87,19 +87,25 @@ class SetReportDatesForm extends Form
     public function render(): string
     {
         ob_start(); ?>
-        <form id="<?php echo $this->formID; ?>" class="form-inline my-2 my-lg-0 ml-3 float-left">
-            <div class="input-group">
-                <div class="input-group-prepend">
-                    <span class="input-group-text">Choose Date Range</span>
-                </div>
-                <?php echo $this->fields['date_start']; ?>
-                <span class="input-group-text">to</span>
-                <?php echo $this->fields['date_finish'] . $this->fields['page'] . $this->fields['report']; ?>
-                <div class="input-group-append">
-                    <button class="btn btn-primary my-2 my-sm-0" type="submit">Generate Report</button>
+        <div class="container mb-4 position-relative">
+            <div class="row">
+                <div class="col">
+                    <form id="<?php echo $this->formID; ?>" class="form-inline my-2 my-lg-0 ml-3 float-left">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">Choose Date Range</span>
+                            </div>
+                            <?php echo $this->fields['date_start']; ?>
+                            <span class="input-group-text">to</span>
+                            <?php echo $this->fields['date_finish'] . $this->fields['page'] . $this->fields['report']; ?>
+                            <div class="input-group-append">
+                                <button class="btn btn-primary my-2 my-sm-0" type="submit">Generate Report</button>
+                            </div>
+                        </div>
+                    </form>
                 </div>
             </div>
-        </form>
+        </div>
         <?php return ob_get_clean();
     }
 }

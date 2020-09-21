@@ -5,6 +5,7 @@ namespace Phoenix\Page\ReportPage;
 
 
 use Phoenix\Form\SetReportDatesForm;
+use Phoenix\Page\Page;
 use Phoenix\Page\PageBuilder;
 
 /**
@@ -17,9 +18,9 @@ use Phoenix\Page\PageBuilder;
 abstract class ReportPageBuilder extends PageBuilder
 {
     /**
-     * @var ReportPage
+     * @var Page
      */
-    protected ReportPage $page;
+    protected Page $page;
 
     /**
      * @var string
@@ -36,13 +37,7 @@ abstract class ReportPageBuilder extends PageBuilder
      */
     private string $reportType;
 
-    /**
-     * @return ReportPage
-     */
-    protected function getNewPage(): ReportPage
-    {
-        return new ReportPage( $this->HTMLUtility );
-    }
+
 
     /**
      * @return $this
@@ -50,9 +45,11 @@ abstract class ReportPageBuilder extends PageBuilder
     public function buildPage(): self
     {
         $this->page = $this->getNewPage();
-        $this->addReport();
+
         $this->addSetReportDatesForm();
+        $this->addReport();
         $this->page->setTitle( 'Report for Period - ' . date( 'd-m-Y', strtotime( $this->dateStart ) ) . ' to ' . date( 'd-m-Y', strtotime( $this->dateFinish ) ) );
+        $this->page->setHeadTitle('Report');
         return $this;
     }
 
@@ -111,7 +108,7 @@ abstract class ReportPageBuilder extends PageBuilder
      */
     public function addSetReportDatesForm(): self
     {
-        $this->page->setReportDatesForm(
+        $this->page->addContent(
             (new SetReportDatesForm( $this->HTMLUtility, $this->dateStart, $this->dateFinish, $this->reportType ))->makeFields()->render()
         );
         return $this;

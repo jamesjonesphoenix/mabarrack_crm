@@ -18,15 +18,11 @@ class LoginPage extends Page
      */
     public function renderBody(): string
     {
-        ob_start();
-        ?>
+        ob_start(); ?>
         <div class="container">
             <div class="row text-center">
                 <div class="col">
                     <div class="grey-bg p-3">
-                        <?php
-                        //Messages::instance()->getMessagesHTML();
-                        ?>
                         <form method='post' class='form' id="login-form">
                             <div class="form-group">
                                 <label for="pin-field">Your Pin</label>
@@ -45,8 +41,7 @@ class LoginPage extends Page
                 </div>
             </div>
         </div>
-        <?php
-        return ob_get_clean();
+        <?php return ob_get_clean();
     }
 
     /**
@@ -54,15 +49,13 @@ class LoginPage extends Page
      */
     public function renderHeader(): string
     {
-        ob_start();
-        ?>
+        ob_start(); ?>
         <div class="row text-center">
             <div class="col-md-12 logo_title py-3">
                 <img src="img/logo.png"/>
                 <h1 class="crm-title mb-0 text-center" style="text-align: center"><?php echo SYSTEM_TITLE; ?></h1>
             </div>
         </div>
-        <?php
-        return ob_get_clean();
+        <?php return ob_get_clean();
     }
 }
