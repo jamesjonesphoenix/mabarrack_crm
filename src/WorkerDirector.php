@@ -121,6 +121,7 @@ class WorkerDirector extends AbstractCRM
         if ( !empty( $inputArray['finish_day'] ) ) {
             $this->finishDay();
         }
+
         if ( !empty( $inputArray['next_shift'] ) ) {
             if ( !isset( $inputArray['activity'] ) ) {
                 return $this->addError( "Can't start new shift without an activity ID." );
@@ -145,7 +146,8 @@ class WorkerDirector extends AbstractCRM
         if ( !empty( $inputArray['add_comment'] ) ) {
             $shiftID = $inputArray['shift'] ?? null;
             if($shiftID !== null) {
-                $shift = (new ShiftFactory( $this->db, $this->messages ))->getEntity( $inputArray['shift'] ?? null );
+                $shift = $this->user->shifts->getOne($shiftID);
+                // $shift = (new ShiftFactory( $this->db, $this->messages ))->getEntity( $inputArray['shift'] ?? null );
                 if ( empty( $shift ) ) {
 
                 }

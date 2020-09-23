@@ -32,7 +32,7 @@ class ArchiveTableJobShifts extends ArchiveTable
             'format' => 'date'
         ],
         'time_started' => [
-            'time_started' => 'Time Started'
+            'title' => 'Time Started'
         ],
         'time_finished' => [
             'title' => 'Time Finished',

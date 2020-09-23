@@ -51,7 +51,15 @@ table.table {
     //width: 1%;
   }
 
-  td.view,
+  th.id,
+  th.date_started,
+  th.date_finished,
+  th.time_started,
+  th.time_finished,
+  th.priority {
+    width: 1%;
+  }
+
   th.view {
     width: 1%;
     word-wrap: break-word;

@@ -157,9 +157,10 @@ header {
   white-space: nowrap;
 }
 
-.entity-count .badge {
+.badge {
   position: relative;
-  top: -0.15em;
+  //top: -0.15em;
+  top: -0.125em;
 }
 
 form.group-by-form .custom-select.form-control {

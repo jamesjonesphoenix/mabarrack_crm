@@ -238,7 +238,7 @@ class HTMLTags
                     aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            <div class="collapse navbar-collapse flex-wrap justify-content-end" id="<?php echo $id; ?>"><?php
+            <div class="collapse navbar-collapse flex-wrap justify-content-end mb-2" id="<?php echo $id; ?>"><?php
                 if ( !empty( $args['html_left_aligned'] ) ) {
                     ?>
                     <div class="mr-auto"><?php

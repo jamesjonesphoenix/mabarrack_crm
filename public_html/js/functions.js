@@ -20,6 +20,10 @@ $j(document).ready(function () {
         $j('.collapse-messages-column .alert').alert('close');
     });
 
+    matchTableWidths('table.table.archive'); //Must match table widths before table sorter as it adds extra classes
+    matchTableWidths('table.table.choose-job');
+    matchTableWidths('table.table.home-shift-table');
+
     /**
      *
      */
@@ -62,6 +66,7 @@ $j(document).ready(function () {
     columnToggles.each(function () {
         toggleTableColumn($j(this));
     });
+
     /**
      *
      */
@@ -69,6 +74,10 @@ $j(document).ready(function () {
         toggleTableColumn($j(this));
     });
 
+    /**
+     *
+     * @param input
+     */
     function toggleTableColumn(input) {
         let columnIndex = input.attr('data-column'),
             columnClass = input.val(),
@@ -92,9 +101,7 @@ $j(document).ready(function () {
         }
     }
 
-    matchTableWidths('table.table.archive');
-    matchTableWidths('table.table.choose-job');
-    matchTableWidths('table.table.home-shift-table');
+
 
 
     /**
@@ -106,15 +113,13 @@ $j(document).ready(function () {
         if (tables.length < 2) {
             return;
         }
-        let numberOfColumns = tables.find('tr')[0].cells.length;
-        let itemsToMatch = [];
+        let numberOfColumns = tables.find('tr')[0].cells.length,
+            itemsToMatch = [];
         for (let i = 1; i <= numberOfColumns; i++) {
             let cssClass = $j(tableSelector + ' thead th:nth-child(' + i + ')').attr('class');
-            //itemsToMatch[i] = tableSelector + ' thead th:nth-child(' + i + ')';
             itemsToMatch[i] = tableSelector + ' thead th[class="' + cssClass + '"]';
-
         }
-        console.log(itemsToMatch);
+        //console.log(itemsToMatch);
         matchHeight(itemsToMatch,
             {
                 byRow: false,
@@ -139,6 +144,19 @@ $j(document).ready(function () {
         },
         0
     );
+    /*
+    matchHeight(
+        ['div.archive-table-column div.alert.alert-info, div.archive-table-column div.table-responsive'], {
+            byRow: false,
+            property: 'width',
+            target: null,
+            remove: false,
+            axis: 'horizontal'
+        },
+        0
+    );
+    */
+
 
     /**
      *

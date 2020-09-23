@@ -187,7 +187,7 @@ class Page extends Base
     public function renderNavbar(): ?string
     {
         ob_start(); ?>
-        <div class="container mb-3">
+        <div class="container mb-2">
             <?php
             echo $this->htmlUtility::getNavHTML( [
                 'title' => $this->getTitle(),

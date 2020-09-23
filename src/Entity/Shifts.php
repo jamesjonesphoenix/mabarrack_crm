@@ -4,6 +4,7 @@
 namespace Phoenix\Entity;
 
 /**
+ * @author James Jones
  * @property Shift[] $entities
  * @method Shift[] getAll()
  * @method Shift getOne()
@@ -12,7 +13,6 @@ namespace Phoenix\Entity;
  *
  * Helper methods for manipulating arrays of Shift() instances
  *
- * @author James Jones
  * @package Phoenix\Entity
  *
  */
@@ -102,9 +102,9 @@ class Shifts extends Entities
 
     /**
      * @param int $numberOfShifts
-     * @return Shifts|null
+     * @return Shifts
      */
-    public function getLastWorkedShifts(int $numberOfShifts = 1): ?Shifts
+    public function getLastWorkedShifts(int $numberOfShifts = 1): Shifts
     {
         $this->orderLatestToEarliest();
         foreach ( $this->entities as $shiftID => $shift ) {
@@ -220,10 +220,10 @@ class Shifts extends Entities
 
     public function getPluralOrSingular(): string
     {
-        if ( $this->getCount() === 1 ) {
-            return 'shift';
+        if ( $this->getCount() > 1 ) {
+            return 'shifts';
         }
-        return 'shifts';
+        return 'shift';
     }
 
     /**

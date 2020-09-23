@@ -2,7 +2,6 @@
 
 namespace Phoenix\Entity;
 
-
 use Phoenix\Messages;
 use Phoenix\PDOWrap;
 use Phoenix\Roles;

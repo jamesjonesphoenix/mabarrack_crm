@@ -60,7 +60,12 @@ abstract class ArchiveTable extends Report
     /**
      * @var bool|null
      */
-    private bool $thereIsAnError = false;
+    private ?bool $includeErrors = null;
+
+    /**
+     * @var bool
+     */
+    private bool $includeColumnToggles = true;
 
     /**
      * @param false $errorEntitiesOnly
@@ -74,6 +79,7 @@ abstract class ArchiveTable extends Report
         return $this;
     }
 
+
     /**
      * @param Entity[]    $entities
      * @param Entity|null $entity Input this because the $entities array may be empty
@@ -84,6 +90,8 @@ abstract class ArchiveTable extends Report
         $this->entities = $entities;
         if ( $entity !== null ) {
             $this->entity = $entity;
+        } elseif ( count( $entities ) > 0 ) {
+            $this->entity = current( $entities );
         }
         return $this;
     }
@@ -124,6 +132,18 @@ abstract class ArchiveTable extends Report
     abstract public function extractEntityData(Entity $entity): array;
 
     /**
+     * @param Entity $entity
+     * @return string
+     */
+    public function getActionButton(Entity $entity): string
+    {
+        return $this->htmlUtility::getViewButton(
+            $entity->getLink(),
+            'View ' . ucfirst( $entity->entityName )
+        );
+    }
+
+    /**
      * @return array
      */
     public function extractData(): array
@@ -135,7 +155,7 @@ abstract class ArchiveTable extends Report
                 ],
                 $this->extractEntityData( $entity ),
                 [
-                    'view' => $this->htmlUtility::getViewButton( $entity->getLink(), 'View ' . ucfirst( $entity->entityName ) ),
+                    'view' => $this->getActionButton( $entity ),
                     'errors' => $entity->healthCheck()
                 ]
             );
@@ -199,32 +219,12 @@ abstract class ArchiveTable extends Report
             ] ); ?>
         </div>
         <?php
-        if ( !empty( $archivesHTML ) ) { ?>
-            <div class="container">
-                <div class="row align-items-center mt-3 mx-0">
-                    <div class="col">
-                        <div class="row align-items-center no-gutters">
-                            <div class="col-auto mr-2"><h5 class="mb-0">Toggle Columns</h5></div>
-                            <div class="col">
-                                <form class="form-inline mx-n2 mb-n2">
-                                    <?php $i = 0;
-                                    foreach ( $this->getColumns() as $columnName => $columnArgs ) {
-                                        if ( empty( $columnArgs['title'] ) ) {
-                                            $i++;
-                                            continue;
-                                        }
-                                        $id = uniqid( 'toggle-' . ucfirst( $columnName ) . '-', true ); ?>
-                                        <div class="custom-control custom-checkbox mx-2 mb-2">
-                                            <input class="custom-control-input column-toggle" type="checkbox" value="<?php echo $columnName; ?>" data-column="<?php echo $i; ?>"
-                                                   id="<?php echo $id; ?>" <?php echo empty( $columnArgs['hidden'] ) ? 'checked' : ''; ?>>
-                                            <label class="custom-control-label" for="<?php echo $id; ?>"><?php echo $columnArgs['title']; ?></label>
-                                        </div>
-                                        <?php $i++;
-                                    } ?>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
+        if ( !empty( $archivesHTML ) && ($this->includeColumnToggles || count( $this->entities ) > 5) ) { ?>
+            <div class="container mb-3">
+                <div class="row align-items-center mx-0">
+                    <?php if ( $this->includeColumnToggles ) {
+                        echo self::renderColumnToggles( $this->getColumns() );
+                    } ?>
                     <?php if ( count( $this->entities ) > 5 ) { ?>
                         <div class="col-auto"><h5 class="mb-0 entity-count">Total <?php echo ucfirst( $this->entity->entityNamePlural ); ?> <span
                                         class="badge badge-primary"><?php echo count( $this->entities ); ?></span></h5></div>
@@ -232,10 +232,43 @@ abstract class ArchiveTable extends Report
                 </div>
             </div>
         <?php } ?>
-        <div class="container-fluid mb-4 position-relative mt-3">
+        <div class="container-fluid position-relative">
             <div class="row justify-content-center">
                 <div class="archive-table-column col-auto d-flex flex-column align-items-stretch">
-                    <?php echo empty( $archivesHTML ) ? '<div class="grey-bg px-3 py-2">' . $this->getEmptyReportMessage() . '</div>' : $archivesHTML; ?>
+                    <?php echo empty( $archivesHTML ) ? '<div class="grey-bg px-3 py-2 mb-4">' . $this->getEmptyReportMessage() . '</div>' : $archivesHTML; ?>
+                </div>
+            </div>
+        </div>
+        <?php return ob_get_clean();
+    }
+
+    /**
+     * @param array $columns
+     * @return string
+     */
+    public static function renderColumnToggles(array $columns = []): string
+    {
+        ob_start(); ?>
+        <div class="col">
+            <div class="row align-items-center no-gutters">
+                <?php // <div class="col-auto mr-2"><h5 class="mb-0">Toggle Columns</h5></div> ?>
+                <div class="col">
+                    <form class="form-inline mb-n2">
+                        <?php $i = 0;
+                        foreach ($columns as $columnName => $columnArgs ) {
+                            if ( empty( $columnArgs['title'] ) ) {
+                                $i++;
+                                continue;
+                            }
+                            $id = uniqid( 'toggle-' . ucfirst( $columnName ) . '-', true ); ?>
+                            <div class="custom-control custom-checkbox mr-3 mb-2">
+                                <input class="custom-control-input column-toggle" type="checkbox" value="<?php echo $columnName; ?>" data-column="<?php echo $i; ?>"
+                                       id="<?php echo $id; ?>" <?php echo empty( $columnArgs['hidden'] ) ? 'checked' : ''; ?>>
+                                <label class="custom-control-label" for="<?php echo $id; ?>"><?php echo $columnArgs['title']; ?></label>
+                            </div>
+                            <?php $i++;
+                        } ?>
+                    </form>
                 </div>
             </div>
         </div>
@@ -254,17 +287,26 @@ abstract class ArchiveTable extends Report
         foreach ( $this->extractData() as $entityID => $data ) {
             $sortedData[$data[$groupedBy] ?? ''][$data['id']] = $data;
             if ( !empty( $data['errors'] ) ) {
-                $this->thereIsAnError = true;
+                $thereIsAnError = true;
             }
         }
+        if ( $this->includeErrors === null && !empty( $thereIsAnError ) ) {
+            $this->includeErrors = true;
+        }
+
         if ( empty( $sortedData ) ) {
             return '';
         }
         ksort( $sortedData );
+
         $columns = $this->getColumns();
-        if ( empty( $this->thereIsAnError ) ) {
-            unset( $columns['errors'] );
+        foreach ( $columns as $columnID => &$columnArgs ) {
+            if ( !empty( $columnArgs['hidden'] ) ) {
+                $columnArgs['class'] = !empty( $columnArgs['class'] ) ? $columnArgs['class'] . 'd-none' : 'd-none';
+            }
         }
+        unset( $columnArgs );
+
         $html = '';
         foreach ( $sortedData as $groupName => $dataset ) {
             $html .= $this->renderSingleArchive(
@@ -286,42 +328,62 @@ abstract class ArchiveTable extends Report
     public function renderSingleArchive(array $data, array $columns = [], string $groupName = ''): string
     {
         ob_start();
-        foreach ( $columns as $columnID => &$columnArgs ) {
-            if(!empty($columnArgs['hidden'])) {
-                $columnArgs['class'] = !empty($columnArgs['class']) ? $columnArgs['class'] . 'd-none' : 'd-none';
-            }
-        }
-        unset($columnArgs);
-        $groupedBy = $this->groupedBy;
-        ?>
-        <div class="grey-bg p-3 mb-5">
-            <?php if ( !empty( $groupedBy ) ) { ?>
-                <h4><small><?php echo ucfirst( $columns[$groupedBy]['title'] ) . ' - '; ?></small><?php echo !empty( $groupName ) ? $groupName : 'N/A'; ?></h4>
-            <?php } ?>
+        if ( !empty( $this->groupedBy ) ) { ?>
+            <h4 class=" mx-3">
+                <?php echo 'Group - ' . ucfirst( $columns[$this->groupedBy]['title'] ) . ' ';
+                $groupName = !empty( $groupName ) ? $groupName : 'N/A';
+                if ( strpos( $groupName, '<a' ) !== false ) {
+                    echo str_replace( 'class="', 'class="badge badge-primary ', $groupName );
+                } else { ?>
+                    <span class="badge badge-primary"><?php echo $groupName; ?></span>
+                <?php } ?>
+            </h4>
+        <?php } ?>
+
+        <div class="grey-bg p-3 mb-4">
             <?php echo $this->htmlUtility::getTableHTML( [
                 'data' => $data,
                 'columns' => $columns,
                 'class' => 'archive table-sorter',
             ] ); ?>
         </div>
-        <?php
-        return ob_get_clean();
+        <?php return ob_get_clean();
+    }
+
+    /**
+     * @return $this
+     */
+    public function ignoreErrors(): self
+    {
+        $this->includeErrors = false;
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    public function dontIncludeColumnToggles(): self
+    {
+        $this->includeColumnToggles = false;
+        return $this;
     }
 
     /**
      * @param string $property
      * @return array
      */
-    public
-    function getColumns(string $property = ''): array
+    public function getColumns(string $property = ''): array
     {
+        $id = array_merge( [
+            'title' => 'ID'
+        ], $this->columns['id'] ?? []);
         $columns = array_merge(
-            ['id' => [
-                'title' => 'ID'
-            ]],
+            ['id' => []],
             $this->columns
         );
-        if ( !empty( $this->thereIsAnError ) ) {
+        $columns['id'] = $id;
+
+        if ( !empty( $this->includeErrors ) ) {
             $columns['errors'] = [
                 'title' => 'Errors',
                 'hidden' => $this->hideErrors

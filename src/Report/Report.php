@@ -100,7 +100,10 @@ abstract class Report extends Base
                 'nav_links' => $this->getNavLinks(),
                 'heading_level' => 2,
                 'html_right_aligned' => $this->getAdditionalHeaderHTML()
-            ] ); ?>
+            ] );
+
+
+            ?>
             <div class="row">
                 <div class="col">
                     <div class="grey-bg p-3">
@@ -111,5 +114,4 @@ abstract class Report extends Base
         </div>
         <?php return ob_get_clean();
     }
-
 }

@@ -55,7 +55,7 @@ class ActivityFactory extends EntityFactory
 
     /**
      * @param Activity[] $activities
-     * @param false $provision
+     * @param false      $provision
      * @return Activity[]
      */
     public function provisionEntities(array $activities = [], $provision = false): array
@@ -68,9 +68,10 @@ class ActivityFactory extends EntityFactory
             $activityNames[$activity->name]++;
         }
         foreach ( $activities as &$activity ) {
-            if ( $activityNames[$activity->name] > 1 ) {
-                $type = $activity->type === 'All' ? 'Unspecific' : $activity->type;
-                $activity->displayName = $type . ' ' . $activity->name;
+            if ( $activity->type !== 'General' ) {
+                $activity->displayName = $activity->type . ' ' . $activity->name;
+            } elseif ( $activityNames[$activity->name] > 1 ) {
+                $activity->displayName = 'Unspecific ' . $activity->name;
             }
         }
 

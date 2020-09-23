@@ -2,18 +2,18 @@
 
 namespace Phoenix\Page;
 
-use Phoenix\Entity\CurrentUser;
 use Phoenix\Entity\SettingFactory;
-use Phoenix\Entity\User;
+use Phoenix\Form\GroupByEntityForm;
+use Phoenix\Report\Archive\ArchiveTableShiftsWorkerHome;
 use Phoenix\Report\Worker\WorkerTimeClockRecord;
 use Phoenix\Report\Shifts\WorkerHomeShiftTable;
 
 /**
  * Class WorkerPageBuilder
  *
+ * @author James Jones
  * @property WorkerHomePage $page
  *
- * @author James Jones
  * @package Phoenix\Page
  *
  */
@@ -111,35 +111,41 @@ class WorkerHomePageBuilder extends WorkerPageBuilder
         $htmlUtility = $this->HTMLUtility;
 
         $shiftsCurrent = $user->shifts->getUnfinishedShifts();
+        //$recentShifts = $user->shifts->getLastWorkedShifts( 5 )->getAll();
 
-        foreach ( [
-                      'current_shift_table' => (new WorkerHomeShiftTable(
-                          $htmlUtility,
-                          $format,
-                      ))->init( $shiftsCurrent )
-                          ->setNoShiftsMessage( 'You are not currently clocked into any shifts.' )
-                          ->setTitle( 'Your Current ' . ucfirst( $shiftsCurrent->getPluralOrSingular() ) ),
+        $reports = [
+            'current_shift_archive' => (new ArchiveTableShiftsWorkerHome(
+                $htmlUtility,
+                $format,
+            ))
+                ->setEntities( $shiftsCurrent->getAll() )
+                ->setTitle( 'Your Current ' . ucfirst( $shiftsCurrent->getPluralOrSingular() ) )
+                ->setEmptyReportMessage( 'You are not currently clocked into any shifts.', 'info' )
+                ->ignoreErrors(),
+            'shift_latest_archive' => (new ArchiveTableShiftsWorkerHome(
+                $htmlUtility,
+                $format,
+            ))
+                ->setEntities( $user->shifts->getLastWorkedShifts( 5 )->getAll() )
+                ->setTitle( 'Your Recent Shifts' )
+                ->setEmptyReportMessage( 'No recent shifts found.' )
+                ->ignoreErrors(),
 
 
-                      'shift_latest_table' => (new WorkerHomeShiftTable(
-                          $htmlUtility,
-                          $format,
-                      ))->init(
-                          $user->shifts->getLastWorkedShifts( 5 )
-                      )
-                          ->setNoShiftsMessage( 'No recent shifts found.' )
-                          ->setTitle( 'Your Recent Shifts' ),
-
-
-                      'time_clock_record' => (new WorkerTimeClockRecord(
-                          $htmlUtility,
-                          $format,
-                      ))->init(
-                          $user->shifts,
-                          $user->name,
-                          $this->startDate
-                      )
-                  ] as $report ) {
+            'time_clock_record' => (new WorkerTimeClockRecord(
+                $htmlUtility,
+                $format,
+            ))->init(
+                $user->shifts,
+                $user->name,
+                $this->startDate
+            )
+        ];
+        if ( $shiftsCurrent->getCount() ) {
+            $reports['shift_latest_archive']->dontIncludeColumnToggles();
+            //$dontShowRecentShiftToggles = true;
+        }
+        foreach ( $reports as $report ) {
             $this->page->addContent( $report->render() );
         }
         return $this;

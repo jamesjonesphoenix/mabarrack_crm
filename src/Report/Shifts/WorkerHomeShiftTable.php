@@ -75,7 +75,7 @@ class WorkerHomeShiftTable extends ShiftsReport
 
         $shiftTableData = $this->format::formatColumnValues( $shiftTableData, 'annotateDate', 'date' );
 
-        return $this->htmlUtility::getTableHTML( [
+        return  $this->htmlUtility::getTableHTML( [
             'data' => $shiftTableData,
             'columns' => [
                 'id' => 'ID',

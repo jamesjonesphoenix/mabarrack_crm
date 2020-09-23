@@ -13104,9 +13104,9 @@ header {
 .btn {
   white-space: nowrap; }
 
-.entity-count .badge {
+.badge {
   position: relative;
-  top: -0.15em; }
+  top: -0.125em; }
 
 form.group-by-form .custom-select.form-control {
   max-width: 15rem; }
@@ -13130,7 +13130,13 @@ table.table td.profit_loss,
 table.table td.markup,
 table.table td.view {
   white-space: nowrap; }
-table.table td.view,
+table.table th.id,
+table.table th.date_started,
+table.table th.date_finished,
+table.table th.time_started,
+table.table th.time_finished,
+table.table th.priority {
+  width: 1%; }
 table.table th.view {
   width: 1%;
   word-wrap: break-word; }
