@@ -21,11 +21,14 @@ class ArchiveTableJobs extends ArchiveTable
     protected array $columns = [
         'date_started' => [
             'title' => 'Start Date',
-            'format' => 'date'
+            'format' => 'date',
+            'default' => '&minus;'
         ],
         'date_finished' => [
             'title' => 'Finish Date',
-            'format' => 'date'
+            'format' => 'date',
+            'default' => 'Ongoing',
+            'remove_if_empty' => true
         ],
         'priority' => [
             'title' => 'Priority'
@@ -37,19 +40,25 @@ class ArchiveTableJobs extends ArchiveTable
             'title' => 'Furniture'
         ],
         'description' => [
-            'title' => 'Description'
+            'title' => 'Description',
+            'inessential' => true,
+            'default' => '&minus;'
         ],
         'markup' => [
             'title' => 'Markup',
-            'format' => 'percentage'
+            'format' => 'percentage',
+            'inessential' => true,
+            'default' => 'N/A'
         ],
         'profit_loss' => [
             'title' => 'Profit/Loss',
             'format' => 'currency',
+            'inessential' => true
         ],
         'employee_cost' => [
             'title' => 'Employee Cost',
             'format' => 'currency',
+            'inessential' => true
         ],
         'number_of_shifts' => [
             'title' => 'Number of Shifts',
@@ -59,29 +68,14 @@ class ArchiveTableJobs extends ArchiveTable
     ];
 
     /**
-     * @param false $errorEntitiesOnly
-     * @return $this
-     */
-    public function hideInessentialColumns($errorEntitiesOnly = false): self
-    {
-        if ( $errorEntitiesOnly ) {
-            $this->columns['description']['hidden'] = true;
-            $this->columns['markup']['hidden'] = true;
-            $this->columns['profit_loss']['hidden'] = true;
-            $this->columns['employee_cost']['hidden'] = true;
-        }
-        return parent::hideInessentialColumns();
-    }
-
-    /**
      * @param Job $job
      * @return array
      */
     public function extractEntityData($job): array
     {
         return [
-            'date_started' => $job->dateStarted ?? '&minus;',
-            'date_finished' => $job->dateFinished ?? 'Ongoing',
+            'date_started' => $job->dateStarted,
+            'date_finished' => $job->dateFinished,
             'priority' => $job->priority,
             'customer' => $this->htmlUtility::getButton( [
                     'element' => 'a',
@@ -90,7 +84,7 @@ class ArchiveTableJobs extends ArchiveTable
                     'class' => 'text-white'
                 ] ) ?? $job->customer->name,
             'furniture' => $job->getFurnitureString(),
-            'description' => $job->description ?? '&minus;',
+            'description' => $job->description,
             'markup' => $job->getMarkup(),
             'profit_loss' => $job->getTotalProfit(),
             'employee_cost' => $job->shifts->getTotalWorkerCost(),

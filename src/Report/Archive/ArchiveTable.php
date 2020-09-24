@@ -6,7 +6,9 @@ namespace Phoenix\Report\Archive;
 use Phoenix\Entity\Entity;
 use Phoenix\Form\GoToIDEntityForm;
 use Phoenix\Form\GroupByEntityForm;
+use Phoenix\Format;
 use Phoenix\Report\Report;
+use Phoenix\Utility\HTMLTags;
 
 /**
  * Class ArchiveTable
@@ -55,26 +57,63 @@ abstract class ArchiveTable extends Report
     /**
      * @var bool
      */
-    private bool $hideErrors = true;
-
-    /**
-     * @var bool|null
-     */
-    private ?bool $includeErrors = null;
-
-    /**
-     * @var bool
-     */
     private bool $includeColumnToggles = true;
 
     /**
-     * @param false $errorEntitiesOnly
+     * Report constructor.
+     *
+     * @param HTMLTags $htmlUtility
+     * @param Format   $format
+     */
+    public function __construct(HTMLTags $htmlUtility, Format $format)
+    {
+        $this->columns = array_merge(
+            [
+                'id' => []
+            ], $this->columns, [
+                'errors' => [
+                    'title' => 'Errors',
+                    'remove_if_empty' => true,
+                    'default' => '-',
+                    'hidden' => true
+                ],
+                'view' => ['title' => '']
+            ]
+        );
+        if ( empty( $columns['id']['title'] ) ) {
+            $this->columns['id']['title'] = 'ID';
+        }
+
+        parent::__construct( $htmlUtility, $format );
+
+    }
+
+    /**
+     * @param string $columnID
+     * @param array  $args
      * @return $this
      */
-    public function hideInessentialColumns($errorEntitiesOnly = false): self
+    public function editColumn($columnID = '', $args = []): self
     {
-        if ( $errorEntitiesOnly ) {
-            $this->hideErrors = false;
+        if ( empty( $this->columns[$columnID] ) ) {
+            return $this;
+        }
+        foreach ( $args as $key => $value ) {
+            $this->columns[$columnID][$key] = $value;
+        }
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    public function hideInessentialColumns(): self
+    {
+        $inessentialColumns = $this->getColumns( 'inessential' );
+        foreach ( $inessentialColumns as $columnID => $inessential ) {
+            if ( !empty( $inessential ) ) {
+                $this->columns[$columnID]['hidden'] = true;
+            }
         }
         return $this;
     }
@@ -144,26 +183,6 @@ abstract class ArchiveTable extends Report
     }
 
     /**
-     * @return array
-     */
-    public function extractData(): array
-    {
-        foreach ( $this->entities as $entity ) {
-            $data[$entity->id] = array_merge(
-                [
-                    'id' => $entity->id
-                ],
-                $this->extractEntityData( $entity ),
-                [
-                    'view' => $this->getActionButton( $entity ),
-                    'errors' => $entity->healthCheck()
-                ]
-            );
-        }
-        return $data ?? [];
-    }
-
-    /**
      * @return string
      */
     public function getAdditionalHeaderHTML(): string
@@ -201,6 +220,35 @@ abstract class ArchiveTable extends Report
     }
 
     /**
+     * @return array
+     */
+    public function extractData(): array
+    {
+        $columns = $this->getColumns();
+        foreach ( $this->entities as $entity ) {
+            $row = array_merge(
+                [
+                    'id' => $entity->id
+                ],
+                $this->extractEntityData( $entity ),
+                [
+                    'view' => $this->getActionButton( $entity ),
+                    'errors' => $entity->healthCheck()
+                ]
+            );
+            foreach ( $columns as $columnID => $columnArgs ) {
+                if ( !empty( $row[$columnID] ) ) {
+                    $this->columns[$columnID]['not_empty'] = true;
+                } elseif ( $row[$columnID] !== (float)0 && $row[$columnID] !== 0 ) {
+                    $row[$columnID] = $this->columns[$columnID]['default'] ?? '';
+                }
+            }
+            $data[$entity->id] = $row;
+        }
+        return $data ?? [];
+    }
+
+    /**
      * @return string
      * @throws \Exception
      */
@@ -223,7 +271,7 @@ abstract class ArchiveTable extends Report
             <div class="container mb-3">
                 <div class="row align-items-center mx-0">
                     <?php if ( $this->includeColumnToggles ) {
-                        echo self::renderColumnToggles( $this->getColumns() );
+                        echo $this->renderColumnToggles();
                     } ?>
                     <?php if ( count( $this->entities ) > 5 ) { ?>
                         <div class="col-auto"><h5 class="mb-0 entity-count">Total <?php echo ucfirst( $this->entity->entityNamePlural ); ?> <span
@@ -243,19 +291,19 @@ abstract class ArchiveTable extends Report
     }
 
     /**
-     * @param array $columns
      * @return string
      */
-    public static function renderColumnToggles(array $columns = []): string
+    public function renderColumnToggles(): string
     {
         ob_start(); ?>
         <div class="col">
             <div class="row align-items-center no-gutters">
-                <?php // <div class="col-auto mr-2"><h5 class="mb-0">Toggle Columns</h5></div> ?>
+                <?php // <div class="col-auto mr-2"><h5 class="mb-0">Toggle Columns</h5></div>
+                ?>
                 <div class="col">
                     <form class="form-inline mb-n2">
                         <?php $i = 0;
-                        foreach ($columns as $columnName => $columnArgs ) {
+                        foreach ( $this->getColumns() as $columnName => $columnArgs ) {
                             if ( empty( $columnArgs['title'] ) ) {
                                 $i++;
                                 continue;
@@ -286,32 +334,27 @@ abstract class ArchiveTable extends Report
         $groupedBy = $this->groupedBy;
         foreach ( $this->extractData() as $entityID => $data ) {
             $sortedData[$data[$groupedBy] ?? ''][$data['id']] = $data;
-            if ( !empty( $data['errors'] ) ) {
-                $thereIsAnError = true;
-            }
-        }
-        if ( $this->includeErrors === null && !empty( $thereIsAnError ) ) {
-            $this->includeErrors = true;
         }
 
         if ( empty( $sortedData ) ) {
             return '';
         }
         ksort( $sortedData );
-
-        $columns = $this->getColumns();
-        foreach ( $columns as $columnID => &$columnArgs ) {
+        foreach ( $this->getColumns() as $columnID => $columnArgs ) {
+            if ( !empty( $columnArgs['remove_if_empty'] ) && empty( $columnArgs['not_empty'] ) ) {
+                continue;
+            }
+            $tableColumns[$columnID] = $columnArgs;
             if ( !empty( $columnArgs['hidden'] ) ) {
-                $columnArgs['class'] = !empty( $columnArgs['class'] ) ? $columnArgs['class'] . 'd-none' : 'd-none';
+                $tableColumns[$columnID]['class'] = !empty( $columnArgs['class'] ) ? $columnArgs['class'] . 'd-none' : 'd-none';
             }
         }
-        unset( $columnArgs );
-
+        $this->columns = $tableColumns ?? [];
         $html = '';
         foreach ( $sortedData as $groupName => $dataset ) {
             $html .= $this->renderSingleArchive(
                 $this->format::formatColumnsValues( $dataset, $this->getColumns( 'format' ) ),
-                $columns,
+                $tableColumns ?? [],
                 $groupName
             );
         }
@@ -328,9 +371,12 @@ abstract class ArchiveTable extends Report
     public function renderSingleArchive(array $data, array $columns = [], string $groupName = ''): string
     {
         ob_start();
-        if ( !empty( $this->groupedBy ) ) { ?>
+        //&& !empty($columns[$this->groupedBy])
+        if ( !empty( $this->groupedBy ) ) {
+            $groupTitle = $columns[$this->groupedBy]['title'] ?? str_replace( '_', ' ', $this->groupedBy );
+            ?>
             <h4 class=" mx-3">
-                <?php echo 'Group - ' . ucfirst( $columns[$this->groupedBy]['title'] ) . ' ';
+                <?php echo 'Group - ' . ucfirst( $groupTitle ) . ' ';
                 $groupName = !empty( $groupName ) ? $groupName : 'N/A';
                 if ( strpos( $groupName, '<a' ) !== false ) {
                     echo str_replace( 'class="', 'class="badge badge-primary ', $groupName );
@@ -353,9 +399,9 @@ abstract class ArchiveTable extends Report
     /**
      * @return $this
      */
-    public function ignoreErrors(): self
+    public function removeErrors(): self
     {
-        $this->includeErrors = false;
+        unset( $this->columns['errors'] );
         return $this;
     }
 
@@ -374,27 +420,10 @@ abstract class ArchiveTable extends Report
      */
     public function getColumns(string $property = ''): array
     {
-        $id = array_merge( [
-            'title' => 'ID'
-        ], $this->columns['id'] ?? []);
-        $columns = array_merge(
-            ['id' => []],
-            $this->columns
-        );
-        $columns['id'] = $id;
-
-        if ( !empty( $this->includeErrors ) ) {
-            $columns['errors'] = [
-                'title' => 'Errors',
-                'hidden' => $this->hideErrors
-            ];
-        }
-        $columns['view'] = ['title' => ''];
-
         if ( empty( $property ) ) {
-            return $columns;
+            return $this->columns;
         }
-        foreach ( $columns as $columnName => $column ) {
+        foreach ( $this->columns as $columnName => $column ) {
             if ( isset( $column[$property] ) ) {
                 $return[$columnName] = $column[$property];
             }

@@ -173,7 +173,6 @@ class WorkerTimeClockRecord extends WorkerReport
         }
         unset( $day );
 
-        $data = $this->format::formatColumnValues( $data, 'date', 'date' );
         $data = $this->format::formatColumnValues( $data, 'annotateDate', 'date' );
 
         $data = $this->format::formatColumnValues( $data, 'hoursminutes', 'minutes', 'hours' );

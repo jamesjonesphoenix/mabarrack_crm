@@ -39,6 +39,11 @@ class ArchivePageBuilderJob extends ArchivePageBuilder
     ];
 
     /**
+     * @var array
+     */
+    protected array $inessentialColumns = [];
+
+    /**
      * @return JobFactory
      */
     protected function getNewEntityFactory(): JobFactory

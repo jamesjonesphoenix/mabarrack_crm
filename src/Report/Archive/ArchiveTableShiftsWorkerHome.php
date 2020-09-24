@@ -27,19 +27,22 @@ class ArchiveTableShiftsWorkerHome extends ArchiveTable
         ],
         'customer' => [
             'title' => 'Customer',
+            'default' => '-'
         ],
         'description' => [
             'title' => 'Description',
         ],
         'date' => [
             'title' => 'Date',
-            'format' => 'date'
+            'format' => 'annotateDateAllDays'
         ],
         'time_started' => [
-            'title' => 'Time Started'
+            'title' => 'Time Started',
+            'default' => '-'
         ],
         'time_finished' => [
             'title' => 'Time Finished',
+            'default' => '-'
         ],
         'furniture' => [
             'title' => 'Furniture',
@@ -51,10 +54,13 @@ class ArchiveTableShiftsWorkerHome extends ArchiveTable
             'hidden' => true
         ],
         'activity' => [
-            'title' => 'Activity'
+            'title' => 'Activity',
+            'default' => 'Unknown Activity'
         ],
         'comment' => [
-            'title' => 'Comment'
+            'title' => 'Comment',
+            'remove_if_empty' => true,
+            'default' => '-'
         ]
     ];
 
@@ -97,15 +103,15 @@ class ArchiveTableShiftsWorkerHome extends ArchiveTable
 
         return [
             'job' => $shift->job->id === 0 ? 'Factory' : $shift->job->id,
-            'customer' => $shift->job->customer->name ?? '-',
+            'customer' => $shift->job->customer->name,
             'description' => $description,
             'date' => $shift->date,
-            'time_started' => $shift->timeStarted ?? '-',
-            'time_finished' => $shift->timeFinished ?? '-',
+            'time_started' => $shift->timeStarted,
+            'time_finished' => $shift->timeFinished,
             'furniture' => $shift->getFurnitureString(),
             'hours' => $minutes,
-            'activity' => $shift->activity->displayName ?? 'Unknown Activity',
-            'comment' => $shift->activityComments ?? '-'
+            'activity' => $shift->activity->displayName,
+            'comment' => $shift->activityComments
         ];
     }
 }

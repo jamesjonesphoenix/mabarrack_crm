@@ -37,12 +37,18 @@ class ArchiveTableJobShifts extends ArchiveTable
         'time_finished' => [
             'title' => 'Time Finished',
         ],
+        'minutes' => [
+            'title' => 'Minutes',
+            'format' => 'number',
+            'hidden' => true
+        ],
         'hours' => [
             'title' => 'Hours',
             'format' => 'hoursminutes'
         ],
         'activity' => [
-            'title' => 'Activity'
+            'title' => 'Activity',
+            'default' => '-'
         ],
         'rate' => [
             'title' => 'Rate',
@@ -75,14 +81,19 @@ class ArchiveTableJobShifts extends ArchiveTable
             $this->dateObjects[$shift->date] = new DateTime( $shift->date ); //Create a new DateTime object
             $this->dateObjects[$shift->date]->modify( 'next thursday' ); //Modify the date it contains
         }
+        $minutes = $shift->getShiftLength();
+        if ( $minutes === 0 && empty( $shift->timeFinished ) && !empty( $shift->timeStarted ) ) {
+            $minutes = 'N/A';
+        }
         return [
             'worker' => $shift->worker->name,
             'date' => $shift->date,
             'week_ending' => $this->dateObjects[$shift->date]->format( 'd-m-Y' ),
             'time_started' => $shift->timeStarted,
             'time_finished' => $shift->timeFinished,
-            'hours' => $shift->getShiftLength(),
-            'activity' => $shift->activity->displayName ?? '-',
+            'minutes' => $minutes,
+            'hours' => $minutes,
+            'activity' => $shift->activity->displayName,
             'rate' => $shift->worker->rate,
             'line_item_cost' => $shift->getShiftCost(),
         ];

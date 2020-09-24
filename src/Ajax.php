@@ -132,7 +132,11 @@ class Ajax extends AbstractCRM
         if ( !$this->initialised ) {
             return false;
         }
-        $entity = $this->entity->init( $this->inputData );
+        //$entity = $this->entity->init( $this->inputData );
+        $entity = $this->entity;
+        foreach($this->inputData as $key => $value){
+            $entity->setProperty($key, $value);
+        }
 
         if ( $this->action === 'add' || $this->action === 'update' ) {
             $result = $entity->save();

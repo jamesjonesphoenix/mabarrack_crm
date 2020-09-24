@@ -302,13 +302,13 @@ class Job extends Entity
      *
      * @return float
      */
-    public function getMarkup(): float
+    public function getMarkup(): ?float
     {
         $totalCost = $this->getTotalCost();
         if ( $totalCost > 0 ) {
             return $this->getTotalProfit() / $this->getTotalCost();
         }
-        return 0;
+        return null;
     }
 
     /**
@@ -334,7 +334,6 @@ class Job extends Entity
         }
         return $this->_salePrice ?? null;
     }
-
 
 
     /***
@@ -413,6 +412,9 @@ class Job extends Entity
         }
         if ( !empty( $dateStarted ) && DateTimeUtility::timeDifference( $dateStarted, $dateFinished ) < 0 ) {
             $errors[] = 'Job has <strong>finish date</strong> earlier than <strong>start date</strong>.';
+        }
+        if ( !empty( $dateFinished ) && $this->status === 'jobstat_red' ) {
+            $errors[] = 'Job <strong>finish date</strong> has been set but <strong>status</strong> is still "in progress".';
         }
         return parent::healthCheck( $errors );
     }

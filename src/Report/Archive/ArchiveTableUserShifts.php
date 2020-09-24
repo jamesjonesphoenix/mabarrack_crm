@@ -27,18 +27,26 @@ class ArchiveTableUserShifts extends ArchiveTable
             'format' => 'date'
         ],
         'time_started' => [
-            'title' => 'Time Started'
+            'title' => 'Time Started',
+            'default' => '-'
         ],
         'time_finished' => [
             'title' => 'Time Finished',
+            'default' => '-'
+        ],
+        'minutes' => [
+            'title' => 'Minutes',
+            'format' => 'number',
+            'hidden' => true
         ],
         'hours' => [
             'title' => 'Hours',
             'format' => 'hoursminutes'
         ],
         'activity' => [
-            'title' => 'Activity'
-        ],
+            'title' => 'Activity',
+            'default' => 'Unknown Activity'
+        ]
     ];
 
     /**
@@ -47,13 +55,18 @@ class ArchiveTableUserShifts extends ArchiveTable
      */
     public function extractEntityData($shift): array
     {
+        $minutes = $shift->getShiftLength();
+        if ( $minutes === 0 && empty( $shift->timeFinished ) && !empty( $shift->timeStarted ) ) {
+            $minutes = 'N/A';
+        }
         return [
-            'job' => $shift->job->id,
+            'job' => $shift->job->id === 0 ? 'Factory' : $shift->job->id,
             'date' => $shift->date,
-            'time_started' => $shift->timeStarted ?? '-',
-            'time_finished' => $shift->timeFinished ?? '-',
-            'hours' => $shift->getShiftLength(),
-            'activity' => $shift->activity->displayName ?? 'Unknown Activity'
+            'time_started' => $shift->timeStarted,
+            'time_finished' => $shift->timeFinished,
+            'minutes' => $minutes,
+            'hours' => $minutes,
+            'activity' => $shift->activity->displayName,
         ];
     }
 }

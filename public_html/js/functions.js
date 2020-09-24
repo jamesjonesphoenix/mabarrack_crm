@@ -3,6 +3,26 @@ $j = jQuery.noConflict();
 $j(document).ready(function () {
 
     entityPageFunctions();
+    matchTablesWidths(); //Must match table widths before table sorter as it adds extra classes
+
+    let waitForFinalEvent = (function () {
+        let timers = {};
+        return function (callback, ms, uniqueId) {
+            if (!uniqueId) {
+                uniqueId = "Don't call this twice without a uniqueId";
+            }
+            if (timers[uniqueId]) {
+                clearTimeout (timers[uniqueId]);
+            }
+            timers[uniqueId] = setTimeout(callback, ms);
+        };
+    })();
+
+    $j(window).resize(function () {
+        waitForFinalEvent(function(){ //limit how often resize fires so browser doesn't kill itself
+            matchTablesWidths();
+        }, 800, "some unique string");
+    });
 
     $j("#print-button").click(function () {
         window.print();
@@ -20,9 +40,15 @@ $j(document).ready(function () {
         $j('.collapse-messages-column .alert').alert('close');
     });
 
-    matchTableWidths('table.table.archive'); //Must match table widths before table sorter as it adds extra classes
-    matchTableWidths('table.table.choose-job');
-    matchTableWidths('table.table.home-shift-table');
+    /**
+     *
+     */
+    function matchTablesWidths() {
+        let tables = ['table.table.archive', 'table.table.choose-job', 'table.table.home-shift-table'];
+        for (let i = 0; i <= tables.length; i++) {
+            matchTableWidths(tables[i]);
+        }
+    }
 
     /**
      *
@@ -99,10 +125,8 @@ $j(document).ready(function () {
         } else {
             table.addClass('d-none');
         }
+        matchTablesWidths();
     }
-
-
-
 
     /**
      *
@@ -117,7 +141,9 @@ $j(document).ready(function () {
             itemsToMatch = [];
         for (let i = 1; i <= numberOfColumns; i++) {
             let cssClass = $j(tableSelector + ' thead th:nth-child(' + i + ')').attr('class');
-            itemsToMatch[i] = tableSelector + ' thead th[class="' + cssClass + '"]';
+            if (!cssClass.includes('d-none')) {
+                itemsToMatch[i] = tableSelector + ' thead th[class^="' + cssClass + '"]';
+            }
         }
         //console.log(itemsToMatch);
         matchHeight(itemsToMatch,
@@ -144,6 +170,7 @@ $j(document).ready(function () {
         },
         0
     );
+
     /*
     matchHeight(
         ['div.archive-table-column div.alert.alert-info, div.archive-table-column div.table-responsive'], {

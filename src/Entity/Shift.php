@@ -7,7 +7,7 @@ use Phoenix\DateTimeUtility;
 
 /**
  * @property integer|Activity  $activity
- * @property string           $activityComments
+ * @property string            $activityComments
  * @property string            $date
  * @property integer|Furniture $furniture
  * @property integer|Job       $job
@@ -255,8 +255,12 @@ class Shift extends Entity
      */
     protected function activity($activity = null)
     {
+
         if ( $activity !== null ) {
             if ( is_int( $activity ) ) {
+                if ( $this->activity->id === $activity ) {
+                    return $this->_activity;
+                }
                 $activityID = $activity;
                 $activity = new Activity();
                 $activity->id = $activityID;
@@ -267,12 +271,12 @@ class Shift extends Entity
     }
 
     /**
-     * @param string $activityComments
+     * @param string|null $activityComments
      * @return string
      */
-    protected function activityComments(string $activityComments = ''): string
+    protected function activityComments(string $activityComments = null): string
     {
-        if ( !empty( $activityComments ) ) {
+        if ( $activityComments !== null ) {
             $this->_activityComments = $activityComments;
         }
         return $this->_activityComments ?? '';

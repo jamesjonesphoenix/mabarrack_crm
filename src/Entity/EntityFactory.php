@@ -131,7 +131,8 @@ abstract class EntityFactory extends AbstractCRM
      */
     public function getNew(): Entity
     {
-        $entity = $this->instantiateEntityClass()->init();
+        //$entity = $this->instantiateEntityClass()->init(); old
+        $entity = $this->instantiateEntityClass();
         $entity->entityName = $this->getEntityName();
         $entity->entityNamePlural = $this->getEntityNamePlural();
         $entity->tableName = $this->getTableName();

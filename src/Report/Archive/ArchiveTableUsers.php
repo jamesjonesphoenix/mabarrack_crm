@@ -20,10 +20,12 @@ class ArchiveTableUsers extends ArchiveTable
      */
     protected array $columns = [
         'name' => [
-            'title' => 'Name'
+            'title' => 'Name',
+            'default' => '&minus;'
         ],
         'pin' => [
-            'title' => 'Pin'
+            'title' => 'Pin',
+            'default' => '&minus;'
         ],
         'rate' => [
             'title' => 'Rate',
@@ -40,10 +42,9 @@ class ArchiveTableUsers extends ArchiveTable
      */
     public function extractEntityData($user): array
     {
-        $pin = !empty( $user->pin ) ? $user->pin : '&minus;';
         return [
-            'name' => $user->name ?? '&minus;',
-            'pin' => $pin,
+            'name' => $user->name,
+            'pin' => $user->pin,
             'rate' => $user->rate,
             'role' => ucwords( $user->role )
         ];

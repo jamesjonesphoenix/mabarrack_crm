@@ -21,9 +21,11 @@ class ArchiveTableSettings extends ArchiveTable
     protected array $columns = [
         'name' => [
             'title' => 'Name',
+            'default' => '&minus;'
         ],
         'value' => [
             'title' => 'Value',
+            'default' => '&minus;'
         ]
     ];
 
@@ -34,8 +36,8 @@ class ArchiveTableSettings extends ArchiveTable
     public function extractEntityData($setting): array
     {
         return [
-            'name' => $setting->name ?? '&minus;',
-            'value' => $setting->value ?? '&minus;',
+            'name' => $setting->name,
+            'value' => $setting->value,
         ];
     }
 }

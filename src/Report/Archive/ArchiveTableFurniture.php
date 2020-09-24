@@ -21,9 +21,11 @@ class ArchiveTableFurniture extends ArchiveTable
     protected array $columns = [
         'name' => [
             'title' => 'Name',
+            'default' => '&minus;',
         ],
         'plural_name' => [
             'title' => 'Plural Name',
+            'default' => '&minus;',
         ]
     ];
 
@@ -34,8 +36,8 @@ class ArchiveTableFurniture extends ArchiveTable
     public function extractEntityData($furniture): array
     {
         return [
-            'name' => $furniture->name ?? '&minus;',
-            'plural_name' => $furniture->namePlural ?? '&minus;',
+            'name' => $furniture->name,
+            'plural_name' => $furniture->namePlural,
         ];
     }
 }

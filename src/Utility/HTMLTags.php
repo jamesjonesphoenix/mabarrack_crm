@@ -232,7 +232,7 @@ class HTMLTags
         <nav class="navbar navbar-expand-lg navbar-dark">
             <?php if ( !empty( $args['title'] ) ) { ?>
                 <h<?php echo $args['heading_level']; ?>
-                        class="navbar-brand mb-0 h<?php echo $args['heading_level']; ?> py-0"><?php echo $args['title']; ?></h<?php echo $args['heading_level']; ?>>
+                        class="navbar-brand h<?php echo $args['heading_level']; ?> py-0"><?php echo $args['title']; ?></h<?php echo $args['heading_level']; ?>>
             <?php } ?>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#<?php echo $id; ?>" aria-controls="<?php echo $id; ?>"
                     aria-expanded="false" aria-label="Toggle navigation">

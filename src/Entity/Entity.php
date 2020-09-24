@@ -95,7 +95,9 @@ abstract class Entity extends AbstractCRM
     {
         $oldValue = $this->$name;
         parent::__set( $name, $value );
-        if ( $oldValue !== $this->$name ) {
+        $newValue = $this->$name;
+        if ( $oldValue !== $newValue &&
+            (!($oldValue instanceof self) || ($oldValue->id ?? null) !== ($newValue->id ?? null)) ) {
             $this->changed[$name] = true;
         }
     }
@@ -113,7 +115,7 @@ abstract class Entity extends AbstractCRM
     }
 
     /**
-     * Fill out class properties from input array
+     * Fill out class properties from input array. Should only be done from class factory
      *
      * @param array|integer $input Can be either a numeric ID to search the DB or an array of args
      * @return $this
@@ -123,23 +125,32 @@ abstract class Entity extends AbstractCRM
         foreach ( $input as $key => $item ) {
             $this->setProperty( $key, $item );
         }
+        /*
         if ( $this->id !== null ) {
             $this->exists = true;
         }
+
         if ( $this->exists && !$this->initialised ) { //Make sure we're recording changes on a fresh slate if this is an existing Entity from the DB.
             $this->changed = [];
         }
         $this->initialised = true;
+        */
+        if ( $this->id !== null ) {
+            $this->exists = true;
+            $this->changed = []; //Make sure we're recording changes on a fresh slate if this is an existing Entity from the DB.
+        }
         return $this;
     }
 
     /**
+     * For setting Entity properties related to DB table columns
+     *
      * @param $property
-     * @param $item
+     * @param $value
      */
-    private function setProperty(string $property = '', $item = null): void
+    public function setProperty(string $property = '', $value = null): void
     {
-        if ( !isset( $item ) || $item === null ) {
+        if ( !isset( $value ) || $value === null ) {
             return;
         }
 
@@ -151,10 +162,10 @@ abstract class Entity extends AbstractCRM
         $propertyName = $this->getColumnPropertyName( $property );
 
         if ( method_exists( $this, $propertyName ) ) {
-            $item = $this->cleanInput( $item, $propertyType );
+            $value = $this->cleanInput( $value, $propertyType );
 
-            if ( $item !== null ) {
-                $this->$propertyName = $item;
+            if ( $value !== null ) {
+                $this->$propertyName = $value;
             }
         }
     }
@@ -374,7 +385,7 @@ abstract class Entity extends AbstractCRM
             }
             $tableData[] = [
                 'column_name' => ucfirst( $this->getColumnNiceName( $columnName ) ),
-                'value' => $value
+                'value' => empty($value) ? '-' : $value
             ];
         }
         return (new HTMLTags())::getTableHTML( [

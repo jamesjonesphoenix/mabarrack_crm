@@ -21,10 +21,12 @@ class ArchiveTableCustomers extends ArchiveTable
     protected array $columns = [
 
         'name' => [
-            'title' => 'Name'
+            'title' => 'Name',
+            'default' => '&minus;'
         ],
         'email_address' => [
-            'title' => 'Email Address'
+            'title' => 'Email Address',
+            'default' => '&minus;'
         ],
         'number_of_jobs' => [
             'title' => 'Number of Jobs'
@@ -39,8 +41,8 @@ class ArchiveTableCustomers extends ArchiveTable
     public function extractEntityData($customer): array
     {
         return [
-            'name' => $customer->name ?? '&minus;',
-            'email_address' => $customer->emailAddress ?? '-',
+            'name' => $customer->name,
+            'email_address' => $customer->emailAddress,
             'number_of_jobs' => count( $customer->jobs ),
         ];
     }

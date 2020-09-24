@@ -27,10 +27,12 @@ class ArchiveTableShifts extends ArchiveTable
             'format' => 'date'
         ],
         'time_started' => [
-            'title' => 'Time Started'
+            'title' => 'Time Started',
+            'default' => '-'
         ],
         'time_finished' => [
             'title' => 'Time Finished',
+            'default' => '-'
         ],
         'minutes' => [
             'title' => 'Minutes',
@@ -42,7 +44,8 @@ class ArchiveTableShifts extends ArchiveTable
             'format' => 'hoursminutes'
         ],
         'activity' => [
-            'title' => 'Activity'
+            'title' => 'Activity',
+            'default' => '-'
         ]
     ];
 
@@ -65,11 +68,11 @@ class ArchiveTableShifts extends ArchiveTable
                     'class' => 'text-white'
                 ] ) ?? $shift->worker->name,
             'date' => $shift->date,
-            'time_started' => $shift->timeStarted ?? '-',
-            'time_finished' => $shift->timeFinished ?? '-',
+            'time_started' => $shift->timeStarted,
+            'time_finished' => $shift->timeFinished,
             'minutes' => $minutes,
             'hours' => $minutes,
-            'activity' => $shift->activity->displayName ?? '-',
+            'activity' => $shift->activity->displayName,
         ];
     }
 }

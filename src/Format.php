@@ -15,6 +15,37 @@ use DateTime;
  */
 class Format
 {
+    /**
+     * @param array $array
+     * @param array $args
+     * @return array
+     */
+    public static function insertShims(array $array = [], array $args = []): array
+    {
+        if ( empty( $array ) ) {
+            return [];
+        }
+        foreach ( $args as &$arg ) {
+            foreach ( $array as $key => $item ) {
+                if ( !empty( $arg['regular_expression'] ) ) {
+                    $arg['count'][$key] = preg_match_all( $arg['match'], $item );
+                } else {
+                    $arg['count'][$key] = substr_count( $item, $arg['match'] );
+                }
+            }
+        }
+        unset( $arg );
+        foreach ( $args as &$arg ) {
+            foreach ( $array as $key => &$item ) {
+                if($item === '-' || $item === 'N/A'){
+                    continue;
+                }
+                $shimsToAdd = max( $arg['count'] ) - $arg['count'][$key];
+                $item = str_repeat( $arg['shim'], $shimsToAdd ) . $item;
+            }
+        }
+        return $array;
+    }
 
     /**
      * Convert minutes to hours:minutes
@@ -43,41 +74,6 @@ class Format
     }
 
     /**
-     * @param array $array
-     * @param array $args
-     * @return array
-     */
-    public static function insertShims(array $array = [], array $args = []): array
-    {
-        if ( empty( $array ) ) {
-            return [];
-        }
-
-
-        foreach ( $args as &$arg ) {
-            foreach ( $array as $key => $item ) {
-                if ( !empty( $arg['regular_expression'] ) ) {
-                    $arg['count'][$key] = preg_match_all( $arg['match'], $item );
-                } else {
-                    $arg['count'][$key] = substr_count( $item, $arg['match'] );
-                }
-            }
-
-        }
-        unset( $arg );
-        foreach ( $args as &$arg ) {
-            foreach ( $array as $key => &$item ) {
-                if($item === '-' || $item === 'N/A'){
-                    continue;
-                }
-                $shimsToAdd = max( $arg['count'] ) - $arg['count'][$key];
-                $item = str_repeat( $arg['shim'], $shimsToAdd ) . $item;
-            }
-        }
-        return $array;
-    }
-
-    /**
      * @param int|string $value
      * @return string
      */
@@ -96,7 +92,6 @@ class Format
         }
         return $negativeSign . '$' . number_format( $value, 2 );
     }
-
 
     /**
      * @param string $value
@@ -166,8 +161,16 @@ class Format
             return $differenceMonths . ' months' . $suffix;
         }
         return $daysToCalcWith . ' days' . $suffix;
+    }
 
-
+    /**
+     * @param string $date
+     * @return string
+     */
+    public
+    static function annotateDateAllDays(string $date = ''): string
+    {
+        return self::annotateDate($date, true);
     }
 
     /**
@@ -178,16 +181,21 @@ class Format
     public
     static function annotateDate(string $date = '', $allDays = false): string
     {
+        $date = self::date($date);
+        d($date);
         if ( empty( $date ) ) {
             return $date;
         }
+        /*
         if ( strlen( $date ) > 10 ) {
             return $date;
         }
+        */
         $annotation = self::daysFromTodayToWords( $date, $allDays );
         if ( !empty( $annotation ) ) {
             $date .= ' <small class="d-print-none">(' . $annotation . ')</small>';
         }
+        d($date);
         return $date;
     }
 
@@ -196,11 +204,12 @@ class Format
      * @return string
      */
     public
-    static function percentage(float $value): string
+    static function percentage($value): string
     {
-        if ( $value === 0 ) {
-            return '-';
+        if ( !is_numeric( $value ) ) {
+            return $value;
         }
+        // if ( $value === (float)0  ) { return '-'; }
         return number_format( 100 * $value, 1 ) . '%';
     }
 
@@ -249,6 +258,10 @@ class Format
                 $methodName = 'annotateDate';
                 $doNotShim = true;
                 break;
+            case 'annotateDateAllDays':
+                $methodName = 'annotateDateAllDays';
+                $doNotShim = true;
+                break;
             case 'daysFromTodayToWords':
                 $methodName = 'daysFromTodayToWords';
                 $doNotShim = true;
@@ -261,7 +274,6 @@ class Format
         if ( !empty( $methodName ) ) {
             foreach ( $array as &$value ) {
                 $value = self::$methodName( $value );
-
             }
         }
         unset( $value );

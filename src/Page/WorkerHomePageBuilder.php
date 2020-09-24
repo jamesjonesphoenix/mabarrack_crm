@@ -121,7 +121,7 @@ class WorkerHomePageBuilder extends WorkerPageBuilder
                 ->setEntities( $shiftsCurrent->getAll() )
                 ->setTitle( 'Your Current ' . ucfirst( $shiftsCurrent->getPluralOrSingular() ) )
                 ->setEmptyReportMessage( 'You are not currently clocked into any shifts.', 'info' )
-                ->ignoreErrors(),
+                ->removeErrors(),
             'shift_latest_archive' => (new ArchiveTableShiftsWorkerHome(
                 $htmlUtility,
                 $format,
@@ -129,7 +129,7 @@ class WorkerHomePageBuilder extends WorkerPageBuilder
                 ->setEntities( $user->shifts->getLastWorkedShifts( 5 )->getAll() )
                 ->setTitle( 'Your Recent Shifts' )
                 ->setEmptyReportMessage( 'No recent shifts found.' )
-                ->ignoreErrors(),
+                ->removeErrors(),
 
 
             'time_clock_record' => (new WorkerTimeClockRecord(
