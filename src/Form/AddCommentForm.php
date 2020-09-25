@@ -52,6 +52,14 @@ class AddCommentForm extends Form
             'name' => 'add_comment',
             'value' => 1,
         ] );
+        if ( !empty( $this->comment ) ) {
+            $submit = 'Update';
+            $cancel = 'Cancel';
+        } else {
+            $submit = 'Add';
+            $cancel = 'No comment';
+        }
+
         $this->fields['comment'] = $this->htmlUtility::getTextAreaFieldHTML( [
             'name' => 'comment',
             //'label' => 'Comment',
@@ -63,11 +71,11 @@ class AddCommentForm extends Form
                     'type' => 'submit',
                     'class' => ['btn', 'btn-primary', 'btn-lg'],
                     //'id' => 'submit-button',
-                    'value' => (!empty( $this->comment ) ? 'Update' : 'Add') . ' comment'
+                    'value' => $submit . ' comment'
                 ] ) . $this->htmlUtility::getButton( [
                     'element' => 'a',
                     'class' => ['btn', 'btn-lg', 'btn-secondary'],
-                    'content' => '<span class="centre-vertically">No comment</span><span class="invisible">No comment</span>',
+                    'content' => '<span class="centre-vertically">' . $cancel . '</span><span class="invisible">' . $cancel . '</span>',
                     'href' => 'worker.php'
                 ] )
         ] );

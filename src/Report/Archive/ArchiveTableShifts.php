@@ -28,11 +28,11 @@ class ArchiveTableShifts extends ArchiveTable
         ],
         'time_started' => [
             'title' => 'Time Started',
-            'default' => '-'
+            'default' => '&minus;'
         ],
         'time_finished' => [
             'title' => 'Time Finished',
-            'default' => '-'
+            'default' => '&minus;'
         ],
         'minutes' => [
             'title' => 'Minutes',
@@ -45,7 +45,12 @@ class ArchiveTableShifts extends ArchiveTable
         ],
         'activity' => [
             'title' => 'Activity',
-            'default' => '-'
+            'default' => '&minus;'
+        ],
+        'comment' => [
+            'title' => 'Comment',
+            'default' => '&minus;',
+            'hidden' => true
         ]
     ];
 
@@ -73,6 +78,7 @@ class ArchiveTableShifts extends ArchiveTable
             'minutes' => $minutes,
             'hours' => $minutes,
             'activity' => $shift->activity->displayName,
+            'comment' => $shift->activityComments
         ];
     }
 }

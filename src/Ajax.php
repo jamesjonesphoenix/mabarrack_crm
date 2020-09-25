@@ -79,7 +79,7 @@ class Ajax extends AbstractCRM
                 //$provision = $this->action === 'delete-dry-run';
                 $this->entity = $entityFactory->getEntity( $id );
                 if ( $this->entity === null || !$this->entity->exists ) {
-                    return $this->addError( ucwords( $this->entity->entityName ) . ' with ID: ' . $id . " doesn't exist in database." );
+                    return $this->addError( ucwords( $this->entity->entityName ) . '<span class="badge badge-danger">ID: ' . $id . "</span> doesn't exist in database." );
                 }
                 break;
             case 'add':
@@ -134,8 +134,8 @@ class Ajax extends AbstractCRM
         }
         //$entity = $this->entity->init( $this->inputData );
         $entity = $this->entity;
-        foreach($this->inputData as $key => $value){
-            $entity->setProperty($key, $value);
+        foreach ( $this->inputData as $key => $value ) {
+            $entity->setProperty( $key, $value );
         }
 
         if ( $this->action === 'add' || $this->action === 'update' ) {

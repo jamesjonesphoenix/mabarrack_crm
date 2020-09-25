@@ -96,7 +96,7 @@ class DetailPageBuilderJob extends DetailPageBuilder
             )->setGroupByForm(
                 $this->getGroupByForm(),
                 $this->groupBy
-            )->setTitle( 'Job <small>ID: ' . $entity->id . '</small> Shifts' )
+            )->setTitle( 'Job <span class="badge badge-primary">ID: ' . $entity->id . '</span> Shifts' )
         ];
         foreach ( $reports as $report ) {
             $this->page->addContent( $report->render() );

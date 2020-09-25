@@ -80,6 +80,10 @@ table.table {
   }
 }
 
+body.worker table.table tr td.date {
+  white-space: normal;
+}
+
 table.table.table-sorter {
   //16:1
   th.tablesorter-header:not(.sorter-false),

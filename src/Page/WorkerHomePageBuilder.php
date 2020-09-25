@@ -111,7 +111,6 @@ class WorkerHomePageBuilder extends WorkerPageBuilder
         $htmlUtility = $this->HTMLUtility;
 
         $shiftsCurrent = $user->shifts->getUnfinishedShifts();
-        //$recentShifts = $user->shifts->getLastWorkedShifts( 5 )->getAll();
 
         $reports = [
             'current_shift_archive' => (new ArchiveTableShiftsWorkerHome(
@@ -130,8 +129,6 @@ class WorkerHomePageBuilder extends WorkerPageBuilder
                 ->setTitle( 'Your Recent Shifts' )
                 ->setEmptyReportMessage( 'No recent shifts found.' )
                 ->removeErrors(),
-
-
             'time_clock_record' => (new WorkerTimeClockRecord(
                 $htmlUtility,
                 $format,
@@ -143,7 +140,20 @@ class WorkerHomePageBuilder extends WorkerPageBuilder
         ];
         if ( $shiftsCurrent->getCount() ) {
             $reports['shift_latest_archive']->dontIncludeColumnToggles();
-            //$dontShowRecentShiftToggles = true;
+        }
+        $reports['current_shift_archive']->extractData(); // hackish - extractData() now run twice
+        $reports['shift_latest_archive']->extractData(); //hackish - extractData() now run twice
+
+
+        foreach ( $reports['current_shift_archive']->getColumns() as $columnID => $columnArgs ) {
+            if ( !empty( $columnArgs['not_empty'] ) ) {
+                $reports['shift_latest_archive']->editColumn( $columnID, ['not_empty' => true] );
+            }
+        }
+        foreach ( $reports['shift_latest_archive']->getColumns() as $columnID => $columnArgs ) {
+            if ( !empty( $columnArgs['not_empty'] ) ) {
+                $reports['current_shift_archive']->editColumn( $columnID, ['not_empty' => true] );
+            }
         }
         foreach ( $reports as $report ) {
             $this->page->addContent( $report->render() );
@@ -157,7 +167,7 @@ class WorkerHomePageBuilder extends WorkerPageBuilder
      */
     public function addActionButtons(): self
     {
-        $class = 'btn btn-lg btn-block mb-3';
+        $class = 'btn btn-lg btn-block ';
         $user = $this->user;
         if ( !empty( $user->healthCheck() ) ) {
             $this->page->setActions( $this->HTMLUtility::getAlertHTML( 'No actions available due to error.', 'warning', false ) );

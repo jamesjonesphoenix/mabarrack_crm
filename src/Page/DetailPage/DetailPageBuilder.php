@@ -41,7 +41,7 @@ abstract class DetailPageBuilder extends EntityPageBuilder
         $entity = $entityFactory->getEntities( ['ID' => $entityID], true )[$entityID];
 //d($entity);
         if ( $entity === null ) {
-            $this->messages->add( ucfirst( $entityFactory->getNew()->entityName ) . ' with id <strong>' . $entityID . '</strong> does not exist. Redirected to main page.' );
+            $this->messages->add( ucfirst( $entityFactory->getNew()->entityName ) . ' <span class="badge badge-danger">ID: ' . $entityID . "</span> doesn't exist. Redirected to main page." );
             redirect( 'index' );
         }
         $this->entity = $entity;
@@ -113,7 +113,7 @@ abstract class DetailPageBuilder extends EntityPageBuilder
                 $this->getGoToIDForm()->render()
             );
         if ( $entity->exists && !empty( $healthCheck = $entity->healthCheck() ) ) {
-            $this->addError( '<h5 class="alert-heading">Problems with ' . $entity->entityName . ' ID: <strong>' . $entity->id . '</strong>:</h5>' . $healthCheck );
+            $this->addError( '<h5 class="alert-heading">Problems with ' . $entity->entityName . ' <span class="badge badge-primary">ID: ' . $entity->id  . '</span></h5>' . $healthCheck );
         }
         $this->addForm();
         $this->addReports();
@@ -130,6 +130,7 @@ abstract class DetailPageBuilder extends EntityPageBuilder
         $entity = $this->getEntity();
         $entityName = ucwords( $entity->entityName ) ?? 'Entity';
         $title = $this->entity->id !== null ? $entityName . ' Details' : 'New ' . $entityName;
+        //' <span class="badge badge-primary"> ' . $entity->id  . '</span>
         $this->page->setTitle( $entity->getIcon() . ' ' . $title );
         $this->page->setHeadTitle( $title );
         return $this;

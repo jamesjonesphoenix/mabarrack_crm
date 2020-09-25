@@ -2653,7 +2653,7 @@ fieldset:disabled a.btn {
   display: block;
   width: 100%; }
   .btn-block + .btn-block {
-    margin-top: 0.5rem; }
+    margin-top: 1rem; }
 
 input[type="submit"].btn-block,
 input[type="reset"].btn-block,
@@ -13147,6 +13147,9 @@ table.table td.errors {
   padding: 0; }
   table.table td.errors .list-group-item {
     padding: 0.75rem; }
+
+body.worker table.table tr td.date {
+  white-space: normal; }
 
 table.table.table-sorter th.tablesorter-header:not(.sorter-false),
 table.table.table-sorter th.header {

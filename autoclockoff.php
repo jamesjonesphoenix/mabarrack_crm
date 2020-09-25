@@ -38,7 +38,7 @@ if ( !empty( $unfinishedShifts ) ) { //there are unfinished shifts from the day
             array('ID' => $unfinishedShift['ID']) ) ) {
             $messages->add( 'Failed to update shift.' );
         } else {
-            $messages->add( 'Successfully clocked off shift with ID of ' . $unfinishedShift['ID'] . '.' );
+            $messages->add( 'Successfully clocked off shift <span class="badge badge-primary">ID: ' . $unfinishedShift['ID'] . '</span>' );
         }
     }
 } else {

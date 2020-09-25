@@ -20,23 +20,21 @@ abstract class ChoosePageBuilder extends WorkerPageBuilder
      */
     protected Page $page;
 
-
-    /**
-     * @var string
-     */
-    protected string $pageTitle = '';
-
-
     /**
      * @return $this
      */
     public function buildPage(): self
     {
         $this->page = $this->getNewPage()
-            ->setTitle( $this->pageTitle )
             ->setNavLinks( $this->getMenuItems() );
+        $this->addTitle();
         return $this->addChooseTables();
     }
+
+    /**
+     * @return $this
+     */
+    abstract public function addTitle(): self;
 
     /**
      * @return $this

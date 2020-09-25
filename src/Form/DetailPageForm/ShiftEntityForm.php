@@ -108,6 +108,12 @@ class ShiftEntityForm extends DetailPageEntityForm
             'value' => $this->entity->timeFinished,
             'disabled' => $this->isDisabled()
         ] );
+        $this->fields['comment'] = $this->htmlUtility::getTextAreaFieldHTML( [
+            'name' => 'activity_comments',
+            'label' => 'Comment',
+            'value' => $this->entity->activityComments,
+            'disabled' => $this->isDisabled()
+        ] );
         return $this;
     }
 
@@ -116,6 +122,11 @@ class ShiftEntityForm extends DetailPageEntityForm
      */
     public function renderFields(): string
     {
+        //$lastRow = [$this->fields['activity'], $this->fields['furniture'], $this->fields['comment']];
+        $lastRow = '4';
+        if ( empty( $this->fields['furniture'] ) ) {
+            $lastRow = '6';
+        }
         ob_start();
         ?>
         <div class="form-row">
@@ -141,11 +152,16 @@ class ShiftEntityForm extends DetailPageEntityForm
             </div>
         </div>
         <div class="form-row">
-            <div class="form-group col-md-6">
+            <div class="form-group col-md-<?php echo $lastRow; ?>">
                 <?php echo $this->fields['activity']; ?>
             </div>
-            <div class="form-group col-md-6">
-                <?php echo $this->fields['furniture']; ?>
+            <?php if ( !empty( $this->fields['furniture'] ) ) { ?>
+                <div class="form-group col-md-<?php echo $lastRow; ?>">
+                    <?php echo $this->fields['furniture']; ?>
+                </div>
+            <?php } ?>
+            <div class="form-group col-md-<?php echo $lastRow; ?>">
+                <?php echo $this->fields['comment']; ?>
             </div>
         </div>
         <?php

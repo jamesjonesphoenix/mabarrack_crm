@@ -446,29 +446,22 @@ class User extends Entity
         if ( !empty( $this->healthCheck() ) ) {
             return false;
         }
-        /*
-                $li = '<li class="list-group-item list-group-item-danger">';
-                return '<ul class="list-group list-group-flush">'
-                    . $li
-                    . implode( '</li>' . $li, $errors )
-                    . '</li></ul>';
-        */
         $newShift = (new ShiftFactory( $this->db, $this->messages ))->getNew();
         $newShift->worker = $this;
             $newShift->job = (new JobFactory( $this->db, $this->messages ))->getEntity( $jobID );
             if ( $newShift->job->id === null ) {
-                $errors[] = 'Job with ID: <strong>' . $jobID . "</strong> doesn't exist.";
+                $errors[] = 'Job <span class="badge badge-danger">ID: ' . $jobID . "</span> doesn't exist.";
             }
 
         $newShift->activity = (new ActivityFactory( $this->db, $this->messages ))->getEntity( $activityID );
         if ( $newShift->activity->id === null ) {
-            $errors[] = 'Activity with ID: <strong>' . $activityID . "</strong> doesn't exist.";
+            $errors[] = 'Activity <span class="badge badge-danger">ID: ' . $activityID . "</span> doesn't exist.";
         }
 
         if ( $furnitureID !== null && $furnitureID !== '') {
             $newShift->furniture = (new FurnitureFactory( $this->db, $this->messages ))->getEntity( $furnitureID );
             if ( $newShift->furniture->id === null ) {
-                $errors[] = 'Furniture with ID: <strong>' . $furnitureID . "</strong> doesn't exist.";
+                $errors[] = 'Furniture <span class="badge badge-danger">ID: ' . $furnitureID . "</span> doesn't exist.";
             }
         }
         if ( !empty( $errors ) ) {
@@ -491,6 +484,8 @@ class User extends Entity
                 return false;
             }
         }
+
+
         if ( $newShift->save() ) {
             $newShift->activity = (new ActivityFactory( $this->db, $this->messages ))->getEntity( $activityID );
             $newShift->job = (new JobFactory( $this->db, $this->messages ))->getJob( $jobID );
@@ -498,6 +493,7 @@ class User extends Entity
             $this->shifts->addOrReplaceShift( $newShift );
             return $newShift;
         }
+
         return false;
     }
 

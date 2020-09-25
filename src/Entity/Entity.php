@@ -97,7 +97,7 @@ abstract class Entity extends AbstractCRM
         parent::__set( $name, $value );
         $newValue = $this->$name;
         if ( $oldValue !== $newValue &&
-            (!($oldValue instanceof self) || ($oldValue->id ?? null) !== ($newValue->id ?? null)) ) {
+            (!($oldValue instanceof self) || $oldValue->id !== $newValue->id) ) {
             $this->changed[$name] = true;
         }
     }
@@ -385,7 +385,7 @@ abstract class Entity extends AbstractCRM
             }
             $tableData[] = [
                 'column_name' => ucfirst( $this->getColumnNiceName( $columnName ) ),
-                'value' => empty($value) ? '-' : $value
+                'value' => empty( $value ) ? '-' : $value
             ];
         }
         return (new HTMLTags())::getTableHTML( [
@@ -450,7 +450,8 @@ abstract class Entity extends AbstractCRM
     {
         $action = 'create';
         if ( $this->exists ) {
-            return $this->addError( "Can't " . $this->getActionString( 'present', $action ) . '. ' . ucfirst( $this->entityName ) . ' with id=' . $this->id . ' already exists.' );
+            return $this->addError( "Can't " . $this->getActionString( 'present', $action ) . '. ' . ucfirst( $this->entityName )
+                . ' <span class="badge badge-danger">ID: ' .  $this->id . '</span> already exists.' );
         }
         if ( empty( $data ) ) {
             return $this->addError( "Can't " . $this->getActionString( 'present', $action ) . '. No data to put into database.' );
@@ -460,7 +461,8 @@ abstract class Entity extends AbstractCRM
         if ( phValidateID( $result ) ) {
             $this->id = phValidateID( $result );
             $this->messages->add(
-                ucfirst( $this->getActionString( 'past', $action ) ) . ' and assigned ID: ' . $this->id . '.', 'success'
+                ucfirst( $this->getActionString( 'past', $action ) ) . ' <span class="badge badge-primary">ID: ' . $this->id . '</span>'
+                , 'success'
             );
             $this->changed = [];
             return $this->id;
@@ -481,7 +483,7 @@ abstract class Entity extends AbstractCRM
         if ( !$this->exists ) {
             return $this->addError( "Can't " . $this->getActionString( 'present', $action ) . " because it doesn't exist." );
         }
-        $idString = ' with ID: ' . $this->id . '.';
+        $idString = ' <span class="badge badge-primary">ID: ' . $this->id . '</span>';
         $messageNoChanges = 'No changes were made to ' . $this->entityName . $idString;
 
 
@@ -529,6 +531,8 @@ abstract class Entity extends AbstractCRM
      */
     public function save()
     {
+        //d( $this->changed );
+        //d( $this->columns );
         $actionString = $this->getActionString( 'present' );
         $data = [];
 
@@ -570,7 +574,7 @@ abstract class Entity extends AbstractCRM
         if ( $this->exists ) {
             return $this->updateDBRow( $data );
         }
-        $addRow = $this->addDBRow( $data );
+         $addRow = $this->addDBRow( $data );
         if ( is_int( $addRow ) ) {
             $this->id = $addRow;
             $this->exists = true;
@@ -652,9 +656,8 @@ abstract class Entity extends AbstractCRM
         if ( method_exists( $this, 'name' ) ) {
             $mainString .= ' named ' . $this->name();
         }
-        $mainString .= ' with ID: <strong>' . $this->id . '</strong>.';
+        $mainString .= ' <span class="badge badge-primary">ID: ' . $this->id . '</span>';
         if ( $this->db->delete( $this->tableName, ['ID' => $this->id] ) ) {
-            //$this->messages->add( 'Successfully deleted ' . $this->entityName . ' with ID: <strong>' . $this->id . '</strong>.', 'success' );
             $this->messages->add( 'Deleted ' . $mainString, 'success' );
             return true;
         }

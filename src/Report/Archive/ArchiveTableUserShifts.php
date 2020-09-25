@@ -28,11 +28,11 @@ class ArchiveTableUserShifts extends ArchiveTable
         ],
         'time_started' => [
             'title' => 'Time Started',
-            'default' => '-'
+            'default' => '&minus;'
         ],
         'time_finished' => [
             'title' => 'Time Finished',
-            'default' => '-'
+            'default' => '&minus;'
         ],
         'minutes' => [
             'title' => 'Minutes',

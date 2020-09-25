@@ -48,7 +48,7 @@ class ArchiveTableJobShifts extends ArchiveTable
         ],
         'activity' => [
             'title' => 'Activity',
-            'default' => '-'
+            'default' => '&minus;'
         ],
         'rate' => [
             'title' => 'Rate',

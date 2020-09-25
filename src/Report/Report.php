@@ -33,12 +33,17 @@ abstract class Report extends Base
     protected string $title = '';
 
     /**
+     * @var bool
+     */
+    protected bool $fullwidth = true;
+
+    /**
      * Report constructor.
      *
      * @param HTMLTags $htmlUtility
      * @param Format   $format
      */
-    public function __construct(HTMLTags $htmlUtility, Format $format )
+    public function __construct(HTMLTags $htmlUtility, Format $format)
     {
         $this->htmlUtility = $htmlUtility;
         $this->format = $format;
@@ -91,9 +96,10 @@ abstract class Report extends Base
     /**
      * @return string
      */
-    public function render(): string{
+    public function render(): string
+    {
         ob_start();
-         ?>
+        ?>
         <div class="container mb-4">
             <?php echo $this->htmlUtility::getNavHTML( [
                 'title' => $this->getTitle(),
@@ -105,7 +111,7 @@ abstract class Report extends Base
 
             ?>
             <div class="row">
-                <div class="col">
+                <div class="<?php echo $this->fullwidth ? 'col' : 'col-auto'; ?>">
                     <div class="grey-bg p-3">
                         <?php echo $this->renderReport(); ?>
                     </div>

@@ -3,6 +3,9 @@
 namespace Phoenix\Page\WorkerChoose;
 
 use Phoenix\Entity\ActivityFactory;
+use Phoenix\Entity\FurnitureFactory;
+use Phoenix\Entity\Job;
+use Phoenix\Entity\JobFactory;
 use Phoenix\Report\ChooseActivityTable;
 
 /**
@@ -16,25 +19,22 @@ class ChoosePageBuilderActivity extends ChoosePageBuilder
     /**
      * @var int|null
      */
-    private ?int $jobID;
-
-    /**
-     * @var int|null
-     */
     private ?int $furnitureID;
 
-    /**
-     * @var string
-     */
-    protected string $pageTitle = 'Choose Activity';
+    private Job $job;
 
     /**
      * @param int|null $jobID
      * @return $this
      */
-    public function setJobID(int $jobID = null): self
+    public function setJob(int $jobID = null): self
     {
-        $this->jobID = $jobID;
+        if ( $jobID !== null ) {
+            $job = (new JobFactory( $this->db, $this->messages ))->getEntity( $jobID );
+            if ( $job !== null ) {
+                $this->job = $job;
+            }
+        }
         return $this;
     }
 
@@ -49,23 +49,38 @@ class ChoosePageBuilderActivity extends ChoosePageBuilder
     }
 
     /**
+     * @return $this
+     */
+    public function addTitle(): self
+    {
+        $jobID = $this->job->id === 0 ? '<span class="badge badge-primary">Factory</span> Job' : 'Job <span class="badge badge-primary">' . $this->job->id . '</span>';
+        if ( isset( $this->furnitureID ) ) {
+            //$furniture = (new FurnitureFactory( $this->db, $this->messages ))->getEntity( $this->furnitureID );
+            $furniture = $this->job->furniture[$this->furnitureID] ?? null;
+            $furnitureString = ' <span class="badge badge-primary">' . ($furniture->name ?? 'Unknown Furniture') . '</span> in ';
+        }
+        $this->page->setTitle( 'Choose Activity for ' . ($furnitureString ?? '') . $jobID );
+        return $this;
+    }
+
+    /**
      * @return string[][]
      */
     public function getMenuItems(): array
     {
-        return array_merge( [
-            'choose_furniture' => [
-                'url' => 'worker.php?job=' . $this->jobID . '&choose=furniture',
+        if ( count( $this->job->furniture ?? [] ) > 1 ) {
+            $menuItems['choose_furniture'] = [
+                'url' => 'worker.php?job=' . $this->job->id . '&choose=furniture',
                 'text' => 'Choose Different Furniture',
                 'class' => 'bg-info'
-            ],
-            'choose_job' => [
-                'url' => 'worker.php?choose=job',
-                'text' => 'Choose Different Job',
-                'class' => 'bg-info'
-            ]],
-            parent::getMenuItems()
-        );
+            ];
+        }
+        $menuItems['choose_job'] = [
+            'url' => 'worker.php?choose=job',
+            'text' => 'Choose Different Job',
+            'class' => 'bg-info'
+        ];
+        return array_merge( $menuItems, parent::getMenuItems() );
     }
 
     /**
@@ -73,11 +88,12 @@ class ChoosePageBuilderActivity extends ChoosePageBuilder
      */
     public function addChooseTables(): self
     {
-        $jobID = $this->jobID ?? null;
+        $jobID = $this->job->id;
         $furnitureID = $this->furnitureID ?? null;
         if ( $jobID === null ) {
             return $this;
         }
+
         foreach ( (new ActivityFactory( $this->db, $this->messages ))->getEntities() as $activity ) {
             if ( $activity->name === 'Lunch' || $activity->category === 'Lunch' ) {
                 continue;
@@ -100,7 +116,6 @@ class ChoosePageBuilderActivity extends ChoosePageBuilder
             }
             $sortedActivities[$activity->type][$activity->id] = $activity;
         }
-
         foreach ( $sortedActivities ?? [] as $activityType => $activities ) {
             $this->page->addContent( (new chooseActivityTable(
                 $this->HTMLUtility,

@@ -15,9 +15,13 @@ use Phoenix\Report\ChooseJobTable;
 class ChoosePageBuilderJob extends ChoosePageBuilder
 {
     /**
-     * @var string
+     * @return $this
      */
-    protected string $pageTitle = 'Choose Job';
+    public function addTitle(): self
+    {
+        $this->page->setTitle( 'Choose Job' );
+        return $this;
+    }
 
     /**
      * @return $this

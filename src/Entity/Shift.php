@@ -222,7 +222,7 @@ class Shift extends Entity
     public function finishShift(): bool
     {
         $shiftName = $this->isLunch();
-        $idString = !empty( $this->id ) ? ' with ID: ' . $this->id : '';
+        $idString = !empty( $this->id ) ? ' <span class="badge badge-primary">ID: ' . $this->id . '</span>'  : '';
         $errorString = "Can't finish " . $shiftName . $idString . '. ';
         $shiftData = $this->getDataHTMLTable();
         if ( empty( $this->exists ) ) {
@@ -255,12 +255,8 @@ class Shift extends Entity
      */
     protected function activity($activity = null)
     {
-
         if ( $activity !== null ) {
             if ( is_int( $activity ) ) {
-                if ( $this->activity->id === $activity ) {
-                    return $this->_activity;
-                }
                 $activityID = $activity;
                 $activity = new Activity();
                 $activity->id = $activityID;
@@ -452,13 +448,13 @@ class Shift extends Entity
         } elseif ( empty( $this->furniture->name ) ) {
             //$dummyFurniture = new Furniture();
             //$dummyFurniture->id = $furnitureID;
-            $errors[] = '<p>Shift ID: <strong>' . $this->id . '</strong> is assigned with furniture ID <strong>' . $this->furniture->id . '</strong> but unknown furniture name. Does this furniture exist?</p>';
+            $errors[] = '<p>Shift <span class="badge badge-primary">ID: ' . $this->id . '</span> is assigned with furniture <span class="badge badge-primary">ID: ' . $this->furniture->id . '</span> but unknown furniture name. Does this furniture exist?</p>';
         }
         if ( empty( $this->job->furniture ) ) {
-            $errors[] = 'Job ID: <strong>' . $this->job->id . '</strong> has no furniture assigned for this shift to be assigned to.';
+            $errors[] = 'Job <span class="badge badge-primary">ID: ' . $this->job->id . '</span> has no furniture assigned for this shift to be assigned to.';
         }
         if ( !array_key_exists( $this->furniture->id, $this->job->furniture ?? [] ) ) {
-            $errors[] = 'Shift is assigned furniture <strong>' . $this->furniture->name . '</strong> which is not part of the assigned job ID: <strong>' . $this->job->id . '</strong>.';
+            $errors[] = 'Shift is assigned furniture <strong>' . $this->furniture->name . '</strong> which is not part of the assigned job <span class="badge badge-primary">ID: ' . $this->job->id . '</span>';
         }
 
 

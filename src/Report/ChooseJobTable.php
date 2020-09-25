@@ -85,17 +85,17 @@ class ChooseJobTable extends Report
         ];
         if ( $job->id === 0 ) {
             return array_merge( [
+                'id' => 'Factory',
                 'left' => 'Non-billable internal factory work.',
             ], $rightHandCells );
         }
         $healthCheck = $job->healthCheck();
         $data = [
-            'left.id' => $job->id,
+            'id' => $job->id,
             'left.customer' => $job->customer->name ?? 'N/A',
             'left.description' => $job->description,
             'left.furniture' => $job->getFurnitureString( false ),
         ];
-
 
 
         if ( empty( $healthCheck ) ) {
@@ -129,24 +129,27 @@ class ChooseJobTable extends Report
         if ( empty( $jobTableData ) ) {
             return $this->htmlUtility::getAlertHTML( 'No jobs to choose from.', 'info', false );
         }
-        $columnTitles = [
-            'left.id' => 'ID',
-            'left.customer' => 'Customer',
-            'left.description' => 'Description',
-            'left.furniture' => 'Furniture',
-            'right.select' => '',
-            'right.last_worked' => 'Last Worked By You',
-        ];
+
         if ( count( $jobTableData ) === 1 && key( $jobTableData ) === 0 ) {
             $columnTitles = [
+                'id' => 'ID',
                 'left.description' => 'Description',
-                'left.id' => '',
                 'left.customer' => '',
                 'left.furniture' => '',
                 'right.select' => '',
                 'right.last_worked' => 'Last Worked By You',
             ];
+        } else {
+            $columnTitles = [
+                'id' => 'ID',
+                'left.customer' => 'Customer',
+                'left.description' => 'Description',
+                'left.furniture' => 'Furniture',
+                'right.select' => '',
+                'right.last_worked' => 'Last Worked By You',
+            ];
         }
+
         return $this->htmlUtility::getTableHTML( [
             'data' => $jobTableData,
             'columns' => $columnTitles ?? [],

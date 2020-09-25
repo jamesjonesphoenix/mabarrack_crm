@@ -5,6 +5,7 @@ namespace Phoenix\Entity;
 /**
  * @method Job[] addOneToOneEntityProperties(array $entities = [], EntityFactory $additionFactory = null, string $joinPropertyName = '')
  * @method Job[] instantiateEntitiesFromDB(array $queryArgs = [])
+ * @method Job getEntity(int $id = 0) : ?Entity
  *
  * Class JobFactory
  */

@@ -27,10 +27,11 @@ class ArchiveTableShiftsWorkerHome extends ArchiveTable
         ],
         'customer' => [
             'title' => 'Customer',
-            'default' => '-'
+            'default' =>'&minus;'
         ],
         'description' => [
             'title' => 'Description',
+            'default' => '&minus;'
         ],
         'date' => [
             'title' => 'Date',
@@ -38,14 +39,19 @@ class ArchiveTableShiftsWorkerHome extends ArchiveTable
         ],
         'time_started' => [
             'title' => 'Time Started',
-            'default' => '-'
+            'default' => '&minus;'
         ],
         'time_finished' => [
             'title' => 'Time Finished',
-            'default' => '-'
+            'default' => '&minus;'
         ],
         'furniture' => [
             'title' => 'Furniture',
+            'hidden' => true
+        ],
+        'minutes' => [
+            'title' => 'Minutes',
+            'format' => 'number',
             'hidden' => true
         ],
         'hours' => [
@@ -60,7 +66,7 @@ class ArchiveTableShiftsWorkerHome extends ArchiveTable
         'comment' => [
             'title' => 'Comment',
             'remove_if_empty' => true,
-            'default' => '-'
+            'default' => '&minus;'
         ]
     ];
 
@@ -109,6 +115,7 @@ class ArchiveTableShiftsWorkerHome extends ArchiveTable
             'time_started' => $shift->timeStarted,
             'time_finished' => $shift->timeFinished,
             'furniture' => $shift->getFurnitureString(),
+            'minutes' => $minutes,
             'hours' => $minutes,
             'activity' => $shift->activity->displayName,
             'comment' => $shift->activityComments

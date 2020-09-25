@@ -16,11 +16,6 @@ use Phoenix\Entity\Job;
 class ChooseFurnitureTable extends Report
 {
     /**
-     *
-     */
-    protected string $title = 'Choose Job Furniture';
-
-    /**
      * @var Job
      */
     protected Job $job;
@@ -34,7 +29,6 @@ class ChooseFurnitureTable extends Report
         if ( $job !== null ) {
             $this->job = $job;
         }
-        $this->setTitle( '<small>Job ID:</small> ' . $job->id );
         return $this;
     }
 

@@ -182,7 +182,6 @@ class Format
     static function annotateDate(string $date = '', $allDays = false): string
     {
         $date = self::date($date);
-        d($date);
         if ( empty( $date ) ) {
             return $date;
         }
@@ -195,7 +194,6 @@ class Format
         if ( !empty( $annotation ) ) {
             $date .= ' <small class="d-print-none">(' . $annotation . ')</small>';
         }
-        d($date);
         return $date;
     }
 

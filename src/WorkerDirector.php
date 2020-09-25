@@ -70,7 +70,7 @@ class WorkerDirector extends AbstractCRM
                 break;
             case 'activity':
                 $pageBuilder = (new ChoosePageBuilderActivity( $this->db, $this->messages ))
-                    ->setJobID( $inputArray['job'] ?? null )
+                    ->setJob( $inputArray['job'] ?? null )
                     ->setFurnitureID( $inputArray['furniture'] ?? null );
                 break;
             default:
@@ -111,7 +111,14 @@ class WorkerDirector extends AbstractCRM
         }
         //when trying to start lunch after already having lunch
         if ( !empty( $inputArray['additional_lunch'] ) && $this->user->hadLunchToday() ) {
-            $this->messages->add( "Are you sure you want to start lunch? You've already clocked a lunch period today." . $this->htmlUtility::getButton( [
+            $numberOfLunches = 0;
+            foreach ( $this->user->shifts->getShiftsToday()->getAll() as $shift ) {
+                if ( $shift->isLunch() === 'lunch' ) {
+                    $numberOfLunches++;
+                }
+            }
+            $numberOfLunches = $numberOfLunches === 1 ? 'a lunch period' : $numberOfLunches . ' lunch periods';
+            $this->messages->add( "Are you sure you want to start lunch? You've already clocked " . $numberOfLunches . ' today.' . $this->htmlUtility::getButton( [
                     'class' => 'btn btn-primary ml-3',
                     'element' => 'a',
                     'content' => 'Yes, Start Lunch',
@@ -145,8 +152,8 @@ class WorkerDirector extends AbstractCRM
 
         if ( !empty( $inputArray['add_comment'] ) ) {
             $shiftID = $inputArray['shift'] ?? null;
-            if($shiftID !== null) {
-                $shift = $this->user->shifts->getOne($shiftID);
+            if ( $shiftID !== null ) {
+                $shift = $this->user->shifts->getOne( $shiftID );
                 // $shift = (new ShiftFactory( $this->db, $this->messages ))->getEntity( $inputArray['shift'] ?? null );
                 if ( empty( $shift ) ) {
 

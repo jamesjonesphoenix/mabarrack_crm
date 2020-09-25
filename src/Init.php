@@ -75,7 +75,7 @@ class Init
                         ]] );
             */
             if ( $user === null ) {
-                $this->messages->add( 'Could not get current user with ID: <strong>' . $this->userID . '</strong>.' );
+                $this->messages->add( 'Could not get current user <span class="badge badge-danger">ID: ' .  $this->userID . '</span>' );
             }
             return $user;
         }

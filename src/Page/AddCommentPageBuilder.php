@@ -43,28 +43,13 @@ class AddCommentPageBuilder extends WorkerPageBuilder
             if(!empty($comment)){
                 $title = 'Update comment';
             }
-            $title .=  ' for shift ID: ' . $this->shiftID;
+            $title .=  ' for shift <span class="badge badge-primary">ID: ' . $this->shiftID . '</span>';
         }
         $this->page = $this->getNewPage()
-            ->setTitle( $title . '?' )
-            ->setNavLinks( $this->getMenuItems() )
+            ->setTitle( $title . ' ?' )
             ->addContent(
                 (new AddCommentForm( $this->HTMLUtility, $this->shiftID, $comment ?? '' ))->makeFields()->render()
             );
         return $this;
-    }
-
-    /**
-     * @return \string[][]
-     */
-    public function getMenuItems(): array
-    {
-        return [
-            'cancel' => [
-                'url' => 'worker.php',
-                'text' => 'Cancel',
-                'class' => 'bg-secondary'
-            ]
-        ];
     }
 }

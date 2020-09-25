@@ -33,6 +33,11 @@ class ChooseActivityTable extends Report
     private string $type = '';
 
     /**
+     * @var bool
+     */
+    protected bool $fullwidth = false;
+
+    /**
      * @param Activity[] $activities
      * @param array      $activityURLs
      * @param string     $type

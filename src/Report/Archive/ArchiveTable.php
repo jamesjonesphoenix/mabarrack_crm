@@ -74,7 +74,7 @@ abstract class ArchiveTable extends Report
                 'errors' => [
                     'title' => 'Errors',
                     'remove_if_empty' => true,
-                    'default' => '-',
+                    'default' => '&minus;',
                     'hidden' => true
                 ],
                 'view' => ['title' => '']

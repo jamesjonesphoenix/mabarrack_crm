@@ -121,6 +121,7 @@ class ActivitySummary extends ShiftsReport
             'data' => $data,
             'columns' => $this->getColumns(),
             'rows' => [
+                'employee_time_general' => ['class' => 'bg-secondary'],
                 'employee_time_manual' => ['class' => 'bg-secondary'],
                 'employee_time_cnc' => ['class' => 'bg-secondary'],
                 'employee_time_all' => ['class' => 'bg-secondary'],
