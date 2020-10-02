@@ -58,7 +58,6 @@ abstract class ArchivePageBuilder extends EntityPageBuilder
      */
     public function getEntities(): array
     {
-        //d($inputArgs);
         if ( !empty( $this->entities ) ) {
             return $this->entities;
         }
@@ -88,7 +87,7 @@ abstract class ArchivePageBuilder extends EntityPageBuilder
                 ($this->getMenuItems())->getMenuItems()
             )->setHeadTitle( ucwords( $this->getEntityFactory()->getEntityNamePlural() ) );
         $this->addArchives();
-        $this->addTitle();;
+        $this->addTitle();
         return $this;
     }
 
@@ -173,20 +172,24 @@ abstract class ArchivePageBuilder extends EntityPageBuilder
      */
     public function addArchives(): self
     {
+        $dummyEntity = $this->getEntityFactory()->getNew();
+
         $report = $this->getArchiveTableReport()
             ->setEntities(
                 $this->getEntities(),
-                $this->getEntityFactory()->getNew(),
+                $dummyEntity,
             )->setGroupByForm(
-                (new GroupByEntityForm( $this->HTMLUtility, $this->getEntityFactory()->getNew() ))
+                (new GroupByEntityForm( $this->HTMLUtility, $dummyEntity ))
                     ->makeHiddenFields( $this->inputArgs ),
                 $this->groupBy
             )->setGoToIDForm( $this->getGoToIDForm() );
         if ( $this->errorEntitiesOnly ) {
             $report
                 ->hideInessentialColumns()
-                ->editColumn( 'errors', ['hidden' => false] );
+                ->editColumn( 'errors', ['hidden' => false] )
+                ->setEmptyReportMessage('No ' . $dummyEntity->entityNamePlural . ' found with errors.', 'success');
         }
+
         $this->page->addContent( $report->render() );
         return $this;
     }

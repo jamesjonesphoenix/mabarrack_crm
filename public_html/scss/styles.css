@@ -13013,11 +13013,7 @@ form.search-by-id.search-by-id-furniture input {
   max-width: 8.4rem; }
 
 body {
-  background: #111111;
-  display: flex;
-  flex-direction: column; }
-  body > div:not(.messages) {
-    order: 10; }
+  background: #111111; }
 
 .main-menu-btn {
   float: left; }
@@ -13255,10 +13251,6 @@ fieldset:disabled .form-control,
   #cancel-button:hover, #cancel-button:active, #cancel-button:focus {
     background: #f2385a; }
 
-#submit-button {
-  position: relative;
-  bottom: 1px; }
-
 #print-button {
   float: right;
   cursor: pointer; }
@@ -13282,6 +13274,9 @@ fieldset:disabled .form-control,
     position: absolute;
     top: 50%;
     transform: translateY(-50%); }
+
+textarea.form-control.shift-comment {
+  height: 125px; }
 
 /*/// TO BE REMOVED///*/
 .well {
@@ -13467,8 +13462,6 @@ a.activity-icon-link:nth-of-type(2n) {
   width: 100%; }
 .job-furniture-row .form-group label {
   display: none; }
-.job-furniture-row .form-group .remove-furniture {
-  margin-top: -4px; }
 .job-furniture-row .form-group:first-child label {
   display: block; }
 .job-furniture-row .form-group:first-child .remove-furniture {

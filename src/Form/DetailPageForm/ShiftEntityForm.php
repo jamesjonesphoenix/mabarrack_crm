@@ -63,25 +63,25 @@ class ShiftEntityForm extends DetailPageEntityForm
             'disabled' => $this->isDisabled()
         ] );
 
-        $this->fields['furniture'] = '';
-        if ( $this->entity->exists && ($this->entity->job->id !== 0 || (isset( $this->entity->activity->factoryOnly ) && $this->entity->activity->factoryOnly === false)) ) {
-            $furnitureLink = is_object( $this->entity->furniture ) ? $this->entity->furniture->getLink() : '';
-            $this->fields['furniture'] = $this->htmlUtility::getOptionDropdownFieldHTML(
-                [
-                    'options' => $furnitureOptions,
-                    'selected' => $this->entity->furniture->id ?? $this->entity->furniture ?? null,
-                    'name' => 'furniture',
-                    'label' => 'Furniture',
-                    'placeholder' => 'Select Furniture',
+        // $this->fields['furniture'] = '';
 
-                    'append' => $this->htmlUtility::getViewButton(
-                        $furnitureLink,
-                        'View Furniture'
-                    ),
-                    'disabled' => $this->isDisabled()
+        // if ( $this->entity->exists && ($this->entity->job->id !== 0 || (isset( $this->entity->activity->factoryOnly ) && $this->entity->activity->factoryOnly === false)) ) {
+        $furnitureLink = $this->entity->furniture->id !== null ? $this->entity->furniture->getLink() : '';
+        $this->fields['furniture'] = $this->htmlUtility::getOptionDropdownFieldHTML( [
+            'options' => empty( $furnitureOptions ) ? [ null => 'N/A'] : $furnitureOptions,
+            'selected' => $this->entity->furniture->id ?? $this->entity->furniture ?? null,
+            'name' => 'furniture',
+            'label' => 'Furniture',
+            'placeholder' => empty( $furnitureOptions ) ? '' : 'Select Furniture',
 
-                ] );
-        }
+            'append' => $this->htmlUtility::getViewButton(
+                $furnitureLink,
+                'View Furniture'
+            ),
+            'disabled' => $this->isDisabled()
+
+        ] );
+        // }
         return $this;
     }
 
@@ -112,7 +112,8 @@ class ShiftEntityForm extends DetailPageEntityForm
             'name' => 'activity_comments',
             'label' => 'Comment',
             'value' => $this->entity->activityComments,
-            'disabled' => $this->isDisabled()
+            'disabled' => $this->isDisabled(),
+            'class' => empty( $this->fields['furniture'] ) ? '' : 'shift-comment'
         ] );
         return $this;
     }
@@ -127,6 +128,7 @@ class ShiftEntityForm extends DetailPageEntityForm
         if ( empty( $this->fields['furniture'] ) ) {
             $lastRow = '6';
         }
+        $this->entity->getShiftLength();
         ob_start();
         ?>
         <div class="form-row">
@@ -139,8 +141,7 @@ class ShiftEntityForm extends DetailPageEntityForm
             <div class="form-group col-md-4">
                 <?php echo $this->fields['worker']; ?>
             </div>
-        </div>
-        <div class="form-row">
+
             <div class="form-group col-md-4">
                 <?php echo $this->fields['date']; ?>
             </div>
@@ -150,19 +151,19 @@ class ShiftEntityForm extends DetailPageEntityForm
             <div class="form-group col-md-4">
                 <?php echo $this->fields['time_finished']; ?>
             </div>
-        </div>
-        <div class="form-row">
-            <div class="form-group col-md-<?php echo $lastRow; ?>">
-                <?php echo $this->fields['activity']; ?>
-            </div>
-            <?php if ( !empty( $this->fields['furniture'] ) ) { ?>
-                <div class="form-group col-md-<?php echo $lastRow; ?>">
+            <div class="col-md-4">
+                <div class="form-group">
+                    <?php echo $this->fields['activity']; ?>
+                </div>
+                <div class="form-group">
                     <?php echo $this->fields['furniture']; ?>
                 </div>
-            <?php } ?>
-            <div class="form-group col-md-<?php echo $lastRow; ?>">
+            </div>
+            <div class="form-group col-md-8">
                 <?php echo $this->fields['comment']; ?>
             </div>
+
+
         </div>
         <?php
         return ob_get_clean();

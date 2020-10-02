@@ -239,7 +239,7 @@ abstract class ArchiveTable extends Report
             foreach ( $columns as $columnID => $columnArgs ) {
                 if ( !empty( $row[$columnID] ) ) {
                     $this->columns[$columnID]['not_empty'] = true;
-                } elseif ( $row[$columnID] !== (float)0 && $row[$columnID] !== 0 ) {
+                } elseif ( !isset( $row[$columnID] ) || ($row[$columnID] !== (float)0 && $row[$columnID] !== 0) ) {
                     $row[$columnID] = $this->columns[$columnID]['default'] ?? '';
                 }
             }

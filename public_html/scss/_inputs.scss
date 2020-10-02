@@ -22,10 +22,6 @@ fieldset:disabled .form-control,
   }
 }
 
-#submit-button {
-  position: relative;
-  bottom: 1px;
-}
 
 #print-button { //to be assigned to print buttons
   float: right;
@@ -59,9 +55,14 @@ fieldset:disabled .form-control,
   .input-group-append {
     a.btn {
       position: relative;
+
       span.centre-vertically {
         @include centre-vertically();
       }
     }
   }
+}
+
+textarea.form-control.shift-comment {
+  height: 125px;
 }

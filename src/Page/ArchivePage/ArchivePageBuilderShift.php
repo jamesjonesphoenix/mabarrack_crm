@@ -21,8 +21,12 @@ class ArchivePageBuilderShift extends ArchivePageBuilder
     protected array $provisionArgs = [
         'activity' => true,
         'worker' => ['shifts' => false],
-        'furniture' => false,
-        'job' => false
+        'furniture' => true,
+        'job' => [
+            'furniture' => false,
+            'shifts' => false,
+            'customer' => false
+        ]
     ];
 
     /**
@@ -46,7 +50,7 @@ class ArchivePageBuilderShift extends ArchivePageBuilder
      */
     protected function getNewArchiveTableReport(): ArchiveTableShifts
     {
-        return new ArchiveTableShifts( $this->HTMLUtility, $this->format);
+        return new ArchiveTableShifts( $this->HTMLUtility, $this->format );
     }
 
     /**
@@ -67,8 +71,8 @@ class ArchivePageBuilderShift extends ArchivePageBuilder
             if ( $date['value'] === date( 'Y-m-01' ) ) {
                 return $icon . ' ' . date( 'F' );
             }
-            if ( $date['value'] === date( 'Y-m-d', strtotime( '-1 week' ) )) {
-                return $icon . ' Last 7 Days of' ;
+            if ( $date['value'] === date( 'Y-m-d', strtotime( '-1 week' ) ) ) {
+                return $icon . ' Last 7 Days of';
             }
         }
         return parent::getTitlePrefix();

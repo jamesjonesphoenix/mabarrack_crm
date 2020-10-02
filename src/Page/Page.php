@@ -73,7 +73,8 @@ class Page extends Base
     /**
      * @return string
      */
-    public function renderBody(): string{
+    public function renderBody(): string
+    {
         return $this->content;
     }
 
@@ -224,7 +225,6 @@ class Page extends Base
             <script type="text/javascript" src="js/jquery.matchHeight.js"></script>
             <script type="text/javascript" src="js/functions.js"></script>
 
-
             <link rel="apple-touch-icon" sizes="114x114" href="/apple-touch-icon.png">
             <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
             <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
@@ -236,26 +236,29 @@ class Page extends Base
         <body class="<?php echo $this->getBodyClasses(); ?>">
         <header class="mb-3">
             <div class="container">
-                <?php
-                echo $this->renderHeader();
-                ?>
+                <?php echo $this->renderHeader(); ?>
             </div>
         </header>
-        <?php
-
+        <?php if ( Messages::instance()->isMessage() ) { ?>
+            <div class="container messages collapse show mb-3" id="collapse-messages-container">
+                <div class="row">
+                    <div class="col">
+                        <div class="px-3">
+                            <h2><i class="fas fa-sticky-note"></i> Messages</h2>
+                        </div>
+                        <div class="grey-bg px-3 py-2">
+                            <?php echo Messages::instance()->getMessagesHTML(); ?>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        <?php }
         echo $this->renderNavbar();
-        echo $this->renderBody();
-
-        //</div>
-        ?>
-        <div class="container messages collapse show mb-3" id="collapse-messages-container">
-            <?php echo Messages::instance()->getMessagesHTML(); ?>
-        </div>
+        echo $this->renderBody(); ?>
         </body>
         <?php echo $this->renderFooterJS(); ?>
         </html>
-        <?php
-        return true;
+        <?php return true;
     }
 
     /**

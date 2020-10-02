@@ -55,14 +55,11 @@ class FormFields extends HTMLTags
             <div class="col">
                 <div class="input-group">
                     <select autocomplete="off"<?php echo self::getAttributes( $args ); ?>>
-                        <?php
-                        foreach ( $options as $optionValue => $optionString ) {
+                        <?php foreach ( $options as $optionValue => $optionString ) {
                             $selected = $selectedValue === $optionValue ? self::makeElementProperty( 'selected', 'selected' ) : '';
-                            $optionValueProperty = self::makeElementProperty( $optionValue, 'value' )
-                            ?>
+                            $optionValueProperty = self::makeElementProperty( $optionValue, 'value' ); ?>
                             <option<?php echo $optionValueProperty . $selected; ?>><?php echo str_replace( '_', ' ', $optionString ) ?></option><?php
-                        }
-                        ?>
+                        } ?>
                     </select>
                     <?php if ( !empty( $args['append'] ) ) { ?>
                         <div class="input-group-append">

@@ -172,20 +172,3 @@ function getScriptFilename($suffix = false)
 {
     return basename( $_SERVER['SCRIPT_FILENAME'], $suffix );
 }
-
-/**
- * @param       $template_name
- * @param array $args
- */
-function getTemplatePart($template_name, $args = [])
-{
-    if ( !empty( $args ) && is_array( $args ) ) {
-        extract( $args, null );
-    }
-    $path = '../templates/' . $template_name . '.php';
-    if ( !file_exists( $path ) ) {
-        echo printf( '%s does not exist.', '<code>' . $path . '</code>' );
-        return;
-    }
-    include $path;
-}

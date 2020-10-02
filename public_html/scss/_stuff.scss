@@ -29,11 +29,11 @@ body {
   background: #111111;
   //font-family: 'Open Sans', sans-serif;
 
-  display: flex; //Make messages appear at top
-  flex-direction: column;
+ // display: flex; //Make messages appear at top
+ // flex-direction: column;
 
   > div:not(.messages) {
-    order: 10;
+   // order: 10;
   }
 }
 

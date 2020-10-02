@@ -51,7 +51,6 @@ class WorkerTimeClockRecord extends WorkerReport
             $timeFinishedSeconds = strtotime( $shift->timeFinished );
 
             $date = date( 'Y-m-d', strtotime( $shift->date ) );
-            //d( date( 'l', strtotime( date( 'Y-m-d' ) ) ) );
             if ( $timeStartedSeconds < $timeClockRecord[$date]['start_time_seconds'] ) { //if start time is earlier, use this shift's start time
                 $timeClockRecord[$date]['start_time'] = date( 'H:i:s', $timeStartedSeconds );
                 $timeClockRecord[$date]['start_time_seconds'] = $timeStartedSeconds;

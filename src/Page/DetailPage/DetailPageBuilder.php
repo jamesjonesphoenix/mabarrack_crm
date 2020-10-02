@@ -10,6 +10,7 @@ use function Phoenix\redirect;
 
 /**
  * Class DetailPageBuilder
+ *
  * @author James Jones
  *
  * @package Phoenix\DetailPage
@@ -38,13 +39,14 @@ abstract class DetailPageBuilder extends EntityPageBuilder
             return $this;
         }
         //Existing entity
-        $entity = $entityFactory->getEntities( ['ID' => $entityID], true )[$entityID];
-//d($entity);
+        $entity = $entityFactory->getEntity( $entityID );
         if ( $entity === null ) {
             $this->messages->add( ucfirst( $entityFactory->getNew()->entityName ) . ' <span class="badge badge-danger">ID: ' . $entityID . "</span> doesn't exist. Redirected to main page." );
             redirect( 'index' );
+            exit;
         }
         $this->entity = $entity;
+
         return $this;
     }
 
@@ -113,7 +115,7 @@ abstract class DetailPageBuilder extends EntityPageBuilder
                 $this->getGoToIDForm()->render()
             );
         if ( $entity->exists && !empty( $healthCheck = $entity->healthCheck() ) ) {
-            $this->addError( '<h5 class="alert-heading">Problems with ' . $entity->entityName . ' <span class="badge badge-primary">ID: ' . $entity->id  . '</span></h5>' . $healthCheck );
+            $this->addError( '<h5 class="alert-heading">Problems with ' . $entity->entityName . ' <span class="badge badge-primary">ID: ' . $entity->id . '</span></h5>' . $healthCheck );
         }
         $this->addForm();
         $this->addReports();

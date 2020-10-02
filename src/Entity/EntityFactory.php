@@ -70,8 +70,8 @@ abstract class EntityFactory extends AbstractCRM
     }
 
     /**
-     * @param array $queryArgs
-     * @param bool  $provision
+     * @param array      $queryArgs
+     * @param bool|array $provision
      * @return Entity[]
      */
     public function getEntities(array $queryArgs = [], $provision = false): array
@@ -83,10 +83,9 @@ abstract class EntityFactory extends AbstractCRM
         return $this->provisionEntities( $entities, $provision );
     }
 
-
     /**
-     * @param Entity[] $entities
-     * @param false    $provision
+     * @param Entity[]   $entities
+     * @param bool|array $provision
      * @return Entity[]
      */
     public function provisionEntities(array $entities = [], $provision = false): array
@@ -95,22 +94,23 @@ abstract class EntityFactory extends AbstractCRM
     }
 
     /**
-     * @param Entity $entity
-     * @param false  $provision
+     * @param Entity     $entity
+     * @param bool|array $provision
      * @return Entity
      */
     public function provisionEntity(Entity $entity, $provision = false): Entity
     {
-        return $this->provisionEntities([$entity->id => $entity], $provision)[$entity->id];
+        return $this->provisionEntities( [$entity->id => $entity], $provision )[$entity->id];
     }
 
     /**
-     * @param int $id
+     * @param int        $id
+     * @param bool|array $provision
      * @return Entity|null
      */
-    public function getEntity(int $id = 0): ?Entity
+    public function getEntity(int $id = 0, $provision = true): ?Entity
     {
-        return $this->getEntities( ['ID' => $id], true )[$id] ?? null;
+        return $this->getEntities( ['ID' => $id], $provision )[$id] ?? null;
     }
 
     /**
@@ -213,7 +213,7 @@ abstract class EntityFactory extends AbstractCRM
      *
      * @param Entity[]           $entities Entity instances
      * @param EntityFactory|null $additionFactory Factory to create the array of additions
-     * @param array|bool               $provisionArgs
+     * @param array|bool         $provisionArgs
      * @param string             $joinPropertyName Required if Entity property name is different to addition class name. Analogous to field in DB JOIN query.
      * @return Entity[]
      */
@@ -232,7 +232,6 @@ abstract class EntityFactory extends AbstractCRM
             //$this->messages->add('At least one ID should have been returned');
             return $entities;
         }
-        //d($additionIDs);
         $propertyQueryArgs = $this->getPropertyQueryArgs( $additionIDs );
         $additions = $additionFactory->getEntities( $propertyQueryArgs, $provisionArgs );
 

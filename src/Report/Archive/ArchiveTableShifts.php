@@ -22,6 +22,13 @@ class ArchiveTableShifts extends ArchiveTable
         'worker' => [
             'title' => 'Worker',
         ],
+        'job' => [
+            'title' => 'Job',
+        ],
+        'furniture' => [
+            'title' => 'Furniture',
+            'default' => '&minus;'
+        ],
         'date' => [
             'title' => 'Date',
             'format' => 'date'
@@ -72,6 +79,8 @@ class ArchiveTableShifts extends ArchiveTable
                     'href' => $shift->worker->getLink(),
                     'class' => 'text-white'
                 ] ) ?? $shift->worker->name,
+            'job' => $shift->job->id === 0 ? 'Factory' : $shift->job->id,
+            'furniture' => $shift->furniture->name,
             'date' => $shift->date,
             'time_started' => $shift->timeStarted,
             'time_finished' => $shift->timeFinished,

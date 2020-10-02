@@ -83,7 +83,7 @@ abstract class DetailPageEntityForm extends EntityForm
                                         <?php echo $this->htmlUtility::getButton( [
                                             'element' => 'input',
                                             'type' => 'submit',
-                                            'class' => ['btn', 'btn-primary', 'btn-lg', 'mt-3', 'mr-1'],
+                                            'class' => ['btn', 'btn-primary', 'btn-lg', 'mt-2', 'mr-1'],
                                             'id' => 'submit-button',
                                             'disabled' => $this->isDisabled(),
                                             'value' => $submitButtonString

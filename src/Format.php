@@ -122,7 +122,6 @@ class Format
         }
         $today = new DateTime(); // This object represents current date/time
         $today->setTime( 0, 0, 0 ); // reset time part, to prevent partial comparison
-        //d($date);
         $matchDate = DateTime::createFromFormat( 'd-m-Y', $date );
         $matchDate->setTime( 0, 0, 0 ); // reset time part, to prevent partial comparison
 

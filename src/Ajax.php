@@ -78,6 +78,9 @@ class Ajax extends AbstractCRM
                 }
                 //$provision = $this->action === 'delete-dry-run';
                 $this->entity = $entityFactory->getEntity( $id );
+
+         //$this->addError(print_r($this->entity->job->furniture, true));
+
                 if ( $this->entity === null || !$this->entity->exists ) {
                     return $this->addError( ucwords( $this->entity->entityName ) . '<span class="badge badge-danger">ID: ' . $id . "</span> doesn't exist in database." );
                 }
@@ -137,7 +140,12 @@ class Ajax extends AbstractCRM
         foreach ( $this->inputData as $key => $value ) {
             $entity->setProperty( $key, $value );
         }
-
+        $entityFactory = $this->getEntityFactory( $entity->entityName );
+        if ( $entityFactory === null ) {
+            return false;
+        }
+        $entity = $entityFactory->provisionEntity($entity, true);
+        //$this->addError(print_r($entity, true));
         if ( $this->action === 'add' || $this->action === 'update' ) {
             $result = $entity->save();
         } elseif ( $this->action === 'delete-dry-run' ) {

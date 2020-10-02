@@ -96,15 +96,12 @@ class ShiftFactory extends EntityFactory
     {
         $shift = $this->instantiateEntityClass();
         $shift->date = date( 'Y-m-d' );
-        //$furnitureFactory = new FurnitureFactory( $this->db, $this->messages );
-        //$furniture = $furnitureFactory->getNew();
-        //$job->furniture = [$furniture->id => $furniture];
         return $shift;
     }
 
     /**
-     * @param Shift[] $shifts
-     * @param false   $provision
+     * @param Shift[]    $shifts
+     * @param bool|array $provision
      * @return Shift[]
      */
     public function provisionEntities(array $shifts = [], $provision = false): array
@@ -113,7 +110,11 @@ class ShiftFactory extends EntityFactory
             $shifts = $this->addOneToOneEntityProperties( $shifts, new JobFactory( $this->db, $this->messages ), $provision['job'] ?? false );
         }
         if ( $this->canProvision( $provision, 'furniture' ) ) { //add furniture to each shift. We must have populated the shifts with Job instances to be able to obtain quantity of shift furniture.
-            $shifts = $this->addFurniture( $shifts );
+            if ( (!empty( $provision['job'] ) && $provision['job'] === true) || !empty( $provision['job']['furniture'] ) ) {
+                $shifts = $this->addFurnitureFromJobs( $shifts );
+            } else {
+                $shifts = $this->addOneToOneEntityProperties( $shifts, new FurnitureFactory( $this->db, $this->messages ), $provision['furniture'] ?? false );
+            }
         }
         // * @method Shift[] addOneToOneEntityProperties($entities, $additionFactory, $joinPropertyName = '')
         if ( $this->canProvision( $provision, 'worker' ) ) { //add workers details to each shift to Shift
@@ -133,26 +134,24 @@ class ShiftFactory extends EntityFactory
      * @param Shift[] $shifts
      * @return Shift[]
      */
-    private function addFurniture(array $shifts = []): array
+    private function addFurnitureFromJobs(array $shifts = []): array
     {
         foreach ( $shifts as $shift ) {
-            /*
-            if ( $shift->furniture === null ) {
-               continue;
+            if ( $shift->furniture->id === null ) {
+                continue;
             }
-            */
             $shiftJobFurniture = $shift->job->furniture;
-            if ( is_array( $shiftJobFurniture ) && !empty( $shiftJobFurniture[$shift->furniture->id] ) ) {
+            if ( !empty( $shiftJobFurniture[$shift->furniture->id] ) ) {
                 $shift->furniture = $shift->job->furniture[$shift->furniture->id];
             } else {
                 $jobs[$shift->job->id] = $shift->job;
             }
         }
-
         if ( empty( $jobs ) ) {
             return $shifts;
         }
-        $jobs = (new JobFactory( $this->db, $this->messages ))->addFurniture( $jobs );
+
+        //$jobs = (new JobFactory( $this->db, $this->messages ))->addFurniture( $jobs );
         $furnitureIDs = self::getEntityIDs( $shifts, 'furniture' );
         if ( empty( $furnitureIDs ) ) {
             return $shifts;

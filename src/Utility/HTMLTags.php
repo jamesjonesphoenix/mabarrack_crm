@@ -89,7 +89,6 @@ class HTMLTags
      */
     public static function makeTable(array $args = []): Table
     {
-       // d($args);
         $args = self::mergeDefaultArgs( $args, 'table' );
         $columns = $args['columns'] ?? [];
         $columnIDsToCheckForValues = $columnIDs = array_keys( $columns );

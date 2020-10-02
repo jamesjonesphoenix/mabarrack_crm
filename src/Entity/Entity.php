@@ -60,7 +60,7 @@ abstract class Entity extends AbstractCRM
      *
      * @var array
      */
-    private array $changed = [];
+    protected array $changed = [];
 
     /**
      * @var bool Flag changed to true the first time init() is run
@@ -96,8 +96,10 @@ abstract class Entity extends AbstractCRM
         $oldValue = $this->$name;
         parent::__set( $name, $value );
         $newValue = $this->$name;
-        if ( $oldValue !== $newValue &&
-            (!($oldValue instanceof self) || $oldValue->id !== $newValue->id) ) {
+        if ( empty( $this->getColumnPropertyName( $name ) ) ) {
+            return;
+        }
+        if ( $oldValue !== $newValue && (!($oldValue instanceof self) || $oldValue->id !== $newValue->id) ) {
             $this->changed[$name] = true;
         }
     }
@@ -179,14 +181,18 @@ abstract class Entity extends AbstractCRM
      */
     public function getColumnPropertyName(string $columnName = ''): string
     {
-        if ( !empty( $this->columns[$columnName]['property'] ) ) { //lookup
-            $propertyName = $this->columns[$columnName]['property'];
-        } else { //convert 'camel_case' to 'camelCase'
-            $propertyName = strtolower( $columnName );
-            $propertyName = ucwords( $propertyName, '_' );
-            $propertyName = lcfirst( $propertyName );
-            $propertyName = str_replace( '_', '', $propertyName );
+        if ( !array_key_exists( $columnName, $this->columns ) ) {
+            return '';
         }
+        if ( !empty( $this->columns[$columnName]['property'] ) ) { //lookup
+            return $this->columns[$columnName]['property'];
+        }
+        //convert 'camel_case' to 'camelCase'
+        $propertyName = strtolower( $columnName );
+        $propertyName = ucwords( $propertyName, '_' );
+        $propertyName = lcfirst( $propertyName );
+        $propertyName = str_replace( '_', '', $propertyName );
+
         return $propertyName ?? '';
     }
 
@@ -385,7 +391,7 @@ abstract class Entity extends AbstractCRM
             }
             $tableData[] = [
                 'column_name' => ucfirst( $this->getColumnNiceName( $columnName ) ),
-                'value' => empty( $value ) ? '-' : $value
+                'value' => empty( $value ) && $value !== 0 ? '-' : $value
             ];
         }
         return (new HTMLTags())::getTableHTML( [
@@ -451,7 +457,7 @@ abstract class Entity extends AbstractCRM
         $action = 'create';
         if ( $this->exists ) {
             return $this->addError( "Can't " . $this->getActionString( 'present', $action ) . '. ' . ucfirst( $this->entityName )
-                . ' <span class="badge badge-danger">ID: ' .  $this->id . '</span> already exists.' );
+                . ' <span class="badge badge-danger">ID: ' . $this->id . '</span> already exists.' );
         }
         if ( empty( $data ) ) {
             return $this->addError( "Can't " . $this->getActionString( 'present', $action ) . '. No data to put into database.' );
@@ -524,24 +530,18 @@ abstract class Entity extends AbstractCRM
     }
 
     /**
-     * Add new db row or update existing db row
+     * Get DB input array
      *
-     * @return bool|int|mixed
-     * @throws \Exception
+     * @return array
      */
-    public function save()
+    protected function getSaveData(): array
     {
-        //d( $this->changed );
-        //d( $this->columns );
-        $actionString = $this->getActionString( 'present' );
-        $data = [];
-
         foreach ( $this->columns as $columnName => $column ) { //Get DB input array
             $propertyName = $this->getColumnPropertyName( $columnName );
             $propertyValue = $this->$propertyName;
 
             if ( !empty( $this->changed[$propertyName] ) ) {
-                if ( is_object( $propertyValue ) ) {
+                if ( $propertyValue instanceof self ) {
                     $data[$columnName] = $propertyValue->id;
                 } else {
                     $data[$columnName] = $propertyValue;
@@ -554,12 +554,23 @@ abstract class Entity extends AbstractCRM
                     || $propertyValue === null
                     || (empty( $propertyValue ) && $propertyValue !== 0)
                 ) {
-                    return $this->addError( "Can't " . $this->getActionString( 'present', 'save' ) . '. <strong>' . ucfirst( $this->getColumnNiceName( $columnName ) ) . '</strong> is required to be set.' );
-                    //'You should select at least one item of furniture for the job.'
+                    $this->addError( "Can't " . $this->getActionString( 'present', 'save' ) . '. <strong>' . ucfirst( $this->getColumnNiceName( $columnName ) ) . '</strong> is required to be set.' );
+                    return [];
                 }
             }
         }
+        return $data ?? [];
+    }
 
+    /**
+     * Add new db row or update existing db row
+     *
+     * @return bool|int|mixed
+     * @throws \Exception
+     */
+    public function save()
+    {
+        $data = $this->getSaveData();
         if ( defined( 'DEBUG' ) && DEBUG === true ) {
             $dataToSave = !empty( $data ) ? $this->getDataHTMLTable( $data ) : 'None';
             $this->messages->add(
@@ -570,11 +581,15 @@ abstract class Entity extends AbstractCRM
                 'info'
             );
         }
+        $errors = $this->healthCheck();
+        if ( !empty( $errors ) ) {
+            return $this->addError( '<h5 class="alert-heading">Can\'t save ' . $this->entityName . ' because of the following problems.</h5>' . $errors );
 
+        }
         if ( $this->exists ) {
             return $this->updateDBRow( $data );
         }
-         $addRow = $this->addDBRow( $data );
+        $addRow = $this->addDBRow( $data );
         if ( is_int( $addRow ) ) {
             $this->id = $addRow;
             $this->exists = true;

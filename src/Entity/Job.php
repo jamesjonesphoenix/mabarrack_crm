@@ -6,18 +6,18 @@ use Phoenix\DateTimeUtility;
 
 /**
  *
- * @property int|Customer             $customer
- * @property string                   $dateFinished
- * @property string                   $dateStarted
- * @property string                   $description
- * @property string|array|Furniture[] $furniture
- * @property integer                  $priority
- * @property float                    $salePrice
- * @property float                    $materialCost
- * @property float                    $contractorCost
- * @property float                    $spareCost
- * @property Shifts                   $shifts
- * @property string                   $status
+ * @property Customer    $customer
+ * @property string      $dateFinished
+ * @property string      $dateStarted
+ * @property string      $description
+ * @property Furniture[] $furniture
+ * @property integer     $priority
+ * @property float       $salePrice
+ * @property float       $materialCost
+ * @property float       $contractorCost
+ * @property float       $spareCost
+ * @property Shifts      $shifts
+ * @property string      $status
  *
  * Class Job
  *
@@ -31,9 +31,9 @@ class Job extends Entity
     protected string $icon = 'hammer';
 
     /**
-     * @var int|Customer
+     * @var Customer
      */
-    protected $_customer;
+    protected Customer $_customer;
 
     /**
      * @var string
@@ -51,9 +51,9 @@ class Job extends Entity
     protected string $_description;
 
     /**
-     * @var array|string|Furniture[]
+     * @var Furniture[]
      */
-    protected $_furniture;
+    protected array $_furniture;
 
     /**
      * @var integer
@@ -147,6 +147,30 @@ class Job extends Entity
     ];
 
     /**
+     * Flag if property has changed when set to be checked when updating database.
+     * Special behaviour for Job Furniture
+     *
+     * @param $name
+     * @param $value
+     */
+    public function __set($name, $value)
+    {
+        if ( $name !== 'furniture' ) {
+            parent::__set( $name, $value );
+            return;
+        }
+        foreach ( $this->furniture as $furniture ) {
+            $oldValue[$furniture->id] = $furniture->quantity;
+        }
+        parent::__set( $name, $value );
+        foreach ( $this->furniture as $furniture ) {
+            $newValue[$furniture->id] = $furniture->quantity;
+        }
+        $this->changed['furniture'] = ($oldValue ?? []) !== ($newValue ?? []);
+    }
+
+
+    /**
      * @param Shift[] $shifts
      * @return Shifts
      */
@@ -178,7 +202,7 @@ class Job extends Entity
 
     /**
      * @param int|Customer|null $customer
-     * @return int|Customer
+     * @return Customer
      */
     protected function customer($customer = null)
     {
@@ -236,21 +260,43 @@ class Job extends Entity
      * Converts database JSON string into array and stores array for later conversion to Furniture Class instances. Or just stores Furniture Class instances.
      *
      * @param string|Furniture[]|null $input
-     * @return string|Furniture[]
+     * @return Furniture[]
      */
-    protected function furniture($input = null)
+    protected function furniture($input = null): array
     {
         if ( $input === null ) {
-            if ( !empty( $this->_furniture ) ) {
-                return $this->_furniture;
-            }
-            return null;
+            return $this->_furniture ?? [];
         }
+
         if ( is_array( $input ) ) {//Array of Furniture instances
+
             return $this->_furniture = $input ?? [];
+
         }
+
         //JSON string
-        return $this->_furniture = $input ?? '';
+
+
+        $furnitureArray = json_decode( $input, true );
+        if ( empty( $furnitureArray ) ) {
+            return [];
+            //$job->furniture = [];
+            //continue;
+        }
+        foreach ( $furnitureArray as $item ) {
+
+            $furnitureID = key( $item );
+            //$furnitureQuantity = array_shift( $item );
+
+            //$furnitureInstance = $furnitureFactory->getNew();
+            $furnitureInstance = new Furniture();
+            $furnitureInstance->id = $furnitureID;
+            $furnitureInstance->quantity = array_shift( $item );
+
+            $jobFurniture[$furnitureID] = $furnitureInstance;
+        }
+
+        return $this->_furniture = $jobFurniture ?? [];
     }
 
     /**
@@ -401,7 +447,7 @@ class Job extends Entity
         } elseif ( is_iterable( $this->_furniture ) ) {
             foreach ( $this->_furniture as $furniture ) {
                 if ( empty( $furniture->name ) ) {
-                    $errors[] = 'Assigned <strong>furniture</strong> <span class="badge badge-danger">ID: ' .  $furniture->id . "</span> that doesn't exist in the database.";
+                    $errors[] = 'Assigned <strong>furniture</strong> <span class="badge badge-danger">ID: ' . $furniture->id . "</span> that doesn't exist in the database.";
                 }
             }
         }
@@ -462,5 +508,24 @@ class Job extends Entity
                 'url' => $archivePage,
             ]
         ];
+    }
+
+    /**
+     * Get DB input array
+     *
+     * @return array
+     * @throws \JsonException
+     */
+    protected function getSaveData(): array
+    {
+        $data = parent::getSaveData();
+        if ( !empty( $data['furniture'] ) ) {
+            foreach ( $data['furniture'] as $furniture ) {
+                $dataFurniture[][$furniture->id] = $furniture->quantity;
+            }
+            $data['furniture'] = json_encode( $dataFurniture ?? null, JSON_THROW_ON_ERROR );
+        }
+// [{"17":1},{"6":2},{"11":1},{"27":1}]
+        return $data;
     }
 }

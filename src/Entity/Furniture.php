@@ -30,9 +30,9 @@ class Furniture extends Entity
     protected string $_namePlural;
 
     /**
-     * @var string Not set from db table. Set manually as per Job
+     * @var int Not set from db table. Set manually as per Job
      */
-    protected string $_quantity;
+    protected int $_quantity;
 
     /**
      * Map of DB table columns.
@@ -138,7 +138,7 @@ class Furniture extends Entity
     {
         $jobFactory = new JobFactory( $this->db, $this->messages );
         $jobs = $jobFactory->getAll();
-        $jobs = $jobFactory->addFurniture( $jobs );
+        //$jobs = $jobFactory->addFurniture( $jobs );
         $numberOfJobs = 0;
         foreach ( $jobs as $job ) {
             if ( is_array( $job->furniture ) ) {

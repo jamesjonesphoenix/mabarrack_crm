@@ -63,12 +63,13 @@ class DetailPageBuilderShift extends DetailPageBuilder
     {
         $entity = $this->getEntity();
         if ( !empty( $entity->job->furniture ) ) {
-            $furnitureFactory = new FurnitureFactory( $this->db, $this->messages );
-            $furniture = $furnitureFactory->getEntities(
+            if ( is_iterable( $entity->job->furniture ) ) {
+                $furniture = (new FurnitureFactory( $this->db, $this->messages ))->getEntities(
 
-                ['id' => ['operator' => 'IN', 'value' => array_column( $entity->job->furniture, 'ID', 'ID' )]]
-            );
-            $furnitureOptions = array_column( $furniture, 'name', 'id' );
+                    ['id' => ['operator' => 'IN', 'value' => array_column( $entity->job->furniture, 'ID', 'ID' )]]
+                );
+            }
+            $furnitureOptions = array_column( $furniture ?? [], 'name', 'id' );
         }
         if ( !$entity->exists || $entity->job->id === 0 || $entity->activity->factoryOnly === true ) {
             return $furnitureOptions ?? [];

@@ -45,12 +45,17 @@ class MenuItemsEntities extends MenuItems
      */
     public function hasErrors(): int
     {
+        $sessionKey = 'entities_with_errors';
+        $entityName = $this->entityFactory->getEntityName();
+        if ( isset( $_SESSION[$sessionKey][$entityName] ) ) {
+            return $_SESSION[$sessionKey][$entityName];
+        }
         foreach ( $this->entityFactory->getEntities( [], $this->provisionArgsForHealthCheck ) as $entity ) {
             if ( !empty( $entity->healthCheck() ) ) {
-                return true;
+                return $_SESSION[$sessionKey][$entityName] = true;
             }
         }
-        return false;
+        return $_SESSION[$sessionKey][$entityName] = false;
     }
 
     /**

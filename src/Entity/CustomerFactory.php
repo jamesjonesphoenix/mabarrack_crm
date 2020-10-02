@@ -22,7 +22,7 @@ class CustomerFactory extends EntityFactory
 
     /**
      * @param Customer[] $customers
-     * @param false      $provision
+     * @param bool|array $provision
      * @return Customer[]
      */
     public function provisionEntities(array $customers = [], $provision = false): array

@@ -51,7 +51,6 @@ class ActivitySummary extends ShiftsReport
             $activitiesSummary[$type][$shift->activity->id]['activity_hours'] += $shift->getShiftLength();
             $activitiesSummary[$type][$shift->activity->id]['activity_cost'] += $shift->getShiftCost();
         }
-        //d($missingActivities ?? []);
         //krsort( $activitiesSummary );
         if(!empty($activitiesSummary['Lunch'])) {
             $v = $activitiesSummary['Lunch'];

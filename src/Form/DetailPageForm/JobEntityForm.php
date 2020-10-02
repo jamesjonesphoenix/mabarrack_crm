@@ -265,7 +265,7 @@ class JobEntityForm extends DetailPageEntityForm
                     echo $furniture['dropdown'];
                     echo $furniture['quantity'];
                     ?>
-                    <a class="btn remove-furniture<?php
+                    <a class="btn btn-danger remove-furniture<?php
                     if ( empty( $loopedOnce ) || $this->isDisabled() ) {
                         echo ' disabled';
                     }

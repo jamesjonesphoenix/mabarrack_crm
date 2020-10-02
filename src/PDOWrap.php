@@ -120,7 +120,6 @@ class PDOWrap
      */
     public function run($sql = '', $args = null)
     {
-        //d([$sql,$args]);
         if ( empty( $args ) ) {
             return $this->pdo->query( $sql );
         }
@@ -180,7 +179,6 @@ class PDOWrap
         $statement = $this->run( $sql, $args );
 
         return $statement->fetch()['number'] ?? null;
-        //d(count($result));
     }
 
     /**
@@ -331,12 +329,12 @@ class PDOWrap
         if ( $limit > 0 ) {
             $sql .= ' LIMIT ' . $limit;
         }
-        //d($sql);
-        //d(debug_backtrace( DEBUG_BACKTRACE_IGNORE_ARGS, 10 ));
+       // d($sql);
+       // d($args);
+       // d(debug_backtrace( DEBUG_BACKTRACE_IGNORE_ARGS, 10 ));
         $statement = $this->run( $sql, $args );
 
         $result = $statement->fetchAll();
-        //d(count($result));
 
         if ( !empty( $result ) ) {
             return $result;

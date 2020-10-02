@@ -55,7 +55,7 @@ class ActivityFactory extends EntityFactory
 
     /**
      * @param Activity[] $activities
-     * @param false      $provision
+     * @param bool|array $provision
      * @return Activity[]
      */
     public function provisionEntities(array $activities = [], $provision = false): array

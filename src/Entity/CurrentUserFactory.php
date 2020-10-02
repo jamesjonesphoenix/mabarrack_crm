@@ -6,7 +6,7 @@ namespace Phoenix\Entity;
 use Phoenix\Roles;
 
 /**
- * @method CurrentUser|null getEntity(int $id = 0)
+ * @method CurrentUser|null getEntity(int $id = 0, $provision = false)
  *
  * Class CurrentUserFactory
  *

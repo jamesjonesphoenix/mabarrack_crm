@@ -5,7 +5,7 @@ namespace Phoenix\Entity;
 use Phoenix\Roles;
 
 /**
- * @method User|null getEntity(int $id = 0)
+ * @method User|null getEntity(int $id = 0, $provision = false)
  * @method User[] getEntities(array $queryArgs = [], $provision = false)
  *
  * Class UserFactory
@@ -26,8 +26,8 @@ class UserFactory extends EntityFactory
     }
 
     /**
-     * @param User[] $users
-     * @param false  $provision
+     * @param User[]     $users
+     * @param bool|array $provision
      * @return Shift[]
      */
     public function provisionEntities(array $users = [], $provision = false): array

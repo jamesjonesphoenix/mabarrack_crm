@@ -65,18 +65,21 @@ class Init
             if ( $this->userID === null ) {
                 return null;
             }
-            $user = $userFactory->getEntity( $this->userID );
-            /*
-                        $user = $userFactory->provisionEntity( $user, ['shifts' => [
-                            'activity' => true,
-                            'furniture' => true,
-                            'job' => ['customer' => true],
-                            'worker' => false //Don't waste CPU time provisioning shifts with worker - we already have the worker
-                        ]] );
-            */
+            $user = $userFactory->getEntity( $this->userID, false );
+
             if ( $user === null ) {
-                $this->messages->add( 'Could not get current user <span class="badge badge-danger">ID: ' .  $this->userID . '</span>' );
+                $this->messages->add( 'Could not get current user <span class="badge badge-danger">ID: ' . $this->userID . '</span>' );
             }
+
+            if ( $user->role === 'staff' ) {
+                $user = $userFactory->provisionEntity( $user, ['shifts' => [
+                    'activity' => true,
+                    'furniture' => true,
+                    'job' => ['customer' => true],
+                    'worker' => false //Don't waste CPU time provisioning shifts with worker - we already have the worker
+                ]] );
+            }
+
             return $user;
         }
         $pin = $_POST['pin'] ?? null;

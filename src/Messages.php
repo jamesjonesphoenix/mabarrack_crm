@@ -81,7 +81,6 @@ class Messages extends Base
      */
     public function add(string $messageText = '', string $messageType = 'danger'): bool
     {
-        //d( $messageText );
         if ( empty( $messageText ) ) {
             return false;
         }
@@ -138,10 +137,9 @@ class Messages extends Base
     }
 
     /**
-     * @param bool $showTitle
      * @return string
      */
-    public function getMessagesHTML(bool $showTitle = true): string
+    public function getMessagesHTML(): string
     {
         $numberOfMessages = count( $this->messages );
         if ( $numberOfMessages === 0 ) {
@@ -161,51 +159,33 @@ class Messages extends Base
         end( $messages );
         $messagesDisplayLimit = 3;
         ob_start();
-        ?>
-        <div class="row">
-            <div class="col">
+        $i = 0;
+        foreach ( $messages as $key => $message ) {
+            if ( empty( $message['string'] ) ) {
+                continue;
+            }
+            $i++;
+            if ( $i > $messagesDisplayLimit ) {
+                $collapsedMessages[$key] = $message;
+            } else {
+                echo $this->htmlUtility::getAlertHTML( $message['string'], $message['type'] ?? 'danger' );
+            }
+        }
+        if ( !empty( $collapsedMessages ) ) { ?>
+            <div class="collapse-messages-column">
                 <?php
-                if ( $showTitle ) { ?>
-                    <div class="px-3">
-                        <h2><i class="fas fa-sticky-note"></i> Messages</h2>
-                    </div>
-                <?php } ?>
-                <div class="grey-bg px-3 py-2">
-                    <?php
-                    $i = 0;
-                    foreach ( $messages as $key => $message ) {
-                        if ( empty( $message['string'] ) ) {
-                            continue;
-                        }
-                        $i++;
-                        if ( $i > $messagesDisplayLimit ) {
-                            $collapsedMessages[$key] = $message;
-                        } else {
-                            echo $this->htmlUtility::getAlertHTML( $message['string'], $message['type'] ?? 'danger' );
-                        }
-                    }
-                    ?>
-                    <?php if ( !empty( $collapsedMessages ) ) {
-                        ?>
-                        <div class="collapse-messages-column">
-                            <?php
-                            echo $this->htmlUtility::getAlertHTML(
-                                '<span class="mr-2"><strong>' . ($numberOfMessages - $messagesDisplayLimit) . '</strong> additional messages not shown.</span><button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#collapse-messages" aria-expanded="false"
+                echo $this->htmlUtility::getAlertHTML(
+                    '<span class="mr-2"><strong>' . ($numberOfMessages - $messagesDisplayLimit) . '</strong> additional messages not shown.</span><button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#collapse-messages" aria-expanded="false"
                             aria-controls="collapse-messages">Expand to display</button>'
-                                , 'primary' );
-                            ?>
-                        </div>
-                        <div class="collapse" id="collapse-messages">
-                            <?php foreach ( $collapsedMessages as $key => $message ) {
-                                echo $this->htmlUtility::getAlertHTML( $message['string'], $message['type'] ?? 'danger' );
-                            } ?>
-                        </div>
-                        <?php
-                    } ?>
-                </div>
+                    , 'primary' );
+                ?>
             </div>
-        </div>
-        <?php
+            <div class="collapse" id="collapse-messages">
+                <?php foreach ( $collapsedMessages as $key => $message ) {
+                    echo $this->htmlUtility::getAlertHTML( $message['string'], $message['type'] ?? 'danger' );
+                } ?>
+            </div>
+        <?php }
         unset( $_SESSION['messages'] );
         $_SESSION['messages'] = [];
         return ob_get_clean();

@@ -6,6 +6,13 @@ namespace Phoenix\Form;
 
 use Phoenix\Utility\FormFields;
 
+/**
+ * Class Form
+ *
+ * @author James Jones
+ * @package Phoenix\Form
+ *
+ */
 abstract class Form
 {
     /**
