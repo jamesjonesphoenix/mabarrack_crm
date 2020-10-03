@@ -115,7 +115,7 @@ abstract class DetailPageBuilder extends EntityPageBuilder
                 $this->getGoToIDForm()->render()
             );
         if ( $entity->exists && !empty( $healthCheck = $entity->healthCheck() ) ) {
-            $this->addError( '<h5 class="alert-heading">Problems with ' . $entity->entityName . ' <span class="badge badge-primary">ID: ' . $entity->id . '</span></h5>' . $healthCheck );
+            $this->addError( '<h5 class="alert-heading">Problems with ' . $entity->entityName . ' <span class="badge badge-primary">ID: ' . $entity->id . '</span></h5>' . $this->HTMLUtility::getListGroup($healthCheck) );
         }
         $this->addForm();
         $this->addReports();

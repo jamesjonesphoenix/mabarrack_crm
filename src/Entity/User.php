@@ -448,17 +448,17 @@ class User extends Entity
         }
         $newShift = (new ShiftFactory( $this->db, $this->messages ))->getNew();
         $newShift->worker = $this;
-            $newShift->job = (new JobFactory( $this->db, $this->messages ))->getEntity( $jobID );
-            if ( $newShift->job->id === null ) {
-                $errors[] = 'Job <span class="badge badge-danger">ID: ' . $jobID . "</span> doesn't exist.";
-            }
+        $newShift->job = (new JobFactory( $this->db, $this->messages ))->getEntity( $jobID );
+        if ( $newShift->job->id === null ) {
+            $errors[] = 'Job <span class="badge badge-danger">ID: ' . $jobID . "</span> doesn't exist.";
+        }
 
         $newShift->activity = (new ActivityFactory( $this->db, $this->messages ))->getEntity( $activityID );
         if ( $newShift->activity->id === null ) {
             $errors[] = 'Activity <span class="badge badge-danger">ID: ' . $activityID . "</span> doesn't exist.";
         }
 
-        if ( $furnitureID !== null && $furnitureID !== '') {
+        if ( $furnitureID !== null && $furnitureID !== '' ) {
             $newShift->furniture = (new FurnitureFactory( $this->db, $this->messages ))->getEntity( $furnitureID );
             if ( $newShift->furniture->id === null ) {
                 $errors[] = 'Furniture <span class="badge badge-danger">ID: ' . $furnitureID . "</span> doesn't exist.";
@@ -506,10 +506,9 @@ class User extends Entity
     }
 
     /**
-     * @param array $errors
-     * @return string
+     * @return array
      */
-    public function healthCheck(array $errors = []): string
+    public function healthCheck(): array
     {
         $currentShifts = $this->shifts->getUnfinishedShifts()->getAll();
 
@@ -548,7 +547,7 @@ class User extends Entity
                 }
             }
         }
-        return parent::healthCheck( $errors );
+        return $errors ?? [];
     }
 
     /**

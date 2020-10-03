@@ -62,23 +62,21 @@ class DetailPageBuilderShift extends DetailPageBuilder
     private function getFurnitureOptions(): array
     {
         $entity = $this->getEntity();
+        if ( !$entity->exists || $entity->job->id === 0 ) {
+            return  [];
+        }
         if ( !empty( $entity->job->furniture ) ) {
-            if ( is_iterable( $entity->job->furniture ) ) {
-                $furniture = (new FurnitureFactory( $this->db, $this->messages ))->getEntities(
-
-                    ['id' => ['operator' => 'IN', 'value' => array_column( $entity->job->furniture, 'ID', 'ID' )]]
-                );
-            }
+            $furniture = (new FurnitureFactory( $this->db, $this->messages ))->getEntities(
+                ['id' => ['operator' => 'IN', 'value' => array_column( $entity->job->furniture, 'ID', 'ID' )]]
+            );
             $furnitureOptions = array_column( $furniture ?? [], 'name', 'id' );
         }
-        if ( !$entity->exists || $entity->job->id === 0 || $entity->activity->factoryOnly === true ) {
-            return $furnitureOptions ?? [];
-        }
 
-        $furnitureID = $entity->furniture->id ?? null;
 
-        if ( empty( $furnitureOptions[$furnitureID] ) ) {
-            $furnitureOptions[$furnitureID] = $entity->furniture->name;
+        $furnitureID = $entity->furniture->id;
+
+        if ( $furnitureID !== null && empty( $furnitureOptions[$furnitureID] ) ) {
+            $furnitureOptions[$furnitureID] = $entity->furniture->name ?? 'Unknown - ID: '. $entity->furniture->id;
         }
         return $furnitureOptions ?? [];
     }

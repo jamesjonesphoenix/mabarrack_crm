@@ -71,6 +71,23 @@ class HTMLTags
     }
 
     /**
+     * @param array  $items
+     * @param string $contextualClass
+     * @return string
+     */
+    public static function getListGroup(array $items = [], $contextualClass = 'danger'): string
+    {
+        if ( empty( $items ) ) {
+            return '';
+        }
+        $li = '<li class="list-group-item list-group-item-' . $contextualClass . '">';
+        return '<ul class="list-group list-group-flush">'
+            . $li
+            . implode( '</li>' . $li, $items )
+            . '</li></ul>';
+    }
+
+    /**
      * @param array $args
      * @return string
      */
@@ -115,7 +132,7 @@ class HTMLTags
         if ( !empty( $columns ) ) {
             foreach ( $columns as $columnID => $columnArgs ) {
                 $title = is_string( $columnArgs ) ? $columnArgs : $columnArgs['title'] ?? '';
-                    $headerColumns[$columnID] = $title;
+                $headerColumns[$columnID] = $title;
 
                 if ( !empty( $columnArgs['class'] ) ) {
                     $table->addColClass( $columnID, $columnArgs['class'] );

@@ -104,7 +104,7 @@ class WorkerDirector extends AbstractCRM
     {
         $canStartOrFinishShifts = $this->user->healthCheck();
         if ( !empty( $canStartOrFinishShifts ) ) {
-            $this->messages->add( '<h5 class="alert-heading">You cannot clock shifts due to errors:</h5>' . $canStartOrFinishShifts );
+            $this->messages->add( '<h5 class="alert-heading">You cannot clock shifts due to errors:</h5>' . $this->htmlUtility::getListGroup($canStartOrFinishShifts));
             if ( !empty( $inputArray['choose'] ) ) {
                 redirect( 'worker' );
             }

@@ -66,6 +66,8 @@ class ShiftEntityForm extends DetailPageEntityForm
         // $this->fields['furniture'] = '';
 
         // if ( $this->entity->exists && ($this->entity->job->id !== 0 || (isset( $this->entity->activity->factoryOnly ) && $this->entity->activity->factoryOnly === false)) ) {
+
+
         $furnitureLink = $this->entity->furniture->id !== null ? $this->entity->furniture->getLink() : '';
         $this->fields['furniture'] = $this->htmlUtility::getOptionDropdownFieldHTML( [
             'options' => empty( $furnitureOptions ) ? [ null => 'N/A'] : $furnitureOptions,

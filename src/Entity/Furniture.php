@@ -157,14 +157,14 @@ class Furniture extends Entity
     }
 
     /**
-     * @param array $errors
-     * @return string
+     * @return array
      */
-    public function healthCheck(array $errors = []): string
+    public function healthCheck(): array
     {
         if ( empty( $this->name ) ) {
-            $errors[] = 'Furniture should have a name.';
+            $IDString = $this->id !== null ? ' <span class="badge badge-primary">ID: ' . $this->id . '</span>' : '';
+            $errors[] = 'Furniture' . $IDString . ' has no name.';
         }
-        return parent::healthCheck( $errors );
+        return $errors ?? [];
     }
 }

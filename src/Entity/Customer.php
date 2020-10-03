@@ -124,14 +124,13 @@ class Customer extends Entity
     }
 
     /**
-     * @param array $errors
-     * @return string
+     * @return array
      */
-    public function healthCheck(array $errors = []): string
+    public function healthCheck(): array
     {
         if ( empty( $this->name ) ) {
             $errors[] = 'Customer should have a name.';
         }
-        return parent::healthCheck( $errors );
+        return $errors ?? [];
     }
 }

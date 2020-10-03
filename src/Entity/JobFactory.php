@@ -5,7 +5,9 @@ namespace Phoenix\Entity;
 /**
  * @method Job[] addOneToOneEntityProperties(array $entities = [], EntityFactory $additionFactory = null, string $joinPropertyName = '')
  * @method Job[] instantiateEntitiesFromDB(array $queryArgs = [])
- * @method Job getEntity(int $id = 0) : ?Entity
+ * @method Job getEntity(int $id = 0)
+ * @method Job[] getAll()
+ *
  *
  * Class JobFactory
  */
@@ -100,7 +102,7 @@ class JobFactory extends EntityFactory
     }
 
     /**
-     * @param Job[] $jobs
+     * @param Job[]      $jobs
      * @param bool|array $provision
      * @return Job[]
      */

@@ -12,14 +12,14 @@ $j(document).ready(function () {
                 uniqueId = "Don't call this twice without a uniqueId";
             }
             if (timers[uniqueId]) {
-                clearTimeout (timers[uniqueId]);
+                clearTimeout(timers[uniqueId]);
             }
             timers[uniqueId] = setTimeout(callback, ms);
         };
     })();
 
     $j(window).resize(function () {
-        waitForFinalEvent(function(){ //limit how often resize fires so browser doesn't kill itself
+        waitForFinalEvent(function () { //limit how often resize fires so browser doesn't kill itself
             matchTablesWidths();
         }, 800, "some unique string");
     });
@@ -245,6 +245,7 @@ function entityPageFunctions() {
     });
     cancelButton.click(function () {
         disableForm();
+        $j(".alert").alert('close');
     });
     passwordToggleButton.click(function () {
         if (passwordField1.prop('disabled')) {
@@ -314,8 +315,6 @@ function entityPageFunctions() {
         if (timeStartedField.length > 0 && timeFinishedField.length > 0) { //Validate finish/start times
             let timeStarted = timeStartedField.val(),
                 timeFinished = timeFinishedField.val();
-            console.log(timeStarted);
-            console.log(timeFinished);
             if (timeFinished !== '') {
                 if (compareTime(timeStarted, timeFinished) === 1) { //If start time set to be after finish time
                     return addError('The <strong>start time</strong> must be before the <strong>finish time</strong>. Please change times.');
@@ -375,7 +374,6 @@ function entityPageFunctions() {
      * @returns {boolean}
      */
     function doEntityAction(formAction = '') {
-        console.log('submitted');
         $j(".alert").alert('close');
 
         let ajaxURL = "add_entry.php",
@@ -395,9 +393,15 @@ function entityPageFunctions() {
             type: 'POST',
             data: ajaxData,
             success: function (data) {
-                console.log(data);
-                data = JSON.parse(data);
-                console.log(data);
+                try {
+                    data = JSON.parse(data);
+                } catch (e) {
+                    let errorResponseClass = 'json-error-code-block';
+                    displayMessage('<h4 class="alert-heading">Could not make sense of response. Here\'s what was received:</h4><code class="' + errorResponseClass + '"></code>');
+                    $j('.' + errorResponseClass).text(data); //escapes html string
+                    return false;
+                }
+
                 if (typeof data['message'] !== 'undefined') {
                     $j('.detail-form .messages').prepend(data['message']);
                 }

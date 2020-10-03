@@ -3,7 +3,7 @@
 namespace Phoenix\Entity;
 
 /**
- * @method Furniture getEntity(int $id = 0)
+ * @method Furniture getEntity(int $id = 0, $provision = true)
  *
  * Class FurnitureFactory
  */

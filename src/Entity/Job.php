@@ -167,6 +167,7 @@ class Job extends Entity
             $newValue[$furniture->id] = $furniture->quantity;
         }
         $this->changed['furniture'] = ($oldValue ?? []) !== ($newValue ?? []);
+
     }
 
 
@@ -313,7 +314,7 @@ class Job extends Entity
             return 'None';
         }
         if ( !is_array( $jobFurniture ) ) {
-            return $jobFurniture;
+            return '';
         }
         foreach ( $jobFurniture as $furniture ) {
             $furnitureString[] = $furniture->getFurnitureString( $includeLink );
@@ -431,13 +432,12 @@ class Job extends Entity
     }
 
     /**
-     * @param array $errors
-     * @return string
+     * @return array
      */
-    public function healthCheck(array $errors = []): string
+    public function healthCheck(): array
     {
         if ( $this->id === 0 ) {
-            return '';
+            return [];
         }
         if ( $this->customer->id === null ) {
             $errors[] = 'Job has no <strong>customer</strong> assigned.';
@@ -462,7 +462,7 @@ class Job extends Entity
         if ( !empty( $dateFinished ) && $this->status === 'jobstat_red' ) {
             $errors[] = 'Job <strong>finish date</strong> has been set but <strong>status</strong> is still "in progress".';
         }
-        return parent::healthCheck( $errors );
+        return $errors ?? [];
     }
 
     /**
@@ -525,7 +525,6 @@ class Job extends Entity
             }
             $data['furniture'] = json_encode( $dataFurniture ?? null, JSON_THROW_ON_ERROR );
         }
-// [{"17":1},{"6":2},{"11":1},{"27":1}]
         return $data;
     }
 }

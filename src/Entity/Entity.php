@@ -96,10 +96,7 @@ abstract class Entity extends AbstractCRM
         $oldValue = $this->$name;
         parent::__set( $name, $value );
         $newValue = $this->$name;
-        if ( empty( $this->getColumnPropertyName( $name ) ) ) {
-            return;
-        }
-        if ( $oldValue !== $newValue && (!($oldValue instanceof self) || $oldValue->id !== $newValue->id) ) {
+        if ( $oldValue !== $newValue && (!($oldValue instanceof Entity) || $oldValue->id !== $newValue->id) ) {
             $this->changed[$name] = true;
         }
     }
@@ -513,20 +510,13 @@ abstract class Entity extends AbstractCRM
     }
 
     /**
-     * @param array $errors
-     * @return string
+     * To be overwritten by child classes with actual health checking code
+     *
+     * @return array
      */
-    public function healthCheck(array $errors = []): string
+    public function healthCheck(): array
     {
-        if ( empty( $errors ) ) {
-            return '';
-        }
-        $li = '<li class="list-group-item list-group-item-danger">';
-        return '<ul class="list-group list-group-flush">'
-            . $li
-            . implode( '</li>' . $li, $errors )
-            . '</li></ul>';
-        //return '<p>' . implode( '</p><p>', $errors ) . '</p>';
+        return [];
     }
 
     /**
@@ -539,7 +529,6 @@ abstract class Entity extends AbstractCRM
         foreach ( $this->columns as $columnName => $column ) { //Get DB input array
             $propertyName = $this->getColumnPropertyName( $columnName );
             $propertyValue = $this->$propertyName;
-
             if ( !empty( $this->changed[$propertyName] ) ) {
                 if ( $propertyValue instanceof self ) {
                     $data[$columnName] = $propertyValue->id;
@@ -547,19 +536,43 @@ abstract class Entity extends AbstractCRM
                     $data[$columnName] = $propertyValue;
                 }
             }
+        }
+        return $data ?? [];
+    }
 
+    /**
+     * ID badge <span> HTML
+     *
+     * @param int|null $id
+     * @return string
+     */
+    public function getIDBadge(int $id = null): string
+    {
+        if ( $id === null ) {
+            $id = $this->id;
+        }
+        return $id === null ? '' : ' <span class="badge badge-primary">ID: ' . $id . '</span>';
+    }
+
+    /**
+     * Checks that DB input array includes required columns for DB row
+     *
+     * @param array $data
+     * @return array
+     */
+    public function checkRequiredColumns(array $data = []): array
+    {
+        foreach ( $this->columns as $columnName => $column ) {
             if ( !empty( $column['required'] ) ) {
-                if (
-                    !isset( $propertyValue )
-                    || $propertyValue === null
-                    || (empty( $propertyValue ) && $propertyValue !== 0)
-                ) {
-                    $this->addError( "Can't " . $this->getActionString( 'present', 'save' ) . '. <strong>' . ucfirst( $this->getColumnNiceName( $columnName ) ) . '</strong> is required to be set.' );
-                    return [];
+                $propertyName = $this->getColumnPropertyName( $columnName );
+                $propertyValue = $this->$propertyName;
+                if ( empty( $propertyValue ) && $propertyValue !== 0 ) {
+                    $this->addError( print_r( $data, true ) );
+                    $errors[] = "Can't " . $this->getActionString( 'present', 'save' ) . '. <strong>' . ucfirst( $this->getColumnNiceName( $columnName ) ) . '</strong> is required to be set.';
                 }
             }
         }
-        return $data ?? [];
+        return $errors ?? [];
     }
 
     /**
@@ -571,6 +584,13 @@ abstract class Entity extends AbstractCRM
     public function save()
     {
         $data = $this->getSaveData();
+        $errorString = '<h5 class="alert-heading">Can\'t save ' . $this->entityName . ' because of the following problems.</h5>';
+
+        $errors = $this->checkRequiredColumns( $data );
+        if ( !empty( $errors ) ) {
+            return $this->addError( $errorString . HTMLTags::getListGroup( $errors ) );
+        }
+
         if ( defined( 'DEBUG' ) && DEBUG === true ) {
             $dataToSave = !empty( $data ) ? $this->getDataHTMLTable( $data ) : 'None';
             $this->messages->add(
@@ -583,9 +603,9 @@ abstract class Entity extends AbstractCRM
         }
         $errors = $this->healthCheck();
         if ( !empty( $errors ) ) {
-            return $this->addError( '<h5 class="alert-heading">Can\'t save ' . $this->entityName . ' because of the following problems.</h5>' . $errors );
-
+            return $this->addError( $errorString . HTMLTags::getListGroup( $errors ) );
         }
+
         if ( $this->exists ) {
             return $this->updateDBRow( $data );
         }

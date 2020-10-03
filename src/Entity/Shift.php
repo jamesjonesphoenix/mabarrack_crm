@@ -4,6 +4,7 @@
 namespace Phoenix\Entity;
 
 use Phoenix\DateTimeUtility;
+use Phoenix\Utility\HTMLTags;
 
 /**
  * @property integer|Activity  $activity
@@ -401,20 +402,20 @@ class Shift extends Entity
 
 
     /**
-     * @param array $errors
-     * @return string
+     * @return array
      */
     public
-    function healthCheck(array $errors = []): string
+    function healthCheck(): array
     {
         $shiftName = ucfirst( $this->isLunch() );
         $timeStarted = $this->timeStarted;
         $timeFinished = $this->timeFinished;
 
+        if ( empty( $timeStarted ) ) {
+            $errors[] = $shiftName . " <strong>start time</strong> hasn't been set. Please set a <strong>start time</strong>.";
+        }
         if ( !empty( $timeFinished ) ) {
-            if ( empty( $timeStarted ) ) {
-                $errors[] = $shiftName . " <strong>finish time</strong> cannot be set because <strong>start time</strong> hasn't yet been set. Please set a <strong>start time</strong>.";
-            }
+
             if ( DateTimeUtility::timeDifference( $timeStarted, $timeFinished ) < 0 ) {
                 $errors[] = $shiftName . ' <strong>finish time</strong> cannot be earlier than the <strong>start time</strong>.';
             }
@@ -422,37 +423,108 @@ class Shift extends Entity
                 $errors[] = $shiftName . " <strong>finish time</strong> shouldn't be exactly the same as <strong>start time</strong>.";
             }
         }
-
         $activity = $this->activity;
         if ( $activity->id === null ) {
             $errors[] = 'Shift has no <strong>activity</strong> assigned.';
         }
         if ( $this->job->id !== 0 ) {
-            if ( $this->furniture->id === null ) {
-                $errors[] = '<p>Shift has no furniture assigned to it. Shift is part of a billable job so it should have furniture assigned.</p>';
-            } else {
-                if ( !array_key_exists( $this->furniture->id, $this->job->furniture ?? [] ) ) {
-                    $errors[] = 'Shift is assigned furniture <strong>' . $this->furniture->name . '</strong> which is not part of the assigned job <span class="badge badge-primary">ID: ' . $this->job->id . '</span>';
-                }
-                if ( empty( $this->furniture->name ) ) {
-                    $errors[] = '<p>Shift <span class="badge badge-primary">ID: ' . $this->id . '</span> is assigned with furniture <span class="badge badge-primary">ID: ' . $this->furniture->id . '</span> but unknown furniture name. Does this furniture exist?</p>';
-                }
-            }
             if ( empty( $this->job->furniture ) ) {
                 $errors[] = 'Job <span class="badge badge-primary">ID: ' . $this->job->id . '</span> has no furniture assigned for this shift to be assigned to.';
+            } else {
+                /*
+                                foreach ( $this->job->furniture as $furniture ) {
+                                    $furnitureHealthCheck = $furniture->healthCheck();
+                                    if ( !empty( $furnitureHealthCheck ) ) {
+                                        $jobFurnitureHasErrors = true;
+                                        $jobIDString = $this->job->id !== null ? ' <span class="badge badge-primary">ID: ' . $this->job->id . '</span>' : '';
+                                        $errors[] = '<p>Assigned job ' . $jobIDString . ' includes furniture with problems. '
+                                            . HTMLTags::getViewButton( $this->job->getLink(), 'View Job' ) . '</p>'
+                                            . HTMLTags::getListGroup( $furnitureHealthCheck, 'warning' );
+                                        break;
+                                    }
+                                }
+                */
+                // if ( empty( $jobFurnitureHasErrors ) ) {
+                if ( $this->furniture->id === null ) {
+                    $errors[] = '<p>Shift has no furniture assigned to it.</p>';
+                } else {
+                    $idString = $this->id === null ? '' : ' <span class="badge badge-primary">ID: ' . $this->id . '</span>';
+                    $furnitureIDString = '<span class="badge badge-primary">ID: ' . $this->furniture->id . '</span>';
+                    if ( empty( $this->furniture->name ) ) {
+                        $shiftName = $this->furniture->name;
+                        $errors[] = '<p>Shift' . $idString . ' is assigned with furniture ' . $furnitureIDString . ' but unknown furniture name. Does this furniture exist?</p>';
+                    }
+                    if ( !array_key_exists( $this->furniture->id, $this->job->furniture ?? [] ) ) {
+                        $errors[] = 'Shift is assigned furniture ' . ($this->furniture->name ?? $furnitureIDString) . ' which is not part of job <span class="badge badge-primary">ID: ' . $this->job->id . '</span>';
+                    }
+
+                }
+                // }
             }
             if ( $activity->factoryOnly ) {
-                $errors[] = 'You cannot book <strong>' . $activity->displayName . '</strong> for a billable job because it is a factory only activity. Please choose a billable activity or the factory job.';
+                $errors[] = 'You cannot book <strong>' . $activity->displayName . '</strong> for job ' . $this->job->getIDBadge() . ' because it is a factory only activity. Please choose a billable activity or select the factory job.';
             }
         } else {
             if ( $activity->factoryOnly === false ) {
                 $errors[] = 'You cannot book <strong>' . $activity->displayName . '</strong> for factory work because it is a billable activity. Please choose a factory only activity or a billable job.';
             }
             if ( $this->furniture->id !== null ) {
-                $errors[] = 'Shift should not have furniture assigned because it is assigned to non-billable job.';
+                $errors[] = $shiftName . ' should not have furniture assigned because it is assigned to non-billable job.';
             }
         }
-        return parent::healthCheck( $errors );
+        if ( $this->worker->id === null ) {
+            $errors[] = $shiftName . ' has no worker assigned.';
+        } elseif ( $this->worker->role !== 'staff' ) {
+            $errors[] = 'Worker assigned to ' . $shiftName . ' is not a user with staff role.';
+        }
+        return $errors ?? [];
+    }
+
+    /**
+     * Get DB input array
+     * Make sure new shift has furniture because user can't choose it because the job won't have been chosen yet
+     *
+     * @return array
+     */
+    protected function getSaveData(): array
+    {
+        $data = parent::getSaveData();
+        if ( $this->exists || !empty( $this->checkRequiredColumns( $data ) ) || !empty( $data['furniture'] ) || $data['job'] === 0 ) {
+            return $data;
+        }
+        $jobFurniture = $this->job->furniture;
+        if ( count( $jobFurniture ) === 0 ) {
+            $this->addError( 'Job has no assigned furniture for shift to book to.' );
+            return $data;
+        }
+        $defaultFurnitureID = current( $jobFurniture )->id ?? null;
+        // $this->addError($defaultFurnitureID);
+        $this->furniture = (new FurnitureFactory( $this->db, $this->messages ))->getEntity( $defaultFurnitureID, false );
+
+        $data['furniture'] = $this->furniture->id ?? null;
+
+
+        if ( count( $jobFurniture ) > 1 ) {
+            foreach ( $this->job->furniture as $furniture ) {
+                $furnitureForString[] = $furniture->name;
+            }
+            $multipleFurnitureString = ' Please edit shift furniture if this assumption is incorrect. Job includes furniture ' . implode( ' ', $furnitureForString ?? [] ) . '.';
+        } else {
+            $multipleFurnitureString = ' This is the only furniture type assigned to job <span class="badge badge-primary">ID: ' . $this->job->id . '</span>.';
+        }
+
+
+        if ( $data['furniture'] !== null ) {
+            $this->messages->add( 'Assigned furniture <span class="badge badge-primary">' . $this->furniture->name . '</span> to new shift. ' . $multipleFurnitureString );
+        } else {
+            $this->addError( '<p>Job' . $this->job->getIDBadge() . ' is assigned furniture'
+                . $this->getIDBadge( $defaultFurnitureID )
+                . ' that does not exist in the db. The job must have valid furniture assigned before shifts can be booked to it.</p>'
+                . HTMLTags::getViewButton( $this->job->getLink(), 'View Job' )
+            );
+        }
+
+        return $data;
     }
 
     /**

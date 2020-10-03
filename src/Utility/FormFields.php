@@ -22,8 +22,7 @@ class FormFields extends HTMLTags
     {
         $args = self::mergeDefaultArgs( $args, 'hidden' );
         $args['class'] .= ' form-control';
-        ob_start();
-        ?>
+        ob_start(); ?>
         <input autocomplete="off" type="hidden"<?php echo self::getAttributes( $args ); ?>>
         <?php
         return ob_get_clean();
@@ -56,9 +55,12 @@ class FormFields extends HTMLTags
                 <div class="input-group">
                     <select autocomplete="off"<?php echo self::getAttributes( $args ); ?>>
                         <?php foreach ( $options as $optionValue => $optionString ) {
+                            // $optionString = is_string( $optionArgs ) ? $optionArgs : $optionArgs['content'];
+
                             $selected = $selectedValue === $optionValue ? self::makeElementProperty( 'selected', 'selected' ) : '';
-                            $optionValueProperty = self::makeElementProperty( $optionValue, 'value' ); ?>
-                            <option<?php echo $optionValueProperty . $selected; ?>><?php echo str_replace( '_', ' ', $optionString ) ?></option><?php
+                            ?>
+                            <option<?php echo self::makeElementProperty( $optionValue, 'value' )
+                                . $selected; ?>><?php echo str_replace( '_', ' ', $optionString ) ?></option><?php
                         } ?>
                     </select>
                     <?php if ( !empty( $args['append'] ) ) { ?>

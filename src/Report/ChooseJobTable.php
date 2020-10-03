@@ -102,7 +102,7 @@ class ChooseJobTable extends Report
             return array_merge( $data, $rightHandCells );
         }
         $data['right'] = $this->htmlUtility::getAlertHTML(
-            '<p class="">Job ' . $job->id . ' cannot be selected:</p>' . $healthCheck,
+            '<p class="">Job ' . $job->id . ' cannot be selected:</p>' .  $this->htmlUtility::getListGroup($healthCheck),
             'danger', false );
         return $data;
 

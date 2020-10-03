@@ -5,6 +5,7 @@ namespace Phoenix\Entity;
 /**
  * @method Activity getEntity(int $id = 0)
  * @method Activity[] instantiateEntitiesFromDB(array $queryArgs = [])
+ * @method Activity[] getAll()
  *
  * Class ActivityFactory
  */
@@ -40,7 +41,13 @@ class ActivityFactory extends EntityFactory
         $activities = $this->getAll();
         $activitiesOptions = array_column( $activities, 'displayName', 'id' );
         asort( $activitiesOptions );
-        return $activitiesOptions;
+        foreach ( $activitiesOptions as $activityID => &$activityOption ) { // put factory activities at the start
+            if ( $activities[$activityID]->factoryOnly ) {
+                $factoryOptions[$activityID] = $activityOption ;
+            }
+        }
+
+        return ($factoryOptions ?? []) + $activitiesOptions;
     }
 
     /**
