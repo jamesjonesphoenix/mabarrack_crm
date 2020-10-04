@@ -122,8 +122,7 @@ abstract class EntityFactory extends AbstractCRM
      */
     public function getOptionsArray(): array
     {
-        $entities = $this->getAll();
-        return array_column( $entities, 'name', 'id' );
+        return array_column( $this->getAll(), 'name', 'id' );
     }
 
     /**

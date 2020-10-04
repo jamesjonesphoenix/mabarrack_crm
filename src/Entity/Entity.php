@@ -298,6 +298,9 @@ abstract class Entity extends AbstractCRM
         if ( $id === null ) {
             $id = $this->id;
         }
+        if ( $id === null ) {
+            return '';
+        }
         return $link . '&id=' . $id;
     }
 

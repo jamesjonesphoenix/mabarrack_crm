@@ -44,15 +44,16 @@ $j(document).ready(function () {
      *
      */
     function matchTablesWidths() {
-        let tables = ['table.table.archive', 'table.table.choose-job', 'table.table.home-shift-table'];
+        let tables = [
+            'table.table.archive',
+            'table.table.choose-job',
+            'table.table.home-shift-table'
+        ];
         for (let i = 0; i <= tables.length; i++) {
-            matchTableWidths(tables[i]);
+             matchTableWidths(tables[i]);
         }
     }
-
-    /**
-     *
-     */
+    
     $j("table.table-sorter").each(function () {
         if (this.rows.length < 7) {
             return;
@@ -86,7 +87,6 @@ $j(document).ready(function () {
         });
 
     });
-
 
     let columnToggles = $j('input.column-toggle');
     columnToggles.each(function () {
@@ -134,6 +134,7 @@ $j(document).ready(function () {
      */
     function matchTableWidths(tableSelector) {
         let tables = $j(tableSelector);
+        console.log(tables.length);
         if (tables.length < 2) {
             return;
         }

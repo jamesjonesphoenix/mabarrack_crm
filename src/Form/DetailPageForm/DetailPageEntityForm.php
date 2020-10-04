@@ -20,6 +20,11 @@ abstract class DetailPageEntityForm extends EntityForm
     public array $buttons = [];
 
     /**
+     * @var string
+     */
+    private string $displayEntityName;
+
+    /**
      * @return string
      */
     public function getDBAction(): string
@@ -28,6 +33,16 @@ abstract class DetailPageEntityForm extends EntityForm
             return 'update';
         }
         return 'add';
+    }
+
+    /**
+     * @param string $name
+     * @return $this
+     */
+    public function setDisplayEntityName(string $name = ''): self
+    {
+        $this->displayEntityName = $name;
+        return $this;
     }
 
     /**
@@ -116,7 +131,7 @@ abstract class DetailPageEntityForm extends EntityForm
      */
     public function getButtonsArray(): array
     {
-        $entityName = $this->entity->entityName;
+        $entityName = $this->displayEntityName ?? $this->entity->entityName;
         $buttons = [
             [
                 'class' => 'btn btn-lg btn-primary mr-2 float-left',

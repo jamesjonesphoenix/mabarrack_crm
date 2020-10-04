@@ -52,4 +52,14 @@ class UserFactory extends EntityFactory
 
         return $users;
     }
+
+
+    /**
+     * @return array
+     */
+    public function getOptionsArray(): array
+    {
+        $entities = $this->getEntities( ['type' => 'staff'] );
+        return array_column( $entities, 'name', 'id' );
+    }
 }

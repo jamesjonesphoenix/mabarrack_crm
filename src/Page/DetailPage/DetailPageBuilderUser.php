@@ -67,6 +67,15 @@ class DetailPageBuilderUser extends DetailPageBuilder
     }
 
     /**
+     * @return string
+     */
+    public function getDisplayEntityName(): string
+    {
+        $entity = $this->getEntity();
+        return $entity->role === 'staff' ? 'worker' : $entity->entityName;
+    }
+
+    /**
      * @return $this
      */
     public function addReports(): self

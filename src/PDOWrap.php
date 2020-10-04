@@ -240,17 +240,19 @@ class PDOWrap
                     //break;
                     case 'BETWEEN':
                         //$sqlWhereString .= ' BETWEEN ' . $queryArg['value']['start'] . ' AND ' . $queryArg['value']['finish'] ;
-                        $sqlWhereString .= ' BETWEEN :' . $columnName . '_start'  . ' AND :' . $columnName . '_finish' ;
+                        $sqlWhereString .= ' BETWEEN :' . $columnName . '_start' . ' AND :' . $columnName . '_finish';
                         break;
                     default:
                         $sqlWhereString .= ' ' . $queryArg['operator'] . ' :' . $columnName;
                         break;
                 }
 
-            } else if ( $queryArg === null || strtolower( $queryArg ) === 'null' ) {
-                $sqlWhereString .= ' IS NULL';
             } else {
-                $sqlWhereString .= '=:' . $columnName;
+                if ( $queryArg === null || strtolower( $queryArg ) === 'null' ) {
+                    $sqlWhereString .= ' IS NULL';
+                } else {
+                    $sqlWhereString .= '=:' . $columnName;
+                }
             }
             $sqlWhereStrings[] = $sqlWhereString;
         }
@@ -276,7 +278,7 @@ class PDOWrap
 
             if ( isset( $queryArg['value'] )
                 && $queryArg['value'] !== null
-                && (!is_string($queryArg['value']) || strtolower( $queryArg['value'] ) !== 'null')
+                && (!is_string( $queryArg['value'] ) || strtolower( $queryArg['value'] ) !== 'null')
             ) {
                 switch( $queryArg['operator'] ?? '' ) {
                     case 'LIKE':
@@ -329,9 +331,9 @@ class PDOWrap
         if ( $limit > 0 ) {
             $sql .= ' LIMIT ' . $limit;
         }
-       // d($sql);
-       // d($args);
-       // d(debug_backtrace( DEBUG_BACKTRACE_IGNORE_ARGS, 10 ));
+        // d($sql);
+        // d($args);
+        // d(debug_backtrace( DEBUG_BACKTRACE_IGNORE_ARGS, 10 ));
         $statement = $this->run( $sql, $args );
 
         $result = $statement->fetchAll();

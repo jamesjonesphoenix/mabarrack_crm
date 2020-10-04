@@ -42,14 +42,13 @@ class JobEntityForm extends DetailPageEntityForm
             'disabled' => $this->isDisabled()
         ] );
 
-        $customerLink = is_object( $this->entity->customer ) ? $this->htmlUtility::getViewButton( $this->entity->customer->getLink() ?? '', 'View Customer' ) : '';
         $this->fields['customer'] = $this->htmlUtility::getOptionDropdownFieldHTML( [
             'options' => $customerOptions,
             'selected' => $this->entity->customer->id,
             'id' => 'inputCustomer',
             'name' => 'customer',
             'label' => 'Customer',
-            'append' => $customerLink,
+            'append' => $this->htmlUtility::getViewButton( $this->entity->customer->getLink() , 'View Customer' ),
             'disabled' => $this->isDisabled()
         ] );
 
@@ -93,40 +92,6 @@ class JobEntityForm extends DetailPageEntityForm
      */
     public function makeFields(): self
     {
-
-        /*
-        $fields = [
-            'status' => [
-                'method' => 'getOptionDropdownFieldHTML',
-                'args' => [
-                    'options' => $jobStatusOptions,
-                    'selected' => $this->entity->status,
-                    'id' => 'job-status',
-                    'class' => $this->entity->status,
-                    'name' => 'status',
-
-                    'label' => 'Job Status',
-                    'disabled' => $this->isDisabled()
-                ]
-            ],
-            'customer' => [
-                'method' => 'getOptionDropdownFieldHTML',
-                'args' => [
-                    'options' => $customerOptions,
-                    'selected' => $this->entity->customer->id,
-                    'id' => 'inputCustomer',
-                    'name' => 'customer',
-                    'label' => 'Customer',
-                    'append' => $customerLink,
-                    'disabled' => $this->isDisabled()
-                ]
-            ]
-        ];
-        foreach($fields as $fieldName => $field){
-            $method = $field['method'];
-            $this->fields[$fieldName] = $this->htmlUtility::$method($field['args']);
-        }
-*/
         $this->fields['priority'] = $this->htmlUtility::getOptionDropdownFieldHTML(
             [
                 'name' => 'priority',

@@ -95,7 +95,7 @@ abstract class DetailPageBuilder extends EntityPageBuilder
             $this->messages->add( '<strong>Error:</strong> Adding a new ' . $this->getEntityFactory()->getEntityName() . ' is not allowed.' );
         }
         $this->page->addContent(
-            $form->makeFields()->render()
+            $form->makeFields()->setDisplayEntityName( $this->getDisplayEntityName() )->render()
         );
         return $this;
     }
@@ -115,7 +115,7 @@ abstract class DetailPageBuilder extends EntityPageBuilder
                 $this->getGoToIDForm()->render()
             );
         if ( $entity->exists && !empty( $healthCheck = $entity->healthCheck() ) ) {
-            $this->addError( '<h5 class="alert-heading">Problems with ' . $entity->entityName . ' <span class="badge badge-primary">ID: ' . $entity->id . '</span></h5>' . $this->HTMLUtility::getListGroup($healthCheck) );
+            $this->addError( '<h5 class="alert-heading">Problems with ' . $entity->entityName . ' <span class="badge badge-primary">ID: ' . $entity->id . '</span></h5>' . $this->HTMLUtility::getListGroup( $healthCheck ) );
         }
         $this->addForm();
         $this->addReports();
@@ -125,15 +125,22 @@ abstract class DetailPageBuilder extends EntityPageBuilder
     }
 
     /**
+     * @return string
+     */
+    public function getDisplayEntityName(): string
+    {
+        return $this->getEntity()->entityName;
+    }
+
+    /**
      * @return $this
      */
     public function addTitle(): self
     {
-        $entity = $this->getEntity();
-        $entityName = ucwords( $entity->entityName ) ?? 'Entity';
+        $entityName = ucwords( $this->getDisplayEntityName() ) ?? 'Entity';
         $title = $this->entity->id !== null ? $entityName . ' Details' : 'New ' . $entityName;
         //' <span class="badge badge-primary"> ' . $entity->id  . '</span>
-        $this->page->setTitle( $entity->getIcon() . ' ' . $title );
+        $this->page->setTitle( $this->getEntity()->getIcon() . ' ' . $title );
         $this->page->setHeadTitle( $title );
         return $this;
     }

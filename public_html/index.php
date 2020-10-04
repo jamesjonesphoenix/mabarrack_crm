@@ -20,6 +20,7 @@ use Phoenix\Page\IndexPageBuilder;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
+
 $init = (new Init())->startUp();
 $db = $init->getDB();
 $messages = $init->getMessages();

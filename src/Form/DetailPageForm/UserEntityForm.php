@@ -23,37 +23,6 @@ class UserEntityForm extends DetailPageEntityForm
     public string $formID = 'worker_form';
 
     /**
-     * @return \string[][]
-     */
-    public function getButtonsArray(): array
-    {
-        return [
-            [
-                'class' => 'btn btn-lg btn-danger mr-2 float-left',
-                'type' => 'button',
-                'id' => 'delete-dry-run-button',
-                'content' => 'Delete Worker'
-            ], [
-                'class' => 'btn btn-lg btn-primary mr-2 float-left',
-                'type' => 'button',
-                'id' => 'edit-button',
-                'content' => 'Edit Worker'
-            ], [
-                'class' => 'btn btn-lg btn-secondary mr-2 float-left',
-                'type' => 'button',
-                'id' => 'cancel-button',
-                'content' => 'Cancel Edit'
-            ], [
-                'href' => 'worker.php?add',
-                'type' => 'button',
-                'class' => 'btn btn-lg btn-success float-right',
-                'element' => 'a',
-                'content' => 'Add New Worker'
-            ]
-        ];
-    }
-
-    /**
      * @return $this
      */
     public function makeFields(): self

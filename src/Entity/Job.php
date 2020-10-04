@@ -447,7 +447,7 @@ class Job extends Entity
         } elseif ( is_iterable( $this->_furniture ) ) {
             foreach ( $this->_furniture as $furniture ) {
                 if ( empty( $furniture->name ) ) {
-                    $errors[] = 'Assigned <strong>furniture</strong> <span class="badge badge-danger">ID: ' . $furniture->id . "</span> that doesn't exist in the database.";
+                    $errors[] = 'Job has assigned <strong>furniture</strong> <span class="badge badge-danger">ID: ' . $furniture->id . "</span> that doesn't exist in the database.";
                 }
             }
         }

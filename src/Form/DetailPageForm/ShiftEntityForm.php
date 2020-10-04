@@ -31,8 +31,6 @@ class ShiftEntityForm extends DetailPageEntityForm
      */
     public function makeOptionsDropdownFields(array $jobOptions = [], array $workerOptions = [], array $activityOptions = [], array $furnitureOptions = []): self
     {
-        $jobLink = is_object( $this->entity->job ) ? $this->htmlUtility::getViewButton( $this->entity->job->getLink() ?? '', 'View Job' ) : '';
-        $workerLink = is_object( $this->entity->worker ) ? $this->htmlUtility::getViewButton( $this->entity->worker->getLink() ?? '', 'View Worker' ) : '';
 
         $this->fields['job'] = $this->htmlUtility::getOptionDropdownFieldHTML( [
             'options' => $jobOptions,
@@ -40,7 +38,7 @@ class ShiftEntityForm extends DetailPageEntityForm
             'name' => 'job',
             'label' => 'Job',
             'placeholder' => 'Select Job',
-            'append' => $jobLink,
+            'append' => $this->htmlUtility::getViewButton( $this->entity->job->getLink(), 'View Job' ),
             'disabled' => $this->isDisabled()
         ] );
 
@@ -50,7 +48,7 @@ class ShiftEntityForm extends DetailPageEntityForm
             'name' => 'worker',
             'label' => 'Worker',
             'placeholder' => 'Select Worker',
-            'append' => $workerLink,
+            'append' => $this->htmlUtility::getViewButton( $this->entity->worker->getLink(), 'View Worker' ),
             'disabled' => $this->isDisabled()
         ] );
 
@@ -66,18 +64,20 @@ class ShiftEntityForm extends DetailPageEntityForm
         // $this->fields['furniture'] = '';
 
         // if ( $this->entity->exists && ($this->entity->job->id !== 0 || (isset( $this->entity->activity->factoryOnly ) && $this->entity->activity->factoryOnly === false)) ) {
-
-
-        $furnitureLink = $this->entity->furniture->id !== null ? $this->entity->furniture->getLink() : '';
+        if ( $this->entity->exists ) {
+            $emptyFurnitureOptions = $this->entity->job->id === 0 ? 'N/A - Factory Job' : 'None Available';
+        } else {
+            $emptyFurnitureOptions = 'N/A - Choose after selecting job';
+        }
         $this->fields['furniture'] = $this->htmlUtility::getOptionDropdownFieldHTML( [
-            'options' => empty( $furnitureOptions ) ? [ null => 'N/A'] : $furnitureOptions,
+            'options' => empty( $furnitureOptions ) ? [null => $emptyFurnitureOptions] : $furnitureOptions,
             'selected' => $this->entity->furniture->id ?? $this->entity->furniture ?? null,
             'name' => 'furniture',
             'label' => 'Furniture',
             'placeholder' => empty( $furnitureOptions ) ? '' : 'Select Furniture',
 
             'append' => $this->htmlUtility::getViewButton(
-                $furnitureLink,
+                $this->entity->furniture->getLink(),
                 'View Furniture'
             ),
             'disabled' => $this->isDisabled()
