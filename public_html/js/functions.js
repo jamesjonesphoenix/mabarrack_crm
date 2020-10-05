@@ -89,7 +89,6 @@ $j(document).ready(function () {
     /**
      * Must execute toggleTableColumn() after table sorter
      */
-
     columnToggles.each(function () {
         toggleTableColumn($j(this));
     });

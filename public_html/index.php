@@ -107,6 +107,7 @@ switch( $_GET['page'] ?? '' ) {
                 $pageBuilder = new ReportPageBuilderProfitLoss( $db, $messages );
                 break;
             case 'activity_summary':
+            case 'billable_vs_non':
                 $pageBuilder = new ReportPageBuilderActivitySummary( $db, $messages );
                 break;
             default:

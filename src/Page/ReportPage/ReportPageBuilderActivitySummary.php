@@ -6,6 +6,7 @@ namespace Phoenix\Page\ReportPage;
 use Phoenix\Entity\ShiftFactory;
 use Phoenix\Entity\Shifts;
 use Phoenix\Report\Shifts\ActivitySummary;
+use Phoenix\Report\Shifts\BillableVsNon;
 
 /**
  * Class ReportPageBuilderActivitySummary
@@ -38,6 +39,7 @@ class ReportPageBuilderActivitySummary extends ReportPageBuilder
         ] );
     }
 
+
     /**
      * @return $this
      */
@@ -47,11 +49,21 @@ class ReportPageBuilderActivitySummary extends ReportPageBuilder
         $format = $this->format;
         $htmlUtility = $this->HTMLUtility;
 
-        $this->page->addContent(
-            (new ActivitySummary(
+        if ( $this->reportType === 'activity_summary' ) {
+            $report = new ActivitySummary(
                 $htmlUtility,
                 $format
-            ))->init( $shifts )->render() );
+            );
+        } elseif ( $this->reportType === 'billable_vs_non' ) {
+            $report = new BillableVsNon(
+                $htmlUtility,
+                $format
+            );
+        } else {
+            return $this;
+        }
+        $this->page->addContent(
+            $report->init( $shifts )->render() );
         return $this;
     }
 }

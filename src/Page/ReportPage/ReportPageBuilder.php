@@ -35,7 +35,7 @@ abstract class ReportPageBuilder extends PageBuilder
     /**
      * @var string
      */
-    private string $reportType;
+    protected string $reportType;
 
 
 

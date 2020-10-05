@@ -25,48 +25,71 @@ class ActivitySummary extends ShiftsReport
     /**
      * @return array
      */
+    public function sortShifts(): array
+    {
+        foreach ( $this->shifts->getAll() as $shift ) {
+            $type = $shift->activity->type ?? $shift->activity->category ?? '';
+            $returnShifts[$type][$shift->id] = $shift;
+        }
+        return $returnShifts ?? [];
+    }
+
+    /**
+     * @return array
+     */
+    public function getActivitiesSummary(): array
+    {
+        foreach ( $this->sortShifts() as $groupName => $shifts ) {
+
+            foreach($shifts as $shift){
+                if ( empty( $activitiesSummary[$groupName][$shift->activity->id] ) ) {
+                    $activitiesSummary[$groupName][$shift->activity->id] = [
+                        'activity_id' => $shift->activity->id,
+                        'activity' => $shift->activity->displayName,
+                        'activity_hours' => 0,
+                        'activity_cost' => 0,
+                    ];
+                }
+                $activitiesSummary[$groupName][$shift->activity->id]['activity_hours'] += $shift->getShiftLength();
+                $activitiesSummary[$groupName][$shift->activity->id]['activity_cost'] += $shift->getShiftCost();
+            }
+        }
+        if ( !empty( $activitiesSummary['Lunch'] ) ) {
+            $lunchRow = $activitiesSummary['Lunch'];
+            unset( $activitiesSummary['Lunch'] );
+            $activitiesSummary = ['Lunch' => $lunchRow] + $activitiesSummary;
+        }
+        return $activitiesSummary ?? [];
+    }
+
+    /**
+     * @return array
+     */
     public function extractData(): array
     {
         $shifts = $this->shifts;
-        $activitiesSummary = [];
-
         if ( $shifts->getCount() === 0 ) {
             return [];
         }
-        foreach ( $shifts->getAll() as $shift ) {
-            $type = $shift->activity->type ?? $shift->activity->category ?? '';
-            if ( $shift->activity->id === null ) {
-                $missingActivities[$shift->id] = $shift;
-                continue;
-            }
-            if ( empty( $activitiesSummary[$type][$shift->activity->id] ) ) {
-                //$activity_id = $activities->getID( $shift[ 'activity' ] );
-                $activitiesSummary[$type][$shift->activity->id] = [
-                    'activity_id' => $shift->activity->id,
-                    'activity' => $shift->activity->displayName,
-                    'activity_hours' => 0,
-                    'activity_cost' => 0,
-                ];
-            }
-            $activitiesSummary[$type][$shift->activity->id]['activity_hours'] += $shift->getShiftLength();
-            $activitiesSummary[$type][$shift->activity->id]['activity_cost'] += $shift->getShiftCost();
-        }
+        $activitiesSummary = $this->getActivitiesSummary();
+
         //krsort( $activitiesSummary );
-        if(!empty($activitiesSummary['Lunch'])) {
-            $v = $activitiesSummary['Lunch'];
-            unset( $activitiesSummary['Lunch'] );
-            $activitiesSummary['Lunch'] = $v;
-        }
-        foreach ( $activitiesSummary as $activityType => $summary ) {
-            ksort( $summary );
-            foreach ( $summary as $activityID => $activity ) {
+        foreach ( $activitiesSummary as $groupName => $activities ) {
+            ksort( $activities );
+            $groupTotalMinutes = 0;
+            $groupTotalCost = 0;
+            foreach ( $activities as $activityID => $activity ) {
                 $returnData[$activityID] = $activity;
+
+                $groupTotalMinutes += $activity['activity_hours'];
+                $groupTotalCost += $activity['activity_cost'];
+
             }
-            $returnData['employee_time_' . strtolower( $activityType )] = [
+            $returnData['employee_time_' . strtolower( $groupName )] = [
                 'activity_id' => 'Subtotal',
-                'activity' => $activityType === 'All' ? 'Unspecific Time' : $activityType . ' Time',
-                'activity_hours' => $shifts->getWorkerMinutes( $activityType ),
-                'activity_cost' => $shifts->getWorkerCost( $activityType ),
+                'activity' => $groupName === 'All' ? 'Unspecific Time' : $groupName . ' Time',
+                'activity_hours' => $groupTotalMinutes,
+                'activity_cost' => $groupTotalCost,
             ];
         }
 
@@ -81,9 +104,19 @@ class ActivitySummary extends ShiftsReport
             $activity['%_of_total_hours'] = $shifts->getTotalWorkerMinutes() > 0 ? $activity['activity_hours'] / $shifts->getTotalWorkerMinutes() : 0;
             $activity['%_of_total_employee_cost'] = $shifts->getTotalWorkerCost() > 0 ? $activity['activity_cost'] / $shifts->getTotalWorkerCost() : 0;
         }
-
         return $returnData;
     }
+
+    public function getNavLinks(): array
+    {
+        return [
+            [
+                'url' => '#',
+                'text' => 'Billable vs Non-Billable'
+            ]
+        ];
+    }
+
 
     /**
      * @return string[]
@@ -123,8 +156,10 @@ class ActivitySummary extends ShiftsReport
                 'employee_time_general' => ['class' => 'bg-secondary'],
                 'employee_time_manual' => ['class' => 'bg-secondary'],
                 'employee_time_cnc' => ['class' => 'bg-secondary'],
-                'employee_time_all' => ['class' => 'bg-secondary'],
                 'employee_time_lunch' => ['class' => 'bg-secondary'],
+                'billable_time' => ['class' => 'bg-info'],
+                'non_billable_time' => ['class' => 'bg-info'],
+
                 'total_time' => ['class' => 'bg-primary']
             ],
         ] );
