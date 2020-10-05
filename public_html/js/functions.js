@@ -3,8 +3,12 @@ $j = jQuery.noConflict();
 $j(document).ready(function () {
 
     entityPageFunctions();
-    matchTablesWidths(); //Must match table widths before table sorter as it adds extra classes
 
+    /**
+     * limit how often code in resize event fires so browser doesn't kill itself
+     *
+     * @type {function(*=, *=, *=): void}
+     */
     let waitForFinalEvent = (function () {
         let timers = {};
         return function (callback, ms, uniqueId) {
@@ -19,9 +23,9 @@ $j(document).ready(function () {
     })();
 
     $j(window).resize(function () {
-        waitForFinalEvent(function () { //limit how often resize fires so browser doesn't kill itself
+        waitForFinalEvent(function () {
             matchTablesWidths();
-        }, 800, "some unique string");
+        }, 1500, "some unique string");
     });
 
     $j("#print-button").click(function () {
@@ -36,24 +40,17 @@ $j(document).ready(function () {
         }
     });
 
-    $j('#collapse-messages').on('shown.bs.collapse', function () { //Destroy additional messages expander after expanding
+    /**
+     * Destroy additional messages expander after expanding
+     */
+    $j('#collapse-messages').on('shown.bs.collapse', function () {
         $j('.collapse-messages-column .alert').alert('close');
     });
 
+
     /**
-     *
+     * Init table filters
      */
-    function matchTablesWidths() {
-        let tables = [
-            'table.table.archive',
-            'table.table.choose-job',
-            'table.table.home-shift-table'
-        ];
-        for (let i = 0; i <= tables.length; i++) {
-             matchTableWidths(tables[i]);
-        }
-    }
-    
     $j("table.table-sorter").each(function () {
         if (this.rows.length < 7) {
             return;
@@ -78,7 +75,6 @@ $j(document).ready(function () {
             headerTemplate: '',
             widgets: ['filter', 'zebra'], // , 'zebra' too slow for large tables
             widgetOptions: {
-                //filter_cellFilter: ['asdads', 'pipipipip'],
                 filter_cssFilter: 'form-control',
                 filter_placeholder: {search: 'Filter', select: 'Filter'},
                 filter_searchDelay: 300,
@@ -86,82 +82,33 @@ $j(document).ready(function () {
             }
         });
 
-    });
+    })
 
     let columnToggles = $j('input.column-toggle');
+
+    /**
+     * Must execute toggleTableColumn() after table sorter
+     */
+
     columnToggles.each(function () {
         toggleTableColumn($j(this));
     });
+
+
+    /**
+     * Must execute matchTablesWidths() after initial executions of toggleTableColumn()
+     */
+    matchTablesWidths();
 
     /**
      *
      */
     columnToggles.click(function () {
         toggleTableColumn($j(this));
+        matchTablesWidths();
     });
 
-    /**
-     *
-     * @param input
-     */
-    function toggleTableColumn(input) {
-        let columnIndex = input.attr('data-column'),
-            columnClass = input.val(),
-            checked = input.prop('checked'),
-            table = 'table.table.archive ';
 
-        $j('input.column-toggle[data-column="' + columnIndex + '"][value="' + columnClass + '"]').prop(
-            'checked',
-            checked
-        );
-
-        table = $j(
-            table + ' thead td[data-column="' + columnIndex + '"], '
-            + table + ' tbody td.' + columnClass + ', '
-            + table + ' thead th.' + columnClass
-        );
-        if (checked) {
-            table.removeClass('d-none');
-        } else {
-            table.addClass('d-none');
-        }
-        matchTablesWidths();
-    }
-
-    /**
-     *
-     * @param tableSelector
-     */
-    function matchTableWidths(tableSelector) {
-        let tables = $j(tableSelector);
-        console.log(tables.length);
-        if (tables.length < 2) {
-            return;
-        }
-        let numberOfColumns = tables.find('tr')[0].cells.length,
-            itemsToMatch = [];
-        for (let i = 1; i <= numberOfColumns; i++) {
-            let cssClass = $j(tableSelector + ' thead th:nth-child(' + i + ')').attr('class');
-            if (!cssClass.includes('d-none')) {
-                itemsToMatch[i] = tableSelector + ' thead th[class^="' + cssClass + '"]';
-            }
-        }
-        //console.log(itemsToMatch);
-        matchHeight(itemsToMatch,
-            {
-                byRow: false,
-                property: 'width',
-                target: null,
-                remove: false,
-                axis: 'horizontal'
-            },
-            0
-        );
-    }
-
-    /**
-     *
-     */
     /*
     matchHeight(
         ['.top-worker-page-row .grey-bg'], {
@@ -172,10 +119,6 @@ $j(document).ready(function () {
         },
         0
     );
-
-     */
-
-    /*
     matchHeight(
         ['div.archive-table-column div.alert.alert-info, div.archive-table-column div.table-responsive'], {
             byRow: false,
@@ -188,6 +131,89 @@ $j(document).ready(function () {
     );
     */
 
+    /**
+     * @param input
+     */
+    function toggleTableColumn(input) {
+        let columnIndex = input.attr('data-column'),
+            columnClass = input.val(),
+            checked = input.prop('checked'),
+            table = 'table.table.archive ',
+            hideClass = 'd-none',
+            column = $j(
+                table + ' thead td[data-column="' + columnIndex + '"], ' +
+                table + ' thead th.' + columnClass + ', ' +
+                table + ' tbody td.' + columnClass + ', ' +
+                table + ' tbody th.' + columnClass
+            );
+        if (checked) {
+            column.removeClass(hideClass);
+        } else {
+            column.addClass(hideClass);
+        }
+        $j('input.column-toggle[data-column="' + columnIndex + '"][value="' + columnClass + '"]').prop(
+            'checked',
+            checked
+        );
+    }
+
+    /**
+     * Rather expensive function so be careful in how often we execute it
+     */
+    function matchTablesWidths() {
+        console.log('matchTablesWidths');
+        let tables = [
+            'table.table.archive',
+            'table.table.choose-job',
+            'table.table.home-shift-table'
+        ];
+        for (let i = 0; i <= tables.length; i++) {
+            matchTableWidths(tables[i]);
+        }
+    }
+
+    /**
+     * @param tableSelector
+     */
+    function matchTableWidths(tableSelector) {
+
+        let tables = $j(tableSelector),
+            numberOfTables = 0,
+            cssClass = '',
+            itemsToMatch = [],
+            i = 0;
+        tables.each(function (index, value) {
+            if (value.rows.length < 1000) {
+                numberOfTables++;
+            }
+        });
+        if (numberOfTables < 2) {
+            return;
+        }
+        let rowSelector = 'thead tr:first-child', //match widths of first body row because table-sorter adds extra classes to thead row th.
+            firstTableRow = tables.first().find(rowSelector + ' td, ' + rowSelector + ' th');
+
+        firstTableRow.each(function (index, value) {
+            cssClass = $j(value).attr('class').split(' ')[0]; //use first class only
+            // id tablesorter-header tablesorter-headerUnSorted
+            if (!cssClass.includes('d-none')) {
+                itemsToMatch[i] =
+                    tableSelector + ' ' + rowSelector + ' td[class^="' + cssClass + '"], ' +
+                    tableSelector + ' ' + rowSelector + ' th[class^="' + cssClass + '"]';
+                i++;
+            }
+        });
+        matchHeight(itemsToMatch,
+            {
+                byRow: false,
+                property: 'width',
+                target: null,
+                remove: false,
+                axis: 'horizontal'
+            },
+            0
+        );
+    }
 
     /**
      *

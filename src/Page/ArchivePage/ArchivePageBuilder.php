@@ -68,7 +68,6 @@ abstract class ArchivePageBuilder extends EntityPageBuilder
             }
         }
         $entities = $this->getEntityFactory()->getEntities( $queryArgs, $this->provisionArgs );
-
         if ( $this->errorEntitiesOnly ) {
             $entities = (new Entities( $entities ))->getEntitiesWithErrors();
         }
