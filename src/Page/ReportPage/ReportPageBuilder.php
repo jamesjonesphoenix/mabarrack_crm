@@ -7,6 +7,8 @@ namespace Phoenix\Page\ReportPage;
 use Phoenix\Form\SetReportDatesForm;
 use Phoenix\Page\Page;
 use Phoenix\Page\PageBuilder;
+use Phoenix\Report\PeriodicReport;
+use function Phoenix\getScriptFilename;
 
 /**
  * Class ReportPageBuilder
@@ -38,18 +40,39 @@ abstract class ReportPageBuilder extends PageBuilder
     protected string $reportType;
 
 
-
     /**
      * @return $this
      */
     public function buildPage(): self
     {
-        $this->page = $this->getNewPage();
-
+        $this->page = $this->getNewPage()
+            ->setTitle( 'CRM Report' )
+            ->setHeadTitle( 'Report' );
+        $this->addNavLinks();
         $this->addSetReportDatesForm();
         $this->addReport();
-        $this->page->setTitle( 'Report for Period - ' . date( 'd-m-Y', strtotime( $this->dateStart ) ) . ' to ' . date( 'd-m-Y', strtotime( $this->dateFinish ) ) );
-        $this->page->setHeadTitle('Report');
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    public function addNavLinks(): self
+    {
+        $url = getScriptFilename() . '?page=report&date_start=' . $this->dateStart . '&date_finish=' . $this->dateFinish . '&report=';
+        foreach ( [
+                      'profit_loss' => 'Profit Loss',
+                      'activity_summary' => 'Activities Summary',
+                      'billable_vs_non' => 'Billable vs Non-Billable'
+                  ] as $reportType => $title ) {
+            if ( $this->reportType !== $reportType ) {
+                $navLinks[$reportType] = [
+                    'url' => $url . $reportType,
+                    'text' => $title
+                ];
+            }
+        }
+        $this->page->setNavLinks( $navLinks ?? [] );
         return $this;
     }
 
@@ -60,7 +83,6 @@ abstract class ReportPageBuilder extends PageBuilder
      */
     public function setDates(string $dateStart = '', string $dateFinish = ''): self
     {
-
         $this->dateStart = $dateStart;
         $this->dateFinish = $dateFinish;
 
@@ -109,7 +131,41 @@ abstract class ReportPageBuilder extends PageBuilder
     public function addSetReportDatesForm(): self
     {
         $this->page->addContent(
-            (new SetReportDatesForm( $this->HTMLUtility, $this->dateStart, $this->dateFinish, $this->reportType ))->makeFields()->render()
+            (new SetReportDatesForm(
+                $this->HTMLUtility,
+                $this->dateStart,
+                $this->dateFinish,
+                $this->reportType
+            ))
+                ->makeFields()
+                ->render()
+        );
+        return $this;
+    }
+
+    /**
+     * @return PeriodicReport|null
+     */
+    abstract public function getNewReport(): ?PeriodicReport;
+
+    /**
+     * @return $this
+     */
+    public function addReport(): self
+    {
+        $report = $this->getNewReport()->setDates( $this->dateStart, $this->dateFinish );
+        if ( $report === null ) {
+            return $this;
+        }
+        if ( !empty( $this->dateStart ) && !empty( $this->dateFinish ) ) {
+            $title = $report->getTitle() . ' '
+                . $this->HTMLUtility::getBadgeHTML( date( 'd-m-Y', strtotime( $this->dateStart ) ) )
+                . ' to '
+                . $this->HTMLUtility::getBadgeHTML( date( 'd-m-Y', strtotime( $this->dateFinish ) ) );
+            $report->setTitle( $title );
+        }
+        $this->page->addContent(
+            $report->render()
         );
         return $this;
     }

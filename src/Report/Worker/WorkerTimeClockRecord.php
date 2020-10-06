@@ -40,6 +40,21 @@ class WorkerTimeClockRecord extends WorkerReport
     protected string $title = 'Time Clock Record';
 
     /**
+     * @var array
+     */
+    protected array $columns = [
+        'id' => 'ID',
+        'day' => 'Day',
+        'date' =>  ['title' => 'Date', 'format' => 'annotateDate'],
+        'start_time' => 'Start Time',
+        'finish_time' => 'Finish Time',
+        'hours' =>  ['title' => 'Hours', 'format' => 'hoursminutes'],
+        'total' =>  ['title' => 'Total Hours', 'format' => 'hoursminutes'],
+        'lunch_start' => 'Lunch Start',
+        'lunch_finish' => 'Lunch Finish',
+    ];
+
+    /**
      * @return array
      */
     public function extractData(): array
@@ -65,7 +80,8 @@ class WorkerTimeClockRecord extends WorkerReport
                 $timeClockRecord[$date]['lunch_finish'] = date( 'H:i', $timeFinishedSeconds );
                 $timeClockRecord[$date]['lunch_minutes'] += $shift->getShiftLength();
             } else {
-                $timeClockRecord[$date]['minutes'] += $shift->getShiftLength();
+                $timeClockRecord[$date]['hours'] += $shift->getShiftLength();
+                $timeClockRecord[$date]['minutes'] += $timeClockRecord[$date]['hours'];
             }
         }
 
@@ -125,6 +141,7 @@ class WorkerTimeClockRecord extends WorkerReport
                 'start_time' => self::dayEndTime,
                 'finish_time' => self::dayStartTime,
                 'minutes' => 0,
+                'hours' => 0,
                 'lunch_start' => ' ',
                 'lunch_finish' => ' ',
                 'lunch_minutes' => 0
@@ -172,25 +189,13 @@ class WorkerTimeClockRecord extends WorkerReport
         }
         unset( $day );
 
-        $data = $this->format::formatColumnValues( $data, 'annotateDate', 'date' );
-
-        $data = $this->format::formatColumnValues( $data, 'hoursminutes', 'minutes', 'hours' );
-        $data = $this->format::formatColumnValues( $data, 'hoursminutes', 'total' );
+        $data = $this->format::formatColumnsValues( $data, $this->getColumns('format') );
         return $html . $this->htmlUtility::getTableHTML( [
                 'data' => $data,
-                'columns' => [
-                    'id' => 'ID',
-                    'day' => 'Day',
-                    'date' => 'Date',
-                    'start_time' => 'Start Time',
-                    'finish_time' => 'Finish Time',
-                    'hours' => 'Hours',
-                    'total' => 'Total Hours',
-                    'lunch_start' => 'Lunch Start',
-                    'lunch_finish' => 'Lunch Finish',
-                ]
+                'columns' => $this->getColumns()
             ] );
     }
+
 
 
     /**

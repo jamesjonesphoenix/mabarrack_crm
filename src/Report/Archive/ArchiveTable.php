@@ -25,11 +25,6 @@ abstract class ArchiveTable extends Report
     protected array $entities = [];
 
     /**
-     * @var array
-     */
-    protected array $columns = [];
-
-    /**
      * @var string
      */
     private string $groupedBy = '';
@@ -414,20 +409,5 @@ abstract class ArchiveTable extends Report
         return $this;
     }
 
-    /**
-     * @param string $property
-     * @return array
-     */
-    public function getColumns(string $property = ''): array
-    {
-        if ( empty( $property ) ) {
-            return $this->columns;
-        }
-        foreach ( $this->columns as $columnName => $column ) {
-            if ( isset( $column[$property] ) ) {
-                $return[$columnName] = $column[$property];
-            }
-        }
-        return $return ?? [];
-    }
+
 }

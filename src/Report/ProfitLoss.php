@@ -13,39 +13,51 @@ use Phoenix\Entity\Job;
  * @package Phoenix\Report
  *
  */
-class ProfitLoss extends Report
+class ProfitLoss extends PeriodicReport
 {
     /**
      * @var Job[]
      */
     private array $jobs = [];
 
-    private string $dateStart;
+    /**
+     * @var string
+     */
+    protected string $title = 'Profit/Loss';
 
-    private string $dateFinish;
-
+    /**
+     * @var int
+     */
     private int $numberOfValidJobs;
 
     /**
-     * @param Job[]  $jobs
-     * @param string $dateStart
-     * @param string $dateFinish
-     * @return $this
+     * @var array
      */
-    public function init(array $jobs = [], string $dateStart = '', string $dateFinish = ''): self
-    {
-        $this->jobs = $jobs;
-        $this->dateStart = $dateStart;
-        $this->dateFinish = $dateFinish;
-        return $this;
-    }
+    protected array $columns = [
+        'item' => 'Item',
+        'total' => 'Total',
+        'average' => 'Average Per Job',
+        'weighted' => 'Weighted Average Per Job',
+    ];
 
     /**
-     * @return string
+     * @var array
      */
-    public function getTitle(): string
+    protected array $rowArgs = [
+        'employee_cost' => ['class' => 'bg-primary'],
+        'sum_cost' => ['class' => 'bg-primary'],
+        'total_profit' => ['class' => 'bg-primary'],
+        'profit_header' => ['subheader' => true]
+    ];
+
+    /**
+     * @param Job[]  $jobs
+     * @return $this
+     */
+    public function setJobs(array $jobs = []): self
     {
-        return 'Profit/Loss';
+        $this->jobs = $jobs;
+        return $this;
     }
 
     /**
@@ -149,6 +161,16 @@ class ProfitLoss extends Report
     }
 
     /**
+     * @return array
+     */
+    public function getRowArgs(): array
+    {
+        return [];
+    }
+
+
+
+    /**
      * @return string
      * @throws \Exception
      */
@@ -160,18 +182,8 @@ class ProfitLoss extends Report
         }
         return $this->htmlUtility::getTableHTML( [
             'data' => $data,
-            'columns' => [
-                'item' => 'Item',
-                'total' => 'Total',
-                'average' => 'Average Per Job',
-                'weighted' => 'Weighted Average Per Job',
-            ],
-            'rows' => [
-                'employee_cost' => ['class' => 'bg-primary'],
-                'sum_cost' => ['class' => 'bg-primary'],
-                'total_profit' => ['class' => 'bg-primary'],
-                'profit_header' => ['subheader' => true]
-            ],
+            'columns' => $this->getColumns(),
+            'rows' => $this->getRowArgs(),
         ] );
     }
 }

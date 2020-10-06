@@ -20,6 +20,16 @@ class WorkerWeeklySummary extends WorkerReport
     protected string $title = 'Worker Week Summary';
 
     /**
+     * @var array
+     */
+    protected array $columns = [
+        'item' => 'Item',
+        'hours' => ['title' => 'Hours', 'format' => 'hoursminutes'],
+        'percent_hours_paid' => ['title' => 'Percent of Hours Paid', 'format' => 'percentage'],
+        'percent_hours_total' => ['title' => 'Percent of Total Recorded', 'format' => 'percentage']
+    ];
+
+    /**
      * @return array
      */
     public function extractData(): array
@@ -96,6 +106,15 @@ class WorkerWeeklySummary extends WorkerReport
     }
 
     /**
+     * @var array
+     */
+    protected array $rowArgs = [
+        'total_recorded' => ['class' => 'bg-primary'],
+        'total_paid' => ['class' => 'bg-primary'],
+        'factory_all' => ['class' => 'bg-primary'],
+    ];
+
+    /**
      * @return string
      * @throws \Exception
      */
@@ -109,23 +128,11 @@ class WorkerWeeklySummary extends WorkerReport
         if ( empty( $data ) ) {
             return $this->htmlUtility::getAlertHTML( 'Shifts found from <strong>' . $this->getDateStart() . '</strong> to <strong>' . $this->getDateFinish() . '</strong> but no summary data generated. Something has gone wrong.', 'danger' );
         }
-        $data = $this->format::formatColumnValues( $data, 'hoursminutes', 'hours' );
-        $data = $this->format::formatColumnValues( $data, 'percentage', 'percent_hours_paid' );
-        $data = $this->format::formatColumnValues( $data, 'percentage', 'percent_hours_total' );
-
+        $data = $this->format::formatColumnsValues( $data, $this->getColumns( 'format' ) );
         return $html . $this->htmlUtility::getTableHTML( [
                 'data' => $data,
-                'columns' => [
-                    'item' => 'Item',
-                    'hours' => 'Hours',
-                    'percent_hours_paid' => 'Percent of Hours Paid',
-                    'percent_hours_total' => 'Percent of Total Recorded'
-                ],
-                'rows' => [
-                    'total_recorded' => ['class' => 'bg-primary'],
-                    'total_paid' => ['class' => 'bg-primary'],
-                    'factory_all' => ['class' => 'bg-primary'],
-                ],
+                'columns' => $this->getColumns(),
+                'rows' => $this->getRowArgs(),
 
             ] );
     }

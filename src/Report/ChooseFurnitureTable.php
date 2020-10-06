@@ -21,6 +21,15 @@ class ChooseFurnitureTable extends Report
     protected Job $job;
 
     /**
+     * @var array
+     */
+    protected array $columns = [
+        'name' => 'Furniture',
+        'quantity' => 'Quantity',
+        'select' => ''
+    ];
+
+    /**
      * @param Job|null $job
      * @return $this
      */
@@ -62,15 +71,11 @@ class ChooseFurnitureTable extends Report
     {
         $furnitureTableData = $this->extractData();
         if ( empty( $furnitureTableData ) ) {
-            return $this->htmlUtility::getAlertHTML( 'Job ' . $this->job->id . ' has no furniture to choose from.', 'info' );
+            return $this->htmlUtility::getAlertHTML( 'Job ' . $this->job->getIDBadge() . ' has no furniture to choose from.', 'info' );
         }
         return $this->htmlUtility::getTableHTML( [
             'data' => $furnitureTableData,
-            'columns' => [
-                'name' => 'Furniture',
-                'quantity' => 'Quantity',
-                'select' => ''
-            ]
+            'columns' => $this->getColumns()
         ] );
     }
 }

@@ -15,24 +15,35 @@ use Donquixote\Cellbrush\Table\Table;
 class HTMLTags
 {
     /**
-     * @param string $string
-     * @param string $type
+     * @param string $content
+     * @param string $contextualClass
      * @param bool   $showCloseButton
      * @return string
      */
-    public static function getAlertHTML(string $string = '', string $type = '', bool $showCloseButton = true): string
+    public static function getAlertHTML(string $content = '', string $contextualClass = '', bool $showCloseButton = true): string
     {
-        $type ??= 'danger';
+        $contextualClass ??= 'danger';
         ob_start(); ?>
-        <div class="alert alert-<?php echo $type; ?> my-2" role="alert">
+        <div class="alert alert-<?php echo $contextualClass; ?> my-2" role="alert">
             <?php if ( $showCloseButton ) { ?>
                 <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             <?php } ?>
-            <?php echo $string; ?>
+            <?php echo $content; ?>
         </div>
         <?php return ob_get_clean();
+    }
+
+    /**
+     * @param string $content
+     * @param string $contextualClass
+     * @param string $url
+     * @return string
+     */
+    public static function getBadgeHTML(string $content = '', string $contextualClass = 'primary', string $url = ''): string
+    {
+        return !empty($content) ? '<span class="badge badge-' . $contextualClass . '">' . $content . '</span>' : '';
     }
 
     /**

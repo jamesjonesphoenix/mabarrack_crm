@@ -3,6 +3,9 @@
 
 namespace Phoenix\Report\Shifts;
 
+use Phoenix\Entity\Shifts;
+use Phoenix\Report\PeriodicReport;
+
 /**
  * Class ActivitySummary
  *
@@ -10,7 +13,7 @@ namespace Phoenix\Report\Shifts;
  * @package Phoenix\Report
  *
  */
-class ActivitySummary extends ShiftsReport
+class ActivitySummary extends PeriodicReport
 {
     /**
      *
@@ -22,6 +25,47 @@ class ActivitySummary extends ShiftsReport
      */
     protected string $noShiftsMessage = 'No job activity to report.';
 
+    /**
+     * @var array
+     */
+    protected array $rowArgs = ['total_time' => ['class' => 'bg-primary']];
+
+    /**
+     * @var array
+     */
+    protected array $columns = [
+        'activity_id' => 'Activity ID',
+        'activity' => 'Activity',
+        'activity_hours' => ['title' => 'Activity Hours', 'format' => 'hoursminutes'],
+        '%_of_total_hours' => ['title' => '% of Total Hours', 'format' => 'percentage'],
+        'activity_cost' => ['title' => 'Activity Cost', 'format' => 'currency'],
+        '%_of_total_employee_cost' => ['title' => '% of Total Employee Cost', 'format' => 'percentage']
+    ];
+
+    /**
+     * @var Shifts
+     */
+    protected Shifts $shifts;
+
+    /**
+     * @param string $noShiftsMessage
+     * @return $this
+     */
+    public function setNoShiftsMessage( string $noShiftsMessage = ''): self
+    {
+        $this->noShiftsMessage = $noShiftsMessage;
+        return $this;
+    }
+
+    /**
+     * @param Shifts $shifts
+     * @return $this
+     */
+    public function setShifts(Shifts $shifts): self
+    {
+        $this->shifts = $shifts;
+        return $this;
+    }
     /**
      * @return array
      */
@@ -41,7 +85,7 @@ class ActivitySummary extends ShiftsReport
     {
         foreach ( $this->sortShifts() as $groupName => $shifts ) {
 
-            foreach($shifts as $shift){
+            foreach ( $shifts as $shift ) {
                 if ( empty( $activitiesSummary[$groupName][$shift->activity->id] ) ) {
                     $activitiesSummary[$groupName][$shift->activity->id] = [
                         'activity_id' => $shift->activity->id,
@@ -71,10 +115,19 @@ class ActivitySummary extends ShiftsReport
         if ( $shifts->getCount() === 0 ) {
             return [];
         }
-        $activitiesSummary = $this->getActivitiesSummary();
+        $fullRowName = 'row';
+//        $fullRowHandle = $fullRowName . '.';
+        foreach ( $this->getActivitiesSummary() as $groupName => $activities ) {
 
-        //krsort( $activitiesSummary );
-        foreach ( $activitiesSummary as $groupName => $activities ) {
+            $subtotalRow = 'employee_time_' . strtolower( $groupName );
+/*
+            $subheaderRow = $subtotalRow . 'subheader';
+            $this->rowArgs[$subheaderRow] = ['subheader' => true, 'class' => 'bg-secondary'];
+            $returnData[$subheaderRow] = [
+                $fullRowName => ucwords( $groupName . ' Activities' ),
+            ];
+
+*/
             ksort( $activities );
             $groupTotalMinutes = 0;
             $groupTotalCost = 0;
@@ -85,53 +138,50 @@ class ActivitySummary extends ShiftsReport
                 $groupTotalCost += $activity['activity_cost'];
 
             }
-            $returnData['employee_time_' . strtolower( $groupName )] = [
-                'activity_id' => 'Subtotal',
-                'activity' => $groupName === 'All' ? 'Unspecific Time' : $groupName . ' Time',
-                'activity_hours' => $groupTotalMinutes,
-                'activity_cost' => $groupTotalCost,
+
+            $returnData[$subtotalRow] = [
+                 'activity_id' => 'Subtotal',
+                 'activity' => $groupName === 'All' ? 'Unspecific Time' : $groupName . ' Time',
+                 'activity_hours' => $groupTotalMinutes,
+                 'activity_cost' => $groupTotalCost,
             ];
+            $this->rowArgs[$subtotalRow] = ['class' => 'bg-secondary'];
         }
 
-        //Activities recorded before we started recording CNC and Manual work separately.
         $returnData['total_time'] = [
-            'activity' => 'Total Hours',
-            'activity_hours' => $shifts->getTotalWorkerMinutes(),
-            'activity_cost' => $shifts->getTotalWorkerCost(),
+             'activity' => 'Total Hours',
+             'activity_hours' => $shifts->getTotalWorkerMinutes(),
+             'activity_cost' => $shifts->getTotalWorkerCost(),
         ];
 
         foreach ( $returnData as &$activity ) {
-            $activity['%_of_total_hours'] = $shifts->getTotalWorkerMinutes() > 0 ? $activity['activity_hours'] / $shifts->getTotalWorkerMinutes() : 0;
-            $activity['%_of_total_employee_cost'] = $shifts->getTotalWorkerCost() > 0 ? $activity['activity_cost'] / $shifts->getTotalWorkerCost() : 0;
+            $activity[ '%_of_total_hours'] = $shifts->getTotalWorkerMinutes() > 0 ? $activity['activity_hours'] / $shifts->getTotalWorkerMinutes() : 0;
+            $activity[ '%_of_total_employee_cost'] = $shifts->getTotalWorkerCost() > 0 ? $activity['activity_cost'] / $shifts->getTotalWorkerCost() : 0;
         }
         return $returnData;
     }
 
-    public function getNavLinks(): array
-    {
-        return [
-            [
-                'url' => '#',
-                'text' => 'Billable vs Non-Billable'
-            ]
-        ];
-    }
 
 
-    /**
-     * @return string[]
-     */
-    private function getColumns(): array
-    {
-        return [
-            'activity_id' => 'Activity ID',
-            'activity' => 'Activity',
-            'activity_hours' => 'Activity Hours',
-            '%_of_total_hours' => '% of Total Hours',
-            'activity_cost' => 'Activity Cost',
-            '%_of_total_employee_cost' => '% of Total Employee Cost'
-        ];
-    }
+    /*
+      private function gzdfgdfgs(): array
+      {
+          $fullRowHandle = 'row.';
+          $columns = [
+              'activity_id' => 'Activity ID',
+              'activity' => 'Activity',
+              'activity_hours' => ['title' => 'Activity Hours', 'format' => 'hoursminutes'],
+              '%_of_total_hours' => ['title' => '% of Total Hours', 'format' => 'percentage'],
+              'activity_cost' => ['title' => 'Activity Cost', 'format' => 'currency'],
+              '%_of_total_employee_cost' => ['title' => '% of Total Employee Cost', 'format' => 'percentage']
+          ];
+          foreach ( $columns as $columnID => $columnArgs ) {
+              $return[$fullRowHandle . $columnID] = $columnArgs;
+          }
+          return $return;
+      }
+    */
+
 
     /**
      * @return string
@@ -143,25 +193,11 @@ class ActivitySummary extends ShiftsReport
         if ( empty( $data ) ) {
             return $this->htmlUtility::getAlertHTML( $this->noShiftsMessage, 'warning', false );
         }
-        $data = $this->format::formatColumnValues( $data, 'percentage', '%_of_total_hours' );
-        $data = $this->format::formatColumnValues( $data, 'percentage', '%_of_total_employee_cost' );
-
-        $data = $this->format::formatColumnValues( $data, 'hoursminutes', 'activity_hours' );
-        $data = $this->format::formatColumnValues( $data, 'currency', 'activity_cost' );
 
         return $this->htmlUtility::getTableHTML( [
-            'data' => $data,
+            'data' => $this->format::formatColumnsValues( $data, $this->getColumns( 'format' ) ),
             'columns' => $this->getColumns(),
-            'rows' => [
-                'employee_time_general' => ['class' => 'bg-secondary'],
-                'employee_time_manual' => ['class' => 'bg-secondary'],
-                'employee_time_cnc' => ['class' => 'bg-secondary'],
-                'employee_time_lunch' => ['class' => 'bg-secondary'],
-                'billable_time' => ['class' => 'bg-info'],
-                'non_billable_time' => ['class' => 'bg-info'],
-
-                'total_time' => ['class' => 'bg-primary']
-            ],
+            'rows' => $this->getRowArgs()
         ] );
     }
 }

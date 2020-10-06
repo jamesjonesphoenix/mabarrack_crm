@@ -30,6 +30,9 @@ class ChooseActivityTable extends Report
      */
     private array $activityURLs;
 
+    /**
+     * @var string
+     */
     private string $type = '';
 
     /**

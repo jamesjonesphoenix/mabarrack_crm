@@ -24,6 +24,16 @@ class JobSummary extends Report
     protected Job $job;
 
     /**
+     * @var array
+     */
+    protected array $columns = [
+        'item' => 'Item',
+        'value' => 'Value',
+        'percent_sum_cost' => '% of Sum Cost',
+        'notes' => ''
+    ];
+
+    /**
      * @param Job $job
      * @return $this
      */
@@ -107,6 +117,16 @@ class JobSummary extends Report
     }
 
     /**
+     * @var array
+     */
+    protected array $rowArgs = [
+        'employee_cost' => ['class' => 'bg-primary'],
+        'sum_cost' => ['class' => 'bg-primary'],
+        'total_profit' => ['class' => 'bg-primary'],
+        'profit_header' => ['subheader' => true]
+    ];
+
+    /**
      * @return string
      * @throws \Exception
      */
@@ -114,18 +134,8 @@ class JobSummary extends Report
     {
         return $this->htmlUtility::getTableHTML( [
             'data' => $this->extractData(),
-            'columns' => [
-                'item' => 'Item',
-                'value' => 'Value',
-                'percent_sum_cost' => '% of Sum Cost',
-                'notes' => ''
-            ],
-            'rows' => [
-                'employee_cost' => ['class' => 'bg-primary'],
-                'sum_cost' => ['class' => 'bg-primary'],
-                'total_profit' => ['class' => 'bg-primary'],
-                'profit_header' => ['subheader' => true]
-            ]
+            'columns' => $this->getColumns(),
+            'rows' => $this->getRowArgs()
         ] );
 
     }

@@ -86,7 +86,7 @@ class DetailPageBuilderJob extends DetailPageBuilder
             'activity_summary' => (new ActivitySummary(
                 $htmlUtility,
                 $format,
-            ))->init( $entity->shifts ),
+            ))->setShifts( $entity->shifts ),
             'job_shifts' => (new ArchiveTableJobShifts(
                 $htmlUtility,
                 $format,

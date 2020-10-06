@@ -38,6 +38,16 @@ abstract class Report extends Base
     protected bool $fullwidth = true;
 
     /**
+     * @var array
+     */
+    protected array $columns = [];
+
+    /**
+     * @var array
+     */
+    protected array $rowArgs = [];
+
+    /**
      * Report constructor.
      *
      * @param HTMLTags $htmlUtility
@@ -89,12 +99,33 @@ abstract class Report extends Base
     abstract public function extractData(): array;
 
     /**
-     * @return string
+     * @return array
      */
-    abstract public function renderReport(): string;
+    public function getRowArgs(): array
+    {
+        return $this->rowArgs;
+    }
 
     /**
      * @return string
+     * @throws \Exception
+     */
+    public function renderReport(): string
+    {
+        $data = $this->extractData();
+        if ( empty( $data ) ) {
+            return $this->htmlUtility::getAlertHTML( 'No jobs to report.', 'warning' );
+        }
+        return $this->htmlUtility::getTableHTML( [
+            'data' => $data,
+            'columns' => $this->getColumns(),
+            'rows' => $this->getRowArgs()
+        ] );
+    }
+
+    /**
+     * @return string
+     * @throws \Exception
      */
     public function render(): string
     {
@@ -119,5 +150,26 @@ abstract class Report extends Base
             </div>
         </div>
         <?php return ob_get_clean();
+    }
+
+    /**
+     * @param string $property
+     * @return array
+     */
+    public function getColumns(string $property = ''): array
+    {
+        if ( empty( $property ) ) {
+            return $this->columns;
+        }
+        foreach ( $this->columns as $columnName => $columnArgs ) {
+            if ( is_string( $columnArgs ) && $property === 'title' ) {
+                $return[$columnName] = $columnArgs;
+                continue;
+            }
+            if ( isset( $columnArgs[$property] ) ) {
+                $return[$columnName] = $columnArgs[$property];
+            }
+        }
+        return $return ?? [];
     }
 }

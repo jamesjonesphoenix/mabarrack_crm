@@ -22,7 +22,7 @@ class ReportPageBuilderProfitLoss extends ReportPageBuilder
      */
     public function getJobs(): array
     {
-        if(!$this->validateDates()){
+        if ( !$this->validateDates() ) {
             return [];
         }
         return (new JobFactory( $this->db, $this->messages ))->getEntities( [
@@ -40,21 +40,13 @@ class ReportPageBuilderProfitLoss extends ReportPageBuilder
     }
 
     /**
-     * @return $this
+     * @return ProfitLoss|null
      */
-    public function addReport(): self
+    public function getNewReport(): ProfitLoss
     {
-        $jobs = $this->getJobs();
-        $format = $this->format;
-        $htmlUtility = $this->HTMLUtility;
-
-
-
-        $this->page->addContent(
-            (new ProfitLoss(
-                $htmlUtility,
-                $format
-            ))->init( $jobs, $this->dateStart, $this->dateFinish )->render() );
-        return $this;
+        return (new ProfitLoss(
+            $this->HTMLUtility,
+            $this->format
+        ))->setJobs( $this->getJobs() );
     }
 }

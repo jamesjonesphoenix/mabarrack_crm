@@ -14,6 +14,11 @@ namespace Phoenix\Report\Shifts;
 class BillableVsNon extends ActivitySummary
 {
     /**
+     * @var string
+     */
+    protected string $title = 'Billable vs. Non-Billable Activities';
+
+    /**
      * @return array
      */
     public function sortShifts(): array
@@ -24,18 +29,4 @@ class BillableVsNon extends ActivitySummary
         }
         return $returnShifts ?? [];
     }
-
-    /**
-     * @return \string[][]
-     */
-    public function getNavLinks(): array
-    {
-        return [
-            [
-                'url' => '#',
-                'text' => 'Activities Summary'
-            ]
-        ];
-    }
-
 }

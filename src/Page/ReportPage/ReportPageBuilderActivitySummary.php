@@ -39,31 +39,25 @@ class ReportPageBuilderActivitySummary extends ReportPageBuilder
         ] );
     }
 
-
     /**
-     * @return $this
+     * @return ActivitySummary|null
      */
-    public function addReport(): self
+    public function getNewReport(): ?ActivitySummary
     {
-        $shifts = new Shifts( $this->getShifts() );
-        $format = $this->format;
-        $htmlUtility = $this->HTMLUtility;
-
         if ( $this->reportType === 'activity_summary' ) {
             $report = new ActivitySummary(
-                $htmlUtility,
-                $format
+                $this->HTMLUtility,
+                $this->format
             );
         } elseif ( $this->reportType === 'billable_vs_non' ) {
             $report = new BillableVsNon(
-                $htmlUtility,
-                $format
+                $this->HTMLUtility,
+                $this->format
             );
         } else {
-            return $this;
+            return null;
         }
-        $this->page->addContent(
-            $report->init( $shifts )->render() );
-        return $this;
+        return $report->setShifts( new Shifts( $this->getShifts() ) );
     }
+
 }
