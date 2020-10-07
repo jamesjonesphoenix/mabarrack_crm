@@ -37,7 +37,7 @@ abstract class ArchiveTable extends Report
     /**
      * @var string
      */
-    private string $emptyReportMessage;
+    protected string $emptyMessage;
 
     /**
      * @var string
@@ -124,6 +124,7 @@ abstract class ArchiveTable extends Report
         $this->entities = $entities;
         if ( $entity !== null ) {
             $this->entity = $entity;
+            $this->emptyMessage = 'No ' . $this->entity->entityNamePlural . ' found to report.';
         } elseif ( count( $entities ) > 0 ) {
             $this->entity = current( $entities );
         }
@@ -196,25 +197,6 @@ abstract class ArchiveTable extends Report
     }
 
     /**
-     * @return string
-     */
-    public function getEmptyReportMessage(): string
-    {
-        return $this->emptyReportMessage ?? $this->htmlUtility::getAlertHTML( 'No ' . $this->entity->entityNamePlural . ' found to report.', 'warning', false );
-    }
-
-    /**
-     * @param string $message
-     * @param string $type
-     * @return $this
-     */
-    public function setEmptyReportMessage(string $message = '', string $type = 'warning'): self
-    {
-        $this->emptyReportMessage = $this->htmlUtility::getAlertHTML( $message, $type, false );
-        return $this;
-    }
-
-    /**
      * @return array
      */
     public function extractData(): array
@@ -278,7 +260,7 @@ abstract class ArchiveTable extends Report
         <div class="container-fluid position-relative">
             <div class="row justify-content-center">
                 <div class="archive-table-column col-auto d-flex flex-column align-items-stretch">
-                    <?php echo empty( $archivesHTML ) ? '<div class="grey-bg px-3 py-2 mb-4">' . $this->getEmptyReportMessage() . '</div>' : $archivesHTML; ?>
+                    <?php echo empty( $archivesHTML ) ? '<div class="grey-bg px-3 py-2 mb-4">' . $this->getEmptyMessage() . '</div>' : $archivesHTML; ?>
                 </div>
             </div>
         </div>

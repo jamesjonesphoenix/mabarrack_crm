@@ -46,12 +46,10 @@ class ChooseActivityTable extends Report
      * @param string     $type
      * @return $this
      */
-    public function init(array $activities = [], array $activityURLs = [], string $type = ''): self
+    public function setActivities(array $activities = [], array $activityURLs = [], string $type = ''): self
     {
         $this->activityURLs = $activityURLs;
         $this->type = $type;
-        $this->setTitle( $type . ' Activities' );
-
 
         foreach ( $activities as $activity ) {
             $this->activities[$activity->category][$activity->name] = $activity;
@@ -115,8 +113,7 @@ class ChooseActivityTable extends Report
         <div class="m-n2 clearfix">
             <div class="clearfix"><?php echo implode( '', $activityIcons['single'] ); ?></div>
             <div class="my-2"><?php
-                foreach ( $activityIcons['multiple'] as $categoryName => $iconHTML ) {
-                    ?>
+                foreach ( $activityIcons['multiple'] as $categoryName => $iconHTML ) { ?>
                     <div class="row align-items-center choose-activity mx-2 my-2 py-2">
                         <div class="col-auto px-0">
                             <span><?php echo $this->type . ' ' . $categoryName; ?></span>

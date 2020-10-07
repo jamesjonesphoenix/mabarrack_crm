@@ -93,29 +93,40 @@ class DetailPageBuilderUser extends DetailPageBuilder
         $shift = (new ShiftFactory( $this->db, $this->messages ))->getNew();
 
         $reports = [
-            'current_shifts' => (new ArchiveTableUserShifts(
+            (new ArchiveTableUserShifts(
                 $htmlUtility,
                 $format,
-            ))->setEntities( $user->shifts->getUnfinishedShifts()->getAll(), $shift )
+            ))
+                ->setEntities( $user->shifts->getUnfinishedShifts()->getAll(), $shift )
                 ->setTitle( 'Current Shifts' )
-                ->setEmptyReportMessage( ucfirst( $user->name ?? 'user' ) . ' is not currently clocked onto any shifts.', 'info' ),
-            'time_clock_record' => (new WorkerTimeClockRecord(
+                ->setEmptyMessageClass( 'info')
+                ->setEmptyMessage( ucfirst( $user->name ?? 'user' ) . ' is not currently clocked onto any shifts.' ),
+            (new WorkerTimeClockRecord(
                 $htmlUtility,
                 $format,
-            ))->init( $shifts, $user->name, $startDate ),
-            'weekly_summary' => (new WorkerWeeklySummary(
+            ))
+                ->setStartAndFinishDates($startDate)
+                ->setUsername( $user->name )
+                ->setShifts( $shifts ),
+            (new WorkerWeeklySummary(
                 $htmlUtility,
                 $format,
-            ))->init( $shifts, $user->name, $startDate ),
-            'worker_shifts_table' => (new ArchiveTableUserShifts(
+            ))
+                ->setStartAndFinishDates($startDate)
+                ->setUsername( $user->name )
+                ->setShifts( $shifts ),
+            (new ArchiveTableUserShifts(
                 $htmlUtility,
                 $format,
-            ))->setEntities( $shifts->getAll(), $shift )
+            ))
+                ->setEntities( $shifts->getAll(), $shift )
                 ->setTitle( 'All Worker Shifts' )
         ];
+        $html = '';
         foreach ( $reports as $report ) {
-            $this->page->addContent( $report->render() );
+            $html .= $report->render();
         }
+        $this->page->addContent( $html );
         return $this;
     }
 }

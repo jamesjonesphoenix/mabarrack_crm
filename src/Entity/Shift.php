@@ -476,7 +476,7 @@ class Shift extends Entity
         if ( $this->worker->id === null ) {
             $errors[] = $shiftName . ' has no worker assigned.';
         } elseif ( $this->worker->role !== 'staff' ) {
-            $errors[] = 'Worker assigned to ' . $shiftName . $this->getIDBadge(). ' is not a user with staff role.';
+            $errors[] = 'Worker assigned to ' . $shiftName . $this->getIDBadge() . ' is not a user with staff role.';
         }
         return $errors ?? [];
     }

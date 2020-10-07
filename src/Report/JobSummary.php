@@ -125,18 +125,4 @@ class JobSummary extends Report
         'total_profit' => ['class' => 'bg-primary'],
         'profit_header' => ['subheader' => true]
     ];
-
-    /**
-     * @return string
-     * @throws \Exception
-     */
-    public function renderReport(): string
-    {
-        return $this->htmlUtility::getTableHTML( [
-            'data' => $this->extractData(),
-            'columns' => $this->getColumns(),
-            'rows' => $this->getRowArgs()
-        ] );
-
-    }
 }

@@ -21,6 +21,11 @@ class ChooseFurnitureTable extends Report
     protected Job $job;
 
     /**
+     * @var string
+     */
+    protected string $emptyMessageClass = 'info';
+
+    /**
      * @var array
      */
     protected array $columns = [
@@ -33,11 +38,12 @@ class ChooseFurnitureTable extends Report
      * @param Job|null $job
      * @return $this
      */
-    public function init(Job $job = null): self
+    public function setJobs(Job $job = null): self
     {
         if ( $job !== null ) {
             $this->job = $job;
         }
+        $this->emptyMessage = 'Job ' . $this->job->getIDBadge() . ' has no furniture to choose from.';
         return $this;
     }
 
@@ -46,36 +52,19 @@ class ChooseFurnitureTable extends Report
      */
     public function extractData(): array
     {
-        $job = $this->job;
-        $jobFurniture = $job->furniture ?? [];
+        $jobFurniture = $this->job->furniture ?? [];
         foreach ( $jobFurniture as $furniture ) {
             $furnitureTableData[] = [
                 'name' => $furniture->name,
                 'quantity' => $furniture->quantity,
                 'select' => $this->htmlUtility::getButton( [
                     'element' => 'a',
-                    'href' => 'worker.php?job=' . $job->id . '&furniture=' . $furniture->id . '&choose=activity',
+                    'href' => 'worker.php?job=' . $this->job->id . '&furniture=' . $furniture->id . '&choose=activity',
                     'class' => 'btn btn-primary btn-lg',
                     'content' => 'Select'
                 ] )
             ];
         }
         return $furnitureTableData ?? [];
-    }
-
-    /**
-     * @return string
-     * @throws \Exception
-     */
-    public function renderReport(): string
-    {
-        $furnitureTableData = $this->extractData();
-        if ( empty( $furnitureTableData ) ) {
-            return $this->htmlUtility::getAlertHTML( 'Job ' . $this->job->getIDBadge() . ' has no furniture to choose from.', 'info' );
-        }
-        return $this->htmlUtility::getTableHTML( [
-            'data' => $furnitureTableData,
-            'columns' => $this->getColumns()
-        ] );
     }
 }

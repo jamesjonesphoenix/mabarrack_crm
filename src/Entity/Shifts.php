@@ -7,7 +7,7 @@ namespace Phoenix\Entity;
  * @author James Jones
  * @property Shift[] $entities
  * @method Shift[] getAll()
- * @method Shift getOne()
+ * @method Shift getOne(int $id = null)
  *
  * Class Shifts
  *
@@ -86,13 +86,15 @@ class Shifts extends Entities
             $dateToTime = $stringToTimes[$shift->date];
             $stringToTimes[$shift->timeFinished] ??= strtotime( $shift->timeFinished );
             $timeFinishedToTime = $stringToTimes[$shift->timeFinished];
-            $shiftsByDate[$dateToTime][$timeFinishedToTime] = $shift;
+            $shiftsByDate[$dateToTime][$timeFinishedToTime][] = $shift; //array for each time because sometimes shifts finish at the same time
         }
         krsort( $shiftsByDate );
         foreach ( $shiftsByDate as $shiftsByTime ) {
             krsort( $shiftsByTime );
-            foreach ( $shiftsByTime as $shiftByTime ) {
-                $sortedShifts[$shiftByTime->id] = $shiftByTime;
+            foreach ( $shiftsByTime as $shifts ) {
+                foreach($shifts as $shift) {
+                    $sortedShifts[$shift->id] = $shift;
+                }
             }
         }
         $this->entities = $sortedShifts ?? [];
@@ -107,7 +109,12 @@ class Shifts extends Entities
     public function getLastWorkedShifts(int $numberOfShifts = 1): Shifts
     {
         $this->orderLatestToEarliest();
+
+        //$sdfs = $this->entities ;
+       // d(current($sdfs));
+
         foreach ( $this->entities as $shiftID => $shift ) {
+
             if ( !empty( $shift->timeFinished ) ) {
                 $returnShifts[$shiftID] = $shift;
                 if ( count( $returnShifts ) >= $numberOfShifts ) {

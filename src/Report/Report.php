@@ -5,6 +5,7 @@ namespace Phoenix\Report;
 
 use Phoenix\Base;
 use Phoenix\Format;
+use Phoenix\Report\Archive\ArchiveTable;
 use Phoenix\Utility\HTMLTags;
 
 /**
@@ -46,6 +47,21 @@ abstract class Report extends Base
      * @var array
      */
     protected array $rowArgs = [];
+
+    /**
+     * @var string
+     */
+    protected string $emptyMessage = 'Nothing to report.';
+
+    /**
+     * @var string
+     */
+    protected string $emptyMessageClass = 'warning';
+
+    /**
+     * @var string
+     */
+    protected string $tableClass = '';
 
     /**
      * Report constructor.
@@ -107,19 +123,88 @@ abstract class Report extends Base
     }
 
     /**
+     * @param string $message
+     * @return $this
+     */
+    public function setEmptyMessage(string $message = ''): self
+    {
+        $this->emptyMessage = $message;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getEmptyMessage(): string
+    {
+        return $this->htmlUtility::getAlertHTML( $this->emptyMessage, $this->emptyMessageClass, false );
+    }
+
+    /**
+     * @param string $class
+     * @return $this
+     */
+    public function setEmptyMessageClass(string $class = ''): self
+    {
+        if ( !empty( $class ) ) {
+            $this->emptyMessageClass = $class;
+        }
+        return $this;
+    }
+
+    /**
+     * @param array $data
+     * @return array
+     */
+    public function applyDefaults(array $data = []): array
+    {
+        $columns = $this->getColumns( 'default' );
+        if ( empty( $columns ) ) {
+            return $data;
+        }
+        foreach ( $data as $rowID => &$row ) {
+            foreach ( $columns as $columnID => $default ) {
+                $skipDefault = false;
+                if ( !empty( $row[$columnID] ) ) {
+                    $this->columns[$columnID]['not_empty'] = true;
+                } elseif ( !isset( $row[$columnID] ) || ($row[$columnID] !== (float)0 && $row[$columnID] !== 0) ) {
+                    $columnSubIDs = explode( '.', $columnID );
+                    array_pop( $columnSubIDs );
+                    if ( !empty( $columnSubIDs ) ) {
+                        $combinedColumnSubID = '';
+                        foreach ( $columnSubIDs as $columnSubID ) {
+                            $combinedColumnSubID .= $columnSubID;
+                            if ( !empty( $row[$combinedColumnSubID] ) ) {
+                                $skipDefault = true;
+                            }
+                            $combinedColumnSubID .= '.';
+                        }
+                    }
+                    if ( !$skipDefault ) {
+                        $row[$columnID] = $default;
+                    }
+                }
+            }
+        }
+        return $data ?? [];
+    }
+
+    /**
      * @return string
      * @throws \Exception
      */
     public function renderReport(): string
     {
         $data = $this->extractData();
+        $data = $this->applyDefaults( $data );
         if ( empty( $data ) ) {
-            return $this->htmlUtility::getAlertHTML( 'No jobs to report.', 'warning' );
+            return $this->getEmptyMessage();
         }
         return $this->htmlUtility::getTableHTML( [
             'data' => $data,
             'columns' => $this->getColumns(),
-            'rows' => $this->getRowArgs()
+            'rows' => $this->getRowArgs(),
+            'class' => $this->tableClass
         ] );
     }
 

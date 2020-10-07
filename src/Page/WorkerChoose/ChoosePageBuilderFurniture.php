@@ -72,7 +72,7 @@ class ChoosePageBuilderFurniture extends ChoosePageBuilder
         $this->page->addContent( (new ChooseFurnitureTable(
             $this->HTMLUtility,
             $this->format
-        ))->init( $job )->render() );
+        ))->setJobs( $job )->render() );
 
         return $this;
     }

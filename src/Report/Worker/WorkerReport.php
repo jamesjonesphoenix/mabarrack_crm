@@ -40,31 +40,42 @@ abstract class WorkerReport extends Report
     private string $dateFinish;
 
     /**
+     * @var string
+     */
+    private string $username = '';
+
+    /**
      * @param Shifts $shifts
-     * @param string $userName
-     * @param string $dateStart
      * @return WorkerReport
      */
-    public function init(Shifts $shifts, string $userName = '', string $dateStart = ''): WorkerReport
+    public function setShifts(Shifts $shifts): WorkerReport
     {
-        $this->setStartAndFinishDates( $dateStart );
-        $this->setTitle( $userName );
-        $this->shifts = $shifts->getFinishedShifts()->getShiftsOverTimespan(
-            $this->getDateStart(),
-            $this->getDateFinish()
-        );
+        $this->shifts = $shifts
+            ->getFinishedShifts()
+            ->getShiftsOverTimespan(
+                $this->getDateStart(),
+                $this->getDateFinish()
+            );
         return $this;
     }
 
     /**
-     * @param string $username
+     * @param string $userName
      * @return $this
      */
-    public function setTitle(string $username = ''): self
+    public function setUsername(string $userName = ''): self
     {
-        $username = !empty( $username ) ? $username . ' - ' : '';
-        $this->title = $username . $this->title . ' <small>- ' . $this->getDateStart() . ' to ' . $this->getDateFinish() . '</small>';
+        $this->username = $userName;
         return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getTitle(): string
+    {
+        $username = !empty( $this->username  ) ? $this->username  . ' - ' : '';
+        return $username . $this->title . ' ' . $this->htmlUtility::getBadgeHTML( $this->getDateStart()) . ' to ' . $this->htmlUtility::getBadgeHTML( $this->getDateFinish());
     }
 
     /**
@@ -101,16 +112,16 @@ abstract class WorkerReport extends Report
 
     /**
      * @param string $dateStart
-     * @return bool
+     * @return $this
      */
-    public function setStartAndFinishDates($dateStart = ''): bool
+    public function setStartAndFinishDates($dateStart = ''): self
     {
         $dateFormat = 'd-m-Y'; /*Get week dates*/
 
         if ( !empty( $dateStart ) && DateTimeUtility::timeDifference( date( 'Y-m-d' ), $dateStart ) !== 0 ) { /*Date provided and not today*/
             $this->dateStart = $dateStart;
             $this->dateFinish = date( $dateFormat, strtotime( $dateStart . ' + 6 days' ) );
-            return true;
+            return $this;
         }
 
         /*Date not provided*/
@@ -120,7 +131,7 @@ abstract class WorkerReport extends Report
 
         $dateFinishTimestamp = $weekDay === '4' /*Thursday*/ ? time() : strtotime( 'next thursday' );
         $this->dateFinish = date( $dateFormat, $dateFinishTimestamp );
-        return true;
+        return $this;
     }
 
     /**

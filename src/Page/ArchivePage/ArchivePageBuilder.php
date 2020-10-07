@@ -186,7 +186,8 @@ abstract class ArchivePageBuilder extends EntityPageBuilder
             $report
                 ->hideInessentialColumns()
                 ->editColumn( 'errors', ['hidden' => false] )
-                ->setEmptyReportMessage('No ' . $dummyEntity->entityNamePlural . ' found with errors.', 'success');
+                ->setEmptyMessageClass( 'success')
+                ->setEmptyMessage('No ' . $dummyEntity->entityNamePlural . ' found with errors.');
         }
 
         $this->page->addContent( $report->render() );

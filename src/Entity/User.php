@@ -564,8 +564,7 @@ class User extends Entity
             return true;
         }
         $unfinishedShift = $unfinishedShifts->getOne();
-
-        //$newShift
+        $unfinishedShift->worker = $this; //add user so Shift->healthCheck can confirm user role is staff
 
         $success = $unfinishedShift->finishShift();
         $this->shifts->addOrReplaceShift( $unfinishedShift );

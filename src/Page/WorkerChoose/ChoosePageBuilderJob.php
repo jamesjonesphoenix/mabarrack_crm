@@ -28,40 +28,12 @@ class ChoosePageBuilderJob extends ChoosePageBuilder
      */
     public function addChooseTables(): self
     {
-        $format = $this->format;
-        $htmlUtility = $this->HTMLUtility;
         $jobFactory = new JobFactory( $this->db, $this->messages );
-        /**
-         * Recent Jobs
-         */
+
         $recentJobs = $jobFactory->addFurnitureNames(
             $this->user->getLastWorkedJobs( 3 )
         );
-        $recentJobsTables = (new ChooseJobTable(
-            $htmlUtility,
-            $format
-        ))->init( $recentJobs );
-        $recentJobsTables->setTitle( 'Most Recent Jobs' );
-        $this->page->addContent( $recentJobsTables->render() );
-        /**
-         * Factory Job
-         */
         $factoryJob = $jobFactory->getJob( 0 );
-        if ( $factoryJob !== null ) {
-            $lastShift = $factoryJob->getLastShift( $this->user->id );
-            if ( $lastShift !== null ) {
-                $factoryJob->shifts = [$lastShift->id => $lastShift];
-            }
-            $factoryJobTable = (new ChooseJobTable(
-                $htmlUtility,
-                $format,
-            ))->init( [0 => $factoryJob] );
-            $factoryJobTable->setTitle( 'Factory' );
-            $this->page->addContent( $factoryJobTable->render() );
-        }
-        /**
-         * Active Jobs
-         */
         $activeJobs = $jobFactory->getActiveJobs();
         krsort( $activeJobs );
         foreach ( $activeJobs as $activeJob ) {
@@ -71,12 +43,43 @@ class ChoosePageBuilderJob extends ChoosePageBuilder
             }
         }
 
-        $activeJobsTable = (new ChooseJobTable(
-            $htmlUtility,
-            $format,
-        ))->init( $activeJobs );
-        $activeJobsTable->setTitle( 'All Active Jobs' );
-        $this->page->addContent( $activeJobsTable->render() );
+        $chooseJobsTable = (new ChooseJobTable(
+            $this->HTMLUtility,
+            $this->format
+        ))
+            ->setJobs( $recentJobs )
+            ->setTitle( 'Most Recent Jobs' );
+        /**
+         * Recent Jobs
+         */
+        $this->page->addContent( $chooseJobsTable->render() );
+
+        /**
+         * Factory Job
+         */
+        if ( $factoryJob !== null ) {
+            $lastShift = $factoryJob->getLastShift( $this->user->id );
+            if ( $lastShift !== null ) {
+                $factoryJob->shifts = [$lastShift->id => $lastShift];
+            }
+            $this->page
+                ->addContent(
+                    $chooseJobsTable
+                        ->setJobs( [0 => $factoryJob] )
+                        ->setTitle( 'Factory' )
+                        ->render()
+                );
+        }
+        /**
+         * Active Jobs
+         */
+        $this->page
+            ->addContent(
+                $chooseJobsTable
+                    ->setJobs( $activeJobs )
+                    ->setTitle( 'All Active Jobs' )
+                    ->render()
+            );
 
         return $this;
     }

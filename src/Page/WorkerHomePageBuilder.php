@@ -44,7 +44,10 @@ class WorkerHomePageBuilder extends WorkerPageBuilder
         $this->addActionButtons();
         $this->addNews();
         $this->addWorkerHoursSummary();
-        $this->addReports();
+        $this->addWorkerShiftsTables();
+        $this->addTimeClockRecord();
+
+
         return $this;
     }
 
@@ -80,8 +83,8 @@ class WorkerHomePageBuilder extends WorkerPageBuilder
         $timeClockRecordThisWeek = (new WorkerTimeClockRecord(
             $this->HTMLUtility,
             $this->format
-        ))->init( $this->user->shifts, $this->user->name );
-
+        ))
+            ->setShifts( $this->user->shifts );
         $timeClockRecordThisWeek->extractData();
 
         $this->page->setWorkerHoursTable( $this->HTMLUtility::getTableHTML( [
@@ -100,64 +103,70 @@ class WorkerHomePageBuilder extends WorkerPageBuilder
         return $this;
     }
 
+    /**
+     * @return $this
+     * @throws \Exception
+     */
+    public function addTimeClockRecord(): self
+    {
+        $this->page->addContent(
+            (new WorkerTimeClockRecord(
+                $this->HTMLUtility,
+                $this->format
+            ))
+                ->setStartAndFinishDates( $this->startDate )
+                ->setUsername( $this->user->name )
+                ->setShifts( $this->user->shifts )
+                ->render()
+        );
+        return $this;
+    }
 
     /**
      * @return $this
      */
-    public function addReports(): self
+    public function addWorkerShiftsTables(): self
     {
-        $user = $this->user;
-        $format = $this->format;
-        $htmlUtility = $this->HTMLUtility;
+        $shiftsCurrent = $this->user->shifts->getUnfinishedShifts();
 
-        $shiftsCurrent = $user->shifts->getUnfinishedShifts();
+        $currentShiftArchive = (new ArchiveTableShiftsWorkerHome(
+            $this->HTMLUtility,
+            $this->format,
+        ))
+            ->setEntities( $shiftsCurrent->getAll() )
+            ->setTitle( 'Your Current ' . ucfirst( $shiftsCurrent->getPluralOrSingular() ) )
+            ->setEmptyMessageClass( 'info' )
+            ->setEmptyMessage( 'You are not currently clocked into any shifts.' )
+            ->removeErrors();
 
-        $reports = [
-            'current_shift_archive' => (new ArchiveTableShiftsWorkerHome(
-                $htmlUtility,
-                $format,
-            ))
-                ->setEntities( $shiftsCurrent->getAll() )
-                ->setTitle( 'Your Current ' . ucfirst( $shiftsCurrent->getPluralOrSingular() ) )
-                ->setEmptyReportMessage( 'You are not currently clocked into any shifts.', 'info' )
-                ->removeErrors(),
-            'shift_latest_archive' => (new ArchiveTableShiftsWorkerHome(
-                $htmlUtility,
-                $format,
-            ))
-                ->setEntities( $user->shifts->getLastWorkedShifts( 5 )->getAll() )
-                ->setTitle( 'Your Recent Shifts' )
-                ->setEmptyReportMessage( 'No recent shifts found.' )
-                ->removeErrors(),
-            'time_clock_record' => (new WorkerTimeClockRecord(
-                $htmlUtility,
-                $format,
-            ))->init(
-                $user->shifts,
-                $user->name,
-                $this->startDate
-            )
-        ];
+        $shiftLatestArchive = (new ArchiveTableShiftsWorkerHome(
+            $this->HTMLUtility,
+            $this->format,
+        ))
+            ->setEntities( $this->user->shifts->getLastWorkedShifts( 5 )->getAll() )
+            ->setTitle( 'Your Recent Shifts' )
+            ->setEmptyMessage( 'No recent shifts found.' )
+            ->removeErrors();
+
+
         if ( $shiftsCurrent->getCount() ) {
-            $reports['shift_latest_archive']->dontIncludeColumnToggles();
+            $shiftLatestArchive->dontIncludeColumnToggles();
         }
-        $reports['current_shift_archive']->extractData(); // hackish - extractData() now run twice
-        $reports['shift_latest_archive']->extractData(); //hackish - extractData() now run twice
+        $currentShiftArchive->extractData(); // hackish - extractData() now run twice
+        $shiftLatestArchive->extractData(); //hackish - extractData() now run twice
 
-
-        foreach ( $reports['current_shift_archive']->getColumns() as $columnID => $columnArgs ) {
+        foreach ( $currentShiftArchive->getColumns() as $columnID => $columnArgs ) {
             if ( !empty( $columnArgs['not_empty'] ) ) {
-                $reports['shift_latest_archive']->editColumn( $columnID, ['not_empty' => true] );
+                $shiftLatestArchive->editColumn( $columnID, ['not_empty' => true] );
             }
         }
-        foreach ( $reports['shift_latest_archive']->getColumns() as $columnID => $columnArgs ) {
+        foreach ( $shiftLatestArchive->getColumns() as $columnID => $columnArgs ) {
             if ( !empty( $columnArgs['not_empty'] ) ) {
-                $reports['current_shift_archive']->editColumn( $columnID, ['not_empty' => true] );
+                $currentShiftArchive->editColumn( $columnID, ['not_empty' => true] );
             }
         }
-        foreach ( $reports as $report ) {
-            $this->page->addContent( $report->render() );
-        }
+        $this->page->addContent( $currentShiftArchive->render() . $shiftLatestArchive->render() );
+
         return $this;
     }
 

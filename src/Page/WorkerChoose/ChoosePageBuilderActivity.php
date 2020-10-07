@@ -120,11 +120,14 @@ class ChoosePageBuilderActivity extends ChoosePageBuilder
             $this->page->addContent( (new chooseActivityTable(
                 $this->HTMLUtility,
                 $this->format
-            ))->init(
+            ))->setActivities(
                 $activities,
                 $activityURLs ?? [],
                 $activityType
-            )->render() );
+            )
+                ->setTitle( $activityType . ' Activities' )
+                ->render()
+            );
         }
 
 

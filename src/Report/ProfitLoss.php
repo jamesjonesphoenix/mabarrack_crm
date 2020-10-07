@@ -31,6 +31,13 @@ class ProfitLoss extends PeriodicReport
     private int $numberOfValidJobs;
 
     /**
+     * @var string
+     */
+    protected string $emptyMessage = 'No jobs to report.';
+
+
+
+    /**
      * @var array
      */
     protected array $columns = [
@@ -158,32 +165,5 @@ class ProfitLoss extends PeriodicReport
             'total_profit' => 'Total Profit',
             'p_header' => 'Profit',
         ];
-    }
-
-    /**
-     * @return array
-     */
-    public function getRowArgs(): array
-    {
-        return [];
-    }
-
-
-
-    /**
-     * @return string
-     * @throws \Exception
-     */
-    public function renderReport(): string
-    {
-        $data = $this->extractData();
-        if ( empty( $data ) ) {
-            return $this->htmlUtility::getAlertHTML( 'No jobs to report.','warning' );
-        }
-        return $this->htmlUtility::getTableHTML( [
-            'data' => $data,
-            'columns' => $this->getColumns(),
-            'rows' => $this->getRowArgs(),
-        ] );
     }
 }
