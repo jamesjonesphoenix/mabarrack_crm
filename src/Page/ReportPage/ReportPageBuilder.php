@@ -63,7 +63,7 @@ abstract class ReportPageBuilder extends PageBuilder
         foreach ( [
                       'profit_loss' => 'Profit Loss',
                       'activity_summary' => 'Activities Summary',
-                      'billable_vs_non' => 'Billable vs Non-Billable'
+                      'billable_vs_non' => 'Value Adding vs. Non-Chargeable'
                   ] as $reportType => $title ) {
             if ( $this->reportType !== $reportType ) {
                 $navLinks[$reportType] = [
@@ -158,10 +158,12 @@ abstract class ReportPageBuilder extends PageBuilder
             return $this;
         }
         if ( !empty( $this->dateStart ) && !empty( $this->dateFinish ) ) {
-            $title = $report->getTitle() . ' '
+            $title = $report->getTitle()
+                . ' <small>'
                 . $this->HTMLUtility::getBadgeHTML( date( 'd-m-Y', strtotime( $this->dateStart ) ) )
                 . ' to '
-                . $this->HTMLUtility::getBadgeHTML( date( 'd-m-Y', strtotime( $this->dateFinish ) ) );
+                . $this->HTMLUtility::getBadgeHTML( date( 'd-m-Y', strtotime( $this->dateFinish ) ) )
+                . '</small>';
             $report->setTitle( $title );
         }
         $this->page->addContent(

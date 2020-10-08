@@ -146,6 +146,7 @@ class Shifts extends Entities
      */
     public function getUnfinishedShifts(): Shifts
     {
+
         foreach ( $this->entities as $shift ) {
             if ( empty( $shift->timeFinished ) ) {
                 $returnShifts[$shift->id] = $shift;

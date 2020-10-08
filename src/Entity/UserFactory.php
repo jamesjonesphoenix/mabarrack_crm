@@ -7,6 +7,7 @@ use Phoenix\Roles;
 /**
  * @method User|null getEntity(int $id = 0, $provision = false)
  * @method User[] getEntities(array $queryArgs = [], $provision = false)
+ * @method User provisionEntity(User $entity, $provision = false)
  *
  * Class UserFactory
  */
@@ -28,7 +29,7 @@ class UserFactory extends EntityFactory
     /**
      * @param User[]     $users
      * @param bool|array $provision
-     * @return Shift[]
+     * @return User[]
      */
     public function provisionEntities(array $users = [], $provision = false): array
     {

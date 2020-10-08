@@ -11,6 +11,7 @@ use Phoenix\Entity\ShiftFactory;
 use Phoenix\Entity\UserFactory;
 use Phoenix\Page\MenuItems\MenuItemsEntities;
 use Phoenix\Page\MenuItems\MenuItemsJobs;
+use Phoenix\Page\MenuItems\MenuItemsOther;
 use Phoenix\Page\MenuItems\MenuItemsReports;
 use Phoenix\Page\MenuItems\MenuItemsShifts;
 use Phoenix\Page\MenuItems\MenuItemsUsers;
@@ -31,8 +32,9 @@ class IndexPageBuilder extends PageBuilder
      */
     public function buildPage(): self
     {
-        $this->page = $this->getNewPage();
-        $this->page->setHeadTitle('Main Menu');
+        $this->page = $this
+            ->getNewPage()
+            ->setHeadTitle('Main Menu');
         $this->addMenu();
         return $this;
     }
@@ -90,6 +92,11 @@ class IndexPageBuilder extends PageBuilder
                 'icon' => $this->HTMLUtility::getIconHTML( 'clipboard-list' ),
                 'contextual_class' => 'report',
                 'items' => (new MenuItemsReports())->getMenuItems()
+            ],
+            'Other' => [
+                'icon' => $this->HTMLUtility::getIconHTML( 'user-cog' ),
+                'contextual_class' => 'secondary',
+                'items' => (new MenuItemsOther())->getMenuItems()
             ]
         ] );
         return $this;

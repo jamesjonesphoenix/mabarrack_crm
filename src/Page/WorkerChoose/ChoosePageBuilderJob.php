@@ -48,7 +48,8 @@ class ChoosePageBuilderJob extends ChoosePageBuilder
             $this->format
         ))
             ->setJobs( $recentJobs )
-            ->setTitle( 'Most Recent Jobs' );
+            ->setTitle( 'Most Recent Jobs' )
+            ->setEmptyMessage( 'No recently worked jobs to choose from.' );
         /**
          * Recent Jobs
          */
@@ -67,6 +68,8 @@ class ChoosePageBuilderJob extends ChoosePageBuilder
                     $chooseJobsTable
                         ->setJobs( [0 => $factoryJob] )
                         ->setTitle( 'Factory' )
+                        ->setEmptyMessageClass( 'danger' )
+                        ->setEmptyMessage( 'Factory job missing.' )
                         ->render()
                 );
         }
@@ -78,6 +81,8 @@ class ChoosePageBuilderJob extends ChoosePageBuilder
                 $chooseJobsTable
                     ->setJobs( $activeJobs )
                     ->setTitle( 'All Active Jobs' )
+                    ->setEmptyMessageClass( 'info' )
+                    ->setEmptyMessage( 'No active jobs to choose from.' )
                     ->render()
             );
 

@@ -42,6 +42,11 @@ class Init
     private Messages $messages;
 
     /**
+     * @var HTMLTags
+     */
+    private HTMLTags $htmlUtility;
+
+    /**
      * Init constructor.
      */
     public function __construct()
@@ -49,7 +54,8 @@ class Init
         $this->scriptFilename = basename( $_SERVER['SCRIPT_FILENAME'] );
         $this->getConfig();
         $this->secureSessionStart();
-        $this->messages = Messages::instance()->init( new HTMLTags() );
+        $this->htmlUtility = new HTMLTags();
+        $this->messages = Messages::instance()->init( $this->htmlUtility );
         $this->userID = $_SESSION['user_id'] ?? null;
 
     }
@@ -68,17 +74,17 @@ class Init
             $user = $userFactory->getEntity( $this->userID, false );
 
             if ( $user === null ) {
-                $this->messages->add( 'Could not get current user <span class="badge badge-danger">ID: ' . $this->userID . '</span>' );
+                $this->messages->add( 'Could not get current user' . $this->htmlUtility::getBadgeHTML('ID: ' . $this->userID) );
             }
 
-            if ( $user->role === 'staff' ) {
-                $user = $userFactory->provisionEntity( $user, ['shifts' => [
-                    'activity' => true,
-                    'furniture' => true,
-                    'job' => ['customer' => true],
-                    'worker' => false //Don't waste CPU time provisioning shifts with worker - we already have the worker
-                ]] );
-            }
+            // if ( $user->role === 'staff' ) {
+            $user = $userFactory->provisionEntity( $user, ['shifts' => [
+                'activity' => true,
+                'furniture' => true,
+                'job' => ['customer' => true],
+                'worker' => false //Don't waste CPU time provisioning shifts with worker - we already have the worker
+            ]] );
+            // }
 
             return $user;
         }
@@ -213,6 +219,14 @@ class Init
         ], $this->getConfig()['db'] ?? []
         );
         return $this->pdo = PDOWrap::instance( $dbArgs, $this->messages );
+    }
+
+    /**
+     * @return HTMLTags
+     */
+    public function getHtmlUtility(): HTMLTags
+    {
+        return $this->htmlUtility;
     }
 
     /**

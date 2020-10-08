@@ -13,7 +13,6 @@ use Phoenix\Report\ProfitLoss;
  *
  * @author James Jones
  * @package Phoenix\Page
- *
  */
 class ReportPageBuilderProfitLoss extends ReportPageBuilder
 {
@@ -31,12 +30,11 @@ class ReportPageBuilderProfitLoss extends ReportPageBuilder
                 'operator' => 'IN'
             ]
         ], [
-                'shifts' => [
-                    'worker' => ['shifts' => false],
-                    'activity' => true
-                ]
+            'shifts' => [
+                'worker' => ['shifts' => false],
+                'activity' => true
             ]
-        );
+        ] );
     }
 
     /**

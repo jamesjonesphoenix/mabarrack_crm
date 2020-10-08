@@ -3,10 +3,9 @@
 namespace Phoenix\Page;
 
 use Phoenix\Entity\SettingFactory;
-use Phoenix\Form\GroupByEntityForm;
+use Phoenix\Entity\ShiftFactory;
 use Phoenix\Report\Archive\ArchiveTableShiftsWorkerHome;
 use Phoenix\Report\Worker\WorkerTimeClockRecord;
-use Phoenix\Report\Shifts\WorkerHomeShiftTable;
 
 /**
  * Class WorkerPageBuilder
@@ -124,16 +123,21 @@ class WorkerHomePageBuilder extends WorkerPageBuilder
 
     /**
      * @return $this
+     * @throws \Exception
      */
     public function addWorkerShiftsTables(): self
     {
+        // d($this->entities);
+
         $shiftsCurrent = $this->user->shifts->getUnfinishedShifts();
+
+        $dummyShift = (new ShiftFactory($this->db, $this->messages))->getNew();
 
         $currentShiftArchive = (new ArchiveTableShiftsWorkerHome(
             $this->HTMLUtility,
             $this->format,
         ))
-            ->setEntities( $shiftsCurrent->getAll() )
+            ->setEntities( $shiftsCurrent->getAll() , $dummyShift)
             ->setTitle( 'Your Current ' . ucfirst( $shiftsCurrent->getPluralOrSingular() ) )
             ->setEmptyMessageClass( 'info' )
             ->setEmptyMessage( 'You are not currently clocked into any shifts.' )
@@ -143,7 +147,7 @@ class WorkerHomePageBuilder extends WorkerPageBuilder
             $this->HTMLUtility,
             $this->format,
         ))
-            ->setEntities( $this->user->shifts->getLastWorkedShifts( 5 )->getAll() )
+            ->setEntities( $this->user->shifts->getLastWorkedShifts( 5 )->getAll() , $dummyShift)
             ->setTitle( 'Your Recent Shifts' )
             ->setEmptyMessage( 'No recent shifts found.' )
             ->removeErrors();

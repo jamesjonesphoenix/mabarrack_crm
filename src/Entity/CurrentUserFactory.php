@@ -7,6 +7,8 @@ use Phoenix\Roles;
 
 /**
  * @method CurrentUser|null getEntity(int $id = 0, $provision = false)
+ * @method CurrentUser[] getEntities(array $queryArgs = [], $provision = false)
+ * @method CurrentUser provisionEntity(CurrentUser $entity, $provision = false)
  *
  * Class CurrentUserFactory
  *

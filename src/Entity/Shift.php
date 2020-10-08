@@ -222,8 +222,7 @@ class Shift extends Entity
     public function finishShift(): bool
     {
         $shiftName = $this->isLunch();
-        $idString = !empty( $this->id ) ? ' <span class="badge badge-primary">ID: ' . $this->id . '</span>' : '';
-        $errorString = "Can't finish " . $shiftName . $idString . '. ';
+        $errorString = "Can't finish " . $shiftName . $this->getIDBadge() . '. ';
         $shiftData = $this->getDataHTMLTable();
         if ( empty( $this->exists ) ) {
             return $this->addError( $errorString . 'Apparently this ' . $shiftName . " doesn't exist in the database." . $shiftData );
@@ -429,37 +428,19 @@ class Shift extends Entity
         }
         if ( $this->job->id !== 0 ) {
             if ( empty( $this->job->furniture ) ) {
-                $errors[] = 'Job <span class="badge badge-primary">ID: ' . $this->job->id . '</span> has no furniture assigned for this shift to be assigned to.';
+                $errors[] = 'Job' . $this->job->getIDBadge() . ' has no furniture assigned for this shift to be assigned to.';
             } else {
-                /*
-                                foreach ( $this->job->furniture as $furniture ) {
-                                    $furnitureHealthCheck = $furniture->healthCheck();
-                                    if ( !empty( $furnitureHealthCheck ) ) {
-                                        $jobFurnitureHasErrors = true;
-                                        $jobIDString = $this->job->id !== null ? ' <span class="badge badge-primary">ID: ' . $this->job->id . '</span>' : '';
-                                        $errors[] = '<p>Assigned job ' . $jobIDString . ' includes furniture with problems. '
-                                            . HTMLTags::getViewButton( $this->job->getLink(), 'View Job' ) . '</p>'
-                                            . HTMLTags::getListGroup( $furnitureHealthCheck, 'warning' );
-                                        break;
-                                    }
-                                }
-                */
-                // if ( empty( $jobFurnitureHasErrors ) ) {
                 if ( $this->furniture->id === null ) {
                     $errors[] = '<p>Shift has no furniture assigned to it.</p>';
                 } else {
-                    $idString = $this->id === null ? '' : ' <span class="badge badge-primary">ID: ' . $this->id . '</span>';
-                    $furnitureIDString = '<span class="badge badge-primary">ID: ' . $this->furniture->id . '</span>';
                     if ( empty( $this->furniture->name ) ) {
                         $shiftName = $this->furniture->name;
-                        $errors[] = '<p>Shift' . $idString . ' is assigned with furniture ' . $furnitureIDString . ' but unknown furniture name. Does this furniture exist?</p>';
+                        $errors[] = '<p>Shift' . $this->getIDBadge() . ' is assigned with furniture ' . $this->furniture->getIDBadge() . ' but unknown furniture name. Does this furniture exist?</p>';
                     }
                     if ( !array_key_exists( $this->furniture->id, $this->job->furniture ?? [] ) ) {
-                        $errors[] = 'Shift is assigned furniture ' . ($this->furniture->name ?? $furnitureIDString) . ' which is not part of job <span class="badge badge-primary">ID: ' . $this->job->id . '</span>';
+                        $errors[] = 'Shift is assigned furniture ' . ($this->furniture->name ?? $this->furniture->getIDBadge()) . ' which is not part of job <span class="badge badge-primary">ID: ' . $this->job->id . '</span>';
                     }
-
                 }
-                // }
             }
             if ( $activity->factoryOnly ) {
                 $errors[] = 'You cannot book <strong>' . $activity->displayName . '</strong> for job ' . $this->job->getIDBadge() . ' because it is a factory only activity. Please choose a billable activity or select the factory job.';
@@ -475,8 +456,6 @@ class Shift extends Entity
 
         if ( $this->worker->id === null ) {
             $errors[] = $shiftName . ' has no worker assigned.';
-        } elseif ( $this->worker->role !== 'staff' ) {
-            $errors[] = 'Worker assigned to ' . $shiftName . $this->getIDBadge() . ' is not a user with staff role.';
         }
         return $errors ?? [];
     }
@@ -511,12 +490,12 @@ class Shift extends Entity
             }
             $multipleFurnitureString = ' Please edit shift furniture if this assumption is incorrect. Job includes furniture ' . implode( ' ', $furnitureForString ?? [] ) . '.';
         } else {
-            $multipleFurnitureString = ' This is the only furniture type assigned to job <span class="badge badge-primary">ID: ' . $this->job->id . '</span>.';
+            $multipleFurnitureString = ' This is the only furniture type assigned to job ' . $this->job->getIDBadge();
         }
 
 
         if ( $data['furniture'] !== null ) {
-            $this->messages->add( 'Assigned furniture <span class="badge badge-primary">' . $this->furniture->name . '</span> to new shift. ' . $multipleFurnitureString );
+            $this->messages->add( 'Assigned furniture' . HTMLTags::getBadgeHTML( $this->furniture->name ) . ' to new shift. ' . $multipleFurnitureString );
         } else {
             $this->addError( '<p>Job' . $this->job->getIDBadge() . ' is assigned furniture'
                 . $this->getIDBadge( $defaultFurnitureID )

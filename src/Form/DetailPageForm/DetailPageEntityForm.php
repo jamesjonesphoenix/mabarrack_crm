@@ -73,7 +73,7 @@ abstract class DetailPageEntityForm extends EntityForm
 
 //grey-bg
         ob_start(); ?>
-        <div class="container mb-4 position-relative">
+        <div class="container mb-5 position-relative">
             <?php if ( $dbAction === 'update' ) { ?>
                 <div class="row">
                     <div class="col">

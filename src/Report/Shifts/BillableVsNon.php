@@ -16,7 +16,7 @@ class BillableVsNon extends ActivitySummary
     /**
      * @var string
      */
-    protected string $title = 'Billable vs. Non-Billable Activities';
+    protected string $title = 'Value Adding vs. Non-Chargeable Activities';
 
     /**
      * @return array
@@ -24,7 +24,7 @@ class BillableVsNon extends ActivitySummary
     public function sortShifts(): array
     {
         foreach ( $this->shifts->getAll() as $shift ) {
-            $chargeable =  $shift->activity->chargeable ? 'Billable' : 'Non Billable';
+            $chargeable =  $shift->activity->chargeable ? 'Value Adding' : 'Non Chargeable';
             $returnShifts[$chargeable][$shift->id] = $shift;
         }
         return $returnShifts ?? [];

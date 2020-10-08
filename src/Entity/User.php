@@ -6,6 +6,7 @@ use Phoenix\DateTimeUtility;
 use Phoenix\Messages;
 use Phoenix\PDOWrap;
 use Phoenix\Roles;
+use Phoenix\Utility\HTMLTags;
 use function Phoenix\phValidateID;
 
 /**
@@ -124,12 +125,30 @@ class User extends Entity
      * @param array|int $input
      * @return $this
      */
+    /*
     public function init($input = []): self
     {
         if ( !empty( $input['unencrypted-password'] ) && is_string( $input['unencrypted-password'] ) ) { //Changing password
             $input['password'] = password_hash( $input['unencrypted-password'], PASSWORD_BCRYPT, $this->cryptoOptions );
         }
         return parent::init( $input );
+    }
+    */
+
+    /**
+     * For setting Entity properties related to DB table columns
+     *
+     * @param $property
+     * @param $value
+     */
+    public function setProperty(string $property = '', $value = null): void
+    {
+        if ( $property === 'unencrypted-password' && !empty( $value ) ) { //Changing password
+            $property = 'password';
+            $value = password_hash( $value, PASSWORD_BCRYPT, $this->cryptoOptions );
+        }
+
+        parent::setProperty( $property, $value );
     }
 
     /**
@@ -450,18 +469,18 @@ class User extends Entity
         $newShift->worker = $this;
         $newShift->job = (new JobFactory( $this->db, $this->messages ))->getEntity( $jobID );
         if ( $newShift->job->id === null ) {
-            $errors[] = 'Job <span class="badge badge-danger">ID: ' . $jobID . "</span> doesn't exist.";
+            $errors[] = 'Job ' . HTMLTags::getBadgeHTML( 'ID: ' . $jobID, 'danger' ) . " doesn't exist.";
         }
 
         $newShift->activity = (new ActivityFactory( $this->db, $this->messages ))->getEntity( $activityID );
         if ( $newShift->activity->id === null ) {
-            $errors[] = 'Activity <span class="badge badge-danger">ID: ' . $activityID . "</span> doesn't exist.";
+            $errors[] = 'Activity' . HTMLTags::getBadgeHTML( 'ID: ' . $activityID, 'danger' ) . " doesn't exist.";
         }
 
         if ( $furnitureID !== null && $furnitureID !== '' ) {
             $newShift->furniture = (new FurnitureFactory( $this->db, $this->messages ))->getEntity( $furnitureID );
             if ( $newShift->furniture->id === null ) {
-                $errors[] = 'Furniture <span class="badge badge-danger">ID: ' . $furnitureID . "</span> doesn't exist.";
+                $errors[] = 'Furniture' . HTMLTags::getBadgeHTML( 'ID: ' . $furnitureID, 'danger' ) . " doesn't exist.";
             }
         }
         if ( !empty( $errors ) ) {
@@ -522,7 +541,7 @@ class User extends Entity
             $errors[] = ucwords( $userString ) . ' should have a pin number as part of user profile.';
         }
 
-        if ( $this->role === 'staff' && empty( $this->rate ) ) {
+        if ( empty( $this->rate ) && $this->shifts->getCount() > 0 ) {
             $errors[] = ucwords( $userString ) . ' should have a rate greater than $0.00 per hour.';
         }
 
@@ -537,13 +556,11 @@ class User extends Entity
             $today = date( 'Y-m-d' );
             foreach ( $currentShifts as $shift ) {
                 if ( $shift->date !== $today ) {
+                    $date = !empty( $shift->date ) ? ' date ' . HTMLTags::getBadgeHTML( date( 'd-m-Y', strtotime( $shift->date ) ) ) : '';
                     $errors[] = ucfirst( $userString ) . ' '
                         . $verbString
-                        . ' an unfinished shift started on a day other than today.<br>An admin must set a finish time for shift ID: <strong>'
-                        . $shift->id
-                        . '</strong>, date <strong>'
-                        . $shift->date
-                        . '</strong> manually.';
+                        . ' an unfinished shift started on a day other than today.<br>An admin must manually set a finish time for shift'
+                        . $shift->getIDBadge() . $date . '.';
                 }
             }
         }

@@ -32,7 +32,7 @@ class MenuItemsReports extends MenuItems
                 'url' => $url . 'activity_summary'
             ], [
                 'icon' => 'chart-bar',
-                'text' => 'Billable vs. Non-Billable Activities',
+                'text' => 'Value Adding vs. Non-Chargeable',
                 'url' => $url . 'billable_vs_non'
             ]
         ];

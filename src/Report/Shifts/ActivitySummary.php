@@ -51,7 +51,7 @@ class ActivitySummary extends PeriodicReport
      * @param string $noShiftsMessage
      * @return $this
      */
-    public function setNoShiftsMessage( string $noShiftsMessage = ''): self
+    public function setNoShiftsMessage(string $noShiftsMessage = ''): self
     {
         $this->noShiftsMessage = $noShiftsMessage;
         return $this;
@@ -66,6 +66,7 @@ class ActivitySummary extends PeriodicReport
         $this->shifts = $shifts;
         return $this;
     }
+
     /**
      * @return array
      */
@@ -116,18 +117,19 @@ class ActivitySummary extends PeriodicReport
             return [];
         }
         $fullRowName = 'row';
-//        $fullRowHandle = $fullRowName . '.';
+        // $fullRowHandle = $fullRowName . '.';
         foreach ( $this->getActivitiesSummary() as $groupName => $activities ) {
 
             $subtotalRow = 'employee_time_' . strtolower( $groupName );
-/*
+
+            /*
             $subheaderRow = $subtotalRow . 'subheader';
             $this->rowArgs[$subheaderRow] = ['subheader' => true, 'class' => 'bg-secondary'];
             $returnData[$subheaderRow] = [
                 $fullRowName => ucwords( $groupName . ' Activities' ),
             ];
+            */
 
-*/
             ksort( $activities );
             $groupTotalMinutes = 0;
             $groupTotalCost = 0;
@@ -136,27 +138,26 @@ class ActivitySummary extends PeriodicReport
 
                 $groupTotalMinutes += $activity['activity_hours'];
                 $groupTotalCost += $activity['activity_cost'];
-
             }
 
             $returnData[$subtotalRow] = [
-                 'activity_id' => 'Subtotal',
-                 'activity' => $groupName === 'All' ? 'Unspecific Time' : $groupName . ' Time',
-                 'activity_hours' => $groupTotalMinutes,
-                 'activity_cost' => $groupTotalCost,
+                'activity_id' => 'Subtotal',
+                'activity' => $groupName === 'All' ? 'Unspecific Time' : $groupName . ' Time',
+                'activity_hours' => $groupTotalMinutes,
+                'activity_cost' => $groupTotalCost,
             ];
             $this->rowArgs[$subtotalRow] = ['class' => 'bg-secondary'];
         }
 
         $returnData['total_time'] = [
-             'activity' => 'Total Hours',
-             'activity_hours' => $shifts->getTotalWorkerMinutes(),
-             'activity_cost' => $shifts->getTotalWorkerCost(),
+            'activity' => 'Total Hours',
+            'activity_hours' => $shifts->getTotalWorkerMinutes(),
+            'activity_cost' => $shifts->getTotalWorkerCost(),
         ];
 
         foreach ( $returnData as &$activity ) {
-            $activity[ '%_of_total_hours'] = $shifts->getTotalWorkerMinutes() > 0 ? $activity['activity_hours'] / $shifts->getTotalWorkerMinutes() : 0;
-            $activity[ '%_of_total_employee_cost'] = $shifts->getTotalWorkerCost() > 0 ? $activity['activity_cost'] / $shifts->getTotalWorkerCost() : 0;
+            $activity['%_of_total_hours'] = $shifts->getTotalWorkerMinutes() > 0 ? $activity['activity_hours'] / $shifts->getTotalWorkerMinutes() : 0;
+            $activity['%_of_total_employee_cost'] = $shifts->getTotalWorkerCost() > 0 ? $activity['activity_cost'] / $shifts->getTotalWorkerCost() : 0;
         }
         return $returnData;
     }

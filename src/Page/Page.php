@@ -105,12 +105,11 @@ class Page extends Base
                     <div class="ml-2">
                         <a href='login.php?logout=true' class="btn btn-danger">Log Out</a>
                     </div>
-
-                    <?php if ( CurrentUser::instance()->role === 'admin' ) { ?>
+                    <?php /* if ( CurrentUser::instance()->role === 'admin' ) { ?>
                         <div class="ml-2">
                             <a href="index.php?page=archive&entity=settings" id="settings-button" class="btn btn-info"><img alt="settings cog" src="img/admin/settings.svg"></a>
                         </div>
-                    <?php } ?>
+                    <?php } */ ?>
                     <div class="ml-2">
                         <a href='index.php' class="btn btn-secondary">Home Page</a>
                     </div>
@@ -253,8 +252,8 @@ class Page extends Base
                 </div>
             </div>
         <?php }
-        echo $this->renderNavbar();
-        echo $this->renderBody(); ?>
+        echo $this->renderNavbar()
+            . $this->renderBody(); ?>
         </body>
         <?php echo $this->renderFooterJS(); ?>
         </html>

@@ -39,7 +39,7 @@ class ChoosePageBuilderFurniture extends ChoosePageBuilder
      */
     public function addTitle(): self
     {
-        $this->page->setTitle( 'Choose Furniture for Job <span class="badge badge-primary">' . $this->jobID . '</span>' );
+        $this->page->setTitle( 'Choose Furniture for Job' . $this->HTMLUtility::getBadgeHTML( $this->jobID ) );
         return $this;
     }
 

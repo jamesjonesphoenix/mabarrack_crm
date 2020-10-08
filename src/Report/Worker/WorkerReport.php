@@ -74,8 +74,14 @@ abstract class WorkerReport extends Report
      */
     public function getTitle(): string
     {
-        $username = !empty( $this->username  ) ? $this->username  . ' - ' : '';
-        return $username . $this->title . ' ' . $this->htmlUtility::getBadgeHTML( $this->getDateStart()) . ' to ' . $this->htmlUtility::getBadgeHTML( $this->getDateFinish());
+        $username = !empty( $this->username ) ? $this->htmlUtility::getBadgeHTML( $this->username ) . ' ' : '';
+        return $username
+            . $this->title
+            . ' <small>'
+            . $this->htmlUtility::getBadgeHTML( $this->getDateStart() )
+            . ' to '
+            . $this->htmlUtility::getBadgeHTML( $this->getDateFinish() )
+            . '</small>';
     }
 
     /**

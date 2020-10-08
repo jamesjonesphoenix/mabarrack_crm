@@ -53,11 +53,11 @@ class ChoosePageBuilderActivity extends ChoosePageBuilder
      */
     public function addTitle(): self
     {
-        $jobID = $this->job->id === 0 ? '<span class="badge badge-primary">Factory</span> Job' : 'Job <span class="badge badge-primary">' . $this->job->id . '</span>';
+        $jobID = $this->job->id === 0 ? $this->HTMLUtility::getBadgeHTML( 'Factory' ) . ' Job' : 'Job' . $this->job->getIDBadge();
         if ( isset( $this->furnitureID ) ) {
             //$furniture = (new FurnitureFactory( $this->db, $this->messages ))->getEntity( $this->furnitureID );
             $furniture = $this->job->furniture[$this->furnitureID] ?? null;
-            $furnitureString = ' <span class="badge badge-primary">' . ($furniture->name ?? 'Unknown Furniture') . '</span> in ';
+            $furnitureString = $this->HTMLUtility::getBadgeHTML($furniture->name ?? 'Unknown Furniture') . ' in ';
         }
         $this->page->setTitle( 'Choose Activity for ' . ($furnitureString ?? '') . $jobID );
         return $this;

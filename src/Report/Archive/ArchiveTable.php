@@ -55,6 +55,11 @@ abstract class ArchiveTable extends Report
     private bool $includeColumnToggles = true;
 
     /**
+     * @var string
+     */
+    private string $id;
+
+    /**
      * Report constructor.
      *
      * @param HTMLTags $htmlUtility
@@ -145,6 +150,7 @@ abstract class ArchiveTable extends Report
         }
         $this->groupedBy = array_key_exists( $groupedBy, $columns ?? [] ) ? $groupedBy : '';
         $this->groupByForm = $groupByForm
+            ->setFormAction( '#' . $this->getID() )
             ->makeFields( $columns ?? [], $this->groupedBy )
             ->render();
         return $this;
@@ -210,7 +216,7 @@ abstract class ArchiveTable extends Report
                 $this->extractEntityData( $entity ),
                 [
                     'view' => $this->getActionButton( $entity ),
-                    'errors' => $this->htmlUtility::getListGroup($entity->healthCheck())
+                    'errors' => $this->htmlUtility::getListGroup( $entity->healthCheck() )
                 ]
             );
             foreach ( $columns as $columnID => $columnArgs ) {
@@ -227,6 +233,18 @@ abstract class ArchiveTable extends Report
 
     /**
      * @return string
+     */
+    public function getID(): string
+    {
+        if ( empty( $this->id ) ) {
+            //count() is a hackish way to get a unique id, but sufficient for scroll-to-table
+            $this->id = 'archive-table-' . $this->entity->entityName . '-' . count( $this->entities );
+        }
+        return $this->id;
+    }
+
+    /**
+     * @return string
      * @throws \Exception
      */
     public function render(): string
@@ -234,7 +252,7 @@ abstract class ArchiveTable extends Report
         $archivesHTML = $this->renderReport();
 
         ob_start(); ?>
-        <div class="container" id="archive-table">
+        <div class="container" id="<?php echo $this->getID(); ?>">
             <?php echo $this->htmlUtility::getNavHTML( [
                 'title' => $this->getTitle(),
                 'nav_links' => $this->getNavLinks(),
@@ -251,8 +269,8 @@ abstract class ArchiveTable extends Report
                         echo $this->renderColumnToggles();
                     } ?>
                     <?php if ( count( $this->entities ) > 5 ) { ?>
-                        <div class="col-auto"><h5 class="mb-0 entity-count">Total <?php echo ucfirst( $this->entity->entityNamePlural ); ?> <span
-                                        class="badge badge-primary"><?php echo count( $this->entities ); ?></span></h5></div>
+                        <div class="col-auto"><h5 class="mb-0 entity-count">Total <?php echo ucfirst( $this->entity->entityNamePlural )
+                                    . $this->htmlUtility::getBadgeHTML( count( $this->entities ) ); ?></h5></div>
                     <?php } ?>
                 </div>
             </div>
@@ -260,7 +278,7 @@ abstract class ArchiveTable extends Report
         <div class="container-fluid position-relative">
             <div class="row justify-content-center">
                 <div class="archive-table-column col-auto d-flex flex-column align-items-stretch">
-                    <?php echo empty( $archivesHTML ) ? '<div class="grey-bg px-3 py-2 mb-4">' . $this->getEmptyMessage() . '</div>' : $archivesHTML; ?>
+                    <?php echo empty( $archivesHTML ) ? '<div class="grey-bg px-3 py-2 mb-5">' . $this->getEmptyMessage() . '</div>' : $archivesHTML; ?>
                 </div>
             </div>
         </div>
@@ -357,13 +375,13 @@ abstract class ArchiveTable extends Report
                 $groupName = !empty( $groupName ) ? $groupName : 'N/A';
                 if ( strpos( $groupName, '<a' ) !== false ) {
                     echo str_replace( 'class="', 'class="badge badge-primary ', $groupName );
-                } else { ?>
-                    <span class="badge badge-primary"><?php echo $groupName; ?></span>
-                <?php } ?>
+                } else {
+                    echo $this->htmlUtility::getBadgeHTML( $groupName );
+                } ?>
             </h4>
         <?php } ?>
 
-        <div class="grey-bg p-3 mb-4">
+        <div class="grey-bg p-3 mb-5">
             <?php echo $this->htmlUtility::getTableHTML( [
                 'data' => $data,
                 'columns' => $columns,

@@ -15,4 +15,7 @@ $director = new WorkerDirector(
     CurrentUser::instance()
 );
 $director->doWorkerAction( array_merge( $_GET, $_POST ) );
-$director->getPageBuilder( $_GET )->buildPage()->getPage()->render();
+$director->getPageBuilder( $_GET )
+    ->buildPage()
+    ->getPage()
+    ->render();

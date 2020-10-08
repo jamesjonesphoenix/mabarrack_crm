@@ -43,7 +43,7 @@ class HTMLTags
      */
     public static function getBadgeHTML(string $content = '', string $contextualClass = 'primary', string $url = ''): string
     {
-        return !empty($content) ? '<span class="badge badge-' . $contextualClass . '">' . $content . '</span>' : '';
+        return !empty( $content ) ? '<span class="badge badge-' . $contextualClass . '">' . $content . '</span>' : '';
     }
 
     /**
@@ -279,10 +279,10 @@ class HTMLTags
                             <li class="nav-item ml-2 my-1">
                                 <a class="nav-link text-white text-nowrap <?php echo $navLink['class'] ?? 'bg-primary'; ?>"
                                    href="<?php echo $navLink['url']; ?>"><?php echo $navLink['text'];
-                                    if ( isset( $navLink['number'] ) ) { ?>
-                                        <span class="badge badge-light"><?php echo $navLink['number'] ?? ''; ?></span><?php
-                                    }
-                                    ?></a>
+                                    if ( isset( $navLink['number'] ) ) {
+                                        echo ' ' . self::getBadgeHTML( $navLink['number'] ?? '', 'light' );
+                                    } ?>
+                                </a>
                             </li>
                         <?php } ?>
                     </ul>

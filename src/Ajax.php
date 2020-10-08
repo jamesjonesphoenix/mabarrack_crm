@@ -11,6 +11,7 @@ use Phoenix\Entity\FurnitureFactory;
 use Phoenix\Entity\JobFactory;
 use Phoenix\Entity\ShiftFactory;
 use Phoenix\Entity\UserFactory;
+use Phoenix\Utility\HTMLTags;
 
 /**
  * Class Ajax
@@ -43,6 +44,27 @@ class Ajax extends AbstractCRM
      * @var array
      */
     private array $returnData = [];
+
+    /**
+     * @var HTMLTags
+     */
+    private HTMLTags $htmlUtility;
+
+    /**
+     * Base constructor.
+     *
+     * @param PDOWrap|null  $db
+     * @param Messages|null $messages
+     * @param HTMLTags|null $htmlUtility
+     */
+    public function __construct(PDOWrap $db = null, Messages $messages = null, HTMLTags $htmlUtility = null)
+    {
+        if ( $htmlUtility !== null ) {
+            $this->htmlUtility = $htmlUtility;
+        }
+        parent::__construct( $db, $messages );
+
+    }
 
     /**
      * @param array $data
@@ -79,10 +101,12 @@ class Ajax extends AbstractCRM
                 //$provision = $this->action === 'delete-dry-run';
                 $this->entity = $entityFactory->getEntity( $id );
 
-         //$this->addError(print_r($this->entity->job->furniture, true));
+                //$this->addError(print_r($this->entity->job->furniture, true));
 
                 if ( $this->entity === null || !$this->entity->exists ) {
-                    return $this->addError( ucwords( $this->entity->entityName ) . '<span class="badge badge-danger">ID: ' . $id . "</span> doesn't exist in database." );
+                    return $this->addError( ucwords( $this->entity->entityName )
+                        . $this->htmlUtility::getBadgeHTML( 'ID: ' . $id, 'danger' )
+                        . " doesn't exist in database." );
                 }
                 break;
             case 'add':
@@ -137,14 +161,16 @@ class Ajax extends AbstractCRM
         }
         //$entity = $this->entity->init( $this->inputData );
         $entity = $this->entity;
+        //$entity->init($this->inputData);
         foreach ( $this->inputData as $key => $value ) {
             $entity->setProperty( $key, $value );
         }
+
         $entityFactory = $this->getEntityFactory( $entity->entityName );
         if ( $entityFactory === null ) {
             return false;
         }
-        $entity = $entityFactory->provisionEntity($entity, true);
+        $entity = $entityFactory->provisionEntity( $entity, true );
         //$this->addError(print_r($entity, true));
         if ( $this->action === 'add' || $this->action === 'update' ) {
             $result = $entity->save();
@@ -178,7 +204,7 @@ class Ajax extends AbstractCRM
     public function returnData(): void
     {
         if ( empty( $this->returnData['redirect'] ) ) {
-            $this->returnData['message'] = $this->messages->getMessagesHTML( false );
+            $this->returnData['message'] = $this->messages->getMessagesHTML();
         }
         echo json_encode( $this->returnData );
         die();

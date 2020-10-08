@@ -456,8 +456,10 @@ abstract class Entity extends AbstractCRM
     {
         $action = 'create';
         if ( $this->exists ) {
-            return $this->addError( "Can't " . $this->getActionString( 'present', $action ) . '. ' . ucfirst( $this->entityName )
-                . ' <span class="badge badge-danger">ID: ' . $this->id . '</span> already exists.' );
+            return $this->addError( "Can't "
+                . $this->getActionString( 'present', $action )
+                . '. ' . ucfirst( $this->entityName )
+                . ' ' . $this->getIDBadge( null, 'danger' ) . ' already exists.' );
         }
         if ( empty( $data ) ) {
             return $this->addError( "Can't " . $this->getActionString( 'present', $action ) . '. No data to put into database.' );
@@ -467,7 +469,7 @@ abstract class Entity extends AbstractCRM
         if ( phValidateID( $result ) ) {
             $this->id = phValidateID( $result );
             $this->messages->add(
-                ucfirst( $this->getActionString( 'past', $action ) ) . ' <span class="badge badge-primary">ID: ' . $this->id . '</span>'
+                ucfirst( $this->getActionString( 'past', $action ) ) . $this->getIDBadge()
                 , 'success'
             );
             $this->changed = [];
@@ -489,8 +491,7 @@ abstract class Entity extends AbstractCRM
         if ( !$this->exists ) {
             return $this->addError( "Can't " . $this->getActionString( 'present', $action ) . " because it doesn't exist." );
         }
-        $idString = ' <span class="badge badge-primary">ID: ' . $this->id . '</span>';
-        $messageNoChanges = 'No changes were made to ' . $this->entityName . $idString;
+        $messageNoChanges = 'No changes were made to ' . $this->entityName . $this->getIDBadge();
 
 
         if ( empty( $data ) ) {
@@ -505,9 +506,9 @@ abstract class Entity extends AbstractCRM
             return $this->addError( $messageNoChanges . ' Attempted to update the following data:' . $dataHTMLTable );
         }
         if ( empty( $result ) ) {
-            return $this->addError( 'Failed to ' . $this->getActionString( 'present', $action ) . $idString . ' Attempted to update the following data:' . $dataHTMLTable );
+            return $this->addError( 'Failed to ' . $this->getActionString( 'present', $action ) . $this->getIDBadge() . ' Attempted to update the following data:' . $dataHTMLTable );
         }
-        $this->messages->add( ucfirst( $this->getActionString( 'past', $action ) ) . $idString . ' Updated the following data:' . $dataHTMLTable, 'success' );
+        $this->messages->add( ucfirst( $this->getActionString( 'past', $action ) ) . $this->getIDBadge() . ' Updated the following data:' . $dataHTMLTable, 'success' );
         $this->changed = [];
         return $result;
     }
@@ -547,14 +548,15 @@ abstract class Entity extends AbstractCRM
      * ID badge <span> HTML
      *
      * @param int|null $id
+     * @param string   $contextualClass
      * @return string
      */
-    public function getIDBadge(int $id = null): string
+    public function getIDBadge(int $id = null, string $contextualClass = ''): string
     {
         if ( $id === null ) {
             $id = $this->id;
         }
-        return $id === null ? '' : ' <span class="badge badge-primary">ID: ' . $id . '</span>';
+        return $id === null ? '' : HTMLTags::getBadgeHTML( 'ID: ' . $id, $contextualClass );
     }
 
     /**
@@ -694,9 +696,9 @@ abstract class Entity extends AbstractCRM
         if ( method_exists( $this, 'name' ) ) {
             $mainString .= ' named ' . $this->name();
         }
-        $mainString .= ' <span class="badge badge-primary">ID: ' . $this->id . '</span>';
+        $mainString .= $this->getIDBadge();
         if ( $this->db->delete( $this->tableName, ['ID' => $this->id] ) ) {
-            $this->messages->add( 'Deleted ' . $mainString, 'success' );
+            $this->messages->add( 'Deleted' . $mainString, 'success' );
             return true;
         }
         $this->addError( 'Failed to delete ' . $mainString );

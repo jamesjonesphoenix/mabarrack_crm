@@ -72,7 +72,14 @@ class DetailPageBuilderUser extends DetailPageBuilder
     public function getDisplayEntityName(): string
     {
         $entity = $this->getEntity();
-        return $entity->role === 'staff' ? 'worker' : $entity->entityName;
+        switch( $entity->role ) {
+            case 'staff':
+                return 'worker';
+            case 'admin':
+                return 'admin';
+            default:
+                return $entity->entityName;
+        }
     }
 
     /**
@@ -81,7 +88,7 @@ class DetailPageBuilderUser extends DetailPageBuilder
     public function addReports(): self
     {
         $user = $this->getEntity();
-        if ( !$user->exists ) {
+        if ( !$user->exists || $user->shifts->getCount() === 0 /* || $user->role !== 'staff' */ ) {
             return $this;
         }
 
@@ -92,27 +99,29 @@ class DetailPageBuilderUser extends DetailPageBuilder
         $shifts = $user->shifts->orderLatestToEarliest();
         $shift = (new ShiftFactory( $this->db, $this->messages ))->getNew();
 
+        $nameBadge = !empty( $user->name ) ? $this->HTMLUtility::getBadgeHTML( $user->name ) . ' ' : '';
+
         $reports = [
             (new ArchiveTableUserShifts(
                 $htmlUtility,
                 $format,
             ))
                 ->setEntities( $user->shifts->getUnfinishedShifts()->getAll(), $shift )
-                ->setTitle( 'Current Shifts' )
-                ->setEmptyMessageClass( 'info')
+                ->setTitle( $nameBadge . 'Current Shifts' )
+                ->setEmptyMessageClass( 'info' )
                 ->setEmptyMessage( ucfirst( $user->name ?? 'user' ) . ' is not currently clocked onto any shifts.' ),
             (new WorkerTimeClockRecord(
                 $htmlUtility,
                 $format,
             ))
-                ->setStartAndFinishDates($startDate)
+                ->setStartAndFinishDates( $startDate )
                 ->setUsername( $user->name )
                 ->setShifts( $shifts ),
             (new WorkerWeeklySummary(
                 $htmlUtility,
                 $format,
             ))
-                ->setStartAndFinishDates($startDate)
+                ->setStartAndFinishDates( $startDate )
                 ->setUsername( $user->name )
                 ->setShifts( $shifts ),
             (new ArchiveTableUserShifts(
@@ -120,7 +129,11 @@ class DetailPageBuilderUser extends DetailPageBuilder
                 $format,
             ))
                 ->setEntities( $shifts->getAll(), $shift )
-                ->setTitle( 'All Worker Shifts' )
+                ->setTitle( $nameBadge . 'All Worker Shifts' )
+                ->setGroupByForm(
+                    $this->getGroupByForm(),
+                    $this->groupBy
+                )
         ];
         $html = '';
         foreach ( $reports as $report ) {

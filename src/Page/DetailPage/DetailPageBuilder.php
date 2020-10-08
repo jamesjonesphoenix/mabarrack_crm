@@ -41,7 +41,9 @@ abstract class DetailPageBuilder extends EntityPageBuilder
         //Existing entity
         $entity = $entityFactory->getEntity( $entityID );
         if ( $entity === null ) {
-            $this->messages->add( ucfirst( $entityFactory->getNew()->entityName ) . ' <span class="badge badge-danger">ID: ' . $entityID . "</span> doesn't exist. Redirected to main page." );
+            $this->messages->add( ucfirst( $entityFactory->getNew()->entityName )
+                . $this->HTMLUtility()::getBadgeHTML( 'ID: ' . $entityID, 'danger' )
+                . " doesn't exist. Redirected to main page." );
             redirect( 'index' );
             exit;
         }
@@ -105,9 +107,9 @@ abstract class DetailPageBuilder extends EntityPageBuilder
      */
     public function buildPage(): self
     {
-        $this->page = $this->getNewPage();
         $entity = $this->getEntity();
-        $this->page
+        $this->page = $this
+            ->getNewPage()
             ->setNavLinks(
                 ($this->getMenuItems())->getMenuItems()
             )
@@ -115,12 +117,14 @@ abstract class DetailPageBuilder extends EntityPageBuilder
                 $this->getGoToIDForm()->render()
             );
         if ( $entity->exists && !empty( $healthCheck = $entity->healthCheck() ) ) {
-            $this->addError( '<h5 class="alert-heading">Problems with ' . $entity->entityName . ' <span class="badge badge-primary">ID: ' . $entity->id . '</span></h5>' . $this->HTMLUtility::getListGroup( $healthCheck ) );
+            $plural = count( $healthCheck ) > 1 ? 's' : '';
+            $entityBadge = !empty( $entity->name ) ? $this->HTMLUtility::getBadgeHTML( $entity->name ) : $entity->getIDBadge();
+            $this->addError( '<h5 class="alert-heading">Problem' . $plural . ' with ' . $entity->entityName . ' ' . $entityBadge . '</h5>' . $this->HTMLUtility::getListGroup( $healthCheck ) );
         }
-        $this->addForm();
-        $this->addReports();
-
-        $this->addTitle();
+        $this
+            ->addForm()
+            ->addReports()
+            ->addTitle();
         return $this;
     }
 
@@ -139,9 +143,9 @@ abstract class DetailPageBuilder extends EntityPageBuilder
     {
         $entityName = ucwords( $this->getDisplayEntityName() ) ?? 'Entity';
         $title = $this->entity->id !== null ? $entityName . ' Details' : 'New ' . $entityName;
-        //' <span class="badge badge-primary"> ' . $entity->id  . '</span>
-        $this->page->setTitle( $this->getEntity()->getIcon() . ' ' . $title );
-        $this->page->setHeadTitle( $title );
+        $this->page
+            ->setTitle( $this->getEntity()->getIcon() . ' ' . $title )
+            ->setHeadTitle( $title );
         return $this;
     }
 
@@ -164,7 +168,6 @@ abstract class DetailPageBuilder extends EntityPageBuilder
                 'page' => 'detail',
                 'entity' => $entity->entityName,
                 'id' => $entity->id
-            ] )
-            ->setFormAction( '#archive-table' );
+            ] );
     }
 }

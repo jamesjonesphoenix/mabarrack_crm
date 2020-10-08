@@ -39,6 +39,9 @@ class JobSummary extends Report
      */
     public function init(Job $job): self
     {
+        if ( $job->id !== null ) {
+            $this->setTitle( $this->getTitle() . ' ' . $job->getIDBadge() );
+        }
         $this->job = $job;
         return $this;
     }
