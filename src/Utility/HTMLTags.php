@@ -43,7 +43,7 @@ class HTMLTags
      */
     public static function getBadgeHTML(string $content = '', string $contextualClass = 'primary', string $url = ''): string
     {
-        return !empty( $content ) ? '<span class="badge badge-' . $contextualClass . '">' . $content . '</span>' : '';
+        return !empty( $content ) ? ' <span class="badge badge-' . $contextualClass . '">' . $content . '</span>' : '';
     }
 
     /**
