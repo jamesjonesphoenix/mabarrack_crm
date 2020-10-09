@@ -551,7 +551,7 @@ abstract class Entity extends AbstractCRM
      * @param string   $contextualClass
      * @return string
      */
-    public function getIDBadge(int $id = null, string $contextualClass = ''): string
+    public function getIDBadge(int $id = null, string $contextualClass = 'primary'): string
     {
         if ( $id === null ) {
             $id = $this->id;

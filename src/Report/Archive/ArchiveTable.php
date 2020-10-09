@@ -270,7 +270,7 @@ abstract class ArchiveTable extends Report
                     } ?>
                     <?php if ( count( $this->entities ) > 5 ) { ?>
                         <div class="col-auto"><h5 class="mb-0 entity-count">Total <?php echo ucfirst( $this->entity->entityNamePlural )
-                                    . $this->htmlUtility::getBadgeHTML( count( $this->entities ) ); ?></h5></div>
+                                    . ' ' . $this->htmlUtility::getBadgeHTML( count( $this->entities ) ); ?></h5></div>
                     <?php } ?>
                 </div>
             </div>
