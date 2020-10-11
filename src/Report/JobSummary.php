@@ -14,7 +14,7 @@ use Phoenix\Entity\Job;
 class JobSummary extends Report
 {
     /**
-     *
+     * @var string
      */
     protected string $title = 'Job Summary';
 
@@ -34,10 +34,45 @@ class JobSummary extends Report
     ];
 
     /**
+     * @var array
+     */
+    protected array $rowArgs = [
+        'employee_cost' => ['class' => 'bg-primary'],
+        'sum_cost' => ['class' => 'bg-primary'],
+        'total_profit' => ['class' => 'bg-primary'],
+        'profit_header' => ['subheader' => true]
+    ];
+
+    /**
+     * @return string[]
+     */
+    private static function getRowTitles(): array
+    {
+        return [
+            'employee_cost_manual' => 'Employee Cost Manual',
+            'employee_cost_cnc' => 'Employee Cost CNC',
+            'employee_cost_other' => 'Employee Cost Other*',
+            'employee_cost' => 'Total Employee Cost',
+            'material_cost' => 'Material Cost',
+            'contractor_cost' => 'Contractor Cost',
+            'spare_cost' => 'Spare Cost',
+            'sum_cost' => 'Sum Costs',
+            'sale_price' => 'Sale Price',
+            'profit_header' => 'Profit',
+            'total_profit' => 'Total Profit',
+        ];
+    }
+
+    /**
+     * @var bool
+     */
+    protected bool $printButton = true;
+
+    /**
      * @param Job $job
      * @return $this
      */
-    public function init(Job $job): self
+    public function setJob(Job $job): self
     {
         if ( $job->id !== null ) {
             $this->setTitle( $this->getTitle() . ' ' . $job->getIDBadge() );
@@ -88,7 +123,7 @@ class JobSummary extends Report
             ];
         }
         //Add "custom" table items
-        $returnData['employee_cost_other']['notes'] = '<p class="mb-0"><small>*Activities recorded before we started recording CNC and Manual work separately.</small></p>';
+        $returnData['employee_cost_other']['notes'] = '<p class="mb-0 d-print-none"><small>*Activities recorded before we started recording CNC and Manual work separately.</small></p>';
         $returnData['profit_header'] = array_merge( $returnData['profit_header'], [
             'value' => 'Value',
             'percent_sum_cost' => '% of Sum Cost (Markup)',
@@ -98,34 +133,4 @@ class JobSummary extends Report
 
         return $returnData;
     }
-
-    /**
-     * @return string[]
-     */
-    private static function getRowTitles(): array
-    {
-        return [
-            'employee_cost_manual' => 'Employee Cost Manual',
-            'employee_cost_cnc' => 'Employee Cost CNC',
-            'employee_cost_other' => 'Employee Cost Other*',
-            'employee_cost' => 'Total Employee Cost',
-            'material_cost' => 'Material Cost',
-            'contractor_cost' => 'Contractor Cost',
-            'spare_cost' => 'Spare Cost',
-            'sum_cost' => 'Sum Costs',
-            'sale_price' => 'Sale Price',
-            'profit_header' => 'Profit',
-            'total_profit' => 'Total Profit',
-        ];
-    }
-
-    /**
-     * @var array
-     */
-    protected array $rowArgs = [
-        'employee_cost' => ['class' => 'bg-primary'],
-        'sum_cost' => ['class' => 'bg-primary'],
-        'total_profit' => ['class' => 'bg-primary'],
-        'profit_header' => ['subheader' => true]
-    ];
 }

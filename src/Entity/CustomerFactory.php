@@ -36,7 +36,8 @@ class CustomerFactory extends EntityFactory
         if ( $provision === true ) {
             $provisionJobs = [
                 'furniture' => true,
-                'shifts' => true
+                'shifts' => true,
+                'status' => true
             ];
         } else {
             $provisionJobs = $provision['jobs'];

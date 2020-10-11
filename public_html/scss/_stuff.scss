@@ -29,11 +29,11 @@ body {
   background: #111111;
   //font-family: 'Open Sans', sans-serif;
 
- // display: flex; //Make messages appear at top
- // flex-direction: column;
+  // display: flex; //Make messages appear at top
+  // flex-direction: column;
 
   > div:not(.messages) {
-   // order: 10;
+    // order: 10;
   }
 }
 
@@ -84,6 +84,10 @@ header {
   background: #2d2e32;
 
   .logo_title {
+    a:hover {
+      text-decoration: none;
+    }
+
     img {
       height: 70px;
       vertical-align: top;

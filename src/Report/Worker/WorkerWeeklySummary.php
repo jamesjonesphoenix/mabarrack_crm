@@ -24,9 +24,27 @@ class WorkerWeeklySummary extends WorkerReport
      */
     protected array $columns = [
         'item' => 'Item',
-        'hours' => ['title' => 'Hours', 'format' => 'hoursminutes'],
-        'percent_hours_paid' => ['title' => 'Percent of Hours Paid', 'format' => 'percentage'],
-        'percent_hours_total' => ['title' => 'Percent of Total Recorded', 'format' => 'percentage']
+        'hours' => [
+            'title' => 'Hours',
+            'format' => 'hoursminutes'
+        ],
+        'percent_hours_paid' => [
+            'title' => 'Percent of Hours Paid',
+            'format' => 'percentage'
+        ],
+        'percent_hours_total' => [
+            'title' => 'Percent of Total Recorded',
+            'format' => 'percentage'
+        ]
+    ];
+
+    /**
+     * @var array
+     */
+    protected array $rowArgs = [
+        'total_recorded' => ['class' => 'bg-primary'],
+        'total_paid' => ['class' => 'bg-primary'],
+        'factory_all' => ['class' => 'bg-primary'],
     ];
 
     /**
@@ -34,7 +52,9 @@ class WorkerWeeklySummary extends WorkerReport
      */
     public function extractData(): array
     {
-
+        if ( $this->shifts->getCount() === 0 ) {
+            return [];
+        }
         $totals['total_value_adding'] = 0;
         $totals['total_non_chargeable'] = 0;
         $totals['total_recorded'] = 0;
@@ -59,8 +79,6 @@ class WorkerWeeklySummary extends WorkerReport
                 } elseif ( $shift->job->id > 0 ) {
                     $totals['factory_with_job_number'] += $shiftLength;
                 }
-
-
             }
             if ( $shift->activity->displayName === 'Lunch' ) {
                 $totals['lunch'] += $shiftLength;
@@ -103,37 +121,5 @@ class WorkerWeeklySummary extends WorkerReport
             'lunch' => 'Lunch',
             'total_paid' => 'Total To Be Paid'
         ];
-    }
-
-    /**
-     * @var array
-     */
-    protected array $rowArgs = [
-        'total_recorded' => ['class' => 'bg-primary'],
-        'total_paid' => ['class' => 'bg-primary'],
-        'factory_all' => ['class' => 'bg-primary'],
-    ];
-
-    /**
-     * @return string
-     * @throws \Exception
-     */
-    public function renderReport(): string
-    {
-        $html = '';
-        if ( $this->shifts->getCount() === 0 ) {
-            $html .= $this->htmlUtility::getAlertHTML( 'No completed shifts found from <strong>' . $this->getDateStart() . '</strong> to <strong>' . $this->getDateFinish() . '</strong> to summarise.', 'warning', false );
-        }
-        $data = $this->extractData();
-        if ( empty( $data ) ) {
-            return $this->htmlUtility::getAlertHTML( 'Shifts found from <strong>' . $this->getDateStart() . '</strong> to <strong>' . $this->getDateFinish() . '</strong> but no summary data generated. Something has gone wrong.', 'danger' );
-        }
-        $data = $this->format::formatColumnsValues( $data, $this->getColumns( 'format' ) );
-        return $html . $this->htmlUtility::getTableHTML( [
-                'data' => $data,
-                'columns' => $this->getColumns(),
-                'rows' => $this->getRowArgs(),
-
-            ] );
     }
 }

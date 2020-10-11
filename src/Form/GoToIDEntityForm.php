@@ -51,7 +51,7 @@ class GoToIDEntityForm extends EntityForm
     public function render(): string
     {
         ob_start(); ?>
-        <form action="<?php echo $this->entity->getLink( false ); ?>" class="form-inline my-2 my-lg-0 ml-3 search-by-id search-by-id-<?php echo $this->entity->entityName; ?> float-left">
+        <form action="<?php echo $this->entity->getLink( false ); ?>" class="form-inline my-2 my-lg-0 ml-2 search-by-id search-by-id-<?php echo $this->entity->entityName; ?> float-left">
             <div class="input-group">
                 <?php echo $this->fields['id'] . $this->fields['entity'] . $this->fields['page']; ?>
                 <div class="input-group-append">

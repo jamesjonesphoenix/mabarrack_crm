@@ -13047,6 +13047,8 @@ body {
 
 header {
   background: #2d2e32; }
+  header .logo_title a:hover {
+    text-decoration: none; }
   header .logo_title img {
     height: 70px;
     vertical-align: top; }
@@ -13251,10 +13253,6 @@ fieldset:disabled .form-control,
   #cancel-button:hover, #cancel-button:active, #cancel-button:focus {
     background: #f2385a; }
 
-#print-button {
-  float: right;
-  cursor: pointer; }
-
 .input-group > .custom-select:not(:first-child),
 .input-group > .form-control:not(:first-child) {
   border-left-width: 2px; }
@@ -13332,32 +13330,50 @@ textarea.form-control.shift-comment {
     min-height: initial;
     box-shadow: initial; }
 
-  .crm-header, .crm-head, a, .btn, .header:after, .header.headerSortDown:after, .header.headerSortUp:after, .hidden-date {
-    display: none; }
-
   .headerSortDown, .headerSortUp {
     border-bottom: 4px solid #36383f !important; }
-
-  .container {
-    margin: 0;
-    max-width: 204mm; }
 
   .header {
     white-space: normal; }
 
   td {
-    padding-top: 4px !important;
-    padding-bottom: 4px !important; }
+    padding-top: 0.375rem !important;
+    padding-bottom: 0.375rem !important; }
+
+  .container {
+    margin: 0; }
 
   @page {
     size: A4;
     /* landscape */
     margin: 0mm; }
+  header img {
+    height: 40px; }
+  header .logo_title > a {
+    text-decoration: none !important; }
+    header .logo_title > a .crm-title {
+      font-weight: 700 !important;
+      display: inline-block !important;
+      line-height: 70px !important;
+      color: #000000 !important; }
+
+  .navbar-brand.h2.py-0 {
+    color: #000000 !important; }
+
   * {
     text-shadow: none !important;
-    color: #000 !important;
+    color: #000000 !important;
     background: transparent !important;
-    box-shadow: none !important; } }
+    box-shadow: none !important; }
+
+  table.table thead tr {
+    font-size: 1.05rem; }
+  table.table thead .tablesorter-filter-row {
+    display: none; }
+  table.table tbody tr.bg-primary td {
+    font-weight: bold; }
+  table.table tbody tr.bg-secondary td {
+    font-weight: bold; } }
 body.worker div.row.choose-activity {
   clear: both;
   border-top: 6px solid #2A80B9; }

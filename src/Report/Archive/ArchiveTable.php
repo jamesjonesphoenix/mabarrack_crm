@@ -55,9 +55,9 @@ abstract class ArchiveTable extends Report
     private bool $includeColumnToggles = true;
 
     /**
-     * @var string
+     * @var bool
      */
-    private string $id;
+    protected bool $printButton = true;
 
     /**
      * Report constructor.
@@ -238,7 +238,7 @@ abstract class ArchiveTable extends Report
     {
         if ( empty( $this->id ) ) {
             //count() is a hackish way to get a unique id, but sufficient for scroll-to-table
-            $this->id = 'archive-table-' . $this->entity->entityName . '-' . count( $this->entities );
+            $this->id = parent::getID() . '-' . count( $this->entities );
         }
         return $this->id;
     }
@@ -250,9 +250,10 @@ abstract class ArchiveTable extends Report
     public function render(): string
     {
         $archivesHTML = $this->renderReport();
+        $printNone = $this->printButton ? '' : ' d-print-none';
 
         ob_start(); ?>
-        <div class="container" id="<?php echo $this->getID(); ?>">
+        <div class="container d-print-none" id="<?php echo $this->getID(); ?>">
             <?php echo $this->htmlUtility::getNavHTML( [
                 'title' => $this->getTitle(),
                 'nav_links' => $this->getNavLinks(),
@@ -263,7 +264,7 @@ abstract class ArchiveTable extends Report
         </div>
         <?php
         if ( !empty( $archivesHTML ) && ($this->includeColumnToggles || count( $this->entities ) > 5) ) { ?>
-            <div class="container mb-3">
+            <div class="container mb-3 d-print-none">
                 <div class="row align-items-center mx-0">
                     <?php if ( $this->includeColumnToggles ) {
                         echo $this->renderColumnToggles();
@@ -275,7 +276,7 @@ abstract class ArchiveTable extends Report
                 </div>
             </div>
         <?php } ?>
-        <div class="container-fluid position-relative">
+        <div class="container-fluid position-relative<?php echo $printNone; ?>">
             <div class="row justify-content-center">
                 <div class="archive-table-column col-auto d-flex flex-column align-items-stretch">
                     <?php echo empty( $archivesHTML ) ? '<div class="grey-bg px-3 py-2 mb-5">' . $this->getEmptyMessage() . '</div>' : $archivesHTML; ?>

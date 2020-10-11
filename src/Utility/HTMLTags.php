@@ -256,7 +256,7 @@ class HTMLTags
         }
         ob_start();
         ?>
-        <nav class="navbar navbar-expand-lg navbar-dark">
+        <nav class="navbar navbar-expand-lg navbar-dark d-print-flex">
             <?php if ( !empty( $args['title'] ) ) { ?>
                 <h<?php echo $args['heading_level']; ?>
                         class="navbar-brand h<?php echo $args['heading_level']; ?> py-0"><?php echo $args['title']; ?></h<?php echo $args['heading_level']; ?>>
@@ -265,7 +265,7 @@ class HTMLTags
                     aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            <div class="collapse navbar-collapse flex-wrap justify-content-end mb-2" id="<?php echo $id; ?>"><?php
+            <div class="collapse navbar-collapse flex-wrap justify-content-end mb-2 d-print-none" id="<?php echo $id; ?>"><?php
                 if ( !empty( $args['html_left_aligned'] ) ) {
                     ?>
                     <div class="mr-auto"><?php
@@ -273,7 +273,7 @@ class HTMLTags
                     </div>
                 <?php } ?>
                 <?php if ( !empty( $args['nav_links'] ) ) { ?>
-                    <ul class="navbar-nav nav-pills justify-content-end ml-auto flex-wrap">
+                    <ul class="navbar-nav nav-pills justify-content-end ml-auto flex-wrap d-print-none">
                         <?php
                         foreach ( $args['nav_links'] as $navLink ) { ?>
                             <li class="nav-item ml-2 my-1">

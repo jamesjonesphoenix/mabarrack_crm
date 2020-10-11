@@ -185,12 +185,22 @@ abstract class Entity extends AbstractCRM
             return $this->columns[$columnName]['property'];
         }
         //convert 'camel_case' to 'camelCase'
+        /*
         $propertyName = strtolower( $columnName );
         $propertyName = ucwords( $propertyName, '_' );
         $propertyName = lcfirst( $propertyName );
         $propertyName = str_replace( '_', '', $propertyName );
-
         return $propertyName ?? '';
+        */
+
+        return str_replace( '_', '',
+                lcfirst(
+                    ucwords(
+                        strtolower( $columnName ),
+                        '_'
+                    )
+                )
+            ) ?? '';
     }
 
     /**

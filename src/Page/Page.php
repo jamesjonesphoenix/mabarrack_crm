@@ -50,6 +50,11 @@ class Page extends Base
     private string $navRightContent;
 
     /**
+     * @var string
+     */
+    private string $version = '0.2';
+
+    /**
      * Page constructor.
      *
      * @param HTMLTags $htmlUtility
@@ -100,7 +105,7 @@ class Page extends Base
                     <h1 class='crm-title mb-0 text-decoration-none text-white'><?php echo SYSTEM_TITLE; ?></h1>
                 </a>
             </div>
-            <div class="col-md-3 col-sm-4 col-xs-1">
+            <div class="col-md-3 col-sm-4 col-xs-1 d-print-none">
                 <div class="d-flex flex-row justify-content-end mb-2">
                     <div class="ml-2">
                         <a href='login.php?logout=true' class="btn btn-danger">Log Out</a>
@@ -187,14 +192,12 @@ class Page extends Base
     public function renderNavbar(): ?string
     {
         ob_start(); ?>
-        <div class="container mb-2">
-            <?php
-            echo $this->htmlUtility::getNavHTML( [
+        <div class="container mb-2 mt-3 d-print-none">
+            <?php echo $this->htmlUtility::getNavHTML( [
                 'title' => $this->getTitle(),
                 'nav_links' => $this->getNavLinks(),
                 'html_right_aligned' => $this->getNavbarRightContent()
-            ] );
-            ?>
+            ] ); ?>
         </div>
         <?php return ob_get_clean();
     }
@@ -207,22 +210,24 @@ class Page extends Base
 
         //$footerJS = $this->renderFooterJS();
         //$footerJS = !empty($footerJS) ? '<script>' . $footerJS . '</script' : '';
+
+        $version = '?ver=' . $this->version;
         ?>
         <!DOCTYPE html>
         <html lang="en">
         <head>
             <title><?php echo $this->getHeadTitle() . ' - ' . SYSTEM_TITLE; ?></title>
-            <link rel="stylesheet" type="text/css" href="css/styles.css">
-            <link rel="stylesheet" type="text/css" href="css/datepicker.min.css">
-            <link rel="stylesheet" type="text/css" href="css/fonts.css">
-            <script type="text/javascript" src="js/jquery.min.js"></script>
+            <link rel="stylesheet" type="text/css" href="css/styles.css<?php echo $version; ?>">
+            <link rel="stylesheet" type="text/css" href="css/datepicker.min.css<?php echo $version; ?>">
+            <link rel="stylesheet" type="text/css" href="css/fonts.css<?php echo $version; ?>">
+            <script type="text/javascript" src="js/jquery.min.js<?php echo $version; ?>"></script>
             <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
-            <script type="text/javascript" src="js/bootstrap.min.js"></script>
-            <script type="text/javascript" src="js/jquery.tablesorter.combined.js"></script>
-            <script type="text/javascript" src="js/mousetrap.min.js"></script>
-            <script type="text/javascript" src="js/mousetrap-global-bind.min.js"></script>
-            <script type="text/javascript" src="js/jquery.matchHeight.js"></script>
-            <script type="text/javascript" src="js/functions.js"></script>
+            <script type="text/javascript" src="js/bootstrap.min.js<?php echo $version; ?>"></script>
+            <script type="text/javascript" src="js/jquery.tablesorter.combined.js<?php echo $version; ?>"></script>
+            <script type="text/javascript" src="js/mousetrap.min.js<?php echo $version; ?>"></script>
+            <script type="text/javascript" src="js/mousetrap-global-bind.min.js<?php echo $version; ?>"></script>
+            <script type="text/javascript" src="js/jquery.matchHeight.js<?php echo $version; ?>"></script>
+            <script type="text/javascript" src="js/functions.js<?php echo $version; ?>"></script>
 
             <link rel="apple-touch-icon" sizes="114x114" href="/apple-touch-icon.png">
             <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
@@ -233,13 +238,13 @@ class Page extends Base
             <meta name="theme-color" content="#266a00">
         </head>
         <body class="<?php echo $this->getBodyClasses(); ?>">
-        <header class="mb-3">
+        <header>
             <div class="container">
                 <?php echo $this->renderHeader(); ?>
             </div>
         </header>
         <?php if ( Messages::instance()->isMessage() ) { ?>
-            <div class="container messages collapse show mb-3" id="collapse-messages-container">
+            <div class="container messages collapse show my-3 d-print-none" id="collapse-messages-container">
                 <div class="row">
                     <div class="col">
                         <div class="px-3">

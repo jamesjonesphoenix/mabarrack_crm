@@ -131,7 +131,8 @@ class DetailPageBuilderUser extends DetailPageBuilder
                 ->setEntities( $shifts->getAll(), $shift )
                 ->setTitle( $nameBadge . 'All Worker Shifts' )
                 ->setGroupByForm(
-                    $this->getGroupByForm(),
+                    $this->getGroupByForm()
+                        ->makeHiddenFields( ['start_date' => $startDate] ),
                     $this->groupBy
                 )
         ];

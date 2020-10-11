@@ -5,7 +5,6 @@ namespace Phoenix\Report\Worker;
 
 
 use Phoenix\DateTimeUtility;
-use Phoenix\Entity\Shift;
 use Phoenix\Entity\Shifts;
 use Phoenix\Entity\User;
 use Phoenix\Report\Report;
@@ -43,6 +42,11 @@ abstract class WorkerReport extends Report
      * @var string
      */
     private string $username = '';
+
+    /**
+     * @var bool
+     */
+    protected bool $printButton = true;
 
     /**
      * @param Shifts $shifts
@@ -85,35 +89,21 @@ abstract class WorkerReport extends Report
     }
 
     /**
-     * @param string $dateStart
      * @return string
      */
     public
-    function getDateStart(string $dateStart = ''): string
+    function getDateStart(): string
     {
-        if ( !empty( $this->dateStart ) ) {
-            return $this->dateStart;
-        }
-        if ( !empty( $dateStart ) ) {
-            return $this->dateStart = $dateStart;
-        }
-        return '';
+        return $this->dateStart;
     }
 
     /**
-     * @param string $dateFinish
      * @return string
      */
     public
-    function getDateFinish(string $dateFinish = ''): string
+    function getDateFinish(): string
     {
-        if ( !empty( $this->dateFinish ) ) {
-            return $this->dateFinish;
-        }
-        if ( !empty( $dateFinish ) ) {
-            return $this->dateFinish = $dateFinish;
-        }
-        return '';
+        return $this->dateFinish;
     }
 
     /**
@@ -127,17 +117,28 @@ abstract class WorkerReport extends Report
         if ( !empty( $dateStart ) && DateTimeUtility::timeDifference( date( 'Y-m-d' ), $dateStart ) !== 0 ) { /*Date provided and not today*/
             $this->dateStart = $dateStart;
             $this->dateFinish = date( $dateFormat, strtotime( $dateStart . ' + 6 days' ) );
-            return $this;
+        } else { /*Date not provided*/
+            $weekDay = date( 'w' );
+            $dateStartTimestamp = $weekDay === '5' /*Friday*/ ? time() : strtotime( 'previous friday' );
+            $this->dateStart = date( $dateFormat, $dateStartTimestamp );
+
+            $dateFinishTimestamp = $weekDay === '4' /*Thursday*/ ? time() : strtotime( 'next thursday' );
+            $this->dateFinish = date( $dateFormat, $dateFinishTimestamp );
         }
-
-        /*Date not provided*/
-        $weekDay = date( 'w' );
-        $dateStartTimestamp = $weekDay === '5' /*Friday*/ ? time() : strtotime( 'previous friday' );
-        $this->dateStart = date( $dateFormat, $dateStartTimestamp );
-
-        $dateFinishTimestamp = $weekDay === '4' /*Thursday*/ ? time() : strtotime( 'next thursday' );
-        $this->dateFinish = date( $dateFormat, $dateFinishTimestamp );
+        $this->setEmptyMessageWithDates();
         return $this;
+    }
+
+    /**
+     *
+     */
+    public function setEmptyMessageWithDates(): void
+    {
+        $this->emptyMessage = 'No completed shifts found from'
+            . $this->htmlUtility::getBadgeHTML( $this->getDateStart() )
+            . ' to '
+            . $this->htmlUtility::getBadgeHTML( $this->getDateFinish() )
+            . ' to report.';
     }
 
     /**
@@ -162,5 +163,37 @@ abstract class WorkerReport extends Report
             return date( 'd-m-Y', strtotime( $this->getDateStart() . ' - 7 days' ) );
         }
         return '';
+    }
+
+    /**
+     * @return array
+     */
+    public function getNavLinks(): array
+    {
+        $strStart = 'start_date=';
+        $url = $_SERVER['REQUEST_URI'];
+        if ( empty( parse_url( $url, PHP_URL_QUERY ) ) ) {
+            $url .= '?';
+        } else {
+            $url = str_replace(
+                $strStart . $this->getDateStart(),
+                '',
+                $url );
+            $url = trim( $url, '&' );
+            if ( substr( $url, -1 ) !== '?' ) {
+                $url .= '&';
+            }
+        }
+        $url .= $strStart;
+        return array_merge( [
+            [
+                'url' => $url . $this->getDatePrevious(),
+                'text' => 'Previous Week'
+            ], [
+                'url' => $url . $this->getDateNext(),
+                'text' => 'Next Week'
+            ]], parent::getNavLinks()
+        );
+
     }
 }

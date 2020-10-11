@@ -25,7 +25,8 @@ class ArchiveTableJobShifts extends ArchiveTable
         ],
         'date' => [
             'title' => 'Date',
-            'format' => 'date'
+            'format' => 'date',
+            'class' => 'text-nowrap'
         ],
         'week_ending' => [
             'title' => 'Week Ending',

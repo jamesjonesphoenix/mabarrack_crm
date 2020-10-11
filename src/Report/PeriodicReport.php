@@ -23,7 +23,10 @@ abstract class PeriodicReport extends Report
      */
     private string $dateFinish;
 
-
+    /**
+     * @var bool
+     */
+    protected bool $printButton = true;
 
     public function setDates(string $dateStart = '', string $dateFinish = ''): self
     {

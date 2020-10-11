@@ -87,7 +87,7 @@ class SetReportDatesForm extends Form
     public function render(): string
     {
         ob_start(); ?>
-        <div class="container mb-4 position-relative">
+        <div class="container mb-4 position-relative d-print-none">
             <div class="row">
                 <div class="col">
                     <form id="<?php echo $this->formID; ?>" class="form-inline my-2 my-lg-0 ml-3 float-left">

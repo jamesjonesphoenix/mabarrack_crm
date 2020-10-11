@@ -132,8 +132,19 @@ class JobFactory extends EntityFactory
         }
 
         if ( $this->canProvision( $provision, 'customer' ) ) { //Add customers for each job to Job
-            $customerFactory = new CustomerFactory( $this->db, $this->messages );
-            $jobs = $this->addOneToOneEntityProperties( $jobs, $customerFactory );
+            $jobs = $this->addOneToOneEntityProperties( $jobs,
+                new CustomerFactory( $this->db, $this->messages )
+            );
+        }
+        if ( $this->canProvision( $provision, 'status' ) ) { //Add status for each job to Job. Can't use addOneToOneEntityProperties() method because property is name, not id in DB table
+            foreach ( (new SettingFactory( $this->db, $this->messages ))->getEntities(
+                ['name' => ['value' => 'jobstat', 'operator' => 'LIKE']]
+            ) as $setting ) {
+                $settings[$setting->name] = $setting;
+            }
+            foreach ( $jobs as $job ) {
+                $job->status = $settings[$job->status->name] ?? null;
+            }
         }
         return $jobs;
     }

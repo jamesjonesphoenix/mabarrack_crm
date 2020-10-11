@@ -12,20 +12,10 @@
     background: initial;
     min-height: initial;
     box-shadow: initial;
-
-  }
-
-  .crm-header, .crm-head, a, .btn, .header:after, .header.headerSortDown:after, .header.headerSortUp:after, .hidden-date {
-    display: none;
   }
 
   .headerSortDown, .headerSortUp {
     border-bottom: 4px solid #36383f !important;
-  }
-
-  .container {
-    margin: 0;
-    max-width: 204mm;
   }
 
   .header {
@@ -33,19 +23,67 @@
   }
 
   td {
-    padding-top: 4px !important;
-    padding-bottom: 4px !important;
+    padding-top: 0.375rem !important;
+    padding-bottom: 0.375rem !important;
+  }
+  .container {
+    margin: 0;
   }
 
   @page {
     size: A4; /* landscape */
     margin: 0mm;
   }
-  //added to get iPad print preview displaying
-  * {
+
+  header {
+    img {
+      height: 40px;
+    }
+
+    .logo_title {
+      > a {
+        text-decoration: none !important;
+
+        .crm-title {
+          font-weight: 700 !important;
+          display: inline-block !important;
+          line-height: 70px !important;
+          color: #000000 !important;
+        }
+      }
+    }
+  }
+  .navbar-brand.h2.py-0 {
+    color: #000000 !important;
+  }
+
+  * { // Added to get iPad print preview displaying
     text-shadow: none !important;
-    color: #000 !important;
+    color: #000000 !important;
     background: transparent !important;
     box-shadow: none !important;
+  }
+  table.table {
+    thead {
+      tr {
+        font-size: 1.05rem;
+      }
+
+      .tablesorter-filter-row {
+        display: none;
+      }
+    }
+
+    tbody {
+      tr.bg-primary {
+        td {
+          font-weight: bold;
+        }
+      }
+
+      tr.bg-secondary td {
+        font-weight: bold;
+      }
+    }
   }
 }

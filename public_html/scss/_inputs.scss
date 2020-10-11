@@ -22,13 +22,6 @@ fieldset:disabled .form-control,
   }
 }
 
-
-#print-button { //to be assigned to print buttons
-  float: right;
-  cursor: pointer;
-
-}
-
 .input-group {
   > .custom-select:not(:first-child),
   > .form-control:not(:first-child) {

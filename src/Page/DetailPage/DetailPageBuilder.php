@@ -97,7 +97,10 @@ abstract class DetailPageBuilder extends EntityPageBuilder
             $this->messages->add( '<strong>Error:</strong> Adding a new ' . $this->getEntityFactory()->getEntityName() . ' is not allowed.' );
         }
         $this->page->addContent(
-            $form->makeFields()->setDisplayEntityName( $this->getDisplayEntityName() )->render()
+            $form
+                ->makeFields()
+                ->setDisplayEntityName( $this->getDisplayEntityName() )
+                ->render()
         );
         return $this;
     }

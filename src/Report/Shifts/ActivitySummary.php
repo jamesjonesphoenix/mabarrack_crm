@@ -23,7 +23,7 @@ class ActivitySummary extends PeriodicReport
     /**
      * @var string
      */
-    protected string $noShiftsMessage = 'No job activity to report.';
+    protected string $emptyMessage = 'No job activity to report.';
 
     /**
      * @var array
@@ -36,26 +36,33 @@ class ActivitySummary extends PeriodicReport
     protected array $columns = [
         'activity_id' => 'Activity ID',
         'activity' => 'Activity',
-        'activity_hours' => ['title' => 'Activity Hours', 'format' => 'hoursminutes'],
-        '%_of_total_hours' => ['title' => '% of Total Hours', 'format' => 'percentage'],
-        'activity_cost' => ['title' => 'Activity Cost', 'format' => 'currency'],
-        '%_of_total_employee_cost' => ['title' => '% of Total Employee Cost', 'format' => 'percentage']
+        'activity_hours' => [
+            'title' => 'Activity Hours',
+            'format' => 'hoursminutes'
+        ],
+        '%_of_total_hours' => [
+            'title' => '% of Total Hours',
+            'format' => 'percentage'
+        ],
+        'activity_cost' => [
+            'title' => 'Activity Cost',
+            'format' => 'currency'
+        ],
+        '%_of_total_employee_cost' => [
+            'title' => '% of Total Employee Cost',
+            'format' => 'percentage'
+        ]
     ];
+
+    /**
+     * @var bool
+     */
+    protected bool $printButton = true;
 
     /**
      * @var Shifts
      */
     protected Shifts $shifts;
-
-    /**
-     * @param string $noShiftsMessage
-     * @return $this
-     */
-    public function setNoShiftsMessage(string $noShiftsMessage = ''): self
-    {
-        $this->noShiftsMessage = $noShiftsMessage;
-        return $this;
-    }
 
     /**
      * @param Shifts $shifts
@@ -162,8 +169,6 @@ class ActivitySummary extends PeriodicReport
         return $returnData;
     }
 
-
-
     /*
       private function gzdfgdfgs(): array
       {
@@ -182,23 +187,4 @@ class ActivitySummary extends PeriodicReport
           return $return;
       }
     */
-
-
-    /**
-     * @return string
-     * @throws \Exception
-     */
-    public function renderReport(): string
-    {
-        $data = $this->extractData();
-        if ( empty( $data ) ) {
-            return $this->htmlUtility::getAlertHTML( $this->noShiftsMessage, 'warning', false );
-        }
-
-        return $this->htmlUtility::getTableHTML( [
-            'data' => $this->format::formatColumnsValues( $data, $this->getColumns( 'format' ) ),
-            'columns' => $this->getColumns(),
-            'rows' => $this->getRowArgs()
-        ] );
-    }
 }

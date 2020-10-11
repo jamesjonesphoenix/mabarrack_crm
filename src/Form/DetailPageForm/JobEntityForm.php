@@ -33,9 +33,9 @@ class JobEntityForm extends DetailPageEntityForm
     {
         $this->fields['status'] = $this->htmlUtility::getOptionDropdownFieldHTML( [
             'options' => $jobStatusOptions,
-            'selected' => $this->entity->status,
+            'selected' => $this->entity->status->name,
             'id' => 'job-status',
-            'class' => $this->entity->status,
+            'class' => $this->entity->status->name,
             'name' => 'status',
 
             'label' => 'Job Status',

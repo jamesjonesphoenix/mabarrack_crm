@@ -22,16 +22,23 @@ class ArchiveTableJobs extends ArchiveTable
         'date_started' => [
             'title' => 'Start Date',
             'format' => 'date',
-            'default' => '&minus;'
+            'default' => '&minus;',
+            'class' => 'text-nowrap'
         ],
         'date_finished' => [
             'title' => 'Finish Date',
             'format' => 'date',
             'default' => 'Ongoing',
-            'remove_if_empty' => true
+            'remove_if_empty' => true,
+            'class' => 'text-nowrap'
         ],
         'priority' => [
             'title' => 'Priority'
+        ],
+        'status' => [
+            'title' => 'Status',
+            'hidden' => true,
+            'default' => '&minus;'
         ],
         'customer' => [
             'title' => 'Customer'
@@ -77,6 +84,7 @@ class ArchiveTableJobs extends ArchiveTable
             'date_started' => $job->dateStarted,
             'date_finished' => $job->dateFinished,
             'priority' => $job->priority,
+            'status' => !empty( $job->status->value ) ? '<span class="text-nowrap">' . $job->status->value . '</span>' : '',
             'customer' => $this->htmlUtility::getButton( [
                     'element' => 'a',
                     'content' => $job->customer->name,

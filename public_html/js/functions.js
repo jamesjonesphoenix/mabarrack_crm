@@ -28,7 +28,7 @@ $j(document).ready(function () {
         }, 1500, "some unique string");
     });
 
-    $j("#print-button").click(function () {
+    $j(".print-button").click(function () {
         window.print();
     });
 

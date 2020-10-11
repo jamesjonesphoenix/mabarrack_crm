@@ -21,15 +21,22 @@ class ArchiveTableCustomerJobs extends ArchiveTable
     protected array $columns = [
         'date_started' => [
             'title' => 'Start Date',
-            'format' => 'date'
+            'format' => 'date',
+            'class' => 'text-nowrap'
         ],
         'date_finished' => [
             'title' => 'Finish Date',
             'format' => 'date',
-            'default' => 'Ongoing'
+            'default' => 'Ongoing',
+            'class' => 'text-nowrap'
         ],
         'priority' => [
             'title' => 'Priority'
+        ],
+        'status' => [
+            'title' => 'Status',
+            'hidden' => true,
+            'default' => '&minus;'
         ],
         'furniture' => [
             'title' => 'Furniture'
@@ -70,7 +77,7 @@ class ArchiveTableCustomerJobs extends ArchiveTable
             'id' => $job->id,
             'date_started' => $job->dateStarted,
             'date_finished' => $job->dateFinished,
-            'status' => $job->status,
+            'status' => $job->status->value,
             'priority' => $job->priority,
             'furniture' => $job->getFurnitureString(),
             'description' => $job->description,

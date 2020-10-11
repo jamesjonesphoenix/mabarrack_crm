@@ -45,11 +45,20 @@ class WorkerTimeClockRecord extends WorkerReport
     protected array $columns = [
         'id' => 'ID',
         'day' => 'Day',
-        'date' =>  ['title' => 'Date', 'format' => 'annotateDate'],
+        'date' => [
+            'title' => 'Date',
+            'format' => 'annotateDate'
+        ],
         'start_time' => 'Start Time',
         'finish_time' => 'Finish Time',
-        'hours' =>  ['title' => 'Hours', 'format' => 'hoursminutes'],
-        'total' =>  ['title' => 'Total Hours', 'format' => 'hoursminutes'],
+        'hours' => [
+            'title' => 'Hours',
+            'format' => 'hoursminutes'
+        ],
+        'total' => [
+            'title' => 'Total Hours',
+            'format' => 'hoursminutes'
+        ],
         'lunch_start' => 'Lunch Start',
         'lunch_finish' => 'Lunch Finish',
     ];
@@ -59,6 +68,9 @@ class WorkerTimeClockRecord extends WorkerReport
      */
     public function extractData(): array
     {
+        if ( $this->shifts->getCount() === 0 ) {
+            return [];
+        }
         $timeClockRecord = $this->getEmptyData();
 
         foreach ( $this->shifts->getAll() as $shift ) {
@@ -154,21 +166,11 @@ class WorkerTimeClockRecord extends WorkerReport
     }
 
     /**
-     * @return string
-     * @throws \Exception
+     * @param array $data
+     * @return array
      */
-    public function renderReport(): string
+    public function applyDefaults(array $data = []): array
     {
-        $html = '';
-        if ( $this->shifts->getCount() === 0 ) {
-            $html .= $this->htmlUtility::getAlertHTML( 'No completed shifts found from <strong>' . $this->getDateStart() . '</strong> to <strong>' . $this->getDateFinish() . '</strong> to report.', 'warning' );
-        }
-        $data = $this->extractData();
-        if ( empty( $data ) ) {
-            return $this->htmlUtility::getAlertHTML( 'Shifts found from <strong>' . $this->getDateStart() . '</strong> to <strong>' . $this->getDateFinish() . '</strong> but no report data generated. Something has gone wrong.', 'danger' );
-        }
-
-
         foreach ( $data as $date => &$day ) {
             if ( $day['start_time'] === self::dayEndTime ) {
                 if ( in_array( $day['day'], ['Saturday', 'Sunday'], true ) ) {
@@ -187,50 +189,8 @@ class WorkerTimeClockRecord extends WorkerReport
                 $day['lunch_finish'] = '-';
             }
         }
-        unset( $day );
-
-        $data = $this->format::formatColumnsValues( $data, $this->getColumns('format') );
-        return $html . $this->htmlUtility::getTableHTML( [
-                'data' => $data,
-                'columns' => $this->getColumns()
-            ] );
+        return parent::applyDefaults( $data );
     }
 
 
-
-    /**
-     * @return array
-     */
-    public function getNavLinks(): array
-    {
-        $strStart = 'start_date=';
-        $url = $_SERVER['REQUEST_URI'];
-
-        if ( empty( parse_url( $url, PHP_URL_QUERY ) ) ) {
-            $url .= '?';
-        } else {
-            $url = str_replace(
-                $strStart . $this->getDateStart(),
-                '',
-                $url );
-            $url = trim( $url, '&' );
-            if ( substr( $url, -1 ) !== '?' ) {
-                $url .= '&';
-            }
-
-        }
-        $url .= $strStart;
-        return [
-            [
-                'url' => $url . $this->getDatePrevious(),
-                'text' => 'Previous Week'
-            ], [
-                'url' => $url . $this->getDateNext(),
-                'text' => 'Next Week'
-            ], [
-                'url' => '#',
-                'text' => 'Print'
-            ]
-        ];
-    }
 }

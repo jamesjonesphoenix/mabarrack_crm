@@ -64,6 +64,16 @@ abstract class Report extends Base
     protected string $tableClass = '';
 
     /**
+     * @var bool
+     */
+    protected bool $printButton = false;
+
+    /**
+     * @var string
+     */
+    private string $id;
+
+    /**
      * Report constructor.
      *
      * @param HTMLTags $htmlUtility
@@ -74,6 +84,7 @@ abstract class Report extends Base
         $this->htmlUtility = $htmlUtility;
         $this->format = $format;
     }
+
 
     /**
      * @param string $title
@@ -94,11 +105,39 @@ abstract class Report extends Base
     }
 
     /**
+     * @return $this
+     */
+    public function includePrintButton(): self
+    {
+        $this->printButton = true;
+        return $this;
+    }
+
+    /**
      * @return array
      */
     public function getNavLinks(): array
     {
+        if ( $this->printButton ) {
+            return [[
+                'url' => '#',
+                'text' => 'Print',
+                'class' => 'bg-secondary print-button',
+            ]];
+        }
         return [];
+    }
+
+    /**
+     * @return string
+     */
+    public function getID(): string
+    {
+        if ( empty( $this->id ) ) {
+            //count() is a hackish way to get a unique id, but sufficient for scroll-to-table
+            $this->id = strtolower( substr( strrchr( get_class( $this ), '\\' ), 1 ) );
+        }
+        return $this->id;
     }
 
     /**
@@ -197,9 +236,11 @@ abstract class Report extends Base
     {
         $data = $this->extractData();
         $data = $this->applyDefaults( $data );
+        $data = $this->format::formatColumnsValues( $data, $this->getColumns( 'format' ) );
         if ( empty( $data ) ) {
             return $this->getEmptyMessage();
         }
+
         return $this->htmlUtility::getTableHTML( [
             'data' => $data,
             'columns' => $this->getColumns(),
@@ -214,18 +255,14 @@ abstract class Report extends Base
      */
     public function render(): string
     {
-        ob_start();
-        ?>
-        <div class="container mb-5">
+        ob_start(); ?>
+        <div id="<?php echo $this->getID(); ?>" class="container mb-5<?php echo $this->printButton ? '' : ' d-print-none'; ?>">
             <?php echo $this->htmlUtility::getNavHTML( [
                 'title' => $this->getTitle(),
                 'nav_links' => $this->getNavLinks(),
                 'heading_level' => 2,
                 'html_right_aligned' => $this->getAdditionalHeaderHTML()
-            ] );
-
-
-            ?>
+            ] ); ?>
             <div class="row">
                 <div class="<?php echo $this->fullwidth ? 'col' : 'col-auto'; ?>">
                     <div class="grey-bg p-3">

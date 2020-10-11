@@ -40,7 +40,7 @@ class Setting extends Entity
      */
     protected array $_columns = [
         'name' => [
-            'type' => 'name',
+            'type' => 'string',
             'required' => true
         ],
         'value' => [

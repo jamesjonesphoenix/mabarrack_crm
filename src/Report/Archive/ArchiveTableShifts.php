@@ -31,7 +31,8 @@ class ArchiveTableShifts extends ArchiveTable
         ],
         'date' => [
             'title' => 'Date',
-            'format' => 'date'
+            'format' => 'date',
+            'class' => 'text-nowrap'
         ],
         'time_started' => [
             'title' => 'Time Started',

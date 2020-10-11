@@ -231,8 +231,10 @@ abstract class EntityFactory extends AbstractCRM
             //$this->messages->add('At least one ID should have been returned');
             return $entities;
         }
-        $propertyQueryArgs = $this->getPropertyQueryArgs( $additionIDs );
-        $additions = $additionFactory->getEntities( $propertyQueryArgs, $provisionArgs );
+        $additions = $additionFactory->getEntities(
+            $this->getPropertyQueryArgs( $additionIDs ),
+            $provisionArgs
+        );
 
         foreach ( $entities as &$entity ) {
 

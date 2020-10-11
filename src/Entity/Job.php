@@ -17,7 +17,7 @@ use Phoenix\DateTimeUtility;
  * @property float       $contractorCost
  * @property float       $spareCost
  * @property Shifts      $shifts
- * @property string      $status
+ * @property Setting     $status
  *
  * Class Job
  *
@@ -81,9 +81,9 @@ class Job extends Entity
     protected float $_spareCost;
 
     /**
-     * @var string
+     * @var Setting
      */
-    protected string $_status;
+    protected Setting $_status;
 
     /**
      * @var Shifts
@@ -420,16 +420,29 @@ class Job extends Entity
     }
 
     /**
-     * @param string $status
-     * @return string
+     * @param int|string|Setting|null $status
+     * @return Setting
      */
-    protected function status(string $status = ''): string
+    protected function status($status = null): Setting
     {
-        if ( !empty( $status ) ) {
+        if ( $status !== null ) {
+            if ( is_int( $status ) ) {
+                $statusID = $status;
+                $status = new Setting();
+                $status->id = $statusID;
+            }
+
+            if ( is_string( $status ) ) {
+                $statusName = $status;
+                $status = new Setting();
+                $status->name = $statusName;
+            }
+
             $this->_status = $status;
         }
-        return $this->_status ?? '';
+        return $this->_status ?? new Setting();
     }
+
 
     /**
      * @return array
@@ -447,7 +460,7 @@ class Job extends Entity
         } elseif ( is_iterable( $this->_furniture ) ) {
             foreach ( $this->_furniture as $furniture ) {
                 if ( empty( $furniture->name ) ) {
-                    $errors[] = 'Job has assigned <strong>furniture</strong>' . $furniture->getIDBadge(null,'danger') . " that doesn't exist in the database.";
+                    $errors[] = 'Job has assigned <strong>furniture</strong>' . $furniture->getIDBadge( null, 'danger' ) . " that doesn't exist in the database.";
                 }
             }
         }
@@ -459,7 +472,7 @@ class Job extends Entity
         if ( !empty( $dateStarted ) && DateTimeUtility::timeDifference( $dateStarted, $dateFinished ) < 0 ) {
             $errors[] = 'Job has <strong>finish date</strong> earlier than <strong>start date</strong>.';
         }
-        if ( !empty( $dateFinished ) && $this->status === 'jobstat_red' ) {
+        if ( !empty( $dateFinished ) && $this->status->name === 'jobstat_red' ) {
             $errors[] = 'Job <strong>finish date</strong> has been set but <strong>status</strong> is still "in progress".';
         }
         return $errors ?? [];
@@ -524,6 +537,9 @@ class Job extends Entity
                 $dataFurniture[][$furniture->id] = $furniture->quantity;
             }
             $data['furniture'] = json_encode( $dataFurniture ?? null, JSON_THROW_ON_ERROR );
+        }
+        if ( !empty( $data['status'] ) ) { //We want string for DB column, not id integer
+            $data['status'] = $this->status->name;
         }
         return $data;
     }

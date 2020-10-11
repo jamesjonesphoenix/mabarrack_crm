@@ -82,7 +82,7 @@ class DetailPageBuilderJob extends DetailPageBuilder
             'job_summary' => (new JobSummary(
                 $htmlUtility,
                 $format,
-            ))->init( $entity ),
+            ))->setJob( $entity ),
             'activity_summary' => (new ActivitySummary(
                 $htmlUtility,
                 $format,
