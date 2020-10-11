@@ -72,6 +72,11 @@ class ArchiveTableJobShifts extends ArchiveTable
     protected string $title = 'Job Shifts';
 
     /**
+     * @var bool
+     */
+    protected bool $printButton = false;
+
+    /**
      * @param Shift $shift
      * @return array
      * @throws \Exception

@@ -132,7 +132,7 @@ abstract class ArchivePageBuilder extends EntityPageBuilder
             . $space
             . ucfirst( $this->getEntityFactory()->getEntityNamePlural() )
             . ($this->errorEntitiesOnly ? ' With Errors' : '')
-        );
+        )->showTitleWhenPrinting();
         return $this;
     }
 
@@ -186,8 +186,8 @@ abstract class ArchivePageBuilder extends EntityPageBuilder
             $report
                 ->hideInessentialColumns()
                 ->editColumn( 'errors', ['hidden' => false] )
-                ->setEmptyMessageClass( 'success')
-                ->setEmptyMessage('No ' . $dummyEntity->entityNamePlural . ' found with errors.');
+                ->setEmptyMessageClass( 'success' )
+                ->setEmptyMessage( 'No ' . $dummyEntity->entityNamePlural . ' found with errors.' );
         }
 
         $this->page->addContent( $report->render() );

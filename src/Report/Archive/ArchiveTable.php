@@ -253,7 +253,7 @@ abstract class ArchiveTable extends Report
         $printNone = $this->printButton ? '' : ' d-print-none';
 
         ob_start(); ?>
-        <div class="container d-print-none" id="<?php echo $this->getID(); ?>">
+        <div class="container<?php echo $printNone; ?>" id="<?php echo $this->getID(); ?>">
             <?php echo $this->htmlUtility::getNavHTML( [
                 'title' => $this->getTitle(),
                 'nav_links' => $this->getNavLinks(),
@@ -374,11 +374,8 @@ abstract class ArchiveTable extends Report
             <h4 class=" mx-3">
                 <?php echo 'Group - ' . ucfirst( $groupTitle ) . ' ';
                 $groupName = !empty( $groupName ) ? $groupName : 'N/A';
-                if ( strpos( $groupName, '<a' ) !== false ) {
-                    echo str_replace( 'class="', 'class="badge badge-primary ', $groupName );
-                } else {
-                    echo $this->htmlUtility::getBadgeHTML( $groupName );
-                } ?>
+                echo $this->htmlUtility::getBadgeHTML( strip_tags( $groupName ) );
+                ?>
             </h4>
         <?php } ?>
 

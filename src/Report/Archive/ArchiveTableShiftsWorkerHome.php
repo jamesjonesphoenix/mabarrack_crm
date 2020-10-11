@@ -71,6 +71,11 @@ class ArchiveTableShiftsWorkerHome extends ArchiveTable
     ];
 
     /**
+     * @var bool
+     */
+    protected bool $printButton = false;
+
+    /**
      * @return string
      */
     public function getAdditionalHeaderHTML(): string

@@ -124,7 +124,7 @@ class Furniture extends Entity
         if ( $includeLink ) {
             $link = $this->getLink();
             if ( !empty( $link ) ) {
-                $name = '<a class="text-white" href="' . $link . '">' . $name . '</a>';
+                 $name = '<a class="text-white" href="' . $link . '">' . $name . '</a>';
             }
         }
         return '<span class="text-nowrap">' . $quantity . ' ' . $name . '</span>';

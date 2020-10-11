@@ -13330,23 +13330,15 @@ textarea.form-control.shift-comment {
     min-height: initial;
     box-shadow: initial; }
 
-  .headerSortDown, .headerSortUp {
-    border-bottom: 4px solid #36383f !important; }
-
-  .header {
-    white-space: normal; }
-
-  td {
-    padding-top: 0.375rem !important;
-    padding-bottom: 0.375rem !important; }
-
-  .container {
-    margin: 0; }
-
   @page {
     size: A4;
     /* landscape */
-    margin: 0mm; }
+    margin: 0; }
+  .header {
+    white-space: normal; }
+    .header .navbar-brand.h2.py-0 {
+      color: #000000 !important; }
+
   header img {
     height: 40px; }
   header .logo_title > a {
@@ -13357,15 +13349,31 @@ textarea.form-control.shift-comment {
       line-height: 70px !important;
       color: #000000 !important; }
 
-  .navbar-brand.h2.py-0 {
-    color: #000000 !important; }
+  div.container {
+    margin: 0; }
+    div.container .navbar.d-print-flex {
+      padding-top: 0;
+      padding-bottom: 0; }
 
-  * {
-    text-shadow: none !important;
-    color: #000000 !important;
-    background: transparent !important;
-    box-shadow: none !important; }
+  nav.navbar-expand-lg .navbar-collapse.d-print-none {
+    display: none !important; }
 
+  .container-fluid .table-responsive, .container-sm .table-responsive, .container-md .table-responsive, .container-lg .table-responsive, .container-xl .table-responsive {
+    width: auto; }
+
+  table.table thead tr td,
+  table.table tbody tr td {
+    padding: .375rem 0 .375rem 0.75rem !important; }
+  table.table thead tr td:first-child,
+  table.table thead tr th:first-child,
+  table.table tbody tr td:first-child,
+  table.table tbody tr th:first-child {
+    padding-left: 0 !important; }
+  table.table thead th.view,
+  table.table tbody td.view {
+    display: none; }
+  table.table thead .headerSortDown, table.table thead .headerSortUp {
+    border-bottom: 4px solid #36383f !important; }
   table.table thead tr {
     font-size: 1.05rem; }
   table.table thead .tablesorter-filter-row {
@@ -13373,7 +13381,21 @@ textarea.form-control.shift-comment {
   table.table tbody tr.bg-primary td {
     font-weight: bold; }
   table.table tbody tr.bg-secondary td {
-    font-weight: bold; } }
+    font-weight: bold; }
+  table.table tbody tr td a {
+    color: #000 !important;
+    text-decoration: none; }
+
+  table.table.table-sorter th.tablesorter-header:not(.sorter-false):before, table.table.table-sorter th.tablesorter-header:not(.sorter-false):after,
+  table.table.table-sorter th.header:before,
+  table.table.table-sorter th.header:after {
+    display: none; }
+
+  * {
+    text-shadow: none !important;
+    color: #000000 !important;
+    background: transparent !important;
+    box-shadow: none !important; } }
 body.worker div.row.choose-activity {
   clear: both;
   border-top: 6px solid #2A80B9; }

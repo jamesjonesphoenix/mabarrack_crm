@@ -55,6 +55,11 @@ class Page extends Base
     private string $version = '0.2';
 
     /**
+     * @var bool
+     */
+    private bool $hidePageTitleWhenPrinting = true;
+
+    /**
      * Page constructor.
      *
      * @param HTMLTags $htmlUtility
@@ -98,14 +103,14 @@ class Page extends Base
     {
         ob_start();
         ?>
-        <div class="row p-3">
+        <div class="row px-3 pt-3">
             <div class="col-md-9 col-sm-8 col-xs-11 logo_title">
                 <a href="index.php">
                     <img alt="logo" src="img/logo.png"/>
                     <h1 class='crm-title mb-0 text-decoration-none text-white'><?php echo SYSTEM_TITLE; ?></h1>
                 </a>
             </div>
-            <div class="col-md-3 col-sm-4 col-xs-1 d-print-none">
+            <div class="col-md-3 col-sm-4 col-xs-1 d-print-none mb-3">
                 <div class="d-flex flex-row justify-content-end mb-2">
                     <div class="ml-2">
                         <a href='login.php?logout=true' class="btn btn-danger">Log Out</a>
@@ -151,6 +156,15 @@ class Page extends Base
     }
 
     /**
+     * @return $this
+     */
+    public function showTitleWhenPrinting(): self
+    {
+        $this->hidePageTitleWhenPrinting = false;
+        return $this;
+    }
+
+    /**
      * @param string $title
      * @return $this
      */
@@ -192,11 +206,12 @@ class Page extends Base
     public function renderNavbar(): ?string
     {
         ob_start(); ?>
-        <div class="container mb-2 mt-3 d-print-none">
+        <div class="container mb-2 mt-3">
             <?php echo $this->htmlUtility::getNavHTML( [
                 'title' => $this->getTitle(),
                 'nav_links' => $this->getNavLinks(),
-                'html_right_aligned' => $this->getNavbarRightContent()
+                'html_right_aligned' => $this->getNavbarRightContent(),
+                'hide_when_printing' => $this->hidePageTitleWhenPrinting
             ] ); ?>
         </div>
         <?php return ob_get_clean();

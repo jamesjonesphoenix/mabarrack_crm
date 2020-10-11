@@ -256,7 +256,7 @@ class HTMLTags
         }
         ob_start();
         ?>
-        <nav class="navbar navbar-expand-lg navbar-dark d-print-flex">
+        <nav class="navbar navbar-expand-lg navbar-dark <?php echo !empty( $args['hide_when_printing'] ) ? '' : ' d-print-flex'; ?>">
             <?php if ( !empty( $args['title'] ) ) { ?>
                 <h<?php echo $args['heading_level']; ?>
                         class="navbar-brand h<?php echo $args['heading_level']; ?> py-0"><?php echo $args['title']; ?></h<?php echo $args['heading_level']; ?>>

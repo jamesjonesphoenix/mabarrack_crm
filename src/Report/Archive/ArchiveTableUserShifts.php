@@ -50,6 +50,11 @@ class ArchiveTableUserShifts extends ArchiveTable
     ];
 
     /**
+     * @var bool
+     */
+    protected bool $printButton = false;
+
+    /**
      * @param Shift $shift
      * @return array
      */

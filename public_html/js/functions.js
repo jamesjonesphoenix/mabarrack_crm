@@ -107,29 +107,6 @@ $j(document).ready(function () {
         matchTablesWidths();
     });
 
-
-    /*
-    matchHeight(
-        ['.top-worker-page-row .grey-bg'], {
-            byRow: false,
-            property: 'height',
-            target: null,
-            remove: false,
-        },
-        0
-    );
-    matchHeight(
-        ['div.archive-table-column div.alert.alert-info, div.archive-table-column div.table-responsive'], {
-            byRow: false,
-            property: 'width',
-            target: null,
-            remove: false,
-            axis: 'horizontal'
-        },
-        0
-    );
-    */
-
     /**
      * @param input
      */
