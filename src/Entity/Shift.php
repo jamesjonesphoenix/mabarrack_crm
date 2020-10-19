@@ -3,7 +3,7 @@
 
 namespace Phoenix\Entity;
 
-use Phoenix\DateTimeUtility;
+use Phoenix\Utility\DateTimeUtility;
 use Phoenix\Utility\HTMLTags;
 
 /**
@@ -234,13 +234,13 @@ class Shift extends Entity
             return $this->addError( $errorString . 'Apparently this ' . $shiftName . " hasn't been started yet." . $shiftData );
         }
 
-        $currentTime = DateTimeUtility::roundTime( date( 'H:i' ) ); //get current time
+        $currentTime = DateTimeUtility::roundTime(); //get current time
         $cutOffTime = $this->cutOffTime;
 
 
-        if ( DateTimeUtility::timeDifference( $cutOffTime, $this->timeStarted ) > 0 ) { //If shift started after cutoff time set it's finish time equal to start time so it has 0 minutes length. Otherwise we have shifts starting after cutoff and finishing at cutoff making for negative shift length.
+        if ( DateTimeUtility::isBefore( $cutOffTime, $this->timeStarted, false ) ) { //If shift started after cutoff time set it's finish time equal to start time so it has 0 minutes length. Otherwise we have shifts starting after cutoff and finishing at cutoff making for negative shift length.
             $this->timeFinished = $this->timeStarted;
-        } elseif ( DateTimeUtility::timeDifference( $currentTime, $cutOffTime ) > 0 ) { //Finished before cut off time
+        } elseif ( DateTimeUtility::isBefore( $currentTime, $cutOffTime, false ) ) { //Finished before cut off time
             $this->timeFinished = $currentTime;
         } else { //Finished after cut off time
             $this->timeFinished = $cutOffTime;
@@ -415,7 +415,7 @@ class Shift extends Entity
         }
         if ( !empty( $timeFinished ) ) {
 
-            if ( DateTimeUtility::timeDifference( $timeStarted, $timeFinished ) < 0 ) {
+            if ( DateTimeUtility::isAfter($timeStarted, $timeFinished, false ) ) {
                 $errors[] = $shiftName . ' <strong>finish time</strong> cannot be earlier than the <strong>start time</strong>.';
             }
             if ( $timeStarted === $timeFinished ) {

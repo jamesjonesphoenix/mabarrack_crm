@@ -8,6 +8,7 @@ use Phoenix\Roles;
  * @method User|null getEntity(int $id = 0, $provision = false)
  * @method User[] getEntities(array $queryArgs = [], $provision = false)
  * @method User provisionEntity(User $entity, $provision = false)
+ * @method User[] addManyToOneEntityProperties(array $entities = [], EntityFactory $additionFactory = null, $provisionArgs = false, $joinPropertyName = '')
  *
  * Class UserFactory
  */
@@ -48,9 +49,20 @@ class UserFactory extends EntityFactory
         }
         $provisionShifts['worker'] = false;
 
-        $shiftFactory = new ShiftFactory( $this->db, $this->messages );
-        $users = $this->addManyToOneEntityProperties( $users, $shiftFactory, $provisionShifts, 'worker' );
-
+        $users = $this->addManyToOneEntityProperties(
+            $users,
+            new ShiftFactory( $this->db, $this->messages ),
+            $provisionShifts,
+            'worker'
+        );
+/*
+        foreach($users as $user){
+            foreach($user->shifts->getAll() as $shiftID => $shift){
+                $shift->worker = $user;
+                //$shifts[$shiftID] =
+            }
+        }
+*/
         return $users;
     }
 
@@ -60,7 +72,10 @@ class UserFactory extends EntityFactory
      */
     public function getOptionsArray(): array
     {
-        $entities = $this->getEntities( ['type' => 'staff'] );
-        return array_column( $entities, 'name', 'id' );
+        return array_column(
+            $this->getAll(),
+            'name',
+            'id'
+        );
     }
 }

@@ -4,7 +4,7 @@
 namespace Phoenix\Report\Worker;
 
 
-use Phoenix\DateTimeUtility;
+use Phoenix\Utility\DateTimeUtility;
 use Phoenix\Entity\Shifts;
 use Phoenix\Entity\User;
 use Phoenix\Report\Report;

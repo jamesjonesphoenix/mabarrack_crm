@@ -12983,16 +12983,16 @@ readers do not read off random characters that represent icons */
   font-weight: 900; }
 
 @media (min-width: 576px) {
-  .archive-table-column {
+  div.container-fluid div.report-table-column, div.container-sm div.report-table-column, div.container-md div.report-table-column, div.container-lg div.report-table-column, div.container-xl div.report-table-column {
     min-width: 540px; } }
 @media (min-width: 768px) {
-  .archive-table-column {
+  div.container-fluid div.report-table-column, div.container-sm div.report-table-column, div.container-md div.report-table-column, div.container-lg div.report-table-column, div.container-xl div.report-table-column {
     min-width: 720px; } }
 @media (min-width: 1024px) {
-  .archive-table-column {
+  div.container-fluid div.report-table-column, div.container-sm div.report-table-column, div.container-md div.report-table-column, div.container-lg div.report-table-column, div.container-xl div.report-table-column {
     min-width: 1024px; } }
 @media (min-width: 1200px) {
-  .archive-table-column {
+  div.container-fluid div.report-table-column, div.container-sm div.report-table-column, div.container-md div.report-table-column, div.container-lg div.report-table-column, div.container-xl div.report-table-column {
     min-width: 1176px; } }
 form.search-by-id input {
   max-width: 9rem; }
@@ -13109,7 +13109,7 @@ header {
 form.group-by-form .custom-select.form-control {
   max-width: 15rem; }
 
-.archive-table-column h4 ul {
+.report-table-column h4 ul {
   font-size: 1rem; }
 
 table.table.choose-job th[class="right.last_worked"] {
@@ -13139,7 +13139,8 @@ table.table th.view {
   width: 1%;
   word-wrap: break-word; }
 table.table td.description,
-table.table th.description {
+table.table th.description,
+table.table td[class="left.description"] {
   max-width: 500px; }
 table.table td.errors {
   padding: 0; }

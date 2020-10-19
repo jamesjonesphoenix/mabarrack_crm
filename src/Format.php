@@ -5,6 +5,7 @@ namespace Phoenix;
 
 
 use DateTime;
+use Phoenix\Utility\DateTimeUtility;
 
 /**
  * Class Format
@@ -37,7 +38,7 @@ class Format
         unset( $arg );
         foreach ( $args as &$arg ) {
             foreach ( $array as $key => &$item ) {
-                if($item === '-' || $item === 'N/A'){
+                if ( $item === '-' || $item === 'N/A' ) {
                     continue;
                 }
                 $shimsToAdd = max( $arg['count'] ) - $arg['count'][$key];
@@ -120,46 +121,37 @@ class Format
         if ( empty( $date ) ) {
             return '';
         }
-        $today = new DateTime(); // This object represents current date/time
-        $today->setTime( 0, 0, 0 ); // reset time part, to prevent partial comparison
-        $matchDate = DateTime::createFromFormat( 'd-m-Y', $date );
-        $matchDate->setTime( 0, 0, 0 ); // reset time part, to prevent partial comparison
 
-        $difference = $today->diff( $matchDate );
-        $differenceDays = (integer)$difference->format( '%R%a' );
+        $difference = (new DateTime())
+            ->setTime( 0, 0, 0 )
+            ->diff(
+                DateTime::createFromFormat( 'd-m-Y', $date )
+                    ->setTime( 0, 0, 0 )
+            );
 
-        switch( $differenceDays ) {
-            case 0:
-                return 'Today';
-            case -1:
+        if ( $difference->d === 0 ) {
+            return 'Today';
+        }
+        if ( $difference->d === 1 ) {
+            if ( $difference->invert === 1 ) {
                 return 'Yesterday';
-            case 1:
-                return 'Tomorrow';
+            }
+            return 'Tomorrow';
         }
         if ( empty( $allDays ) ) {
             return '';
         }
-        $differenceMonths = (integer)$difference->format( '%m' );
-        $differenceYears = (integer)$difference->format( '%y' );
-        if ( $differenceDays < -1 ) {
-            $daysToCalcWith = -1 * $differenceDays;
-            $suffix = ' ago';
-            //return $differenceDays * -1 . ' days ago';
-        } else {
-            $suffix = ' away';
-            $daysToCalcWith = $differenceDays;
-            //return $differenceDays . ' days away';
-        }
-        if ( $differenceYears > 0 ) {
-            if ( $differenceYears === 1 ) {
+        $suffix = $difference->invert === 1 ? ' ago' : ' away';
+        if ( $difference->y > 0 ) {
+            if ( $difference->y === 1 ) {
                 return 'Over a year' . $suffix;
             }
-            return 'Over ' . $differenceYears . ' years' . $suffix;
+            return 'Over ' . $difference->y . ' years' . $suffix;
         }
-        if ( $differenceMonths > 1 ) {
-            return $differenceMonths . ' months' . $suffix;
+        if ( $difference->m > 1 ) {
+            return $difference->m . ' months' . $suffix;
         }
-        return $daysToCalcWith . ' days' . $suffix;
+        return $difference->d . ' days' . $suffix;
     }
 
     /**
@@ -169,7 +161,7 @@ class Format
     public
     static function annotateDateAllDays(string $date = ''): string
     {
-        return self::annotateDate($date, true);
+        return self::annotateDate( $date, true );
     }
 
     /**
@@ -180,7 +172,7 @@ class Format
     public
     static function annotateDate(string $date = '', $allDays = false): string
     {
-        $date = self::date($date);
+        $date = self::date( $date );
         if ( empty( $date ) ) {
             return $date;
         }
@@ -291,12 +283,14 @@ class Format
     {
         $array = [];
         foreach ( $dataArray as $key => $row ) {
-            $array[$key] = $row[$column];
+            if ( isset( $row[$column] ) ) {
+                $array[$key] = $row[$column];
+            }
         }
         $array = self::formatArrayValues( $array, $format );
         $outputColumn = !empty( $newColumn ) ? $newColumn : $column;
-        foreach ( $dataArray as $key => &$row ) {
-            $row[$outputColumn] = $array[$key];
+        foreach ( $array as $key => $item ) {
+            $dataArray[$key][$outputColumn] = $item;
         }
         return $dataArray;
     }

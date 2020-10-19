@@ -3,9 +3,9 @@
 namespace Phoenix\Entity;
 
 use Phoenix\AbstractCRM;
-use Phoenix\DateTimeUtility;
 use Phoenix\Messages;
 use Phoenix\PDOWrap;
+use Phoenix\Utility\DateTimeUtility;
 use Phoenix\Utility\HTMLTags;
 use function Phoenix\phValidateID;
 
@@ -513,12 +513,12 @@ abstract class Entity extends AbstractCRM
         $result = $this->db->update( $this->tableName, $data, ['ID' => $this->id] );
         $dataHTMLTable = $this->getDataHTMLTable( $data );
         if ( $result === 0 ) {
-            return $this->addError( $messageNoChanges . ' Attempted to update the following data:' . $dataHTMLTable );
+            return $this->addError( $messageNoChanges . '. Attempted to update the following data:' . $dataHTMLTable );
         }
         if ( empty( $result ) ) {
-            return $this->addError( 'Failed to ' . $this->getActionString( 'present', $action ) . $this->getIDBadge() . ' Attempted to update the following data:' . $dataHTMLTable );
+            return $this->addError( 'Failed to ' . $this->getActionString( 'present', $action ) . $this->getIDBadge() . ' with the following data:' . $dataHTMLTable );
         }
-        $this->messages->add( ucfirst( $this->getActionString( 'past', $action ) ) . $this->getIDBadge() . ' Updated the following data:' . $dataHTMLTable, 'success' );
+        $this->messages->add( ucfirst( $this->getActionString( 'past', $action ) ) . $this->getIDBadge() . ' with the following data:' . $dataHTMLTable, 'success' );
         $this->changed = [];
         return $result;
     }

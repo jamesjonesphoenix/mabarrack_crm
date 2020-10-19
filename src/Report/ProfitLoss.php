@@ -70,7 +70,7 @@ class ProfitLoss extends PeriodicReport
     /**
      * @return array
      */
-    public function extractData(): array
+    protected function extractData(): array
     {
         $data = [];
         $totalValues = [];

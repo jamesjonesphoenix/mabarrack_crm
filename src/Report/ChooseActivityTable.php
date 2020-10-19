@@ -38,7 +38,7 @@ class ChooseActivityTable extends Report
     /**
      * @var bool
      */
-    protected bool $fullwidth = false;
+    protected bool $fullWidth = false;
 
     /**
      * @param Activity[] $activities
@@ -102,26 +102,37 @@ class ChooseActivityTable extends Report
     }
 
     /**
-     * @return string
-     * @throws \Exception
+     * None needed for Activity icons.
+     *
+     * @param array $data
+     * @return array
      */
-    public
-    function renderReport(): string
+    protected function processData(array $data = []): array
     {
-        $activityIcons = $this->extractData();
+        return $data;
+    }
+
+    /**
+     * @param array $activityIcons
+     * @return string
+     */
+    public function renderReport(array $activityIcons = []): string
+    {
         ob_start(); ?>
-        <div class="m-n2 clearfix">
-            <div class="clearfix"><?php echo implode( '', $activityIcons['single'] ); ?></div>
-            <div class="my-2"><?php
-                foreach ( $activityIcons['multiple'] as $categoryName => $iconHTML ) { ?>
-                    <div class="row align-items-center choose-activity mx-2 my-2 py-2">
-                        <div class="col-auto px-0">
-                            <span><?php echo $this->type . ' ' . $categoryName; ?></span>
+        <div class="grey-bg p-3">
+            <div class="m-n2 clearfix">
+                <div class="clearfix"><?php echo implode( '', $activityIcons['single'] ); ?></div>
+                <div class="my-2"><?php
+                    foreach ( $activityIcons['multiple'] as $categoryName => $iconHTML ) { ?>
+                        <div class="row align-items-center choose-activity mx-2 my-2 py-2">
+                            <div class="col-auto px-0">
+                                <span><?php echo $this->type . ' ' . $categoryName; ?></span>
+                            </div>
+                            <div class="col px-0"><?php echo $iconHTML; ?>
+                            </div>
                         </div>
-                        <div class="col px-0"><?php echo $iconHTML; ?>
-                        </div>
-                    </div>
-                <?php } ?>
+                    <?php } ?>
+                </div>
             </div>
         </div>
         <?php return ob_get_clean();

@@ -52,7 +52,7 @@ abstract class ArchiveTable extends Report
     /**
      * @var bool
      */
-    private bool $includeColumnToggles = true;
+    protected bool $includeColumnToggles = true;
 
     /**
      * @var bool
@@ -87,37 +87,6 @@ abstract class ArchiveTable extends Report
         parent::__construct( $htmlUtility, $format );
 
     }
-
-    /**
-     * @param string $columnID
-     * @param array  $args
-     * @return $this
-     */
-    public function editColumn($columnID = '', $args = []): self
-    {
-        if ( empty( $this->columns[$columnID] ) ) {
-            return $this;
-        }
-        foreach ( $args as $key => $value ) {
-            $this->columns[$columnID][$key] = $value;
-        }
-        return $this;
-    }
-
-    /**
-     * @return $this
-     */
-    public function hideInessentialColumns(): self
-    {
-        $inessentialColumns = $this->getColumns( 'inessential' );
-        foreach ( $inessentialColumns as $columnID => $inessential ) {
-            if ( !empty( $inessential ) ) {
-                $this->columns[$columnID]['hidden'] = true;
-            }
-        }
-        return $this;
-    }
-
 
     /**
      * @param Entity[]    $entities
@@ -187,7 +156,7 @@ abstract class ArchiveTable extends Report
     /**
      * @return string
      */
-    public function getAdditionalHeaderHTML(): string
+    public function getRightAlignedHeaderHTML(): string
     {
         $entity = $this->entity;
         if ( $entity->canCreate() ) {
@@ -205,9 +174,8 @@ abstract class ArchiveTable extends Report
     /**
      * @return array
      */
-    public function extractData(): array
+    protected function extractData(): array
     {
-        $columns = $this->getColumns();
         foreach ( $this->entities as $entity ) {
             $row = array_merge(
                 [
@@ -219,15 +187,14 @@ abstract class ArchiveTable extends Report
                     'errors' => $this->htmlUtility::getListGroup( $entity->healthCheck() )
                 ]
             );
-            foreach ( $columns as $columnID => $columnArgs ) {
-                if ( !empty( $row[$columnID] ) ) {
-                    $this->columns[$columnID]['not_empty'] = true;
-                } elseif ( !isset( $row[$columnID] ) || ($row[$columnID] !== (float)0 && $row[$columnID] !== 0) ) {
-                    $row[$columnID] = $this->columns[$columnID]['default'] ?? '';
-                }
-            }
             $data[$entity->id] = $row;
         }
+
+        if ( empty( $data ) ) {
+            return [];
+        }
+
+
         return $data ?? [];
     }
 
@@ -245,112 +212,48 @@ abstract class ArchiveTable extends Report
 
     /**
      * @return string
-     * @throws \Exception
      */
-    public function render(): string
+    public function getLeftAlignedHeaderHTML(): string
     {
-        $archivesHTML = $this->renderReport();
-        $printNone = $this->printButton ? '' : ' d-print-none';
+        return $this->groupByForm ?? '';
+    }
 
-        ob_start(); ?>
-        <div class="container<?php echo $printNone; ?>" id="<?php echo $this->getID(); ?>">
-            <?php echo $this->htmlUtility::getNavHTML( [
-                'title' => $this->getTitle(),
-                'nav_links' => $this->getNavLinks(),
-                'heading_level' => 2,
-                'html_left_aligned' => $this->groupByForm,
-                'html_right_aligned' => $this->getAdditionalHeaderHTML()
-            ] ); ?>
-        </div>
-        <?php
-        if ( !empty( $archivesHTML ) && ($this->includeColumnToggles || count( $this->entities ) > 5) ) { ?>
-            <div class="container mb-3 d-print-none">
-                <div class="row align-items-center mx-0">
-                    <?php if ( $this->includeColumnToggles ) {
-                        echo $this->renderColumnToggles();
-                    } ?>
-                    <?php if ( count( $this->entities ) > 5 ) { ?>
-                        <div class="col-auto"><h5 class="mb-0 entity-count">Total <?php echo ucfirst( $this->entity->entityNamePlural )
-                                    . ' ' . $this->htmlUtility::getBadgeHTML( count( $this->entities ) ); ?></h5></div>
-                    <?php } ?>
-                </div>
-            </div>
-        <?php } ?>
-        <div class="container-fluid position-relative<?php echo $printNone; ?>">
-            <div class="row justify-content-center">
-                <div class="archive-table-column col-auto d-flex flex-column align-items-stretch">
-                    <?php echo empty( $archivesHTML ) ? '<div class="grey-bg px-3 py-2 mb-5">' . $this->getEmptyMessage() . '</div>' : $archivesHTML; ?>
-                </div>
-            </div>
-        </div>
-        <?php return ob_get_clean();
+    /**
+     * @return int
+     */
+    public function getTotalCount(): int
+    {
+        return count( $this->entities );
     }
 
     /**
      * @return string
      */
-    public function renderColumnToggles(): string
+    public function getTotalCountString(): string
     {
-        ob_start(); ?>
-        <div class="col">
-            <div class="row align-items-center no-gutters">
-                <?php // <div class="col-auto mr-2"><h5 class="mb-0">Toggle Columns</h5></div>
-                ?>
-                <div class="col">
-                    <form class="form-inline mb-n2">
-                        <?php $i = 0;
-                        foreach ( $this->getColumns() as $columnName => $columnArgs ) {
-                            if ( empty( $columnArgs['title'] ) ) {
-                                $i++;
-                                continue;
-                            }
-                            $id = uniqid( 'toggle-' . ucfirst( $columnName ) . '-', true ); ?>
-                            <div class="custom-control custom-checkbox mr-3 mb-2">
-                                <input class="custom-control-input column-toggle" type="checkbox" value="<?php echo $columnName; ?>" data-column="<?php echo $i; ?>"
-                                       id="<?php echo $id; ?>" <?php echo empty( $columnArgs['hidden'] ) ? 'checked' : ''; ?>>
-                                <label class="custom-control-label" for="<?php echo $id; ?>"><?php echo $columnArgs['title']; ?></label>
-                            </div>
-                            <?php $i++;
-                        } ?>
-                    </form>
-                </div>
-            </div>
-        </div>
-        <?php return ob_get_clean();
+        return 'Total ' . ucfirst( $this->entity->entityNamePlural );
     }
 
     /**
      * Renders 1 table if not grouped, multiple tables if grouped
      *
+     * @param array $data
      * @return string
      * @throws \Exception
      */
-    public function renderReport(): string
+    public function renderReport(array $data = []): string
     {
         $groupedBy = $this->groupedBy;
-        foreach ( $this->extractData() as $entityID => $data ) {
-            $sortedData[$data[$groupedBy] ?? ''][$data['id']] = $data;
-        }
-
-        if ( empty( $sortedData ) ) {
-            return '';
+        foreach ( $data as $entityID => $row ) {
+            $sortedData[$row[$groupedBy] ?? ''][$row['id']] = $row;
         }
         ksort( $sortedData );
-        foreach ( $this->getColumns() as $columnID => $columnArgs ) {
-            if ( !empty( $columnArgs['remove_if_empty'] ) && empty( $columnArgs['not_empty'] ) ) {
-                continue;
-            }
-            $tableColumns[$columnID] = $columnArgs;
-            if ( !empty( $columnArgs['hidden'] ) ) {
-                $tableColumns[$columnID]['class'] = !empty( $columnArgs['class'] ) ? $columnArgs['class'] . 'd-none' : 'd-none';
-            }
-        }
-        $this->columns = $tableColumns ?? [];
+        $tableColumns = $this->getValidTableColumns();
         $html = '';
         foreach ( $sortedData as $groupName => $dataset ) {
             $html .= $this->renderSingleArchive(
-                $this->format::formatColumnsValues( $dataset, $this->getColumns( 'format' ) ),
-                $tableColumns ?? [],
+                $dataset,
+                $tableColumns,
                 $groupName
             );
         }
@@ -371,7 +274,7 @@ abstract class ArchiveTable extends Report
         if ( !empty( $this->groupedBy ) ) {
             $groupTitle = $columns[$this->groupedBy]['title'] ?? str_replace( '_', ' ', $this->groupedBy );
             ?>
-            <h4 class=" mx-3">
+            <h4 class="mx-3">
                 <?php echo 'Group - ' . ucfirst( $groupTitle ) . ' ';
                 $groupName = !empty( $groupName ) ? $groupName : 'N/A';
                 echo $this->htmlUtility::getBadgeHTML( strip_tags( $groupName ) );
@@ -397,15 +300,4 @@ abstract class ArchiveTable extends Report
         unset( $this->columns['errors'] );
         return $this;
     }
-
-    /**
-     * @return $this
-     */
-    public function dontIncludeColumnToggles(): self
-    {
-        $this->includeColumnToggles = false;
-        return $this;
-    }
-
-
 }

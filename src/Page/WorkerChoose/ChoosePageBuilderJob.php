@@ -25,6 +25,7 @@ class ChoosePageBuilderJob extends ChoosePageBuilder
 
     /**
      * @return $this
+     * @throws \Exception
      */
     public function addChooseTables(): self
     {
@@ -50,41 +51,30 @@ class ChoosePageBuilderJob extends ChoosePageBuilder
             ->setJobs( $recentJobs )
             ->setTitle( 'Most Recent Jobs' )
             ->setEmptyMessage( 'No recently worked jobs to choose from.' );
-        /**
-         * Recent Jobs
-         */
-        $this->page->addContent( $chooseJobsTable->render() );
 
-        /**
-         * Factory Job
-         */
+        $recentJobsHTML = $chooseJobsTable->render();
+        $activeJobsHTML = $chooseJobsTable
+            ->setJobs( $activeJobs )
+            ->setTitle( 'All Active Jobs' )
+            ->setEmptyMessageClass( 'info' )
+            ->setEmptyMessage( 'No active jobs to choose from.' )
+            ->render();
         if ( $factoryJob !== null ) {
             $lastShift = $factoryJob->getLastShift( $this->user->id );
             if ( $lastShift !== null ) {
                 $factoryJob->shifts = [$lastShift->id => $lastShift];
             }
-            $this->page
-                ->addContent(
-                    $chooseJobsTable
-                        ->setJobs( [0 => $factoryJob] )
-                        ->setTitle( 'Factory' )
-                        ->setEmptyMessageClass( 'danger' )
-                        ->setEmptyMessage( 'Factory job missing.' )
-                        ->render()
-                );
+            $factoryJobsHTML = $chooseJobsTable
+                ->setJobs( [0 => $factoryJob] )
+                ->setTitle( 'Factory' )
+                ->setEmptyMessageClass( 'danger' )
+                ->setEmptyMessage( 'Factory job missing.' )
+                ->render();
         }
-        /**
-         * Active Jobs
-         */
-        $this->page
-            ->addContent(
-                $chooseJobsTable
-                    ->setJobs( $activeJobs )
-                    ->setTitle( 'All Active Jobs' )
-                    ->setEmptyMessageClass( 'info' )
-                    ->setEmptyMessage( 'No active jobs to choose from.' )
-                    ->render()
-            );
+        $this->page->addContent(
+            $recentJobsHTML . ($factoryJobsHTML ?? '') . $activeJobsHTML
+        );
+
 
         return $this;
     }

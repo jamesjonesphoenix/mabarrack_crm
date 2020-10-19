@@ -50,7 +50,7 @@ class ChooseFurnitureTable extends Report
     /**
      * @return array
      */
-    public function extractData(): array
+    protected function extractData(): array
     {
         $jobFurniture = $this->job->furniture ?? [];
         foreach ( $jobFurniture as $furniture ) {

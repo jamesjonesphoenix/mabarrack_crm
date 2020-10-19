@@ -2,6 +2,7 @@
 
 namespace Phoenix\Page;
 
+use Phoenix\Utility\DateTimeUtility;
 use Phoenix\Entity\SettingFactory;
 use Phoenix\Entity\ShiftFactory;
 use Phoenix\Report\Archive\ArchiveTableShiftsWorkerHome;
@@ -82,9 +83,9 @@ class WorkerHomePageBuilder extends WorkerPageBuilder
         $timeClockRecordThisWeek = (new WorkerTimeClockRecord(
             $this->HTMLUtility,
             $this->format
-        ))
+        ))->setStartAndFinishDates( $this->startDate )
             ->setShifts( $this->user->shifts );
-        $timeClockRecordThisWeek->extractData();
+        $timeClockRecordThisWeek->getData();
 
         $this->page->setWorkerHoursTable( $this->HTMLUtility::getTableHTML( [
             'data' => [[
@@ -131,13 +132,13 @@ class WorkerHomePageBuilder extends WorkerPageBuilder
 
         $shiftsCurrent = $this->user->shifts->getUnfinishedShifts();
 
-        $dummyShift = (new ShiftFactory($this->db, $this->messages))->getNew();
+        $dummyShift = (new ShiftFactory( $this->db, $this->messages ))->getNew();
 
         $currentShiftArchive = (new ArchiveTableShiftsWorkerHome(
             $this->HTMLUtility,
             $this->format,
         ))
-            ->setEntities( $shiftsCurrent->getAll() , $dummyShift)
+            ->setEntities( $shiftsCurrent->getAll(), $dummyShift )
             ->setTitle( 'Your Current ' . ucfirst( $shiftsCurrent->getPluralOrSingular() ) )
             ->setEmptyMessageClass( 'info' )
             ->setEmptyMessage( 'You are not currently clocked into any shifts.' )
@@ -147,30 +148,33 @@ class WorkerHomePageBuilder extends WorkerPageBuilder
             $this->HTMLUtility,
             $this->format,
         ))
-            ->setEntities( $this->user->shifts->getLastWorkedShifts( 5 )->getAll() , $dummyShift)
-            ->setTitle( 'Your Recent Shifts' )
+            ->setEntities( $this->user->shifts->getLastWorkedShifts( 5 )->getAll(), $dummyShift )
+            ->setTitle( 'Your Most Recent Shifts' )
             ->setEmptyMessage( 'No recent shifts found.' )
             ->removeErrors();
 
 
+        $currentShiftArchive->getData(); // hackish - extractData() now run twice
+        $shiftLatestArchive->getData(); //hackish - extractData() now run twice
         if ( $shiftsCurrent->getCount() ) {
-            $shiftLatestArchive->dontIncludeColumnToggles();
+            $shiftLatestArchive->disableColumnToggles();
         }
-        $currentShiftArchive->extractData(); // hackish - extractData() now run twice
-        $shiftLatestArchive->extractData(); //hackish - extractData() now run twice
+        $columnsOne = $currentShiftArchive->getColumns( 'is_empty' );
+        $columnsTwo = $shiftLatestArchive->getColumns( 'is_empty' );
+        if ( $columnsOne !== $columnsTwo ) {
+            foreach ( $columnsOne as $columnID => $isEmpty ) {
+                if ( empty( $columnsTwo[$columnID] ) ) {
+                    $currentShiftArchive->editColumn( $columnID, ['is_empty' => false] );
+                }
+            }
+            foreach ( $columnsTwo as $columnID => $columnArgs ) {
+                if ( empty( $columnsOne[$columnID] ) ) {
+                    $shiftLatestArchive->editColumn( $columnID, ['is_empty' => false] );
+                }
+            }
+        }
 
-        foreach ( $currentShiftArchive->getColumns() as $columnID => $columnArgs ) {
-            if ( !empty( $columnArgs['not_empty'] ) ) {
-                $shiftLatestArchive->editColumn( $columnID, ['not_empty' => true] );
-            }
-        }
-        foreach ( $shiftLatestArchive->getColumns() as $columnID => $columnArgs ) {
-            if ( !empty( $columnArgs['not_empty'] ) ) {
-                $currentShiftArchive->editColumn( $columnID, ['not_empty' => true] );
-            }
-        }
         $this->page->addContent( $currentShiftArchive->render() . $shiftLatestArchive->render() );
-
         return $this;
     }
 
@@ -188,20 +192,25 @@ class WorkerHomePageBuilder extends WorkerPageBuilder
         }
         $todayShifts = $user->shifts->getShiftsToday();
         $unfinishedShift = $user->shifts->getUnfinishedShifts()->getOne();
+
+      //  $currentTime = DateTimeUtility::roundTime( date( 'H:i' ) ); //get current time
+     //   $cutOffTime = '17:00';
+     //   if(){
+
+      //  }
+
         if ( $todayShifts->getCount() === 0 ) {
             $startShiftText = 'Start Day';
         } else {
             $startShiftText = $unfinishedShift !== null ? 'Next Shift' : 'Start New Shift';
         }
         //$startShiftText = $todayShifts->getCount() === 0 ? 'Start Day' : 'Next Shift';
-        $actionButtons = [
-            [
-                'class' => $class . ' btn-success',
-                'element' => 'a',
-                'content' => $startShiftText,
-                'href' => 'worker.php?choose=job',
-                'disabled' => true
-            ]
+        $actionButtons[] = [
+            'class' => $class . ' btn-success',
+            'element' => 'a',
+            'content' => $startShiftText,
+            'href' => 'worker.php?choose=job',
+            'disabled' => true
         ];
 
         //if ( $unfinishedShift !== null && $unfinishedShift->activity->id !== 0 && $todayShifts->getCount() > 0 ) {

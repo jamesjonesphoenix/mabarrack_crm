@@ -3,6 +3,8 @@
 
 namespace Phoenix\Entity;
 
+use Phoenix\Utility\DateTimeUtility;
+
 /**
  * @author James Jones
  * @property Shift[] $entities
@@ -52,15 +54,9 @@ class Shifts extends Entities
         if ( empty( $dateStart ) || empty( $dateFinish ) ) {
             return new self();
         }
-        $dateStarted = date_create( $dateStart );
-        $dateFinished = date_create( $dateFinish );
-
         foreach ( $this->entities as $shift ) {
-            $dateShift = date_create( $shift->date );
-            //if($shift->id === 21727){}
-            if ( $dateShift
-                && (integer)$dateStarted->diff( $dateShift )->format( '%R%a' ) >= 0
-                && (integer)$dateShift->diff( $dateFinished )->format( '%R%a' ) >= 0 ) {
+            if ( DateTimeUtility::isAfter( $shift->date, $dateStart )
+                && DateTimeUtility::isBefore( $shift->date, $dateFinish ) ) {
                 $shifts[$shift->id] = $shift;
             }
         }
@@ -92,7 +88,7 @@ class Shifts extends Entities
         foreach ( $shiftsByDate as $shiftsByTime ) {
             krsort( $shiftsByTime );
             foreach ( $shiftsByTime as $shifts ) {
-                foreach($shifts as $shift) {
+                foreach ( $shifts as $shift ) {
                     $sortedShifts[$shift->id] = $shift;
                 }
             }
@@ -111,7 +107,7 @@ class Shifts extends Entities
         $this->orderLatestToEarliest();
 
         //$sdfs = $this->entities ;
-       // d(current($sdfs));
+        // d(current($sdfs));
 
         foreach ( $this->entities as $shiftID => $shift ) {
 

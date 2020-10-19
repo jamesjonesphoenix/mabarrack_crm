@@ -68,12 +68,18 @@ class ChooseJobTable extends Report
     protected string $tableClass = 'choose-job';
 
     /**
+     * @var bool
+     */
+    protected bool $fullWidth = false;
+
+    /**
      * @param Job[] $jobs
      * @return $this
      */
     public function setJobs(array $jobs = []): self
     {
         $this->jobs = $jobs;
+        $this->data = null;
         return $this;
     }
 
@@ -149,7 +155,7 @@ class ChooseJobTable extends Report
     /**
      * @return array
      */
-    public function extractData(): array
+    protected function extractData(): array
     {
         foreach ( $this->jobs as $job ) {
             $data[$job->id] = $this->extractJobData( $job );

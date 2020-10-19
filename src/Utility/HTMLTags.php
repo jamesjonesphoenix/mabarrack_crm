@@ -105,8 +105,10 @@ class HTMLTags
     public static function getButton(array $args = []): string
     {
         $element = $args['element'] ?? 'button';
-        $content = $args['content'] ?? '';
-        $suffix = $element !== 'input' ? $content . '</' . $element . '>' : '';
+        if ( empty( $args['content'] ) && empty( $args['value'] ) ) {
+            return '';
+        }
+        $suffix = $element !== 'input' ? $args['content'] . '</' . $element . '>' : '';
         return '<' . $element . self::getAttributes( $args ) . '>' . $suffix;
     }
 

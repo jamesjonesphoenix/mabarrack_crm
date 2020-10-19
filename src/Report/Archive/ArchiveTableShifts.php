@@ -4,6 +4,7 @@
 namespace Phoenix\Report\Archive;
 
 
+use DateTime;
 use Phoenix\Entity\Shift;
 
 /**
@@ -21,18 +22,26 @@ class ArchiveTableShifts extends ArchiveTable
     protected array $columns = [
         'worker' => [
             'title' => 'Worker',
+            'default' => '&minus;'
         ],
         'job' => [
             'title' => 'Job',
         ],
         'furniture' => [
             'title' => 'Furniture',
-            'default' => '&minus;'
+            'default' => '&minus;',
+            'hidden' => true,
+            'remove_if_empty' => true,
         ],
         'date' => [
             'title' => 'Date',
             'format' => 'date',
             'class' => 'text-nowrap'
+        ],
+        'week_ending' => [
+            'title' => 'Week Ending',
+            'format' => 'date',
+            'hidden' => true
         ],
         'time_started' => [
             'title' => 'Time Started',
@@ -58,17 +67,39 @@ class ArchiveTableShifts extends ArchiveTable
         'comment' => [
             'title' => 'Comment',
             'default' => '&minus;',
-            'hidden' => true
+            'hidden' => true,
+            'remove_if_empty' => true,
+        ],
+        'rate' => [
+            'title' => 'Rate',
+            'format' => 'currency',
+            'hidden' => true,
+            'default' => '&minus;'
+        ],
+        'line_item_cost' => [
+            'title' => 'Line Item Cost',
+            'format' => 'currency'
         ]
     ];
+
+    /**
+     * @var array
+     */
+    private array $dateObjects = [];
 
 
     /**
      * @param Shift $shift
      * @return array
+     * @throws \Exception
      */
     public function extractEntityData($shift): array
     {
+        if ( empty( $this->dateObjects[$shift->date] ) ) {
+            $this->dateObjects[$shift->date] = new DateTime( $shift->date ); //Create a new DateTime object
+            $this->dateObjects[$shift->date]->modify( 'next thursday' ); //Modify the date it contains
+        }
+
         $minutes = $shift->getShiftLength();
         if ( $minutes === 0 && empty( $shift->timeFinished ) && !empty( $shift->timeStarted ) ) {
             $minutes = 'N/A';
@@ -80,15 +111,28 @@ class ArchiveTableShifts extends ArchiveTable
                     'href' => $shift->worker->getLink(),
                     'class' => 'text-white'
                 ] ) ?? $shift->worker->name,
-            'job' => $shift->job->id === 0 ? 'Factory' : $shift->job->id,
-            'furniture' => $shift->furniture->name,
+            'job' => $this->htmlUtility::getButton( [
+                'element' => 'a',
+                'content' => $shift->job->id === 0 ? 'Factory' : $shift->job->id,
+                'href' => $shift->job->getLink(),
+                'class' => 'text-white'
+            ] ),
+            'furniture' => $this->htmlUtility::getButton( [
+                'element' => 'a',
+                'content' => $shift->furniture->name,
+                'href' => $shift->furniture->getLink(),
+                'class' => 'text-white'
+            ] ),
             'date' => $shift->date,
+            'week_ending' => $this->dateObjects[$shift->date]->format( 'd-m-Y' ),
             'time_started' => $shift->timeStarted,
             'time_finished' => $shift->timeFinished,
             'minutes' => $minutes,
             'hours' => $minutes,
             'activity' => $shift->activity->displayName,
-            'comment' => $shift->activityComments
+            'comment' => $shift->activityComments,
+            'rate' => $shift->worker->rate,
+            'line_item_cost' => $shift->getShiftCost()
         ];
     }
 }

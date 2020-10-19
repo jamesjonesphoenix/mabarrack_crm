@@ -2,7 +2,7 @@
 
 namespace Phoenix\Entity;
 
-use Phoenix\DateTimeUtility;
+use Phoenix\Utility\DateTimeUtility;
 use Phoenix\Messages;
 use Phoenix\PDOWrap;
 use Phoenix\Roles;
@@ -489,7 +489,7 @@ class User extends Entity
         if ( !empty( $comment ) ) {
             $newShift->activityComments = $comment;
         }
-        $newShift->timeStarted = DateTimeUtility::roundTime( date( 'H:i:s' ) );
+        $newShift->timeStarted = DateTimeUtility::roundTime();
 
         $unfinishedShift = $this->shifts->getUnfinishedShifts()->getOne();
         if ( $unfinishedShift !== null ) {

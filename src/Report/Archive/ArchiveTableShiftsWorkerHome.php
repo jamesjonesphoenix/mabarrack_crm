@@ -31,7 +31,8 @@ class ArchiveTableShiftsWorkerHome extends ArchiveTable
         ],
         'description' => [
             'title' => 'Description',
-            'default' => '&minus;'
+            'default' => '&minus;',
+            'remove_if_empty' => true,
         ],
         'date' => [
             'title' => 'Date',
@@ -47,7 +48,9 @@ class ArchiveTableShiftsWorkerHome extends ArchiveTable
         ],
         'furniture' => [
             'title' => 'Furniture',
-            'hidden' => true
+            'hidden' => true,
+            'remove_if_empty' => true,
+            'default' => '&minus;'
         ],
         'minutes' => [
             'title' => 'Minutes',
@@ -78,20 +81,20 @@ class ArchiveTableShiftsWorkerHome extends ArchiveTable
     /**
      * @return string
      */
-    public function getAdditionalHeaderHTML(): string
+    public function getRightAlignedHeaderHTML(): string
     {
         return '';
     }
 
     /**
-     * @param Entity $entity
+     * @param Shift $entity
      * @return string
      */
-    public function getActionButton(Entity $entity): string
+    public function getActionButton($entity): string
     {
         return $this->htmlUtility::getViewButton(
             'worker.php?other_comment=1&shift=' . $entity->id,
-            'Add Comment'
+            !empty($entity->activityComments) ? 'Edit Comment' : 'Add Comment'
         );
     }
 
@@ -119,7 +122,7 @@ class ArchiveTableShiftsWorkerHome extends ArchiveTable
             'date' => $shift->date,
             'time_started' => $shift->timeStarted,
             'time_finished' => $shift->timeFinished,
-            'furniture' => $shift->getFurnitureString(),
+            'furniture' => $shift->furniture->name,
             'minutes' => $minutes,
             'hours' => $minutes,
             'activity' => $shift->activity->displayName,

@@ -3,7 +3,7 @@
 
 namespace Phoenix\Report\Worker;
 
-use Phoenix\DateTimeUtility;
+use Phoenix\Utility\DateTimeUtility;
 
 /**
  * Class TimeClockRecord
@@ -66,7 +66,7 @@ class WorkerTimeClockRecord extends WorkerReport
     /**
      * @return array
      */
-    public function extractData(): array
+    protected function extractData(): array
     {
         if ( $this->shifts->getCount() === 0 ) {
             return [];
@@ -109,6 +109,7 @@ class WorkerTimeClockRecord extends WorkerReport
         if ( !empty( $timeClockRecord[$today] ) ) {
             $this->timeToday = $timeClockRecord[$today]['minutes'];
         }
+
         return $timeClockRecord;
     }
 
@@ -175,7 +176,7 @@ class WorkerTimeClockRecord extends WorkerReport
             if ( $day['start_time'] === self::dayEndTime ) {
                 if ( in_array( $day['day'], ['Saturday', 'Sunday'], true ) ) {
                     $day['start_time'] = '-';
-                } elseif ( DateTimeUtility::timeDifference( date( 'd-m-Y' ), $day['date'] ) > 0 ) {
+                } elseif ( DateTimeUtility::isAfter( $day['date'], date( 'd-m-Y' ), false ) ) {
                     $day['start_time'] = 'N/A';
                 } else {
                     $day['start_time'] = 'On Leave';

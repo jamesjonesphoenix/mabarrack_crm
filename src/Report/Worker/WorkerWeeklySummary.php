@@ -50,7 +50,7 @@ class WorkerWeeklySummary extends WorkerReport
     /**
      * @return array
      */
-    public function extractData(): array
+    protected function extractData(): array
     {
         if ( $this->shifts->getCount() === 0 ) {
             return [];

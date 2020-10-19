@@ -43,7 +43,7 @@ class ActivityFactory extends EntityFactory
         asort( $activitiesOptions );
         foreach ( $activitiesOptions as $activityID => &$activityOption ) { // put factory activities at the start
             if ( $activities[$activityID]->factoryOnly ) {
-                $factoryOptions[$activityID] = $activityOption ;
+                $factoryOptions[$activityID] = $activityOption;
             }
         }
 
@@ -75,7 +75,7 @@ class ActivityFactory extends EntityFactory
             $activityNames[$activity->name]++;
         }
         foreach ( $activities as &$activity ) {
-            if ( $activity->type !== 'General' ) {
+            if ( $activity->type !== 'General' && $activity->type !== $activity->name ) {
                 $activity->displayName = $activity->type . ' ' . $activity->name;
             } elseif ( $activityNames[$activity->name] > 1 ) {
                 $activity->displayName = 'Unspecific ' . $activity->name;

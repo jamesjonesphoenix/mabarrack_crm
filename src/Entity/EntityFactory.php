@@ -273,19 +273,13 @@ abstract class EntityFactory extends AbstractCRM
 
         $propertyName = $additionFactory->getTableName();
 
-        foreach ( $entities as &$entity ) {
-            $entityAdditions = [];
-            foreach ( $additions as $id => $addition ) {
-                $id = $addition->$joinPropertyName;
-                if ( !is_int( $id ) ) {
-                    $id = $addition->$joinPropertyName->id;
-                }
-                if ( $id === $entity->id ) {
-                    $entityAdditions[$addition->id] = $addition;
-                }
-            }
-
-            $entity->$propertyName = $entityAdditions;
+        foreach ( $additions as $key => $addition ) {
+            $id = $addition->$joinPropertyName->id;
+            $addition->$joinPropertyName = $entities[$id];
+            $sortedAdditions[$id][$addition->id] = $addition;
+        }
+        foreach ( $entities as $entity ) {
+            $entity->$propertyName = $sortedAdditions[$entity->id] ?? [];
         }
         return $entities;
     }

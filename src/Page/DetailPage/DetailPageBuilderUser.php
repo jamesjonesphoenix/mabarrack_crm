@@ -8,7 +8,7 @@ use Phoenix\Entity\User;
 use Phoenix\Entity\UserFactory;
 use Phoenix\Form\DetailPageForm\UserEntityForm;
 use Phoenix\Page\MenuItems\MenuItemsUsers;
-use Phoenix\Report\Archive\ArchiveTableUserShifts;
+use Phoenix\Report\Archive\ArchiveTableShifts;
 use Phoenix\Report\Worker\WorkerTimeClockRecord;
 use Phoenix\Report\Worker\WorkerWeeklySummary;
 
@@ -102,7 +102,7 @@ class DetailPageBuilderUser extends DetailPageBuilder
         $nameBadge = !empty( $user->name ) ? $this->HTMLUtility::getBadgeHTML( $user->name ) . ' ' : '';
 
         $reports = [
-            (new ArchiveTableUserShifts(
+            (new ArchiveTableShifts(
                 $htmlUtility,
                 $format,
             ))
@@ -124,7 +124,7 @@ class DetailPageBuilderUser extends DetailPageBuilder
                 ->setStartAndFinishDates( $startDate )
                 ->setUsername( $user->name )
                 ->setShifts( $shifts ),
-            (new ArchiveTableUserShifts(
+            (new ArchiveTableShifts(
                 $htmlUtility,
                 $format,
             ))
@@ -135,6 +135,8 @@ class DetailPageBuilderUser extends DetailPageBuilder
                         ->makeHiddenFields( ['start_date' => $startDate] ),
                     $this->groupBy
                 )
+                ->disablePrintButton()
+                ->editColumn( 'worker', ['hidden' => true] )
         ];
         $html = '';
         foreach ( $reports as $report ) {

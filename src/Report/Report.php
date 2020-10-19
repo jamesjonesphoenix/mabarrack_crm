@@ -5,7 +5,6 @@ namespace Phoenix\Report;
 
 use Phoenix\Base;
 use Phoenix\Format;
-use Phoenix\Report\Archive\ArchiveTable;
 use Phoenix\Utility\HTMLTags;
 
 /**
@@ -32,11 +31,6 @@ abstract class Report extends Base
      * @var string
      */
     protected string $title = '';
-
-    /**
-     * @var bool
-     */
-    protected bool $fullwidth = true;
 
     /**
      * @var array
@@ -71,7 +65,27 @@ abstract class Report extends Base
     /**
      * @var string
      */
-    private string $id;
+    protected string $id;
+
+    /**
+     * @var string
+     */
+    protected string $fullRowName = 'row';
+
+    /**
+     * @var bool
+     */
+    protected bool $fullWidth = true;
+
+    /**
+     * @var bool
+     */
+    protected bool $includeColumnToggles = false;
+
+    /**
+     * @var array|null
+     */
+    protected ?array $data;
 
     /**
      * Report constructor.
@@ -107,9 +121,18 @@ abstract class Report extends Base
     /**
      * @return $this
      */
-    public function includePrintButton(): self
+    public function enablePrintButton(): self
     {
         $this->printButton = true;
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    public function disablePrintButton(): self
+    {
+        $this->printButton = false;
         return $this;
     }
 
@@ -143,7 +166,7 @@ abstract class Report extends Base
     /**
      * @return string
      */
-    public function getAdditionalHeaderHTML(): string
+    public function getRightAlignedHeaderHTML(): string
     {
         return '';
     }
@@ -151,7 +174,7 @@ abstract class Report extends Base
     /**
      * @return array
      */
-    abstract public function extractData(): array;
+    abstract protected function extractData(): array;
 
     /**
      * @return array
@@ -176,7 +199,9 @@ abstract class Report extends Base
      */
     public function getEmptyMessage(): string
     {
-        return $this->htmlUtility::getAlertHTML( $this->emptyMessage, $this->emptyMessageClass, false );
+        return '<div class="grey-bg px-3 py-2 mb-5">'
+            . $this->htmlUtility::getAlertHTML( $this->emptyMessage, $this->emptyMessageClass, false )
+            . '</div>';
     }
 
     /**
@@ -192,61 +217,163 @@ abstract class Report extends Base
     }
 
     /**
+     * @return array
+     */
+    public function getValidTableColumns(): array
+    {
+        foreach ( $this->getColumns() as $columnID => $columnArgs ) {
+            if ( empty( $columnArgs['remove_if_empty'] ) || empty( $columnArgs['is_empty'] ) ) {
+                $tableColumns[$columnID] = $columnArgs;
+            }
+        }
+        return $tableColumns ?? [];
+    }
+
+    /**
+     * @param array $data
+     * @return $this
+     */
+    public function tagRemovableColumns(array $data = []): self
+    {
+        if ( !$this->includeColumnToggles ) {
+            return $this;
+        }
+        $columnsRemovable = $this->getColumns( 'remove_if_empty' );
+        foreach ( $columnsRemovable as $columnID => $value ) {
+            $hasData = false;
+            foreach ( $data as $rowID => $row ) {
+                if ( !empty( $row[$columnID] ) ) {
+                    // $this->columns[$columnID]['not_empty'] = true;
+                    $hasData = true;
+                    break;
+                    //unset( $columnsRemovable[$columnID] );
+                }
+            }
+            if ( !$hasData ) {
+                $this->columns[$columnID]['is_empty'] = true;
+                // unset( $this->columns[$columnID] );
+                // $this->columns[$columnID] = null;
+            }
+        }
+        return $this;
+    }
+
+    /**
      * @param array $data
      * @return array
      */
     public function applyDefaults(array $data = []): array
     {
-        $columns = $this->getColumns( 'default' );
-        if ( empty( $columns ) ) {
+        $columnsDefaults = $this->getColumns( 'default' );
+        if ( empty( $columnsDefaults ) ) {
             return $data;
         }
         foreach ( $data as $rowID => &$row ) {
-            foreach ( $columns as $columnID => $default ) {
+            foreach ( $columnsDefaults as $columnID => $default ) {
+                if ( !empty( $row[$columnID] )
+                    || (isset( $row[$columnID] ) && is_numeric( $row[$columnID] )) ) {
+                    continue;
+                }
+
                 $skipDefault = false;
-                if ( !empty( $row[$columnID] ) ) {
-                    $this->columns[$columnID]['not_empty'] = true;
-                } elseif ( !isset( $row[$columnID] ) || ($row[$columnID] !== (float)0 && $row[$columnID] !== 0) ) {
-                    $columnSubIDs = explode( '.', $columnID );
-                    array_pop( $columnSubIDs );
-                    if ( !empty( $columnSubIDs ) ) {
-                        $combinedColumnSubID = '';
-                        foreach ( $columnSubIDs as $columnSubID ) {
-                            $combinedColumnSubID .= $columnSubID;
-                            if ( !empty( $row[$combinedColumnSubID] ) ) {
-                                $skipDefault = true;
-                            }
-                            $combinedColumnSubID .= '.';
+                $columnSubIDs = explode( '.', $columnID );
+                array_pop( $columnSubIDs );
+                if ( !empty( $columnSubIDs ) ) {
+                    $combinedColumnSubID = '';
+                    foreach ( $columnSubIDs as $columnSubID ) {
+                        $combinedColumnSubID .= $columnSubID;
+                        if ( !empty( $row[$combinedColumnSubID] ) ) {
+                            $skipDefault = true;
                         }
-                    }
-                    if ( !$skipDefault ) {
-                        $row[$columnID] = $default;
+                        $combinedColumnSubID .= '.';
                     }
                 }
+                if ( !$skipDefault ) {
+                    $row[$columnID] = $default;
+                }
+
             }
         }
         return $data ?? [];
     }
 
     /**
+     * @param array $data
+     * @return array
+     */
+    public function addFullRowNameToData(array $data = []): array
+    {
+        foreach ( $data as $rowID => $row ) {
+            foreach ( $row as $columnID => $item ) {
+                $newColumnID = $columnID !== $this->fullRowName ? $this->fullRowName . '.' . $columnID : $columnID;
+                $return[$rowID][$newColumnID] = $item;
+            }
+        }
+        return $return ?? [];
+    }
+
+    /**
+     * @param array $data
      * @return string
      * @throws \Exception
      */
-    public function renderReport(): string
+    public function renderReport(array $data = []): string
     {
-        $data = $this->extractData();
-        $data = $this->applyDefaults( $data );
-        $data = $this->format::formatColumnsValues( $data, $this->getColumns( 'format' ) );
-        if ( empty( $data ) ) {
-            return $this->getEmptyMessage();
-        }
+        return '<div class="grey-bg p-3">' . $this->htmlUtility::getTableHTML( [
+                'data' => $data,
+                'columns' => $this->getValidTableColumns(),
+                'rows' => $this->getRowArgs(),
+                'class' => $this->tableClass
+            ] ) . '</div>';
+    }
 
-        return $this->htmlUtility::getTableHTML( [
-            'data' => $data,
-            'columns' => $this->getColumns(),
-            'rows' => $this->getRowArgs(),
-            'class' => $this->tableClass
-        ] );
+    /**
+     * @return string
+     */
+    public function getLeftAlignedHeaderHTML(): string
+    {
+        return '';
+    }
+
+    /**
+     * @return int
+     */
+    public function getTotalCount(): int
+    {
+        return 0;
+    }
+
+    /**
+     * @return string
+     */
+    public function getTotalCountString(): string
+    {
+        return 'Total Items';
+    }
+
+    /**
+     * @param array $data
+     * @return array
+     */
+    protected function processData(array $data = []): array
+    {
+        $this->tagRemovableColumns( $data );
+        // $data = $this->addFullRowNameToData( $data );
+        $data = $this->applyDefaults( $data );
+        foreach ( $this->getColumns( 'hidden' ) as $columnID => $value ) {
+            $this->columns[$columnID]['class'] = !empty( $this->columns[$columnID]['class'] ) ? $this->columns[$columnID]['class'] . ' d-none' : 'd-none';
+        }
+        return $this->format::formatColumnsValues( $data, $this->getColumns( 'format' ) );
+    }
+
+    /**
+     * @return array
+     */
+    public function getData(): array
+    {
+        return $this->data ?? ($this->data = $this->processData(
+                $this->extractData()
+            ));
     }
 
     /**
@@ -255,19 +382,70 @@ abstract class Report extends Base
      */
     public function render(): string
     {
+        $data = $this->getData();
+        $printNone = $this->printButton ? '' : ' d-print-none';
+
         ob_start(); ?>
-        <div id="<?php echo $this->getID(); ?>" class="container mb-5<?php echo $this->printButton ? '' : ' d-print-none'; ?>">
+        <div id="<?php echo $this->getID(); ?>" class="container <?php echo $printNone; ?>">
             <?php echo $this->htmlUtility::getNavHTML( [
                 'title' => $this->getTitle(),
                 'nav_links' => $this->getNavLinks(),
                 'heading_level' => 2,
-                'html_right_aligned' => $this->getAdditionalHeaderHTML()
+                'html_left_aligned' => $this->getLeftAlignedHeaderHTML(),
+                'html_right_aligned' => $this->getRightAlignedHeaderHTML()
             ] ); ?>
-            <div class="row">
-                <div class="<?php echo $this->fullwidth ? 'col' : 'col-auto'; ?>">
-                    <div class="grey-bg p-3">
-                        <?php echo $this->renderReport(); ?>
-                    </div>
+        </div>
+        <div class="container d-print-none">
+            <div class="row align-items-center mx-0">
+                <?php if ( !empty( $data ) ) {
+                    echo $this->renderColumnToggles();
+                    $totalCount = $this->getTotalCount();
+                    if ( $totalCount > 5 ) { ?>
+                        <div class="col-auto mb-3"><h5 class="mb-0 entity-count"><?php echo $this->getTotalCountString()
+                                . ' ' . $this->htmlUtility::getBadgeHTML( $totalCount ); ?></h5>
+                        </div><?php
+                    }
+                } ?>
+            </div>
+        </div>
+        <div class="container<?php echo $this->fullWidth ? '-fluid' : ''; ?> position-relative mb-3<?php echo $printNone; ?>">
+            <div class="row<?php echo $this->fullWidth ? ' justify-content-center' : ''; ?>">
+                <div class="report-table-column col-auto d-flex flex-column align-items-stretch">
+                    <?php echo empty( $data ) ? $this->getEmptyMessage() : $this->renderReport( $data ); ?>
+                </div>
+            </div>
+        </div>
+        <?php return ob_get_clean();
+    }
+
+    /**
+     * @return string
+     */
+    public function renderColumnToggles(): string
+    {
+        if ( !$this->includeColumnToggles ) {
+            return '';
+        }
+        ob_start(); ?>
+        <div class="col mb-3">
+            <div class="row align-items-center no-gutters">
+                <div class="col">
+                    <form class="form-inline mb-n2">
+                        <?php $i = 0;
+                        foreach ( $this->getColumns() as $columnName => $columnArgs ) {
+                            if ( empty( $columnArgs['title'] ) || (!empty( $columnArgs['remove_if_empty'] ) && !empty( $columnArgs['is_empty'] )) ) {
+                                $i++;
+                                continue;
+                            }
+                            $id = uniqid( 'toggle-' . ucfirst( $columnName ) . '-', true ); ?>
+                            <div class="custom-control custom-checkbox mr-3 mb-2">
+                                <input class="custom-control-input column-toggle" type="checkbox" value="<?php echo $columnName; ?>" data-column="<?php echo $i; ?>"
+                                       id="<?php echo $id; ?>" <?php echo empty( $columnArgs['hidden'] ) ? 'checked' : ''; ?>>
+                                <label class="custom-control-label" for="<?php echo $id; ?>"><?php echo $columnArgs['title']; ?></label>
+                            </div>
+                            <?php $i++;
+                        } ?>
+                    </form>
                 </div>
             </div>
         </div>
@@ -280,10 +458,20 @@ abstract class Report extends Base
      */
     public function getColumns(string $property = ''): array
     {
-        if ( empty( $property ) ) {
-            return $this->columns;
-        }
+        /*
+        $fullRowName = $this->fullRowName;
         foreach ( $this->columns as $columnName => $columnArgs ) {
+            // $columns[$fullRowName . '.' . $columnName] = $columnArgs;
+            $columns[$columnName] = $columnArgs;
+        }
+        */
+
+        if ( empty( $property ) ) {
+            return $this->columns ?? [];
+        }
+
+        foreach ( $this->columns ?? [] as $columnName => $columnArgs ) {
+
             if ( is_string( $columnArgs ) && $property === 'title' ) {
                 $return[$columnName] = $columnArgs;
                 continue;
@@ -293,5 +481,46 @@ abstract class Report extends Base
             }
         }
         return $return ?? [];
+    }
+
+    /**
+     * @return $this
+     */
+    public function hideInessentialColumns(): self
+    {
+        $inessentialColumns = $this->getColumns( 'inessential' );
+        foreach ( $inessentialColumns as $columnID => $inessential ) {
+            if ( !empty( $inessential ) ) {
+                $this->columns[$columnID]['hidden'] = true;
+            }
+        }
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    public function disableColumnToggles(): self
+    {
+        $this->includeColumnToggles = false;
+        return $this;
+    }
+
+    /**
+     * @param array|string $columnIDs
+     * @param array        $args
+     * @return $this
+     */
+    public function editColumn($columnIDs = [], $args = []): self
+    {
+        if ( is_string( $columnIDs ) ) {
+            $columnIDs = [$columnIDs];
+        }
+        foreach ( $columnIDs as $columnID ) {
+            foreach ( $args as $key => $value ) {
+                $this->columns[$columnID][$key] = $value;
+            }
+        }
+        return $this;
     }
 }

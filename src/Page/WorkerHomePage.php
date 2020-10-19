@@ -71,7 +71,7 @@ class WorkerHomePage extends Page
     public function renderDashboard(): string
     {
         ob_start(); ?>
-        <div class="container mb-4">
+        <div class="container mb-5">
             <div class="row top-worker-page-row">
                 <div class="col-md-4">
                     <div class="px-3">

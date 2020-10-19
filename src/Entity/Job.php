@@ -2,7 +2,7 @@
 
 namespace Phoenix\Entity;
 
-use Phoenix\DateTimeUtility;
+use Phoenix\Utility\DateTimeUtility;
 
 /**
  *
@@ -469,7 +469,7 @@ class Job extends Entity
         if ( empty( $dateStarted ) ) {
             $errors[] = 'No <strong>start date</strong> set.';
         }
-        if ( !empty( $dateStarted ) && DateTimeUtility::timeDifference( $dateStarted, $dateFinished ) < 0 ) {
+        if ( !empty( $dateStarted ) && DateTimeUtility::isBefore( $dateFinished, $dateStarted, false ) ) {
             $errors[] = 'Job has <strong>finish date</strong> earlier than <strong>start date</strong>.';
         }
         if ( !empty( $dateFinished ) && $this->status->name === 'jobstat_red' ) {

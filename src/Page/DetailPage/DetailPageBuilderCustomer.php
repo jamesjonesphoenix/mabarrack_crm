@@ -7,7 +7,7 @@ use Phoenix\Entity\Customer;
 use Phoenix\Entity\CustomerFactory;
 use Phoenix\Entity\JobFactory;
 use Phoenix\Form\DetailPageForm\CustomerEntityForm;
-use Phoenix\Report\Archive\ArchiveTableCustomerJobs;
+use Phoenix\Report\Archive\ArchiveTableJobs;
 
 /**
  * @method Customer getEntity(int $entityID = null)
@@ -49,17 +49,25 @@ class DetailPageBuilderCustomer extends DetailPageBuilder
         if ( empty( $customer->jobs ) ) {
             return $this;
         }
-        $this->page->addContent((new ArchiveTableCustomerJobs(
+        $this->page->addContent( (new ArchiveTableJobs(
             $this->HTMLUtility,
             $this->format,
-        ))->setEntities( $customer->jobs, (new JobFactory( $this->db, $this->messages ) )->getNew())
+        ))
+            ->setEntities( $customer->jobs, (new JobFactory( $this->db, $this->messages ))->getNew() )
             ->setTitle(
                 ($customer->getNamePossessive() ?? 'Customer') . ' Jobs'
             )
             ->setGroupByForm(
                 $this->getGroupByForm(),
                 $this->groupBy
-            )->render()
+            )
+            ->editColumn( [
+                'customer',
+                'markup',
+                'profit_loss',
+                'employee_cost'
+            ], ['hidden' => true] )
+            ->render()
         );
         return $this;
     }

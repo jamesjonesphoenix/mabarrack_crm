@@ -84,7 +84,7 @@ class JobSummary extends Report
     /**
      * @return array
      */
-    public function extractData(): array
+    protected function extractData(): array
     {
         //$title = $this::title;
 

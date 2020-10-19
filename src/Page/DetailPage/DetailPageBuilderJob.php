@@ -10,7 +10,7 @@ use Phoenix\Entity\SettingFactory;
 use Phoenix\Entity\ShiftFactory;
 use Phoenix\Form\DetailPageForm\JobEntityForm;
 use Phoenix\Page\MenuItems\MenuItemsJobs;
-use Phoenix\Report\Archive\ArchiveTableJobShifts;
+use Phoenix\Report\Archive\ArchiveTableShifts;
 use Phoenix\Report\JobSummary;
 use Phoenix\Report\Shifts\ActivitySummary;
 
@@ -87,16 +87,20 @@ class DetailPageBuilderJob extends DetailPageBuilder
                 $htmlUtility,
                 $format,
             ))->setShifts( $entity->shifts ),
-            'job_shifts' => (new ArchiveTableJobShifts(
+            'job_shifts' => (new ArchiveTableShifts(
                 $htmlUtility,
                 $format,
             ))->setEntities(
                 $entity->shifts->getAll(),
                 (new ShiftFactory( $this->db, $this->messages ))->getNew()
-            )->setGroupByForm(
-                $this->getGroupByForm(),
-                $this->groupBy
-            )->setTitle( 'Job ' . $this->HTMLUtility()::getBadgeHTML( $entity->id ) . ' Shifts' )
+            )
+                ->setGroupByForm(
+                    $this->getGroupByForm(),
+                    $this->groupBy
+                )
+                ->setTitle( 'Job ' . $this->HTMLUtility()::getBadgeHTML( $entity->id ) . ' Shifts' )
+                ->editColumn( 'job', ['hidden' => true] )
+                ->disablePrintButton()
         ];
         $reports['activity_summary']->setTitle( $reports['activity_summary']->getTitle() . ' for Job ' . $entity->getIDBadge() );
         foreach ( $reports as $report ) {
