@@ -30,6 +30,9 @@ class SettingFactory extends EntityFactory
     public function getSetting(string $name = ''): string
     {
         $settings = $this->getEntities( ['name' => $name] );
-        return array_shift( $settings )->value;
+        if ( !empty( $settings ) ) {
+            return array_shift( $settings )->value;
+        }
+        return '';
     }
 }
