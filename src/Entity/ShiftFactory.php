@@ -29,7 +29,7 @@ class ShiftFactory extends EntityFactory
     public function getAllUnfinishedShift(): Shifts
     {
         return new Shifts(
-            $this->getEntities( ['time_finished' => null] )
+            $this->getEntities( ['time_finished' => null] , true)
         );
     }
 
