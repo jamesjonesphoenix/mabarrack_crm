@@ -24,12 +24,13 @@ class ShiftFactory extends EntityFactory
     }
 
     /**
-     * @return Shift[]
+     * @return Shifts
      */
-    public function getAllUnfinishedShift(): array
+    public function getAllUnfinishedShift(): Shifts
     {
-        // $unfinishedShifts = PDOWrap::instance()->getRows( 'shifts', array('time_finished' => null) );
-        return $this->getEntities( ['time_finished' => null] );
+        return new Shifts(
+            $this->getEntities( ['time_finished' => null] )
+        );
     }
 
     /**

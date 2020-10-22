@@ -41,6 +41,8 @@ abstract class PageBuilder extends AbstractCRM
         return $this->page;
     }
 
+    abstract public function buildPage(): self;
+
     /**
      * @return Page
      */

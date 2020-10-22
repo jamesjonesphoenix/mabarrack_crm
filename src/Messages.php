@@ -5,8 +5,6 @@ namespace Phoenix;
 use Phoenix\Utility\HTMLTags;
 
 /**
- * @property array $emailArgs
- *
  * Class Messages
  *
  * @package Phoenix
@@ -16,7 +14,7 @@ class Messages extends Base
     /**
      * @var null|Messages
      */
-    protected static ?Messages $_instance = null;
+    // protected static ?Messages $_instance = null;
 
     /**
      * @var array
@@ -26,17 +24,22 @@ class Messages extends Base
     /**
      * @var array
      */
-    protected array $_emailArgs;
+    private array $emailArgs = [];
 
     /**
      * @var HTMLTags
      */
     private HTMLTags $htmlUtility;
 
+    /**
+     * @var bool
+     */
+    private bool $doingCRON = false;
 
     /**
      * @return Messages
      */
+    /*
     public static function instance(): Messages
     {
         if ( self::$_instance === null ) {
@@ -44,23 +47,42 @@ class Messages extends Base
         }
         return self::$_instance;
     }
+    */
+
+    public function doingCRON(): self
+    {
+        $this->doingCRON = true;
+        return $this;
+    }
 
     /**
      * Messages constructor.
+     *
+     * @param HTMLTags|null $htmlUtility
      */
-    private function __construct()
+    public function __construct(HTMLTags $htmlUtility = null)
     {
-        //$this->init();
+        if ( $htmlUtility !== null ) {
+            $this->setHTMLUtility( $htmlUtility );
+        }
     }
 
     /**
      * @param HTMLTags $htmlUtility
      * @return $this
      */
-    public function init(HTMLTags $htmlUtility): self
+    public function setHTMLUtility(HTMLTags $htmlUtility): self
     {
         $this->htmlUtility = $htmlUtility;
-        if ( defined( 'DOING_CRON' ) && DOING_CRON ) {
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    public function initStatefulMessages(): self
+    {
+        if ( $this->doingCRON ) {
             return $this;
         }
         if ( !empty( $_SESSION['messages'] ) ) {
@@ -91,9 +113,9 @@ class Messages extends Base
             }
         }
 
-        if ( defined( 'DOING_CRON' ) && DOING_CRON ) {
-            trigger_error( $this->emailArgs['prepend'] . $messageText );
-            echo $messageText . "\r\n";
+        if ( $this->doingCRON ) {
+            trigger_error( strip_tags( $this->emailArgs['prepend'] . $messageText ) );
+            echo strip_tags($messageText . "\r\n");
         }
 
         $message = ['string' => $messageText, 'type' => $messageType];
@@ -193,20 +215,16 @@ class Messages extends Base
 
     /**
      * @param array $emailArgs
-     * @return array
+     * @return $this
      */
-    protected
-    function emailArgs(array $emailArgs = []): array
+    public function setEmailArgs(array $emailArgs = []): self
     {
-        if ( !empty( $this->_emailArgs ) ) {
-            return $this->_emailArgs;
-        }
-
-        $this->_emailArgs['prepend'] = $emailArgs['prepend'] ?? '';
-        $this->_emailArgs['subject'] = $emailArgs['subject'] ?? 'CRON log';
-        $this->_emailArgs['to'] = $emailArgs['to'] ?? TO_EMAIL ?? '';
-        $this->_emailArgs['from'] = $emailArgs['from'] ?? FROM_EMAIL ?? '';
-        return $this->_emailArgs;
+        $this->emailArgs['prepend'] = $emailArgs['prepend'] ?? '';
+        $this->emailArgs['subject'] = $emailArgs['subject'] ?? 'CRON log';
+        $this->emailArgs['to'] = $emailArgs['to'] ?? '';
+        $this->emailArgs['from'] = $emailArgs['from'] ?? '';
+        $this->emailArgs['from_name'] = $emailArgs['from_name'] ?? '';
+        return $this;
     }
 
     /**
@@ -228,7 +246,7 @@ class Messages extends Base
             }
         }
 
-        $headers = 'From: ' . SYSTEM_TITLE . ' CRM <' . $emailArgs['from'] . '>' . "\r\n";
+        $headers = 'From: ' . $emailArgs['from_name'] . ' CRM <' . $emailArgs['from'] . '>' . "\r\n";
         $headers .= 'Mime-Version: 1.0' . "\r\n";
         $headers .= 'Content-type: text/html; charset=UTF-8' . "\r\n";
         if ( mail( $emailArgs['to'], $emailArgs['subject'], '<h1>Results</h1>' . $emailContent, $headers ) ) {

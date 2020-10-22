@@ -14,7 +14,7 @@ use Phoenix\Entity\User;
  * @package Phoenix\Page
  *
  */
-class WorkerPageBuilder extends PageBuilder
+abstract class WorkerPageBuilder extends PageBuilder
 {
     /**
      * @var User

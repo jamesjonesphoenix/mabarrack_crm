@@ -47,16 +47,31 @@ class Init
     private HTMLTags $htmlUtility;
 
     /**
+     * @var bool
+     */
+    private bool $doingAJAX = false;
+
+    /**
+     * @var bool
+     */
+    private bool $doingCRON = false;
+
+    /**
      * Init constructor.
      */
     public function __construct()
     {
         $this->scriptFilename = basename( $_SERVER['SCRIPT_FILENAME'] );
         $this->getConfig();
-        $this->secureSessionStart();
+
         $this->htmlUtility = new HTMLTags();
-        $this->messages = Messages::instance()->init( $this->htmlUtility );
-        $this->userID = $_SESSION['user_id'] ?? null;
+        /*
+                $this->messages = Messages::instance()->initStatefulMessages(
+                    $this->htmlUtility
+                );
+        */
+        $this->messages = new Messages( $this->htmlUtility );
+        $this->secureSessionStart();
 
     }
 
@@ -74,7 +89,7 @@ class Init
             $user = $userFactory->getEntity( $this->userID, false );
 
             if ( $user === null ) {
-                $this->messages->add( 'Could not get current user' . $this->htmlUtility::getBadgeHTML('ID: ' . $this->userID) );
+                $this->messages->add( 'Could not get current user' . $this->htmlUtility::getBadgeHTML( 'ID: ' . $this->userID ) );
             }
 
             // if ( $user->role === 'staff' ) {
@@ -85,7 +100,7 @@ class Init
                 'worker' => false //Don't waste CPU time provisioning shifts with worker - we already have the worker
             ]] );
             // }
-
+            $user->ipRestrictions = $this->config['ip_restrictions'];
             return $user;
         }
         $pin = $_POST['pin'] ?? null;
@@ -102,6 +117,7 @@ class Init
         if ( $user === null ) {
             $this->messages->add( 'Could not get user with pin: <strong>' . $pin . '</strong>.' );
         }
+        $user->ipRestrictions = $this->config['ip_restrictions'];
         return $user;
     }
 
@@ -179,18 +195,96 @@ class Init
     }
 
     /**
+     * @return $this
+     */
+    private function startUpCron(): self
+    {
+        $this->messages
+            ->doingCRON()
+            ->setEmailArgs( [
+                'prepend' => $this->config['system_title'] . ' CRM - CRON backup database - ',
+                'subject' => $this->config['system_title'] . ' CRM - CRON backup database',
+                'to' => $this->config['email']['to'],
+                'from' => $this->config['email']['from'],
+                'from_name' => $this->config['system_title']
+            ] );
+        return $this;
+    }
+
+    /**
      *
      */
     public function startUp(): self
     {
-        if ( defined( 'DOING_CRON' ) ) {
-            return $this;
+        if ( $this->doingCRON ) {
+            return $this->startUpCron();
         }
+
+        $this->messages->initStatefulMessages();
+        $this->userID = $_SESSION['user_id'] ?? null;
+
         if ( $this->scriptFilename === 'login.php' ) {
             $this->initLoginPage();
         } else {
             $this->initCRMPage();
         }
+        return $this;
+    }
+
+    /**
+     * @param string $type
+     * @return Director
+     */
+    public function getDirector($type = 'crm'): Director
+    {
+        if ( $type === 'worker' ) {
+            return new DirectorWorker(
+                $this->getDB(),
+                $this->getMessages(),
+                $this->getHtmlUtility(),
+                $this->getCurrentUser()
+            );
+        }
+        return new DirectorCRM(
+            $this->getDB(),
+            $this->getMessages()
+        );
+    }
+
+    /**
+     * @param string $type
+     */
+    public function executePage($type = 'crm'): void
+    {
+        $director = $this->getDirector( $type );
+        if ( method_exists( $director, 'doActions' ) ) {
+            $director->doActions( array_merge( $_GET, $_POST ) );
+        }
+        $director
+            ->getPageBuilder( $_GET )
+            ->buildPage()
+            ->getPage()
+            ->setSystemTitle( $this->config['system_title'] )
+            ->render(
+                $this->getMessages()->getMessagesHTML()
+            );
+    }
+
+    /**
+     * @return $this
+     */
+    public function doingCRON(): self
+    {
+        $this->doingCRON = true;
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    public function doingAJAX(): self
+    {
+        $this->doingAJAX = true;
         return $this;
     }
 
@@ -234,7 +328,6 @@ class Init
      */
     private function secureSessionStart(): void
     {
-        $secure = USING_SSL;
         // Forces sessions to only use cookies.
         if ( ini_set( 'session.use_only_cookies', 1 ) === false ) {
             $this->messages->add( 'Could not initiate a safe session (ini_set)' );
@@ -243,7 +336,7 @@ class Init
         }
         // Gets current cookies params.
         $cookieParams = session_get_cookie_params();
-        session_set_cookie_params( 43200, $cookieParams['path'], $cookieParams['domain'], $secure, true ); // true stops JavaScript being able to access the session id.
+        session_set_cookie_params( 43200, $cookieParams['path'], $cookieParams['domain'], $this->config['using_ssl'] ?? true, true ); // true stops JavaScript being able to access the session id.
         // Sets the session name to the one set above.
         session_name( 'sec_session_id' ); // Set a custom session name
 
@@ -258,7 +351,7 @@ class Init
             $_SESSION['LAST_ACTIVITY'] = time(); // update last activity time stamp
             if ( empty( $_SESSION['CREATED'] ) ) {
                 $_SESSION['CREATED'] = time();
-            } elseif ( !defined( 'DOING_AJAX' ) && time() - $_SESSION['CREATED'] > 1800 ) {
+            } elseif ( !$this->doingAJAX && time() - $_SESSION['CREATED'] > 1800 ) {
                 // session started more than 30 minutes ago
                 session_regenerate_id();    // change session ID for the current session and invalidate old session ID
                 $_SESSION['CREATED'] = time();  // update creation time
@@ -285,8 +378,7 @@ class Init
                     'DB_PASSWORD' => '',
                     'DB_NAME' => 'mabdb',
                     'DB_PORT' => '3306',
-                    'USING_SSL' => false,  //Default parameters
-                    'SYSTEM_TITLE' => 'CRM',
+=                    'SYSTEM_TITLE' => 'CRM',
                     'ALLOWED_IP_NUMBERS' => '127.0.0.1',
                     'IP_RESTRICTED_ROLES' => 'staff',
                 ];

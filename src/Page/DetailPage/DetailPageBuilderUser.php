@@ -56,6 +56,16 @@ class DetailPageBuilderUser extends DetailPageBuilder
     }
 
     /**
+     * @param array $inputArgs
+     * @return $this
+     */
+    public function setInputArgs(array $inputArgs = []): self
+    {
+        $this->setStartDate( $inputArgs['start_date'] ?? '' );
+        return parent::setInputArgs( $inputArgs );
+    }
+
+    /**
      * @param string $startDate
      * @return $this
      */

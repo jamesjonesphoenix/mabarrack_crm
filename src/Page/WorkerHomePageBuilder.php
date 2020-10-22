@@ -193,36 +193,37 @@ class WorkerHomePageBuilder extends WorkerPageBuilder
         $todayShifts = $user->shifts->getShiftsToday();
         $unfinishedShift = $user->shifts->getUnfinishedShifts()->getOne();
 
-      //  $currentTime = DateTimeUtility::roundTime( date( 'H:i' ) ); //get current time
-     //   $cutOffTime = '17:00';
-     //   if(){
-
-      //  }
-
-        if ( $todayShifts->getCount() === 0 ) {
-            $startShiftText = 'Start Day';
-        } else {
-            $startShiftText = $unfinishedShift !== null ? 'Next Shift' : 'Start New Shift';
-        }
-        //$startShiftText = $todayShifts->getCount() === 0 ? 'Start Day' : 'Next Shift';
-        $actionButtons[] = [
-            'class' => $class . ' btn-success',
-            'element' => 'a',
-            'content' => $startShiftText,
-            'href' => 'worker.php?choose=job',
-            'disabled' => true
-        ];
-
-        //if ( $unfinishedShift !== null && $unfinishedShift->activity->id !== 0 && $todayShifts->getCount() > 0 ) {
-        if ( ($unfinishedShift === null || $unfinishedShift->activity->id !== 0) && $todayShifts->getCount() > 0 ) {
-            $href = $this->user->hadLunchToday() ? 'worker.php?additional_lunch=1' : 'worker.php?job=0&activity=0&next_shift=1';
+        $cutOffTime = (new SettingFactory( $this->db, $this->messages ))->getSetting( 'cutoff_time' );
+        $currentTime = date( 'H:i' );
+        if ( DateTimeUtility::isBefore( $currentTime, $cutOffTime ) ) {
+            if ( $todayShifts->getCount() === 0 ) {
+                $startShiftText = 'Start Day';
+            } else {
+                $startShiftText = $unfinishedShift !== null ? 'Next Shift' : 'Start New Shift';
+            }
+            //$startShiftText = $todayShifts->getCount() === 0 ? 'Start Day' : 'Next Shift';
             $actionButtons[] = [
-                'class' => $class . ' btn-primary',
+                'class' => $class . ' btn-success',
                 'element' => 'a',
-                'content' => 'Start Lunch',
-                'href' => $href,
+                'content' => $startShiftText,
+                'href' => 'worker.php?choose=job',
+                'disabled' => true
             ];
+
+            if ( ($unfinishedShift === null || $unfinishedShift->activity->id !== 0) && $todayShifts->getCount() > 0 ) {
+                $actionButtons[] = [
+                    'class' => $class . ' btn-primary',
+                    'element' => 'a',
+                    'content' => 'Start Lunch',
+                    'href' => $this->user->hadLunchToday() ? 'worker.php?additional_lunch=1' : 'worker.php?job=0&activity=0&next_shift=1',
+                ];
+            }
+        } else {
+            $this->messages->add( 'You cannot start a new shift as the current time ' . $this->HTMLUtility::getBadgeHTML( $currentTime ) . ' is later than the cutoff time ' . $this->HTMLUtility::getBadgeHTML( $cutOffTime ) . '.', 'warning' );
         }
+
+
+
         if ( $unfinishedShift !== null && $todayShifts->getCount() > 0  /*$user->hadLunchToday()*/ ) {
             $content = $unfinishedShift->activity->id === 0 ? 'Finish Lunch' : 'Clock Off';
             $actionButtons[] = [
@@ -235,7 +236,7 @@ class WorkerHomePageBuilder extends WorkerPageBuilder
         }
 
         $actions = '';
-        foreach ( $actionButtons as $button ) {
+        foreach ( $actionButtons ?? [] as $button ) {
             $actions .= $this->HTMLUtility::getButton( $button );
         }
         $this->page->setActions( $actions );

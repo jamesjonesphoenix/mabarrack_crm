@@ -4,8 +4,11 @@ namespace Phoenix\Page;
 
 use Phoenix\Entity\EntityFactory;
 use Phoenix\Form\GoToIDEntityForm;
+use Phoenix\Messages;
+use Phoenix\Page\DetailPage\DetailPageBuilderFurniture;
 use Phoenix\Page\MenuItems\MenuItems;
 use Phoenix\Page\MenuItems\MenuItemsEntities;
+use Phoenix\PDOWrap;
 
 /**
  * Class PageBuilder
@@ -52,5 +55,14 @@ abstract class EntityPageBuilder extends PageBuilder
     public function getGoToIDForm(): GoToIDEntityForm
     {
         return (new GoToIDEntityForm( $this->HTMLUtility, $this->getEntityFactory()->getNew() ))->makeFields();
+    }
+
+    /**
+     * @param $db
+     * @param $messages
+     * @return EntityPageBuilder
+     */
+    public static function getPageBuilder(PDOWrap $db, Messages $messages):EntityPageBuilder {
+        return new DetailPageBuilderFurniture( $db, $messages );
     }
 }

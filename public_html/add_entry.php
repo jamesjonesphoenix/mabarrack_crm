@@ -3,11 +3,11 @@
 namespace Phoenix;
 use Phoenix\Utility\HTMLTags;
 
-define( 'DOING_AJAX', true );
-
 require_once __DIR__ . '/../vendor/autoload.php';
 
-$init = (new Init())->startUp();
+$init = (new Init())
+    ->startUp()
+    ->doingAJAX();
 
 $ajax = new Ajax(
     $init->getDB(),

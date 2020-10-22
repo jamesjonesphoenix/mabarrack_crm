@@ -6,7 +6,6 @@ namespace Phoenix\Page;
 
 use Phoenix\Base;
 use Phoenix\Entity\CurrentUser;
-use Phoenix\Messages;
 use Phoenix\Utility\HTMLTags;
 use function Phoenix\getScriptFilename;
 
@@ -60,6 +59,11 @@ class Page extends Base
     private bool $hidePageTitleWhenPrinting = true;
 
     /**
+     * @var string
+     */
+    protected string $systemTitle = 'CRM';
+
+    /**
      * Page constructor.
      *
      * @param HTMLTags $htmlUtility
@@ -107,7 +111,7 @@ class Page extends Base
             <div class="col-md-9 col-sm-8 col-xs-11 logo_title">
                 <a href="index.php">
                     <img alt="logo" src="img/logo.png"/>
-                    <h1 class='crm-title mb-0 text-decoration-none text-white'><?php echo SYSTEM_TITLE; ?></h1>
+                    <h1 class='crm-title mb-0 text-decoration-none text-white'><?php echo $this->systemTitle; ?></h1>
                 </a>
             </div>
             <div class="col-md-3 col-sm-4 col-xs-1 d-print-none mb-3">
@@ -218,9 +222,10 @@ class Page extends Base
     }
 
     /**
+     * @param string $messages
      * @return bool
      */
-    public function render(): bool
+    public function render(string $messages = ''): bool
     {
 
         //$footerJS = $this->renderFooterJS();
@@ -231,7 +236,7 @@ class Page extends Base
         <!DOCTYPE html>
         <html lang="en">
         <head>
-            <title><?php echo $this->getHeadTitle() . ' - ' . SYSTEM_TITLE; ?></title>
+            <title><?php echo $this->getHeadTitle() . ' - ' . $this->systemTitle; ?></title>
             <link rel="stylesheet" type="text/css" href="css/styles.css<?php echo $version; ?>">
             <link rel="stylesheet" type="text/css" href="css/datepicker.min.css<?php echo $version; ?>">
             <link rel="stylesheet" type="text/css" href="css/fonts.css<?php echo $version; ?>">
@@ -258,7 +263,7 @@ class Page extends Base
                 <?php echo $this->renderHeader(); ?>
             </div>
         </header>
-        <?php if ( Messages::instance()->isMessage() ) { ?>
+        <?php if ( !empty( $messages ) ) { ?>
             <div class="container messages collapse show my-3 d-print-none" id="collapse-messages-container">
                 <div class="row">
                     <div class="col">
@@ -266,7 +271,7 @@ class Page extends Base
                             <h2><i class="fas fa-sticky-note"></i> Messages</h2>
                         </div>
                         <div class="grey-bg px-3 py-2">
-                            <?php echo Messages::instance()->getMessagesHTML(); ?>
+                            <?php echo $messages; ?>
                         </div>
                     </div>
                 </div>
@@ -306,5 +311,17 @@ class Page extends Base
     public function getNavbarRightContent(): string
     {
         return $this->navRightContent ?? '';
+    }
+
+    /**
+     * @param string $system_title
+     * @return $this
+     */
+    public function setSystemTitle(string $system_title = ''): self
+    {
+        if ( !empty( $system_title ) ) {
+            $this->systemTitle = $system_title;
+        }
+        return $this;
     }
 }

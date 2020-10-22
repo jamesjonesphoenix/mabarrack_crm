@@ -65,11 +65,6 @@ class User extends Entity
     protected Shifts $_shifts;
 
     /**
-     * @var string
-     */
-    private string $userBrowser;
-
-    /**
      * Map of Database columns. Key is column name, 'property' is matching Class property. Don't need to include ID column in this array.
      *
      * @var array
@@ -98,42 +93,6 @@ class User extends Entity
             'property' => 'hash'
         ],
     ];
-
-    /**
-     * @var Roles
-     */
-    private Roles $roles;
-
-    /**
-     * Entity constructor.
-     *
-     * @param PDOWrap|null  $db
-     * @param Messages|null $messages
-     * @param Roles|null    $roles
-     */
-    public function __construct(PDOWrap $db = null, Messages $messages = null, Roles $roles = null)
-    {
-        if ( $roles !== null ) {
-            $this->roles = $roles;
-        }
-        parent::__construct( $db, $messages );
-    }
-
-    /**
-     * Identical to parent init but encrypts password input
-     *
-     * @param array|int $input
-     * @return $this
-     */
-    /*
-    public function init($input = []): self
-    {
-        if ( !empty( $input['unencrypted-password'] ) && is_string( $input['unencrypted-password'] ) ) { //Changing password
-            $input['password'] = password_hash( $input['unencrypted-password'], PASSWORD_BCRYPT, $this->cryptoOptions );
-        }
-        return parent::init( $input );
-    }
-    */
 
     /**
      * For setting Entity properties related to DB table columns
@@ -240,178 +199,6 @@ class User extends Entity
     }
 
     /**
-     * @return string
-     */
-    private function getUserBrowser(): string
-    {
-        if ( !empty( $this->userBrowser ) ) {
-            return $this->userBrowser;
-        }
-        return $this->userBrowser = $_SERVER['HTTP_USER_AGENT'];
-    }
-
-    /**
-     * @param string $password
-     * @return bool
-     */
-    public function login($password = ''): bool
-    {
-        if ( empty( $this->id ) ) {
-            return $this->addError( 'A user with this pin does not exist. Please try again.' );
-        }
-
-        if ( !$this->isIpAllowed() ) {
-            return $this->addError( 'You logged in with incorrect IP. Please try again from Mabarrack Factory.' );
-        }
-
-        if ( $this->isLockedOut() ) {
-            return $this->addError( "You've been locked out from logging in. Too many failed attempts." );
-        }
-
-        if ( empty( $password ) ) {
-            return $this->addError( 'The password field is empty. Please try again.' );
-        }
-
-        if ( empty( $this->hash ) ) {
-            return $this->addError( 'Password has not been set.' );
-        }
-
-        if ( !password_verify( $password, $this->hash ) ) {
-            $this->messages->add( 'You entered an incorrect password. Please try again.' );
-            // We record failed login attempt to the database
-            $now = date( 'Y-m-d H:i:s' );
-            $this->db->run( 'INSERT INTO login_attempts(user_id, ip, timestamp) VALUES (?, INET6_ATON(?), ?)', [$this->id, $_SERVER['REMOTE_ADDR'], $now] );
-            //$this->db->add( 'login_attempts', ['user_id' => $this->id, 'ip' => $_SERVER['REMOTE_ADDR'], 'timestamp' => $now] );
-
-            return false;
-        }
-
-        //successful login
-        $_SESSION['user_id'] = preg_replace( '/[^0-9]+/', '', $this->id ); // XSS protection
-        $_SESSION['login_string'] = password_hash( $this->hash . $this->getUserBrowser(), PASSWORD_BCRYPT, $this->cryptoOptions );
-        return true;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isLoggedIn(): bool
-    {
-        if ( !isset( $_SESSION['user_id'], $_SESSION['login_string'] ) ) {
-            return false;
-        }
-
-        if ( $this->isIpAllowed() === false ) {
-            return $this->addError( 'Incorrect IP detected. Please login from Mabarrack Factory.' );
-        }
-        if ( !password_verify( $this->hash . $this->getUserBrowser(), $_SESSION['login_string'] ) ) {
-            return false;
-        }
-        return true;
-    }
-
-    /**
-     * Check if staff are logging in from the Mabarrack Factory. Admins exempt from IP restriction.
-     *
-     * @return null|bool - NULL if ip does no matter, true if allowed, false if not allowed
-     */
-    public function isIpAllowed(): ?bool
-    {
-        if ( defined( 'CHECK_IP' ) && !CHECK_IP ) {
-            return true;
-        }
-
-        if ( !defined( 'IP_RESTRICTED_ROLES' ) ) {
-            return $this->addError( 'IP_RESTRICTED_ROLES missing.' );
-        }
-
-        $ipRestrictedRoles = is_string( IP_RESTRICTED_ROLES ) ? [IP_RESTRICTED_ROLES] : IP_RESTRICTED_ROLES;
-        if ( in_array( $this->role, $ipRestrictedRoles, false ) ) {
-            //limit staff login to login from factory only
-            $allowedIPs = is_string( ALLOWED_IP_NUMBERS ) ? [ALLOWED_IP_NUMBERS] : ALLOWED_IP_NUMBERS;
-
-            if ( !in_array( $_SERVER['REMOTE_ADDR'], $allowedIPs, true ) ) {
-                return $this->addError( 'Incorrect IP detected. Please login from approved location.' );
-            }
-        }
-        return true;
-    }
-
-    /**
-     * @param string $capability
-     * @return bool
-     */
-    public function isUserAllowed($capability = ''): bool
-    {
-        if ( empty( $capability ) ) {
-            $capability = basename( $_SERVER['SCRIPT_FILENAME'], false );
-        }
-
-        if ( in_array( $capability, $this->roles->getRoleCapabilities( $this->role ), true ) ) {
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * @return string
-     */
-    public function getHomePage(): string
-    {
-        if ( $this->role === 'admin' ) {
-            return 'index.php';
-        }
-        if ( $this->role === 'staff' ) {
-            return 'worker.php';
-        }
-        return '';
-    }
-
-    /**
-     *
-     */
-    public function logout(): void
-    {
-        $_SESSION = []; // Unset all session values
-        $params = session_get_cookie_params(); // get session parameters
-        setcookie( // Delete the actual cookie.
-            session_name(),
-            '', time() - 42000,
-            $params['path'],
-            $params['domain'],
-            $params['secure'],
-            $params['httponly'] );
-        session_destroy();  // Destroy session
-        $this->messages->add( 'You have successfully logged out.', 'primary' );
-    }
-
-    /**
-     * @return bool
-     */
-    public function isLockedOut(): bool
-    {
-        // Get timestamp of current time
-        // All login attempts are counted from the past 12 hours.
-        $validAttempts = date( 'Y-m-d H:i:s', strtotime( '-12 hours' ) );
-
-        //$validAttempts = $now - ( 12 * 60 * 60 );
-
-        $attempts = $this->db->run( 'SELECT INET6_NTOA(ip),timestamp FROM login_attempts WHERE user_id = ? AND timestamp > ?', [$this->id, $validAttempts] )->fetchAll();
-        return count( $attempts ) > 10;
-    }
-
-
-    /*
-    protected function shifts(array $shifts = []): array
-    {
-        if ( empty( $shifts ) ) {
-            return $this->_shifts ?? [];
-        }
-        return $this->_shifts = $shifts;
-    }
-    */
-
-    /**
      * @param Shift[] $shifts
      * @return Shifts|null
      */
@@ -484,7 +271,7 @@ class User extends Entity
             }
         }
         if ( !empty( $errors ) ) {
-            return $this->addError( '<h5 class="alert-heading">Can\'t ' . $newShift->getActionString( 'present', 'start' ) . ':</h5>' . parent::healthCheck( $errors ) );
+            return $this->addError( '<h5 class="alert-heading">Can\'t ' . $newShift->getActionString( 'present', 'start' ) . ':</h5>' . HTMLTags::getListGroup( $errors ) );
         }
         if ( !empty( $comment ) ) {
             $newShift->activityComments = $comment;

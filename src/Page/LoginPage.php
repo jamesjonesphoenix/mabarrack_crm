@@ -53,7 +53,7 @@ class LoginPage extends Page
         <div class="row text-center">
             <div class="col-md-12 logo_title py-3">
                 <img src="img/logo.png"/>
-                <h1 class="crm-title mb-0 text-center" style="text-align: center"><?php echo SYSTEM_TITLE; ?></h1>
+                <h1 class="crm-title mb-0 text-center" style="text-align: center"><?php echo $this->systemTitle; ?></h1>
             </div>
         </div>
         <?php return ob_get_clean();

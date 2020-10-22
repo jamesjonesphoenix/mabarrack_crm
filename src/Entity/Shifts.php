@@ -222,6 +222,9 @@ class Shifts extends Entities
         return $this->getWorkerCost( 'total' );
     }
 
+    /**
+     * @return string
+     */
     public function getPluralOrSingular(): string
     {
         if ( $this->getCount() > 1 ) {
@@ -246,5 +249,4 @@ class Shifts extends Entities
         }
         return $returnShifts ?? [];
     }
-
 }

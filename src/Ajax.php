@@ -9,6 +9,7 @@ use Phoenix\Entity\Entity;
 use Phoenix\Entity\EntityFactory;
 use Phoenix\Entity\FurnitureFactory;
 use Phoenix\Entity\JobFactory;
+use Phoenix\Entity\SettingFactory;
 use Phoenix\Entity\ShiftFactory;
 use Phoenix\Entity\UserFactory;
 use Phoenix\Utility\HTMLTags;
@@ -141,6 +142,8 @@ class Ajax extends AbstractCRM
                 return new FurnitureFactory( $this->db, $this->messages );
             case 'job':
                 return new JobFactory( $this->db, $this->messages );
+            case 'setting':
+                return new SettingFactory( $this->db, $this->messages );
             case 'shift':
                 return new ShiftFactory( $this->db, $this->messages );
             case 'user':

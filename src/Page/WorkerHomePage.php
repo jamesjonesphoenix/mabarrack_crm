@@ -3,6 +3,8 @@
 
 namespace Phoenix\Page;
 
+use Phoenix\Utility\HTMLTags;
+
 /**
  * @author James Jones
  *
@@ -78,7 +80,7 @@ class WorkerHomePage extends Page
                         <h2>Actions</h2>
                     </div>
                     <div class="grey-bg p-3 clearfix">
-                        <?php echo $this->actions ?? 'No actions available.'; ?>
+                        <?php echo $this->actions ?? HTMLTags::getAlertHTML( 'No actions available.', 'warning', false ); ?>
                     </div>
                 </div>
                 <div class="col-md-5">

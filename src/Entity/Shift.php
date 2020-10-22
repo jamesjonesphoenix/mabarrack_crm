@@ -108,11 +108,6 @@ class Shift extends Entity
     ];
 
     /**
-     * @var string
-     */
-    private string $cutOffTime = '17:00'; //5pm
-
-    /**
      * @var int
      */
     private int $shiftLength;
@@ -235,15 +230,27 @@ class Shift extends Entity
         }
 
         $currentTime = DateTimeUtility::roundTime(); //get current time
-        $cutOffTime = $this->cutOffTime;
+        $cutOffTime = (new SettingFactory( $this->db, $this->messages ))->getSetting( 'cutoff_time' );
 
+        if ( DateTimeUtility::isBefore( $this->date, date( 'Y-m-d' ), false ) ) {
+            return $this->addError( "Can't finish shift " . $this->getIDBadge() . ' because it did not start today. It must be manually edited by an admin.' );
+        }
 
-        if ( DateTimeUtility::isBefore( $cutOffTime, $this->timeStarted, false ) ) { //If shift started after cutoff time set it's finish time equal to start time so it has 0 minutes length. Otherwise we have shifts starting after cutoff and finishing at cutoff making for negative shift length.
+        if ( DateTimeUtility::isBefore( $cutOffTime, $this->timeStarted, false ) ) {
+            // If shift started after cutoff time set it's finish time equal to start time so it has 0 minutes length.
+            // Otherwise we have shifts starting after cutoff and finishing at cutoff making for negative shift length.
             $this->timeFinished = $this->timeStarted;
-        } elseif ( DateTimeUtility::isBefore( $currentTime, $cutOffTime, false ) ) { //Finished before cut off time
+            $this->addError(
+                'Shift ' . $this->getIDBadge() . ' started after cutoff time ' . HTMLTags::getBadgeHTML( $cutOffTime )
+                . ' so finish time was set to the same as the start time. An admin should probably edit this shift.'
+            );
+        } elseif ( DateTimeUtility::isBefore( $currentTime, $cutOffTime, false ) ) { // Finished before cut off time, therefore legit
             $this->timeFinished = $currentTime;
         } else { //Finished after cut off time
             $this->timeFinished = $cutOffTime;
+            $this->messages->add(
+                'Shift ' . $this->getIDBadge() . ' finish time was set to the cutoff time ' . HTMLTags::getBadgeHTML( $cutOffTime ) . '.', 'warning'
+            );
         }
         return $this->save();
     }
@@ -415,7 +422,7 @@ class Shift extends Entity
         }
         if ( !empty( $timeFinished ) ) {
 
-            if ( DateTimeUtility::isAfter($timeStarted, $timeFinished, false ) ) {
+            if ( DateTimeUtility::isAfter( $timeStarted, $timeFinished, false ) ) {
                 $errors[] = $shiftName . ' <strong>finish time</strong> cannot be earlier than the <strong>start time</strong>.';
             }
             if ( $timeStarted === $timeFinished ) {

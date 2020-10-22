@@ -459,7 +459,7 @@ class PDOWrap
     {
         if ( empty( $this->tables ) ) {
             $statement = $this->run( 'SHOW TABLES' );
-            $this->tables = $statement->fetchAll( PDO::FETCH_COLUMN, 'Tables_in_' . DB_NAME );
+            $this->tables = $statement->fetchAll( PDO::FETCH_COLUMN, 'Tables_in_' . $this->params['name'] );
         }
         if ( in_array( $table, $this->tables, true ) ) {
             return true;
@@ -484,4 +484,27 @@ class PDOWrap
     }
 
 
+    public function backup(): bool
+    {
+        $params = $this->params;
+        $filename = __DIR__ . '/../backups/' . date( 'Y-m-d-H_i_s' ) . '-' . $params['name'] . '-database_backup.sql.gz';
+        $returnVar = null;
+        $output = null;
+        exec( '(mysqldump --single-transaction -u '
+            . $params['user'] . ' -p'
+            . $params['password'] . ' -h '
+            . $params['host'] . ' -P '
+            . $params['port'] . ' '
+            . $params['name'] . ' | gzip > ' . $filename . ') 2>&1',
+            $output,
+            $returnVar
+        );
+        if ( !empty( $returnVar ) ) {
+            $this->messages->add( 'Error when attempting mysqldump - ' . $returnVar . '. See output - ' . implode( ',', $output ) );
+            return false;
+        }
+        $this->messages->add( 'Database backed up to ' . $filename . '.', 'success' );
+        return true;
+
+    }
 }
