@@ -199,11 +199,12 @@ class Init
      */
     private function startUpCron(): self
     {
+        $subject = trim( str_replace( 'CRM', '', $this->config['system_title'] ) ) . ' CRM';
         $this->messages
             ->doingCRON()
             ->setEmailArgs( [
-                'prepend' => $this->config['system_title'] . ' CRM - CRON backup database - ',
-                'subject' => $this->config['system_title'] . ' CRM - CRON backup database',
+                'prepend' => $subject . ' - ',
+                'subject' => $subject,
                 'to' => $this->config['email']['to'],
                 'from' => $this->config['email']['from'],
                 'from_name' => $this->config['system_title']

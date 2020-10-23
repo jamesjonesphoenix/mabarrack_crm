@@ -115,7 +115,7 @@ class Messages extends Base
 
         if ( $this->doingCRON ) {
             trigger_error( strip_tags( $this->emailArgs['prepend'] . $messageText ) );
-            echo strip_tags($messageText . "\r\n");
+            echo strip_tags( $messageText . "\r\n" );
         }
 
         $message = ['string' => $messageText, 'type' => $messageType];
@@ -219,11 +219,9 @@ class Messages extends Base
      */
     public function setEmailArgs(array $emailArgs = []): self
     {
-        $this->emailArgs['prepend'] = $emailArgs['prepend'] ?? '';
-        $this->emailArgs['subject'] = $emailArgs['subject'] ?? 'CRON log';
-        $this->emailArgs['to'] = $emailArgs['to'] ?? '';
-        $this->emailArgs['from'] = $emailArgs['from'] ?? '';
-        $this->emailArgs['from_name'] = $emailArgs['from_name'] ?? '';
+        foreach ( $emailArgs as $key => $emailArg ) {
+            $this->emailArgs[$key] = $emailArg;
+        }
         return $this;
     }
 
@@ -245,17 +243,24 @@ class Messages extends Base
                 $emailContent .= $emailArgs['prepend'] . $message['string'] . '<br>';
             }
         }
-
-        $headers = 'From: ' . $emailArgs['from_name'] . ' CRM <' . $emailArgs['from'] . '>' . "\r\n";
-        $headers .= 'Mime-Version: 1.0' . "\r\n";
-        $headers .= 'Content-type: text/html; charset=UTF-8' . "\r\n";
-        if ( mail( $emailArgs['to'], $emailArgs['subject'], '<h1>Results</h1>' . $emailContent, $headers ) ) {
-            return true;
+        /*
+                $headers = 'From: ' . $emailArgs['from_name'] . ' CRM <' . $emailArgs['from'] . '>' . "\r\n";
+                $headers .= 'Mime-Version: 1.0' . "\r\n";
+                $headers .= 'Content-type: text/html; charset=UTF-8' . "\r\n";
+        */
+        $headers = 'From: ' . $emailArgs['from_name'] . ' CRM <' . $emailArgs['from'] . '>' . "\r\n"
+            . 'Mime-Version: 1.0' . "\r\n"
+            . 'Content-type: text/html; charset=UTF-8' . "\r\n";
+        if ( is_string( $emailArgs['to'] ) ) {
+            $emailArgs['to'] = [$emailArgs['to']];
+        }
+        foreach ( $emailArgs['to'] as $to ) {
+            if ( !mail( $to, $emailArgs['subject'], '<h1>Results</h1>' . $emailContent, $headers ) ) {
+                $this->add( 'Failed to email messages.' );
+                return false;
+            }
         }
 
-        //function mail ($to, $subject, $message, $additional_headers = null, $additional_parameters = null) {}
-
-        $this->add( 'Failed to email messages.' );
-        return false;
+        return true;
     }
 }
