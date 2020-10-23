@@ -105,32 +105,31 @@ class Page extends Base
      */
     public function renderHeader(): string
     {
+        $user = CurrentUser::instance();
+        $username = $user->role === 'admin' ? '<a class="text-white" href="' . $user->getLink() . '">' . $user->name . '</a>' : $user->name;
+
         ob_start();
         ?>
-        <div class="row px-3 pt-3">
-            <div class="col-md-9 col-sm-8 col-xs-11 logo_title">
+        <div class="row align-items-center p-3">
+            <div class="col-auto logo_title">
                 <a href="index.php">
                     <img alt="logo" src="img/logo.png"/>
                     <h1 class='crm-title mb-0 text-decoration-none text-white'><?php echo $this->systemTitle; ?></h1>
                 </a>
             </div>
-            <div class="col-md-3 col-sm-4 col-xs-1 d-print-none mb-3">
-                <div class="d-flex flex-row justify-content-end mb-2">
+            <div class="col d-print-none">
+                <div class="d-flex flex-row justify-content-end align-items-center">
+                    <div>
+                        <span>Welcome <strong><?php echo $username; ?></strong></span>
+                    </div>
+                    <div class="ml-3">
+                        <a href='index.php' class="btn btn-secondary">Home Page</a>
+                    </div>
                     <div class="ml-2">
                         <a href='login.php?logout=true' class="btn btn-danger">Log Out</a>
                     </div>
-                    <?php /* if ( CurrentUser::instance()->role === 'admin' ) { ?>
-                        <div class="ml-2">
-                            <a href="index.php?page=archive&entity=settings" id="settings-button" class="btn btn-info"><img alt="settings cog" src="img/admin/settings.svg"></a>
-                        </div>
-                    <?php } */ ?>
-                    <div class="ml-2">
-                        <a href='index.php' class="btn btn-secondary">Home Page</a>
-                    </div>
                 </div>
-                <div class="d-flex flex-row justify-content-end">
-                    <span>Welcome <strong><?php echo CurrentUser::instance()->name; ?></strong></span>
-                </div>
+
             </div>
         </div>
         <?php

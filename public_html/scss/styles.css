@@ -13340,6 +13340,8 @@ textarea.form-control.shift-comment {
     .header .navbar-brand.h2.py-0 {
       color: #000000 !important; }
 
+  header div.row {
+    padding-bottom: 0 !important; }
   header img {
     height: 40px; }
   header .logo_title > a {

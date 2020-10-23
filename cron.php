@@ -29,4 +29,6 @@ if ( !empty( $subject ) ) {
     ] );
 }
 $messages->add( 'Finished' );
-$messages->email();
+if ( $messages->email() ) {
+    $messages->add( 'Emailed Results' );
+}

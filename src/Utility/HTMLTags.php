@@ -206,10 +206,12 @@ class HTMLTags
         $attributes['name'] = self::makeElementProperty( $args['name'] ?? '', 'name' );
 
         $args['class'] = !empty( $args['class'] ) && is_array( $args['class'] ) ? implode( ' ', $args['class'] ) : ($args['class'] ?? '');
+        if ( !empty( $args['not-toggleable'] ) ) {
+            $args['class'] .= ' not-toggleable';
+        }
         $attributes['class'] = self::makeElementProperty( $args['class'], 'class' );
 
         $attributes['href'] = self::makeElementProperty( $args['href'] ?? '', 'href' );
-        //!empty( $args['href'] ) ? ' href="' . $args['href'] . '"' : '';
 
         $attributes['placeholder'] = self::makeElementProperty(
             $args['placeholder'] ?? '',

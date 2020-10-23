@@ -262,7 +262,7 @@ function entityPageFunctions() {
      * @returns {*|jQuery.fn.init|jQuery|HTMLElement}
      */
     function getFormControls() {
-        return $j('form.detail-form .form-control:not(#inputFakeID,#inputID,' + passwordField1ID + ',' + passwordField2ID + '), input#add-furniture-button, a.remove-furniture');
+        return $j('form.detail-form .form-control:not(#inputFakeID,#inputID,' + passwordField1ID + ',' + passwordField2ID + ',.not-toggleable), input#add-furniture-button, a.remove-furniture');
     }
 
     /**

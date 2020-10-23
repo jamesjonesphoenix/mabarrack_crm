@@ -599,7 +599,7 @@ abstract class Entity extends AbstractCRM
     public function save()
     {
         $data = $this->getSaveData();
-        $errorString = '<h5 class="alert-heading">Can\'t save ' . $this->entityName . ' because of the following problems.</h5>';
+        $errorString = '<h5 class="alert-heading">Can\'t save ' . $this->entityName . ' because of the following problems:</h5>';
 
         $errors = $this->checkRequiredColumns( $data );
         if ( !empty( $errors ) ) {

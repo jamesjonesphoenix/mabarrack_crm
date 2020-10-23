@@ -23,6 +23,10 @@ class ArchiveTableSettings extends ArchiveTable
             'title' => 'Name',
             'default' => '&minus;'
         ],
+        'description' => [
+            'title' => 'Description',
+            'default' => '&minus;'
+        ],
         'value' => [
             'title' => 'Value',
             'default' => '&minus;'
@@ -37,6 +41,7 @@ class ArchiveTableSettings extends ArchiveTable
     {
         return [
             'name' => $setting->name,
+            'description' => $setting->description,
             'value' => $setting->value,
         ];
     }

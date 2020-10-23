@@ -4,13 +4,16 @@
 namespace Phoenix\Entity;
 
 
+use Phoenix\Utility\HTMLTags;
+
 /**
- * @property string $name
+ * @author James Jones
  * @property string $value
+ * @property string $description
  *
  * Class Setting
  *
- * @author James Jones
+ * @property string $name
  * @package Phoenix\Entity
  *
  */
@@ -43,10 +46,40 @@ class Setting extends Entity
             'type' => 'string',
             'required' => true
         ],
+        'description' => [
+            'type' => 'string',
+        ],
         'value' => [
             'type' => 'string',
         ]
     ];
+
+    /**
+     * @var string
+     */
+    protected string $_description;
+
+    /**
+     * Check that only value has been changed. We disallow any other properties being changed.
+     *
+     * @return bool|int|mixed
+     * @throws \Exception
+     */
+    public function save()
+    {
+        foreach ( $this->changed as $property => $changed ) {
+            if ( $property !== 'value' ) {
+                $errors[] = "Can't edit <strong>" . $property . "</strong>, only setting's <strong>value</strong> can be edited.";
+            }
+        }
+        if ( !empty( $errors ) ) {
+            return $this->addError(
+                '<h5 class="alert-heading">Can\'t save setting because of the following problems:</h5>'
+                . HTMLTags::getListGroup( $errors )
+            );
+        }
+        return parent::save();
+    }
 
     /**
      * @param string $name
@@ -72,7 +105,17 @@ class Setting extends Entity
         return $this->_value ?? '';
     }
 
-
+    /**
+     * @param string $description
+     * @return string
+     */
+    protected function description(string $description = ''): string
+    {
+        if ( !empty( $description ) ) {
+            $this->_description = $description;
+        }
+        return $this->_description ?? '';
+    }
 
     /**
      * @return bool

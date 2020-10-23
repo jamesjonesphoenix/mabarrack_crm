@@ -102,9 +102,7 @@ class FormFields extends HTMLTags
             $args['label'] ?? '',
             $args['id']
         );
-        ?>
-        <input autocomplete="off" type="text"<?php echo self::getAttributes( $args ); ?>>
-        <?php
+        ?><input autocomplete="off" type="text"<?php echo self::getAttributes( $args ); ?>><?php
         if ( !empty( $args['small'] ) ) {
             ?><small><?php echo $args['small']; ?></small><?php
         }
@@ -248,6 +246,7 @@ class FormFields extends HTMLTags
     {
         $args = self::mergeDefaultArgs( $args, $type );
         $args['class'] .= ' form-control';
+
         ob_start();
         echo self::getFieldLabelHTML(
             $args['label'] ?? '',

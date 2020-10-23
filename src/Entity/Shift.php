@@ -232,10 +232,6 @@ class Shift extends Entity
         $currentTime = DateTimeUtility::roundTime(); //get current time
         $cutOffTime = (new SettingFactory( $this->db, $this->messages ))->getSetting( 'cutoff_time' );
 
-        if ( DateTimeUtility::isBefore( $this->date, date( 'Y-m-d' ), false ) ) {
-            return $this->addError( "Can't finish shift " . $this->getIDBadge() . ' because it did not start today. It must be manually edited by an admin.' );
-        }
-
         if ( DateTimeUtility::isBefore( $cutOffTime, $this->timeStarted, false ) ) {
             // If shift started after cutoff time set it's finish time equal to start time so it has 0 minutes length.
             // Otherwise we have shifts starting after cutoff and finishing at cutoff making for negative shift length.
@@ -244,7 +240,7 @@ class Shift extends Entity
                 'Shift ' . $this->getIDBadge() . ' started after cutoff time ' . HTMLTags::getBadgeHTML( $cutOffTime )
                 . ' so finish time was set to the same as the start time. An admin should probably edit this shift.'
             );
-        } elseif ( DateTimeUtility::isBefore( $currentTime, $cutOffTime, false ) ) { // Finished before cut off time, therefore legit
+        } elseif ( empty( $cutOffTime ) || DateTimeUtility::isBefore( $currentTime, $cutOffTime, false ) ) { // Finished before cut off time, therefore legit
             $this->timeFinished = $currentTime;
         } else { //Finished after cut off time
             $this->timeFinished = $cutOffTime;

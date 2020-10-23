@@ -243,11 +243,6 @@ class Messages extends Base
                 $emailContent .= $emailArgs['prepend'] . $message['string'] . '<br>';
             }
         }
-        /*
-                $headers = 'From: ' . $emailArgs['from_name'] . ' CRM <' . $emailArgs['from'] . '>' . "\r\n";
-                $headers .= 'Mime-Version: 1.0' . "\r\n";
-                $headers .= 'Content-type: text/html; charset=UTF-8' . "\r\n";
-        */
         $headers = 'From: ' . $emailArgs['from_name'] . ' CRM <' . $emailArgs['from'] . '>' . "\r\n"
             . 'Mime-Version: 1.0' . "\r\n"
             . 'Content-type: text/html; charset=UTF-8' . "\r\n";
