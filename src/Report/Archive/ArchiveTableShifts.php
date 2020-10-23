@@ -85,7 +85,7 @@ class ArchiveTableShifts extends ArchiveTable
     /**
      * @var array
      */
-    private array $dateObjects = [];
+    private array $weekEndings = [];
 
 
     /**
@@ -95,9 +95,11 @@ class ArchiveTableShifts extends ArchiveTable
      */
     public function extractEntityData($shift): array
     {
-        if ( empty( $this->dateObjects[$shift->date] ) ) {
-            $this->dateObjects[$shift->date] = new DateTime( $shift->date ); //Create a new DateTime object
-            $this->dateObjects[$shift->date]->modify( 'next thursday' ); //Modify the date it contains
+        $date = $shift->date;
+        if ( empty( $this->weekEndings[$date] ) ) {
+            $this->weekEndings[$date] = (new DateTime( $date ))
+                ->modify( 'next thursday' )
+                ->format( 'd-m-Y' );
         }
 
         $minutes = $shift->getShiftLength();
@@ -123,8 +125,8 @@ class ArchiveTableShifts extends ArchiveTable
                 'href' => $shift->furniture->getLink(),
                 'class' => 'text-white'
             ] ),
-            'date' => $shift->date,
-            'week_ending' => $this->dateObjects[$shift->date]->format( 'd-m-Y' ),
+            'date' => $date,
+            'week_ending' => $this->weekEndings[$date],
             'time_started' => $shift->timeStarted,
             'time_finished' => $shift->timeFinished,
             'minutes' => $minutes,

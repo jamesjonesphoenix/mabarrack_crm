@@ -39,13 +39,15 @@ class SettingEntityForm extends DetailPageEntityForm
             'value' => $this->entity->description,
             'label' => 'Description',
             'disabled' => $this->isDisabled(),
+            'class' => 'setting-textarea',
             'not-toggleable' => true
         ] );
-        $this->fields['value'] = $this->htmlUtility::getTextFieldHTML( [
+        $this->fields['value'] = $this->htmlUtility::getTextAreaFieldHTML( [
             'name' => 'value',
             'value' => $this->entity->value,
             'label' => 'Value',
             'disabled' => $this->isDisabled(),
+            'class' => 'setting-textarea'
         ] );
         return $this;
     }
@@ -59,16 +61,16 @@ class SettingEntityForm extends DetailPageEntityForm
         ?>
         <div class="form-row">
             <div class="form-group col-md-4">
-                <?php echo $this->getIdFieldHTML(); ?>
-            </div>
-            <div class="form-group col-md-4">
+                <div class="mb-3">
+                    <?php echo $this->getIdFieldHTML(); ?>
+                </div>
                 <?php echo $this->fields['name']; ?>
             </div>
             <div class="form-group col-md-4">
-                <?php echo $this->fields['value']; ?>
-            </div>
-            <div class="form-group col">
                 <?php echo $this->fields['description']; ?>
+            </div>
+            <div class="form-group col-md-4">
+                <?php echo $this->fields['value']; ?>
             </div>
         </div>
         <?php

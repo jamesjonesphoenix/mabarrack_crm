@@ -35,4 +35,16 @@ class SettingFactory extends EntityFactory
         }
         return '';
     }
+
+    /**
+     * @return string
+     */
+    public function getCutoffTime(): string
+    {
+        $cutoffTime = $this->getSetting( 'cutoff_time' );
+        if ( !empty( $cutoffTime ) ) {
+            return date( 'H:i', strtotime( $cutoffTime ) );
+        }
+        return '';
+    }
 }

@@ -620,7 +620,6 @@ abstract class Entity extends AbstractCRM
         if ( !empty( $errors ) ) {
             return $this->addError( $errorString . HTMLTags::getListGroup( $errors ) );
         }
-
         if ( $this->exists ) {
             return $this->updateDBRow( $data );
         }

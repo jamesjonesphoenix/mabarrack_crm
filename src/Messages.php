@@ -179,7 +179,7 @@ class Messages extends Base
          */
         $messages = $this->messages;
         end( $messages );
-        $messagesDisplayLimit = 3;
+        $messagesDisplayLimit = 5;
         ob_start();
         $i = 0;
         foreach ( $messages as $key => $message ) {

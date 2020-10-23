@@ -2,6 +2,8 @@
 
 namespace Phoenix\Page;
 
+use DateTime;
+use Phoenix\Entity\Shift;
 use Phoenix\Utility\DateTimeUtility;
 use Phoenix\Entity\SettingFactory;
 use Phoenix\Entity\ShiftFactory;
@@ -128,10 +130,7 @@ class WorkerHomePageBuilder extends WorkerPageBuilder
      */
     public function addWorkerShiftsTables(): self
     {
-        // d($this->entities);
-
         $shiftsCurrent = $this->user->shifts->getUnfinishedShifts();
-
         $dummyShift = (new ShiftFactory( $this->db, $this->messages ))->getNew();
 
         $currentShiftArchive = (new ArchiveTableShiftsWorkerHome(
@@ -184,64 +183,89 @@ class WorkerHomePageBuilder extends WorkerPageBuilder
      */
     public function addActionButtons(): self
     {
-        $class = 'btn btn-lg btn-block ';
         $user = $this->user;
         if ( !empty( $user->healthCheck() ) ) {
             $this->page->setActions( $this->HTMLUtility::getAlertHTML( 'No actions available due to error.', 'warning', false ) );
             return $this;
         }
-        $todayShifts = $user->shifts->getShiftsToday();
+        $todayShifts = $user->shifts->getShiftsToday()->getCount() > 0;
         $unfinishedShift = $user->shifts->getUnfinishedShifts()->getOne();
 
-        $cutOffTime = (new SettingFactory( $this->db, $this->messages ))->getSetting( 'cutoff_time' );
-        $currentTime = date( 'H:i' );
-        if ( DateTimeUtility::isBefore( $currentTime, $cutOffTime ) ) {
-            if ( $todayShifts->getCount() === 0 ) {
-                $startShiftText = 'Start Day';
-            } else {
-                $startShiftText = $unfinishedShift !== null ? 'Next Shift' : 'Start New Shift';
-            }
-            //$startShiftText = $todayShifts->getCount() === 0 ? 'Start Day' : 'Next Shift';
-            $actionButtons[] = [
-                'class' => $class . ' btn-success',
-                'element' => 'a',
-                'content' => $startShiftText,
-                'href' => 'worker.php?choose=job',
-                'disabled' => true
-            ];
+        $actionButtons = $this->getStartShiftButtons( $todayShifts, $unfinishedShift );
+        $actionButtons[] = $this->getFinishButton( $todayShifts, $unfinishedShift );
 
-            if ( ($unfinishedShift === null || $unfinishedShift->activity->id !== 0) && $todayShifts->getCount() > 0 ) {
-                $actionButtons[] = [
-                    'class' => $class . ' btn-primary',
-                    'element' => 'a',
-                    'content' => 'Start Lunch',
-                    'href' => $this->user->hadLunchToday() ? 'worker.php?additional_lunch=1' : 'worker.php?job=0&activity=0&next_shift=1',
-                ];
-            }
-        } else {
-            $this->messages->add( 'You cannot start a new shift as the current time ' . $this->HTMLUtility::getBadgeHTML( $currentTime ) . ' is later than the cutoff time ' . $this->HTMLUtility::getBadgeHTML( $cutOffTime ) . '.', 'warning' );
+        foreach ( $actionButtons as $button ) {
+            $button['class'] = ($button['class'] ?? '') . ' btn btn-lg btn-block ';
+            $button['element'] = 'a';
+            $html[] = $this->HTMLUtility::getButton( $button );
         }
-
-
-
-        if ( $unfinishedShift !== null && $todayShifts->getCount() > 0  /*$user->hadLunchToday()*/ ) {
-            $content = $unfinishedShift->activity->id === 0 ? 'Finish Lunch' : 'Clock Off';
-            $actionButtons[] = [
-                'class' => $class . ' btn-danger',
-                'element' => 'a',
-                'content' => $content,
-                'href' => 'worker.php?finish_day=1',
-
-            ];
-        }
-
-        $actions = '';
-        foreach ( $actionButtons ?? [] as $button ) {
-            $actions .= $this->HTMLUtility::getButton( $button );
-        }
-        $this->page->setActions( $actions );
+        $this->page->setActions( implode( '', $html ?? [] ) );
         return $this;
     }
 
 
+    /**
+     * @param bool       $todayShifts
+     * @param Shift|null $unfinishedShift
+     * @return array
+     * @throws \Exception
+     */
+    private function getStartShiftButtons(bool $todayShifts, Shift $unfinishedShift = null): array
+    {
+        $cutoffTime = (new SettingFactory( $this->db, $this->messages ))->getCutoffTime();
+        
+        $minutes = 5;
+        $fuzzyCutOffTime = (new DateTime( $cutoffTime ))->modify( '-' . $minutes . ' minutes' )->format( 'H:i' );
+
+        $currentTime = date( 'H:i' );
+
+        if ( DateTimeUtility::isAfter( $currentTime, $fuzzyCutOffTime ) ) {
+            $shimText = DateTimeUtility::isAfter( $currentTime, $cutoffTime ) ? 'is later than' : 'is less than ' . $minutes . ' minutes from';
+            $this->messages->add( "You can't start any more shifts today as the current time "
+                . $this->HTMLUtility::getBadgeHTML( $currentTime )
+                . ' ' . $shimText . ' the cutoff time'
+                . $this->HTMLUtility::getBadgeHTML( $cutoffTime ) . '.',
+                'info' );
+            return [];
+        }
+        if ( !$todayShifts ) {
+            $startShiftText = 'Start Day';
+        } else {
+            $startShiftText = $unfinishedShift !== null ? 'Next Shift' : 'Start New Shift';
+        }
+        $actionButtons[] = [
+            'class' => 'btn-success',
+            'content' => $startShiftText,
+            'href' => 'worker.php?choose=job',
+            'disabled' => true
+        ];
+
+        if ( ($unfinishedShift === null || $unfinishedShift->activity->id !== 0) && $todayShifts ) {
+            $actionButtons[] = [
+                'class' => 'btn-primary',
+                'content' => 'Start Lunch',
+                'href' => $this->user->hadLunchToday() ? 'worker.php?additional_lunch=1' : 'worker.php?job=0&activity=0&next_shift=1',
+            ];
+        }
+
+        return $actionButtons ?? [];
+    }
+
+    /**
+     * @param bool       $todayShifts
+     * @param Shift|null $unfinishedShift
+     * @return array|string[]
+     */
+    private function getFinishButton(bool $todayShifts, Shift $unfinishedShift = null): array
+    {
+        if ( !$todayShifts || $unfinishedShift === null ) {  /*$user->hadLunchToday()*/
+            return [];
+        }
+        return [
+            'class' => 'btn-danger',
+            'content' => $unfinishedShift->activity->id === 0 ? 'Finish Lunch' : 'Clock Off',
+            'href' => 'worker.php?finish_day=1',
+        ];
+
+    }
 }

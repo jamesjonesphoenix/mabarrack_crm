@@ -3,6 +3,7 @@
 
 namespace Phoenix\Entity;
 
+use DateTime;
 use Phoenix\Utility\DateTimeUtility;
 use Phoenix\Utility\HTMLTags;
 
@@ -230,23 +231,32 @@ class Shift extends Entity
         }
 
         $currentTime = DateTimeUtility::roundTime(); //get current time
-        $cutOffTime = (new SettingFactory( $this->db, $this->messages ))->getSetting( 'cutoff_time' );
+        $cutoffTime = (new SettingFactory( $this->db, $this->messages ))->getCutoffTime();
 
-        if ( DateTimeUtility::isBefore( $cutOffTime, $this->timeStarted, false ) ) {
+        if ( DateTimeUtility::isAfter( $this->timeStarted, $cutoffTime, true ) ) {
             // If shift started after cutoff time set it's finish time equal to start time so it has 0 minutes length.
             // Otherwise we have shifts starting after cutoff and finishing at cutoff making for negative shift length.
-            $this->timeFinished = $this->timeStarted;
-            $this->addError(
-                'Shift ' . $this->getIDBadge() . ' started after cutoff time ' . HTMLTags::getBadgeHTML( $cutOffTime )
-                . ' so finish time was set to the same as the start time. An admin should probably edit this shift.'
+            $this->timeFinished = (new DateTime( $this->timeStarted ))->modify( '+1 minutes' )->format( 'H:i' );
+            $this->messages->add(
+                'Shift '
+                . $this->getIDBadge()
+                . ' started after cutoff time '
+                . HTMLTags::getBadgeHTML( $cutoffTime )
+                . ' so finish time was set to be 1 minute after the start time. An admin should probably edit this shift.',
+                'warning'
             );
-        } elseif ( empty( $cutOffTime ) || DateTimeUtility::isBefore( $currentTime, $cutOffTime, false ) ) { // Finished before cut off time, therefore legit
+        } elseif ( empty( $cutoffTime ) || DateTimeUtility::isBefore( $currentTime, $cutoffTime ) ) { // Finished before cut off time, therefore legit
             $this->timeFinished = $currentTime;
         } else { //Finished after cut off time
-            $this->timeFinished = $cutOffTime;
+            $this->timeFinished = $cutoffTime;
             $this->messages->add(
-                'Shift ' . $this->getIDBadge() . ' finish time was set to the cutoff time ' . HTMLTags::getBadgeHTML( $cutOffTime ) . '.', 'warning'
+                'Shift ' . $this->getIDBadge() . ' finish time was moved from '
+                . HTMLTags::getBadgeHTML( $currentTime )
+                . ' to the cutoff time '
+                . HTMLTags::getBadgeHTML( $cutoffTime ) . '.',
+                'info'
             );
+
         }
         return $this->save();
     }

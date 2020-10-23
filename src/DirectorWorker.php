@@ -2,13 +2,16 @@
 
 namespace Phoenix;
 
+use DateTime;
 use Phoenix\Entity\CurrentUser;
+use Phoenix\Entity\SettingFactory;
 use Phoenix\Page\AddCommentPageBuilder;
 use Phoenix\Page\WorkerChoose\ChoosePageBuilderActivity;
 use Phoenix\Page\WorkerChoose\ChoosePageBuilderFurniture;
 use Phoenix\Page\WorkerChoose\ChoosePageBuilderJob;
 use Phoenix\Page\WorkerHomePageBuilder;
 use Phoenix\Page\WorkerPageBuilder;
+use Phoenix\Utility\DateTimeUtility;
 use Phoenix\Utility\HTMLTags;
 
 /**
@@ -134,6 +137,17 @@ class DirectorWorker extends Director
                 $inputArray['comment'] ?? ''
             );
         }
+
+        $cutoffTime = (new SettingFactory( $this->db, $this->messages ))->getCutoffTime();
+        $currentTime = date( 'H:i' );
+        if ( DateTimeUtility::isAfter( $currentTime, $cutoffTime ) ) {
+            $unfinishedShift = $this->user->shifts->getUnfinishedShifts()->getOne();
+            if ( $unfinishedShift !== null ) {
+                $this->messages->add('Automatically clocking off shift due to cutoff time being reached.', 'primary');
+                $unfinishedShift->finishShift();
+            }
+        }
+
         return true;
     }
 

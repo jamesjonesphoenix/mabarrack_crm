@@ -115,7 +115,7 @@ class DateTimeUtility
         } else {
             $unixTime = round( $unixTime );
         }
-        return date( 'H:i:s', $unixTime * $precision );
+        return date( 'H:i', $unixTime * $precision );
     }
 
 }

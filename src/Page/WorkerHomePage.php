@@ -95,7 +95,7 @@ class WorkerHomePage extends Page
                     <div class="px-3">
                         <h2>News</h2>
                     </div>
-                    <div class="grey-bg p-3">
+                    <div class="grey-bg px-3 py-2">
                         <?php echo $this->news; ?>
                     </div>
                 </div>
