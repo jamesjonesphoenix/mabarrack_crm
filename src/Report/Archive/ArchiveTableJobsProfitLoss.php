@@ -127,7 +127,7 @@ class ArchiveTableJobsProfitLoss extends ArchiveTable
                 'class' => 'warning'
             ];
         }
-        $invalidReasons = empty( $invalidReasons ) ? 'Included' : $this->htmlUtility::getListGroup( $invalidReasons );
+        $includedString = empty( $invalidReasons ) ? 'Included' : $this->htmlUtility::getListGroup( $invalidReasons );
 
 
         $this->htmlUtility::getListGroup();
@@ -149,8 +149,8 @@ class ArchiveTableJobsProfitLoss extends ArchiveTable
             'employee_cost' => $job->shifts->getTotalWorkerCost(),
             'number_of_shifts' => $job->shifts->getCount(),
             'proportion' => $job->getPeriodProportion(),
-            'weight' => $job->getWeight(),
-            'included' => $invalidReasons
+            'weight' => empty($invalidReasons) ? $job->getWeight() : 'N/A',
+            'included' => $includedString
         ];
     }
 }

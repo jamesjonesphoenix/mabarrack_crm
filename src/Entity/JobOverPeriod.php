@@ -42,7 +42,7 @@ class JobOverPeriod extends Job
     {
         $this->datePeriodStart = $datePeriodStart;
         $this->datePeriodFinish = $datePeriodFinish;
-      //  unset( $this->proportion );
+        //  unset( $this->proportion );
         return $this;
     }
 
@@ -71,9 +71,9 @@ class JobOverPeriod extends Job
      */
     public function setWeight(float $totalSales): float
     {
-        if(!empty($totalSales )) {
+        if ( !empty( $totalSales ) ) {
             return $this->weight = $this->salePrice * $this->getPeriodProportion() / $totalSales;
         }
-        return $this->weight ;
+        return $this->weight;
     }
 }
