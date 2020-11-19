@@ -38,12 +38,13 @@ class DirectorWorker extends Director
      *
      * @param PDOWrap|null     $db
      * @param Messages|null    $messages
+     * @param URL              $url
      * @param HTMLTags         $htmlUtility
      * @param CurrentUser|null $user
      */
-    public function __construct(PDOWrap $db, Messages $messages, HTMLTags $htmlUtility, CurrentUser $user = null)
+    public function __construct(PDOWrap $db, Messages $messages, URL $url, HTMLTags $htmlUtility, CurrentUser $user = null)
     {
-        parent::__construct( $db, $messages );
+        parent::__construct( $db, $messages, $url );
         $this->htmlUtility = $htmlUtility;
         if ( $user !== null ) {
             $this->user = $user;
@@ -58,21 +59,21 @@ class DirectorWorker extends Director
     {
         switch( $inputArray['choose'] ?? '' ) {
             case 'job':
-                return new ChoosePageBuilderJob( $this->db, $this->messages );
+                return new ChoosePageBuilderJob( $this->db, $this->messages, $this->url );
             case 'furniture':
-                return (new ChoosePageBuilderFurniture( $this->db, $this->messages ))
+                return (new ChoosePageBuilderFurniture( $this->db, $this->messages, $this->url ))
                     ->setJobID( $inputArray['job'] ?? null );
             case 'activity':
-                return (new ChoosePageBuilderActivity( $this->db, $this->messages ))
+                return (new ChoosePageBuilderActivity( $this->db, $this->messages, $this->url ))
                     ->setJob( $inputArray['job'] ?? null )
                     ->setFurnitureID( $inputArray['furniture'] ?? null );
         }
         if ( !empty( $inputArray['other_comment'] ) ) {
-            return (new AddCommentPageBuilder( $this->db, $this->messages ))
+            return (new AddCommentPageBuilder( $this->db, $this->messages, $this->url ))
                 ->setShiftID( $inputArray['shift'] ?? null );
         }
-        return (new WorkerHomePageBuilder( $this->db, $this->messages ))
-            ->setStartDate( $inputArray['start_date'] ?? '' );
+        return (new WorkerHomePageBuilder( $this->db, $this->messages, $this->url ))
+            ->setDateStart( $inputArray['date_start'] ?? '' );
     }
 
     /**
@@ -143,7 +144,7 @@ class DirectorWorker extends Director
         if ( DateTimeUtility::isAfter( $currentTime, $cutoffTime ) ) {
             $unfinishedShift = $this->user->shifts->getUnfinishedShifts()->getOne();
             if ( $unfinishedShift !== null ) {
-                $this->messages->add('Automatically clocking off shift due to cutoff time being reached.', 'primary');
+                $this->messages->add( 'Automatically clocking off shift due to cutoff time being reached.', 'primary' );
                 $unfinishedShift->finishShift();
             }
         }

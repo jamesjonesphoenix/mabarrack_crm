@@ -46,14 +46,6 @@ class ArchivePageBuilderShift extends ArchivePageBuilder
     }
 
     /**
-     * @return ArchiveTableShifts
-     */
-    protected function getNewArchiveTableReport(): ArchiveTableShifts
-    {
-        return new ArchiveTableShifts( $this->HTMLUtility, $this->format );
-    }
-
-    /**
      * @return string
      */
     protected function getTitlePrefix(): string

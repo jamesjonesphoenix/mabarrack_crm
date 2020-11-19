@@ -40,9 +40,10 @@ class ArchiveTableCustomers extends ArchiveTable
      */
     public function extractEntityData($customer): array
     {
+        // mailto:enquire@phoenixweb.com.au?subject=Enquiry from website
         return [
             'name' => $customer->name,
-            'email_address' => $customer->emailAddress,
+            'email_address' => $customer->getEmailLink(true),
             'number_of_jobs' => count( $customer->jobs ),
         ];
     }

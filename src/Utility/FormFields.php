@@ -21,13 +21,63 @@ class FormFields extends HTMLTags
     public static function getCheckboxesFieldHTML(array $args = []): string
     {
         $args = self::mergeDefaultArgs( $args, 'hidden' );
-        $args['class'] .= ' form-control';
-        ob_start(); ?>
-        <input autocomplete="off" type="hidden"<?php echo self::getAttributes( $args ); ?>>
-        <?php
+        ob_start(); ?><input autocomplete="off" type="hidden"<?php echo self::getAttributes( $args ); ?>><?php
         return ob_get_clean();
     }
 
+    /**
+     * @param string $item
+     * @return string
+     */
+    private function inputGroupText(string $item = ''): string
+    {
+        if ( strlen( strip_tags( $item ) ) === strlen( $item ) ) {
+            return '<span class="input-group-text">'
+                . $item
+                . '</span>';
+        }
+        return $item;
+    }
+
+    /**
+     * @param string $content
+     * @param string $prepend
+     * @param string $append
+     * @return string
+     */
+    public static function wrapInputGroup(string $content = '', string $prepend = '', string $append = ''): string
+    {
+        if ( empty( $prepend ) && empty( $append ) ) {
+            return $content;
+        }
+
+        ob_start(); ?>
+        <div class="input-group">
+            <?php if ( !empty( $prepend ) ) { ?>
+                <div class="input-group-prepend">
+                    <?php echo self::inputGroupText( $prepend ); ?>
+                </div>
+            <?php }
+            echo $content;
+            if ( !empty( $append ) ) { ?>
+                <div class="input-group-append">
+                    <?php echo self::inputGroupText( $append ) ?? ''; ?>
+                </div>
+            <?php } ?>
+        </div>
+        <?php return ob_get_clean();
+    }
+
+    /**
+     * @param array  $args
+     * @param string $type
+     * @return array
+     */
+    public static function mergeDefaultArgs(array $args = [], string $type = ''): array
+    {
+        $args['class'] = ($args['class'] ?? '') . ' form-control';
+        return parent::mergeDefaultArgs( $args, $type );
+    }
 
     /**
      * @param array $args
@@ -37,41 +87,27 @@ class FormFields extends HTMLTags
     {
         $args = self::mergeDefaultArgs( $args, 'options_dropdown' );
         $args['class'] .= ' custom-select';
-        $args['class'] .= ' form-control';
         $options = $args['options'] ?? [];
         if ( !empty( $args['placeholder'] ) && !array_key_exists( '', $options ) ) {
             $options = ['' => $args['placeholder']] + $options;
         }
-        $selectedValue = $args['selected'] ?? '';
-
-        ob_start();
-        echo self::getFieldLabelHTML(
+        ob_start(); ?>
+        <select autocomplete="off"<?php echo self::getAttributes( $args ); ?>>
+            <?php foreach ( $options as $optionValue => $optionString ) {
+                // $optionString = is_string( $optionArgs ) ? $optionArgs : $optionArgs['content'];
+                $selected = ($args['selected'] ?? '') === $optionValue ? self::makeElementProperty( 'selected', 'selected' ) : ''; ?>
+                <option<?php echo self::makeElementProperty( $optionValue, 'value' )
+                    . $selected; ?>><?php echo str_replace( '_', ' ', $optionString ) ?></option>
+                <?php } ?>
+        </select>
+        <?php return self::getFieldLabelHTML(
             $args['label'] ?? '',
             $args['id']
+        ) . self::wrapInputGroup(
+            ob_get_clean(),
+            $args['prepend'] ?? '',
+            $args['append'] ?? ''
         );
-        ?>
-        <div class="row no-gutters">
-            <div class="col">
-                <div class="input-group">
-                    <select autocomplete="off"<?php echo self::getAttributes( $args ); ?>>
-                        <?php foreach ( $options as $optionValue => $optionString ) {
-                            // $optionString = is_string( $optionArgs ) ? $optionArgs : $optionArgs['content'];
-
-                            $selected = $selectedValue === $optionValue ? self::makeElementProperty( 'selected', 'selected' ) : '';
-                            ?>
-                            <option<?php echo self::makeElementProperty( $optionValue, 'value' )
-                                . $selected; ?>><?php echo str_replace( '_', ' ', $optionString ) ?></option><?php
-                        } ?>
-                    </select>
-                    <?php if ( !empty( $args['append'] ) ) { ?>
-                        <div class="input-group-append">
-                            <?php echo $args['append'] ?? ''; ?>
-                        </div>
-                    <?php } ?>
-                </div>
-            </div>
-        </div>
-        <?php return ob_get_clean();
     }
 
     /**
@@ -81,7 +117,6 @@ class FormFields extends HTMLTags
     public static function getHiddenFieldHTML(array $args = []): string
     {
         $args = self::mergeDefaultArgs( $args, 'hidden' );
-        $args['class'] .= ' form-control';
         ob_start(); ?>
         <input autocomplete="off" type="hidden"<?php echo self::getAttributes( $args ); ?>>
         <?php return ob_get_clean();
@@ -94,7 +129,6 @@ class FormFields extends HTMLTags
     public static function getTextFieldHTML(array $args = []): string
     {
         $args = self::mergeDefaultArgs( $args, 'hidden' );
-        $args['class'] .= ' form-control';
         //$type = 'text';
         ob_start();
         //$type
@@ -172,43 +206,32 @@ class FormFields extends HTMLTags
     public static function getPasswordFieldHTML(array $args = []): string
     {
         $args = self::mergeDefaultArgs( $args, 'password' );
-        $args['class'] .= ' form-control';
 
         $suffix = '-2';
 
-        ob_start();
-        echo self::getFieldLabelHTML(
-            $args['label'] ?? '',
-            $args['id']
-        );
+        return self::getFieldLabelHTML(
+                $args['label'] ?? '',
+                $args['id']
+            ) . self::wrapInputGroup(
+                self::getTextFieldHTML( [
+                    'id' => $args['id'],
+                    'name' => $args['name'],
+                    'placeholder' => 'Enter Password',
+                    'disabled' => true
+                ] ) . self::getTextFieldHTML( [
+                    'id' => $args['id'] . $suffix,
+                    'name' => $args['name'] . $suffix,
+                    'placeholder' => 'Confirm Password',
+                    'disabled' => true
+                ] ),
 
-        ?>
-        <div class="input-group"><?php
-        if ( !empty( $args['change_password_toggle'] ) ) { ?>
-            <div class="input-group-prepend">
-                <?php echo self::getButton( [
+                self::getButton( [
                     'type' => 'button',
                     'id' => 'change-password-button',
                     'class' => 'btn btn-info',
                     'content' => 'Change Password'
-                ] ) ?>
-            </div>
-        <?php }
-        echo self::getTextFieldHTML( [
-            'id' => $args['id'],
-            'name' => $args['name'],
-            'placeholder' => 'Enter Password',
-            'disabled' => true
-        ] );
-        echo self::getTextFieldHTML( [
-            'id' => $args['id'] . $suffix,
-            'name' => $args['name'] . $suffix,
-            'placeholder' => 'Confirm Password',
-            'disabled' => true
-        ] );
-        ?></div><?php
-        return ob_get_clean();
-        //return self::getFormFieldHTML( 'password', $args );
+                ] )
+            );
     }
 
     /**
@@ -245,24 +268,10 @@ class FormFields extends HTMLTags
     private static function getFormFieldHTML(string $type = '', array $args = []): string
     {
         $args = self::mergeDefaultArgs( $args, $type );
-        $args['class'] .= ' form-control';
 
         ob_start();
-        echo self::getFieldLabelHTML(
-            $args['label'] ?? '',
-            $args['id']
-        );
-        if ( !empty( $args['append'] ) || !empty( $args['prepend'] ) ) {
-            $doInputGroup = true;
-        }
-        if ( !empty( $doInputGroup ) ) { ?>
-            <div class="input-group">
-        <?php }
-        if ( !empty( $args['prepend'] ) ) { ?>
-            <div class="input-group-prepend">
-                <span class="input-group-text"><?php echo $args['prepend']; ?></span>
-            </div>
-        <?php }
+
+
         switch( $type ) {
             case 'date':
             case 'email':
@@ -289,23 +298,16 @@ class FormFields extends HTMLTags
                 $args['value'] = number_format( $args['value'], 2, '.', '' ); ?>
                 <input type="number" autocomplete="off" step="0.01" min="0" aria-label="Amount"<?php echo self::getAttributes( $args ); ?>>
                 <?php break;
-            case 'file':
-                ?>
+            case 'file': ?>
                 <div class="custom-file">
                     <input type="file" class="custom-file-input" id="customFile">
                     <label class="custom-file-label" for="customFile">Choose file</label>
                 </div>
                 <?php break;
         }
-        if ( !empty( $args['append'] ) ) { ?>
-            <div class="input-group-append">
-                <?php echo $args['append']; ?>
-            </div>
-        <?php }
-        if ( !empty( $doInputGroup ) ) {
-            ?>
-            </div>
-        <?php }
-        return ob_get_clean();
+        return self::getFieldLabelHTML(
+                $args['label'] ?? '',
+                $args['id']
+            ) . self::wrapInputGroup( ob_get_clean(), $args['prepend'] ?? '', $args['append'] ?? '' );
     }
 }

@@ -95,6 +95,22 @@ class Customer extends Entity
     }
 
     /**
+     * @param bool $anchorLink
+     * @return string
+     */
+    public function getEmailLink(bool $anchorLink = false): string
+    {
+        if ( empty( $this->emailAddress ) ) {
+            return '';
+        }
+        $href = 'mailto:' . $this->emailAddress;
+        if ( $anchorLink ) {
+            return '<a href="' . $href . '" class="text-white">' . $this->emailAddress . '</a>';
+        }
+        return $href;
+    }
+
+    /**
      * @param Job[] $jobs
      * @return Job[]
      */

@@ -62,7 +62,7 @@ class WorkerHomePage extends Page
     public function setWorkerHoursTable(string $workerHoursTable = ''): self
     {
         if ( !empty( $workerHoursTable ) ) {
-            $this->workerHoursTable = $workerHoursTable;
+            $this->workerHoursTable = '<div class="py-2">' . $workerHoursTable . '</div>';
         }
         return $this;
     }
@@ -87,8 +87,8 @@ class WorkerHomePage extends Page
                     <div class="px-3">
                         <h2>Hours</h2>
                     </div>
-                    <div class="grey-bg p-3">
-                        <?php echo $this->workerHoursTable ?? 'No worker hours available.'; ?>
+                    <div class="grey-bg px-3 py-2">
+                        <?php echo $this->workerHoursTable ?? HTMLTags::getAlertHTML( 'No worker hours available.', 'danger', false ); ?>
                     </div>
                 </div>
                 <div class="col-md-3">

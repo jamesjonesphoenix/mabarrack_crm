@@ -5,7 +5,10 @@ namespace Phoenix\Page\DetailPage;
 use Phoenix\Entity\Entity;
 use Phoenix\Form\DetailPageForm\DetailPageEntityForm;
 use Phoenix\Form\GroupByEntityForm;
+use Phoenix\Messages;
 use Phoenix\Page\EntityPageBuilder;
+use Phoenix\PDOWrap;
+use Phoenix\URL;
 use function Phoenix\redirect;
 
 /**
@@ -23,11 +26,6 @@ abstract class DetailPageBuilder extends EntityPageBuilder
     protected Entity $entity;
 
     /**
-     * @var string
-     */
-    protected string $groupBy = '';
-
-    /**
      * @param int|null $entityID
      * @return $this
      */
@@ -41,8 +39,9 @@ abstract class DetailPageBuilder extends EntityPageBuilder
         //Existing entity
         $entity = $entityFactory->getEntity( $entityID );
         if ( $entity === null ) {
-            $this->messages->add( ucfirst( $entityFactory->getNew()->entityName )
-                . $this->HTMLUtility()::getBadgeHTML( 'ID: ' . $entityID, 'danger' )
+            $entity = $entityFactory->getNew();
+            $this->messages->add( ucfirst( $entity->entityName )
+                . $entity->getIDBadge( $entityID, 'danger' )
                 . " doesn't exist. Redirected to main page." );
             redirect( 'index' );
             exit;
@@ -59,10 +58,7 @@ abstract class DetailPageBuilder extends EntityPageBuilder
     public function setInputArgs(array $inputArgs = []): self
     {
         $this->setEntity( $inputArgs['id'] ?? null );
-        if ( !empty( $inputArgs['group_by'] ) ) {
-            $this->groupBy = $inputArgs['group_by'];
-        }
-        return $this;
+        return parent::setInputArgs( $inputArgs );
     }
 
     /**
@@ -111,8 +107,7 @@ abstract class DetailPageBuilder extends EntityPageBuilder
     public function buildPage(): self
     {
         $entity = $this->getEntity();
-        $this->page = $this
-            ->getNewPage()
+        $this->page = $this->getNewPage()
             ->setNavLinks(
                 ($this->getMenuItems())->getMenuItems()
             )
@@ -121,8 +116,16 @@ abstract class DetailPageBuilder extends EntityPageBuilder
             );
         if ( $entity->exists && !empty( $healthCheck = $entity->healthCheck() ) ) {
             $plural = count( $healthCheck ) > 1 ? 's' : '';
-            $entityBadge = !empty( $entity->name ) ? $this->HTMLUtility::getBadgeHTML( $entity->name ) : $entity->getIDBadge();
-            $this->addError( '<h5 class="alert-heading">Problem' . $plural . ' with ' . $entity->entityName . ' ' . $entityBadge . '</h5>' . $this->HTMLUtility::getListGroup( $healthCheck ) );
+            $entityBadge = !empty( $entity->name ) ? $this->HTMLUtility::getBadgeHTML( $entity->name, 'danger' ) : $entity->getIDBadge( null, 'danger' );
+            $this->addError(
+                '<h5 class="alert-heading">Problem'
+                . $plural
+                . ' with '
+                . $entity->entityName
+                . ' '
+                . $entityBadge
+                . '</h5>'
+                . $this->HTMLUtility::getListGroup( $healthCheck ) );
         }
         $this
             ->addForm()
@@ -166,11 +169,42 @@ abstract class DetailPageBuilder extends EntityPageBuilder
     public function getGroupByForm(): GroupByEntityForm
     {
         $entity = $this->getEntity();
-        return (new GroupByEntityForm( $this->HTMLUtility, $entity ))
+        return (new GroupByEntityForm( $this->HTMLUtility, $entity, $this->getURL() ))
             ->makeHiddenFields( [
                 'page' => 'detail',
                 'entity' => $entity->entityName,
                 'id' => $entity->id
             ] );
+    }
+
+    /**
+     * @param PDOWrap  $db
+     * @param Messages $messages
+     * @param URL      $url
+     * @param string   $entityType
+     * @return static|null
+     */
+    public static function create(PDOWrap $db, Messages $messages, URL $url, string $entityType = ''): ?self
+    {
+        switch( $entityType ) {
+            case 'customer':
+            case 'customers':
+                return new DetailPageBuilderCustomer( $db, $messages, $url );
+            case 'furniture':
+                return new DetailPageBuilderFurniture( $db, $messages, $url );
+            case 'job':
+            case 'jobs':
+                return new DetailPageBuilderJob( $db, $messages, $url );
+            case 'shift':
+            case 'shifts':
+                return new DetailPageBuilderShift( $db, $messages, $url );
+            case 'user':
+            case 'users':
+                return new DetailPageBuilderUser( $db, $messages, $url );
+            case 'setting':
+            case 'settings':
+                return new DetailPageBuilderSetting( $db, $messages, $url );
+        }
+        return null;
     }
 }

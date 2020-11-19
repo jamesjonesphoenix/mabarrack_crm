@@ -1,7 +1,7 @@
 <?php
 
 
-namespace Phoenix\Report\Worker;
+namespace Phoenix\Report\Shifts\Worker;
 
 use Phoenix\Utility\DateTimeUtility;
 
@@ -12,7 +12,7 @@ use Phoenix\Utility\DateTimeUtility;
  * @package Phoenix\Report
  *
  */
-class WorkerTimeClockRecord extends WorkerReport
+class WorkerWeekTimeClockRecord extends WorkerWeekReport
 {
     /**
      *
@@ -72,7 +72,9 @@ class WorkerTimeClockRecord extends WorkerReport
             return [];
         }
         $timeClockRecord = $this->getEmptyData();
-
+        if ( empty( $timeClockRecord ) ) {
+            return [];
+        }
         foreach ( $this->shifts->getAll() as $shift ) {
             $timeStartedSeconds = strtotime( $shift->timeStarted );
             $timeFinishedSeconds = strtotime( $shift->timeFinished );
@@ -87,13 +89,13 @@ class WorkerTimeClockRecord extends WorkerReport
                 $timeClockRecord[$date]['finish_time_seconds'] = $timeStartedSeconds;
             }
 
-            if ( $shift->activity === 0 || $shift->activity->name === 'Lunch' ) {
+            if ( $shift->activity->name === 'Lunch' ) {
                 $timeClockRecord[$date]['lunch_start'] = date( 'H:i', $timeStartedSeconds );
                 $timeClockRecord[$date]['lunch_finish'] = date( 'H:i', $timeFinishedSeconds );
                 $timeClockRecord[$date]['lunch_minutes'] += $shift->getShiftLength();
             } else {
                 $timeClockRecord[$date]['hours'] += $shift->getShiftLength();
-                $timeClockRecord[$date]['minutes'] += $timeClockRecord[$date]['hours'];
+                $timeClockRecord[$date]['minutes'] += $shift->getShiftLength();
             }
         }
 
@@ -118,8 +120,9 @@ class WorkerTimeClockRecord extends WorkerReport
      */
     public function getTotalHoursToday(): string
     {
-        $minutes = $this->timeToday ?? 0;
-        return $this->format::minutesToHoursMinutes( $minutes );
+        return $this->format::minutesToHoursMinutes(
+            $this->timeToday ?? 0
+        );
     }
 
     /**
@@ -127,8 +130,9 @@ class WorkerTimeClockRecord extends WorkerReport
      */
     public function getTotalHoursThisWeek(): string
     {
-        $minutes = $this->timeThisWeek ?? 0;
-        return $this->format::minutesToHoursMinutes( $minutes );
+        return $this->format::minutesToHoursMinutes(
+            $this->timeThisWeek ?? 0
+        );
     }
 
     /**
@@ -140,13 +144,17 @@ class WorkerTimeClockRecord extends WorkerReport
         //$dateo->format( 'd-m-Y' );
 
         //Reorder days so we have correct start day
-        $dayStart = date( 'l', strtotime( $this->getDateStart() ) );
+        $dateStart = $this->getDateStart();
+        if ( empty( $dateStart ) ) {
+            return [];
+        }
+        $dayStart = date( 'l', strtotime( $dateStart ) );
         $dayStartIndex = array_search( $dayStart, $dayList, true );
         for ( $i = 0; $i < $dayStartIndex; $i++ ) {
             $dayList[] = array_shift( $dayList );
         }
         foreach ( $dayList as $key => $day ) { //initialise array for each day
-            $date = date( 'Y-m-d', strtotime( $this->getDateStart() . '+ ' . $key . ' day' ) );
+            $date = date( 'Y-m-d', strtotime( $dateStart . '+ ' . $key . ' day' ) );
             $timeClockRecord[$date] = [
                 'id' => $key,
                 'day' => $day,

@@ -106,7 +106,7 @@ class Ajax extends AbstractCRM
 
                 if ( $this->entity === null || !$this->entity->exists ) {
                     return $this->addError( ucwords( $this->entity->entityName )
-                        . $this->htmlUtility::getBadgeHTML( 'ID: ' . $id, 'danger' )
+                        . $this->entity->getIDBadge($id,'danger')
                         . " doesn't exist in database." );
                 }
                 break;

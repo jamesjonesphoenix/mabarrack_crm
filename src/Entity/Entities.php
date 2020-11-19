@@ -20,7 +20,7 @@ class Entities
     protected array $entities;
 
     /**
-     * Shifts constructor.
+     * Entities constructor.
      *
      * @param Entity[] $entities
      */
@@ -53,10 +53,23 @@ class Entities
     }
 
     /**
-     * @param int $max
-     * @return Entity[]
+     * @param int $id
+     * @return $this
      */
-    public function getEntitiesWithErrors(int $max = 9999): array
+    public function removeOne(int $id): self
+    {
+        $entity = $this->getOne( $id );
+        if ( $entity !== null ) {
+            unset( $this->entities[$entity->id] );
+        }
+        return $this;
+    }
+
+    /**
+     * @param int $max
+     * @return $this
+     */
+    public function getEntitiesWithErrors(int $max = 9999): self
     {
         $i = 0;
         foreach ( $this->entities as $entity ) {
@@ -64,10 +77,32 @@ class Entities
                 $i++;
                 $errorEntities[$entity->id] = $entity;
                 if ( $i === $max ) {
-                    return $errorEntities;
+                    return new self( $errorEntities );
                 }
             }
         }
-        return $errorEntities ?? [];
+        return new self( $errorEntities ?? [] );
+    }
+
+    /**
+     * @return int
+     */
+    public function getCount(): int
+    {
+        return count( $this->entities );
+    }
+
+    /**
+     * @param Entity $entity
+     * @return array
+     */
+    public function addOrReplace(Entity $entity): array
+    {
+        $entities = $this->entities;
+        if ( empty( $entities[$entity->id] ) ) {
+            return [$entity->id => $entity] + $entities;
+        }
+        $entities[$entity->id] = $entity;
+        return $entities;
     }
 }

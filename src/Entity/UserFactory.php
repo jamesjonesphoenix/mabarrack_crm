@@ -5,7 +5,7 @@ namespace Phoenix\Entity;
 use Phoenix\Roles;
 
 /**
- * @method User|null getEntity(int $id = 0, $provision = false)
+ * @method User|null getEntity(int $id = 0, $provision = true)
  * @method User[] getEntities(array $queryArgs = [], $provision = false)
  * @method User provisionEntity(User $entity, $provision = false)
  * @method User[] addManyToOneEntityProperties(array $entities = [], EntityFactory $additionFactory = null, $provisionArgs = false, $joinPropertyName = '')

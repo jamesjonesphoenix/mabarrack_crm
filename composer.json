@@ -18,7 +18,8 @@
     "ext-ctype": "*",
     "donquixote/cellbrush" : "*",
     "fortawesome/font-awesome" : "*",
-    "mottie/tablesorter" : "*"
+    "mottie/tablesorter" : "*",
+    "ext-http": "*"
   },
   "autoload": {
     "psr-4": {

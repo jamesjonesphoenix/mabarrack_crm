@@ -3,7 +3,6 @@
 namespace Phoenix\Page\WorkerChoose;
 
 use Phoenix\Entity\JobFactory;
-use Phoenix\Report\ChooseJobTable;
 
 /**
  * Class ChoosePageBuilderJob
@@ -44,10 +43,7 @@ class ChoosePageBuilderJob extends ChoosePageBuilder
             }
         }
 
-        $chooseJobsTable = (new ChooseJobTable(
-            $this->HTMLUtility,
-            $this->format
-        ))
+        $chooseJobsTable = $this->getReportClient()->getFactory()->getChooseJobTable()
             ->setJobs( $recentJobs )
             ->setTitle( 'Most Recent Jobs' )
             ->setEmptyMessage( 'No recently worked jobs to choose from.' );

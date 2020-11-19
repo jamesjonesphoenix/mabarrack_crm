@@ -3,10 +3,8 @@
 namespace Phoenix\Page\WorkerChoose;
 
 use Phoenix\Entity\ActivityFactory;
-use Phoenix\Entity\FurnitureFactory;
 use Phoenix\Entity\Job;
 use Phoenix\Entity\JobFactory;
-use Phoenix\Report\ChooseActivityTable;
 
 /**
  * Class ChoosePageBuilderFurniture
@@ -21,6 +19,9 @@ class ChoosePageBuilderActivity extends ChoosePageBuilder
      */
     private ?int $furnitureID;
 
+    /**
+     * @var Job
+     */
     private Job $job;
 
     /**
@@ -57,7 +58,7 @@ class ChoosePageBuilderActivity extends ChoosePageBuilder
         if ( isset( $this->furnitureID ) ) {
             //$furniture = (new FurnitureFactory( $this->db, $this->messages ))->getEntity( $this->furnitureID );
             $furniture = $this->job->furniture[$this->furnitureID] ?? null;
-            $furnitureString = $this->HTMLUtility::getBadgeHTML($furniture->name ?? 'Unknown Furniture') . ' in ';
+            $furnitureString = $this->HTMLUtility::getBadgeHTML( $furniture->name ?? 'Unknown Furniture' ) . ' in ';
         }
         $this->page->setTitle( 'Choose Activity for ' . ($furnitureString ?? '') . $jobID );
         return $this;
@@ -85,6 +86,7 @@ class ChoosePageBuilderActivity extends ChoosePageBuilder
 
     /**
      * @return $this
+     * @throws \Exception
      */
     public function addChooseTables(): self
     {
@@ -116,17 +118,17 @@ class ChoosePageBuilderActivity extends ChoosePageBuilder
             }
             $sortedActivities[$activity->type][$activity->id] = $activity;
         }
+
         foreach ( $sortedActivities ?? [] as $activityType => $activities ) {
-            $this->page->addContent( (new chooseActivityTable(
-                $this->HTMLUtility,
-                $this->format
-            ))->setActivities(
-                $activities,
-                $activityURLs ?? [],
-                $activityType
-            )
-                ->setTitle( $activityType . ' Activities' )
-                ->render()
+            $this->page->addContent(
+                $this->getReportClient()->getFactory()->getChooseActivityTable()
+                    ->setActivities(
+                        $activities,
+                        $activityURLs ?? [],
+                        $activityType
+                    )
+                    ->setTitle( $activityType . ' Activities' )
+                    ->render()
             );
         }
 

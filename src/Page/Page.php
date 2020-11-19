@@ -106,7 +106,13 @@ class Page extends Base
     public function renderHeader(): string
     {
         $user = CurrentUser::instance();
-        $username = $user->role === 'admin' ? '<a class="text-white" href="' . $user->getLink() . '">' . $user->name . '</a>' : $user->name;
+        if ( $user->role === 'admin' ) {
+            $username = '<a class="text-white" href="' . $user->getLink() . '">' . $user->name . '</a>';
+            $home = 'Main Menu';
+        } else {
+            $username = $user->name;
+            $home = 'Dashboard';
+        }
 
         ob_start();
         ?>
@@ -123,7 +129,7 @@ class Page extends Base
                         <span>Welcome <strong><?php echo $username; ?></strong></span>
                     </div>
                     <div class="ml-3">
-                        <a href='index.php' class="btn btn-secondary">Home Page</a>
+                        <a href='index.php' class="btn btn-secondary"><?php echo $home; ?></a>
                     </div>
                     <div class="ml-2">
                         <a href='login.php?logout=true' class="btn btn-danger">Log Out</a>
@@ -278,6 +284,7 @@ class Page extends Base
         <?php }
         echo $this->renderNavbar()
             . $this->renderBody(); ?>
+        <a href="#" id="scroll-to-top" class="bg-primary" style="display: none;"><i class="fas fa-chevron-up fa-lg text-white"></i></a>
         </body>
         <?php echo $this->renderFooterJS(); ?>
         </html>

@@ -3,8 +3,7 @@
 
 namespace Phoenix\Report\Shifts;
 
-use Phoenix\Entity\Shifts;
-use Phoenix\Report\PeriodicReport;
+use Phoenix\Entity\Shift;
 
 /**
  * Class ActivitySummary
@@ -13,13 +12,8 @@ use Phoenix\Report\PeriodicReport;
  * @package Phoenix\Report
  *
  */
-class ActivitySummary extends PeriodicReport
+class ActivitySummary extends ShiftsReport
 {
-    /**
-     *
-     */
-    protected string $title = 'Activities Summary';
-
     /**
      * @var string
      */
@@ -29,18 +23,9 @@ class ActivitySummary extends PeriodicReport
      * @var array
      */
     protected array $rowArgs = [
-        /*
-        'subheader_total_time' => [
-            'subheader' => true,
-            'class' => 'text-center'
-        ],
-        */
         'total_time' => [
             'class' => 'bg-primary',
-            //'class' => 'bg-secondary',
-             'subheader' => true
         ]
-
     ];
 
     /**
@@ -49,13 +34,6 @@ class ActivitySummary extends PeriodicReport
     protected array $columns = [
         'activity_id' => 'Activity ID',
         'activity' => 'Activity',
-
-        /*
-        'type' => [
-            'title' => 'Type',
-        ],
-        */
-
         'activity_hours' => [
             'title' => 'Activity Hours',
             'format' => 'hoursminutes'
@@ -72,7 +50,6 @@ class ActivitySummary extends PeriodicReport
             'title' => '% of Total Employee Cost',
             'format' => 'percentage'
         ],
-
     ];
 
     /**
@@ -81,18 +58,111 @@ class ActivitySummary extends PeriodicReport
     protected bool $printButton = true;
 
     /**
-     * @var Shifts
+     * @var string
      */
-    protected Shifts $shifts;
+    private string $sortBy = 'type';
 
     /**
-     * @param Shifts $shifts
+     * @var array
+     */
+    private array $sortableBy = [
+        'type' => 'Activities by Type',
+        'billable' => 'Value Adding vs. Non-Chargeable',
+        'factory' => 'Separated by Factory'
+    ];
+
+    /**
+     * @param $sortable
      * @return $this
      */
-    public function setShifts(Shifts $shifts): self
+    public function removeSortableOption(string $sortable = ''): self
     {
-        $this->shifts = $shifts;
+        if ( array_key_exists( $sortable, $this->sortableBy ) ) {
+            unset( $this->sortableBy[$sortable] );
+        }
         return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getTitle(): string
+    {
+        //Activities Summary
+
+        if ( empty( $this->title ) ) {
+            return $this->sortableBy[$this->sortBy] . '</small>';
+        }
+        return $this->title;
+    }
+
+    /**
+     * @return array
+     */
+    public function getNavLinks(): array
+    {
+        $url = $this->getURL()->setHash( $this->getID() );
+        foreach ( array_keys( $this->sortableBy ) as $sortType ) {
+            if ( $this->sortBy !== $sortType ) {
+                $links['sort_by_' . $sortType] = [
+                    'url' => (clone $url)->setQueryArg( 'sort_activities_by', $sortType )->write(),
+                    'text' => 'Sort by ' . ucwords( $sortType ),
+                    'class' => 'bg-primary',
+                ];
+            }
+        }
+        if ( $this->allowGroupBy ) {
+            $links['group_by'] = [
+                'url' => (clone $url)->setQueryArg( 'group_activities', !$this->groupedBy )->write(),
+                'text' => $this->groupedBy ? 'Display One Table' : 'Display Separate Tables',
+                'class' => 'bg-secondary',
+            ];
+        }
+        return array_merge(
+            $links ?? [],
+            parent::getNavLinks()
+        );
+    }
+
+    /**
+     * @param string $sortBy
+     * @return $this
+     */
+    public function sortBy(string $sortBy = ''): self
+    {
+        $this->sortBy = $sortBy;
+        return $this;
+    }
+
+
+    /**
+     * @param Shift $shift
+     * @return string
+     */
+    public function sortShift(Shift $shift): string
+    {
+        switch( $this->sortBy ) {
+            case 'billable':
+                return $shift->activity->chargeable ? 'Value Adding Time' : 'Non Chargeable Time';
+            case 'factory':
+                if ( $shift->job->id === 0 ) {
+                    if ( $shift->isLunch() ) {
+                        return 'Lunch Time';
+                    }
+                    return 'Factory Time <small>(No Job Number)</small>';
+                }
+                /*
+                if($shift->job->customer->name !== 'Factory'){
+                    d($shift);
+                }
+                */
+                return $shift->job->customer->name === 'Factory' ? 'Factory Time <small>(with job number)</small>' : 'Job Time';
+            case 'type':
+            default:
+                return ($shift->activity->type ?? $shift->activity->category ?? 'Unknown') . ' Time';
+        }
+
+
     }
 
     /**
@@ -100,12 +170,16 @@ class ActivitySummary extends PeriodicReport
      */
     public function sortShifts(): array
     {
+
         foreach ( $this->shifts->getAll() as $shift ) {
-            $type = $shift->activity->type ?? $shift->activity->category ?? '';
-            $returnShifts[$type][$shift->id] = $shift;
+            $returnShifts[$this->sortShift( $shift )][$shift->id] = $shift;
+        }
+        if ( count( $returnShifts ?? [] ) === 1 ) {
+            $this->disableGroupBy();
         }
         return $returnShifts ?? [];
     }
+
 
     /**
      * @return array
@@ -121,17 +195,12 @@ class ActivitySummary extends PeriodicReport
                         'activity' => $shift->activity->displayName,
                         'activity_hours' => 0,
                         'activity_cost' => 0,
-                        'type' => $shift->activity->type
+                        'type' => $groupName
                     ];
                 }
                 $activitiesSummary[$groupName][$shift->activity->id]['activity_hours'] += $shift->getShiftLength();
                 $activitiesSummary[$groupName][$shift->activity->id]['activity_cost'] += $shift->getShiftCost();
             }
-        }
-        if ( !empty( $activitiesSummary['Lunch'] ) ) {
-            $lunchRow = $activitiesSummary['Lunch'];
-            unset( $activitiesSummary['Lunch'] );
-            $activitiesSummary = ['Lunch' => $lunchRow] + $activitiesSummary;
         }
         return $activitiesSummary ?? [];
     }
@@ -141,6 +210,11 @@ class ActivitySummary extends PeriodicReport
      */
     protected function extractData(): array
     {
+        if ( empty( $this->groupedBy ) ) {
+            $this->rowArgs['total_time']['subheader'] = true;
+        }
+
+
         if ( $this->shifts->getCount() === 0 ) {
             return [];
         }
@@ -150,7 +224,8 @@ class ActivitySummary extends PeriodicReport
             'activity_hours' => $this->shifts->getTotalWorkerMinutes(),
             'activity_cost' => $this->shifts->getTotalWorkerCost(),
             '%_of_total_hours' => $this->shifts->getTotalWorkerMinutes() > 0 ? '100.0%' : 'N/A',
-            '%_of_total_employee_cost' => $this->shifts->getTotalWorkerCost() > 0 ? '100.0%' : 'N/A'
+            '%_of_total_employee_cost' => $this->shifts->getTotalWorkerCost() > 0 ? '100.0%' : 'N/A',
+            'type' => 'totals'
         ];
         foreach ( $this->getActivitiesSummary() as $groupName => $activities ) {
 
@@ -158,54 +233,47 @@ class ActivitySummary extends PeriodicReport
             $groupTotalMinutes = 0;
             $groupTotalCost = 0;
             foreach ( $activities as $activityID => $activity ) {
-                $groupedData[$groupName][$activityID] = $activity;
+                $groupedData[$groupName][$groupName . '_' . $activityID] = $activity;
 
                 $groupTotalMinutes += $activity['activity_hours'];
                 $groupTotalCost += $activity['activity_cost'];
             }
-            $subtotalRow = 'employee_time_' . strtolower( $groupName );
-            $groupedData[$groupName][$subtotalRow] = [
+            $subtotalRowID = 'employee_time_' . strtolower( $groupName );
+            $subtotalRow = [
                 'activity_id' => 'Subtotal',
-                'activity' => $groupName === 'All' ? 'Unspecific Time' : $groupName . ' Time',
+                'activity' => $groupName === 'All' ? 'Unspecific Time' : $groupName,
                 'activity_hours' => $groupTotalMinutes,
                 'activity_cost' => $groupTotalCost,
-
+                'type' => $groupName
             ];
+            $groupedData[$groupName][$subtotalRowID] = $subtotalRow;
+            if ( !empty( $this->groupedBy ) ) {
+                $subtotalRow['type'] = 'totals';
+                $groupedData['totals']['totals_' . $subtotalRowID] = $subtotalRow;
+            }
 
-            $this->rowArgs[$subtotalRow] = [
+            $this->rowArgs[$subtotalRowID] = [
                 'class' => 'bg-primary'
             ];
-
-
         }
 
+        // $groupedData['totals']['totals'] = $totals;
+        // return $this->addPercentOfTotalColumns( $groupedData ?? [] );
 
 
         foreach ( $this->addPercentOfTotalColumns( $groupedData ?? [] ) as $groupName => $activities ) {
             $subheaderRow = 'subheader_' . $groupName;
             $this->rowArgs[$subheaderRow] = [
-                 'subheader' => true,
+                'subheader' => true,
                 'class' => 'text-center'
             ];
-
-            // $returnData[$subheaderRow] = [
-               // $this->fullRowName => ucwords( $groupName . ' Activities' )
-            // ];
-
-            foreach ( $activities as $activityID => $activity ) {
-                $returnData[$activityID] = $activity;
+            foreach ( $activities as $rowID => $activity ) {
+                $returnData[$rowID] = $activity;
             }
         }
-
-        /*
-        $returnData['subheader_total_time'] = [
-            $this->fullRowName => ucwords( 'Total' )
-        ];
-        */
-
         $returnData['total_time'] = $totals;
-
         return $returnData;
+
     }
 
     /**
@@ -231,23 +299,9 @@ class ActivitySummary extends PeriodicReport
         return $groupedData;
     }
 
-    /*
-      private function gzdfgdfgs(): array
-      {
-          $fullRowHandle = 'row.';
-          $columns = [
-              'activity_id' => 'Activity ID',
-              'activity' => 'Activity',
-              'activity_hours' => ['title' => 'Activity Hours', 'format' => 'hoursminutes'],
-              '%_of_total_hours' => ['title' => '% of Total Hours', 'format' => 'percentage'],
-              'activity_cost' => ['title' => 'Activity Cost', 'format' => 'currency'],
-              '%_of_total_employee_cost' => ['title' => '% of Total Employee Cost', 'format' => 'percentage']
-          ];
-          foreach ( $columns as $columnID => $columnArgs ) {
-              $return[$fullRowHandle . $columnID] = $columnArgs;
-          }
-          return $return;
-      }
-    */
-
+    public function groupBy(): self
+    {
+        $this->groupedBy = 'type';
+        return $this;
+    }
 }

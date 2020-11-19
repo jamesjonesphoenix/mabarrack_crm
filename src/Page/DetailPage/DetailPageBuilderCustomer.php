@@ -5,6 +5,7 @@ namespace Phoenix\Page\DetailPage;
 
 use Phoenix\Entity\Customer;
 use Phoenix\Entity\CustomerFactory;
+use Phoenix\Entity\Entities;
 use Phoenix\Entity\JobFactory;
 use Phoenix\Form\DetailPageForm\CustomerEntityForm;
 use Phoenix\Report\Archive\ArchiveTableJobs;
@@ -49,11 +50,15 @@ class DetailPageBuilderCustomer extends DetailPageBuilder
         if ( empty( $customer->jobs ) ) {
             return $this;
         }
+
+        // (new JobFactory( $this->db, $this->messages ))->getNew()
+
         $this->page->addContent( (new ArchiveTableJobs(
             $this->HTMLUtility,
             $this->format,
+            $this->getURL()
         ))
-            ->setEntities( $customer->jobs, (new JobFactory( $this->db, $this->messages ))->getNew() )
+            ->setEntities( new Entities($customer->jobs) )
             ->setTitle(
                 ($customer->getNamePossessive() ?? 'Customer') . ' Jobs'
             )

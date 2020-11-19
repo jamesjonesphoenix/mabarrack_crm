@@ -443,6 +443,30 @@ class Job extends Entity
         return $this->_status ?? new Setting();
     }
 
+    /**
+     * @return array
+     */
+    public function checkCompleteAndValid(): array
+    {
+        /*
+        $errors = $this->healthCheck();
+        if ( !empty( $errors ) ) {
+            return $errors;
+        }
+        */
+        if ( empty( $this->salePrice ) ) {
+            $errors[] = 'Job has no sale price set.';
+        }
+        if ( $this->dateFinished === '' ) {
+            $errors[] = 'Job has no finish date set.';
+        }
+
+        if ( $this->status->name !== 'jobstat_yellow' && $this->status->name !== 'jobstat_green' ) {
+            $errors[]  = 'Job status is incomplete.';
+        }
+
+        return $errors ?? [];
+    }
 
     /**
      * @return array
@@ -522,6 +546,8 @@ class Job extends Entity
             ]
         ];
     }
+
+
 
     /**
      * Get DB input array

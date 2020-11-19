@@ -5,7 +5,6 @@ namespace Phoenix\Page\ArchivePage;
 
 
 use Phoenix\Entity\CustomerFactory;
-use Phoenix\Report\Archive\ArchiveTableCustomers;
 
 /**
  * Class ArchivePageBuilderCustomer
@@ -33,13 +32,5 @@ class ArchivePageBuilderCustomer extends ArchivePageBuilder
     protected function getNewEntityFactory(): CustomerFactory
     {
         return new CustomerFactory( $this->db, $this->messages );
-    }
-
-    /**
-     * @return ArchiveTableCustomers
-     */
-    protected function getNewArchiveTableReport(): ArchiveTableCustomers
-    {
-        return new ArchiveTableCustomers($this->HTMLUtility, $this->format);
     }
 }

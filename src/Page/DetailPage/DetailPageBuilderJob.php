@@ -10,9 +10,7 @@ use Phoenix\Entity\SettingFactory;
 use Phoenix\Entity\ShiftFactory;
 use Phoenix\Form\DetailPageForm\JobEntityForm;
 use Phoenix\Page\MenuItems\MenuItemsJobs;
-use Phoenix\Report\Archive\ArchiveTableShifts;
-use Phoenix\Report\JobSummary;
-use Phoenix\Report\Shifts\ActivitySummary;
+
 
 /**
  * @method Job getEntity(int $entityID = null)
@@ -38,19 +36,11 @@ class DetailPageBuilderJob extends DetailPageBuilder
      */
     public function getForm(): JobEntityForm
     {
-        $entity = $this->getEntity();
-        $jobStatuses = $this->db->getRows( 'settings', ['name' => [
-            'value' => 'jobstat',
-            'operator' => 'LIKE']
-        ] );
-
-        //$settingsFactory = (new SettingFactory($this->db, $this->messages))->getOptionsArray();
-
         return (new JobEntityForm(
             $this->HTMLUtility,
-            $entity
+            $this->getEntity()
         ))->makeOptionsDropdownFields(
-            array_column( $jobStatuses, 'value', 'name' ),
+            (new SettingFactory( $this->db, $this->messages ))->getJobStatusesOptionsArray(),
             (new CustomerFactory( $this->db, $this->messages ))->getOptionsArray(),
             (new FurnitureFactory( $this->db, $this->messages ))->getOptionsArray()
         );
@@ -76,33 +66,33 @@ class DetailPageBuilderJob extends DetailPageBuilder
         if ( !$entity->exists ) {
             return $this;
         }
-        $format = $this->format;
-        $htmlUtility = $this->HTMLUtility;
+
+        $reportFactory = $this->getReportClient()->getFactory();
         $reports = [
-            'job_summary' => (new JobSummary(
-                $htmlUtility,
-                $format,
-            ))->setJob( $entity ),
-            'activity_summary' => (new ActivitySummary(
-                $htmlUtility,
-                $format,
-            ))->setShifts( $entity->shifts ),
-            'job_shifts' => (new ArchiveTableShifts(
-                $htmlUtility,
-                $format,
-            ))->setEntities(
-                $entity->shifts->getAll(),
-                (new ShiftFactory( $this->db, $this->messages ))->getNew()
-            )
+            'job_summary' => $reportFactory->getJobSummary()->setJob( $entity ),
+            'activity_summary' => $reportFactory->shiftsReports()->getActivitySummary( $this->sortActivitiesBy, $this->groupActivities )
+                ->setEntities( $entity->shifts )
+                ->setTitle( 'Activities Summary for Job ' . $entity->getIDBadge() )
+                ->removeSortableOption( 'factory' )
+            ,
+            'job_shifts' => $reportFactory->archiveTables()->getShifts()
+                ->setEntities(
+                    $entity->shifts,
+                )
+                ->setDummyEntity( (new ShiftFactory( $this->db, $this->messages ))->getNew() )
                 ->setGroupByForm(
                     $this->getGroupByForm(),
                     $this->groupBy
                 )
-                ->setTitle( 'Job ' . $this->HTMLUtility()::getBadgeHTML( $entity->id ) . ' Shifts' )
+                ->setTitle( 'Job ' . $entity->getIDBadge() . ' Shifts' )
                 ->editColumn( 'job', ['hidden' => true] )
                 ->disablePrintButton()
+                ->setEmptyMessage( 'No job activity to report.' )
         ];
-        $reports['activity_summary']->setTitle( $reports['activity_summary']->getTitle() . ' for Job ' . $entity->getIDBadge() );
+
+        //if($this->groupBy)
+
+        //$reports['activity_summary']->setTitle( $reports['activity_summary']->getTitle() . ' for Job ' . $entity->getIDBadge() );
         foreach ( $reports as $report ) {
             $this->page->addContent( $report->render() );
         }

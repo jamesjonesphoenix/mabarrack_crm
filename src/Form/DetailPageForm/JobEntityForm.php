@@ -48,7 +48,7 @@ class JobEntityForm extends DetailPageEntityForm
             'id' => 'inputCustomer',
             'name' => 'customer',
             'label' => 'Customer',
-            'append' => $this->htmlUtility::getViewButton( $this->entity->customer->getLink() , 'View Customer' ),
+            'append' => $this->htmlUtility::getViewButton( $this->entity->customer->getLink(), 'View Customer' ),
             'disabled' => $this->isDisabled()
         ] );
 
@@ -66,9 +66,8 @@ class JobEntityForm extends DetailPageEntityForm
                     'options' => $furnitureOptions,
                     'selected' => $furniture->id ?? null,
                     'class' => 'w300 furniture-name',
-                    'id' => empty( $loopedOnce ) ? 'inputFurniture' : '',
+                    'id' => 'inputFurniture' . (!empty( $furniture->id ) ? '-' . $furniture->id : ''),
                     'placeholder' => 'Select Furniture',
-                    'label' => empty( $loopedOnce ) ? 'Furniture' : '',
                     'disabled' => $this->isDisabled()
                     /*
                     'link' => [
@@ -82,7 +81,6 @@ class JobEntityForm extends DetailPageEntityForm
                 'class' => 'furniture-quantity w100',
                 'disabled' => $this->isDisabled()
             ] );
-            $loopedOnce = true;
         }
         return $this;
     }
@@ -220,24 +218,27 @@ class JobEntityForm extends DetailPageEntityForm
     private function getJobFurnitureFieldsHTML(): string
     {
         $disabled = $this->isDisabled() ? ' disabled' : '';
-        ob_start();
-        ?>
+        ob_start(); ?>
         <div class="form-row job-furniture-row">
-            <?php
-            foreach ( $this->fields['furniture'] as $furniture ) { ?>
+            <?php foreach ( $this->fields['furniture'] as $furnitureID => $furniture ) { ?>
                 <div class="form-group furniture-group col-sm-12">
-                    <?php
-                    echo $furniture['dropdown'];
-                    echo $furniture['quantity'];
-                    ?>
+                    <?php if ( empty( $loopedOnce ) ) {
+                        echo $this->htmlUtility::getFieldLabelHTML(
+                            'Furniture',
+                            'inputFurniture' .  (!empty( $furnitureID) ? '-' . $furnitureID: '')
+                        );
+                    } ?>
+                    <div class="row no-gutters">
+                        <div class="col"><?php echo $furniture['dropdown']; ?></div>
+                    </div>
+                    <?php echo $furniture['quantity']; ?>
                     <a class="btn btn-danger remove-furniture<?php
                     if ( empty( $loopedOnce ) || $this->isDisabled() ) {
                         echo ' disabled';
                     }
                     ?>" type="button">&minus;</a>
                 </div>
-                <?php
-                $loopedOnce = true;
+                <?php $loopedOnce = true;
             } ?>
             <div class="form-group col-sm-12">
                 <input id="add-furniture-button" class="btn btn-primary"

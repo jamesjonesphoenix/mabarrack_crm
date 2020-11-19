@@ -58,7 +58,9 @@ class ChooseJobTable extends Report
         ],
         'right.last_worked' => [
             'title' => 'Last Worked By You',
-            'default' => '&minus;'
+            'default' => '&minus;',
+            'class' => 'text-nowrap',
+            'format' => 'annotateDateAllDays'
         ],
     ];
 
@@ -110,13 +112,6 @@ class ChooseJobTable extends Report
      */
     public function extractJobData(Job $job): array
     {
-        $lastWorked = $job->shifts->getOne()->date ?? '';
-        if ( !empty( $lastWorked ) ) {
-            $lastWorked = '<span class="text-nowrap">'
-                . $this->format::daysFromTodayToWords( $this->format::date( $lastWorked ), true )
-                . '</span>';
-        }
-
         $rightHandCells = [
             'right.select' => '<p class="text-right mb-0">' . $this->htmlUtility::getButton( [
                     'element' => 'a',
@@ -125,7 +120,7 @@ class ChooseJobTable extends Report
                     'content' => 'Select',
                     'disabled' => true
                 ] ) . '</p>',
-            'right.last_worked' => $lastWorked
+            'right.last_worked' => $job->shifts->getOne()->date ?? ''
         ];
 
         if ( $job->id === 0 ) {

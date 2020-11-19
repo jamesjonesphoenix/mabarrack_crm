@@ -22,12 +22,4 @@ class ArchivePageBuilderFurniture extends ArchivePageBuilder
     {
         return new FurnitureFactory( $this->db, $this->messages );
     }
-
-    /**
-     * @return ArchiveTableFurniture
-     */
-    protected function getNewArchiveTableReport(): ArchiveTableFurniture
-    {
-        return new ArchiveTableFurniture($this->HTMLUtility, $this->format);
-    }
 }

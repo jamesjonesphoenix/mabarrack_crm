@@ -3,11 +3,13 @@
 
 namespace Phoenix\Report\Archive;
 
+use Phoenix\Entity\Entities;
 use Phoenix\Entity\Entity;
 use Phoenix\Form\GoToIDEntityForm;
 use Phoenix\Form\GroupByEntityForm;
 use Phoenix\Format;
 use Phoenix\Report\Report;
+use Phoenix\URL;
 use Phoenix\Utility\HTMLTags;
 
 /**
@@ -20,24 +22,14 @@ use Phoenix\Utility\HTMLTags;
 abstract class ArchiveTable extends Report
 {
     /**
-     * @var Entity[]
+     * @var Entities
      */
-    protected array $entities = [];
-
-    /**
-     * @var string
-     */
-    private string $groupedBy = '';
+    protected Entities $entities;
 
     /**
      * @var string
      */
     private string $groupByForm = '';
-
-    /**
-     * @var string
-     */
-    protected string $emptyMessage;
 
     /**
      * @var string
@@ -60,12 +52,23 @@ abstract class ArchiveTable extends Report
     protected bool $printButton = true;
 
     /**
+     * @var string
+     */
+    protected string $tableClass = 'archive table-sorter';
+
+    /**
+     * @var string
+     */
+    protected string $emptyMessage = 'No items found to report.';
+
+    /**
      * Report constructor.
      *
      * @param HTMLTags $htmlUtility
      * @param Format   $format
+     * @param URL      $url
      */
-    public function __construct(HTMLTags $htmlUtility, Format $format)
+    public function __construct(HTMLTags $htmlUtility, Format $format, URL $url)
     {
         $this->columns = array_merge(
             [
@@ -84,23 +87,25 @@ abstract class ArchiveTable extends Report
             $this->columns['id']['title'] = 'ID';
         }
 
-        parent::__construct( $htmlUtility, $format );
+        parent::__construct( $htmlUtility, $format, $url );
 
     }
 
     /**
-     * @param Entity[]    $entities
-     * @param Entity|null $entity Input this because the $entities array may be empty
+     * @param Entities|null $entities
      * @return $this
      */
-    public function setEntities(array $entities = [], Entity $entity = null): self
+    public function setEntities(Entities $entities = null): self
     {
+        if ( $entities === null ) {
+            return $this;
+        }
         $this->entities = $entities;
-        if ( $entity !== null ) {
-            $this->entity = $entity;
-            $this->emptyMessage = 'No ' . $this->entity->entityNamePlural . ' found to report.';
-        } elseif ( count( $entities ) > 0 ) {
-            $this->entity = current( $entities );
+        if ( $entities->getCount() > 1 ) {
+            $entity = $entities->getOne();
+            if ( $entity !== null ) {
+                $this->entity = $entity;
+            }
         }
         return $this;
     }
@@ -136,6 +141,16 @@ abstract class ArchiveTable extends Report
     }
 
     /**
+     * @param Entity $dummyEntity
+     * @return $this
+     */
+    public function setDummyEntity(Entity $dummyEntity): self
+    {
+        $this->entity = $dummyEntity;
+        return $this;
+    }
+
+    /**
      * @param Entity $entity
      * @return array
      */
@@ -158,12 +173,12 @@ abstract class ArchiveTable extends Report
      */
     public function getRightAlignedHeaderHTML(): string
     {
-        $entity = $this->entity;
-        if ( $entity->canCreate() ) {
+        // $entity = $this->entity;
+        if ( isset( $this->entity ) && $this->entity->canCreate() ) {
             $addNew = $this->htmlUtility::getButton( [
                 'element' => 'a',
-                'content' => 'Add New ' . ucwords( $entity->entityName ),
-                'href' => $entity->getLink( false ),
+                'content' => 'Add New ' . ucwords( $this->entity->entityName ),
+                'href' => $this->entity->getLink( false ),
                 'class' => 'float-left btn btn-success ml-2'
             ] );
         }
@@ -176,7 +191,7 @@ abstract class ArchiveTable extends Report
      */
     protected function extractData(): array
     {
-        foreach ( $this->entities as $entity ) {
+        foreach ( $this->entities->getAll() as $entity ) {
             $row = array_merge(
                 [
                     'id' => $entity->id
@@ -193,8 +208,6 @@ abstract class ArchiveTable extends Report
         if ( empty( $data ) ) {
             return [];
         }
-
-
         return $data ?? [];
     }
 
@@ -205,7 +218,7 @@ abstract class ArchiveTable extends Report
     {
         if ( empty( $this->id ) ) {
             //count() is a hackish way to get a unique id, but sufficient for scroll-to-table
-            $this->id = parent::getID() . '-' . count( $this->entities );
+            $this->id = parent::getID() . '-' . $this->entities->getCount();
         }
         return $this->id;
     }
@@ -223,7 +236,7 @@ abstract class ArchiveTable extends Report
      */
     public function getTotalCount(): int
     {
-        return count( $this->entities );
+        return  $this->entities->getCount() ;
     }
 
     /**
@@ -231,65 +244,9 @@ abstract class ArchiveTable extends Report
      */
     public function getTotalCountString(): string
     {
-        return 'Total ' . ucfirst( $this->entity->entityNamePlural );
-    }
-
-    /**
-     * Renders 1 table if not grouped, multiple tables if grouped
-     *
-     * @param array $data
-     * @return string
-     * @throws \Exception
-     */
-    public function renderReport(array $data = []): string
-    {
-        $groupedBy = $this->groupedBy;
-        foreach ( $data as $entityID => $row ) {
-            $sortedData[$row[$groupedBy] ?? ''][$row['id']] = $row;
-        }
-        ksort( $sortedData );
-        $tableColumns = $this->getValidTableColumns();
-        $html = '';
-        foreach ( $sortedData as $groupName => $dataset ) {
-            $html .= $this->renderSingleArchive(
-                $dataset,
-                $tableColumns,
-                $groupName
+        return 'Total ' . ucfirst(
+                 $this->entity->entityNamePlural
             );
-        }
-        return $html ?? '';
-    }
-
-    /**
-     * @param array  $data
-     * @param array  $columns
-     * @param string $groupName
-     * @return string
-     * @throws \Exception
-     */
-    public function renderSingleArchive(array $data, array $columns = [], string $groupName = ''): string
-    {
-        ob_start();
-        //&& !empty($columns[$this->groupedBy])
-        if ( !empty( $this->groupedBy ) ) {
-            $groupTitle = $columns[$this->groupedBy]['title'] ?? str_replace( '_', ' ', $this->groupedBy );
-            ?>
-            <h4 class="mx-3">
-                <?php echo 'Group - ' . ucfirst( $groupTitle ) . ' ';
-                $groupName = !empty( $groupName ) ? $groupName : 'N/A';
-                echo $this->htmlUtility::getBadgeHTML( strip_tags( $groupName ) );
-                ?>
-            </h4>
-        <?php } ?>
-
-        <div class="grey-bg p-3 mb-5">
-            <?php echo $this->htmlUtility::getTableHTML( [
-                'data' => $data,
-                'columns' => $columns,
-                'class' => 'archive table-sorter',
-            ] ); ?>
-        </div>
-        <?php return ob_get_clean();
     }
 
     /**

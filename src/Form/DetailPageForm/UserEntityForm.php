@@ -22,6 +22,21 @@ class UserEntityForm extends DetailPageEntityForm
      */
     public string $formID = 'worker_form';
 
+    public function getButtonsArray(): array
+    {
+        $buttons = parent::getButtonsArray();
+        if ( $this->entity->exists ) {
+            $buttons[] = [
+                'class' => 'btn btn-lg btn-primary mr-2 float-left',
+                'element' => 'a',
+                'id' => 'view-worker-week',
+                'content' => 'View Worker Week',
+                'href' => 'index.php?page=report&report=worker_week&user=' . $this->entity->id
+            ];
+        }
+        return $buttons;
+    }
+
     /**
      * @return $this
      */
@@ -45,25 +60,20 @@ class UserEntityForm extends DetailPageEntityForm
             'name' => 'rate',
             'label' => 'Rate',
             'value' => $this->entity->rate,
-            'append' => '<span class="input-group-text">$/Hour</span>',
+            'append' => '<span class="input-group-text">/Hour</span>',
             'disabled' => $this->isDisabled()
         ] );
-
-        //$roles = new Roles();
-        //Roles = $roles->roles;
-
-        $this->fields['type'] = $this->htmlUtility::getOptionDropdownFieldHTML(
-            [
-                'options' => [
-                    'staff' => 'Staff',
-                    'admin' => 'Admin'
-                ],
-                'selected' => $this->entity->role,
-                'id' => 'inputType',
-                'name' => 'type',
-                'label' => 'User Role',
-                'disabled' => $this->isDisabled()
-            ] );
+        $this->fields['type'] = $this->htmlUtility::getOptionDropdownFieldHTML( [
+            'options' => [
+                'staff' => 'Staff',
+                'admin' => 'Admin'
+            ],
+            'selected' => $this->entity->role,
+            'id' => 'inputType',
+            'name' => 'type',
+            'label' => 'User Role',
+            'disabled' => $this->isDisabled()
+        ] );
         $changePasswordToggleButton = $this->getDBAction() === 'update';
         $this->fields['password'] = $this->htmlUtility::getPasswordFieldHTML( [
             'name' => 'unencrypted-password',

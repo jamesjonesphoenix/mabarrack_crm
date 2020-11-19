@@ -5,6 +5,7 @@ namespace Phoenix\Report;
 
 use Phoenix\Base;
 use Phoenix\Format;
+use Phoenix\URL;
 use Phoenix\Utility\HTMLTags;
 
 /**
@@ -88,17 +89,46 @@ abstract class Report extends Base
     protected ?array $data;
 
     /**
+     * @var string
+     */
+    protected string $groupedBy = '';
+
+    /**
+     * @var URL
+     */
+    private URL $url;
+
+    /**
+     * @var bool
+     */
+    protected bool $allowGroupBy = true;
+
+    /**
+     * @var int
+     */
+    protected int $countMinimum = 5;
+
+    /**
      * Report constructor.
      *
      * @param HTMLTags $htmlUtility
      * @param Format   $format
+     * @param URL      $url
      */
-    public function __construct(HTMLTags $htmlUtility, Format $format)
+    public function __construct(HTMLTags $htmlUtility, Format $format, URL $url)
     {
         $this->htmlUtility = $htmlUtility;
         $this->format = $format;
+        $this->url = $url;
     }
 
+    /**
+     * @return URL
+     */
+    public function getURL(): URL
+    {
+        return clone $this->url;
+    }
 
     /**
      * @param string $title
@@ -317,6 +347,7 @@ abstract class Report extends Base
      * @return string
      * @throws \Exception
      */
+    /*
     public function renderReport(array $data = []): string
     {
         return '<div class="grey-bg p-3">' . $this->htmlUtility::getTableHTML( [
@@ -325,6 +356,66 @@ abstract class Report extends Base
                 'rows' => $this->getRowArgs(),
                 'class' => $this->tableClass
             ] ) . '</div>';
+    }
+    */
+
+    /**
+     * Renders 1 table if not grouped, multiple tables if grouped
+     *
+     * @param array $data
+     * @return string
+     * @throws \Exception
+     */
+    public function renderReport(array $data = []): string
+    {
+        $groupedBy = $this->groupedBy;
+        foreach ( $data as $rowID => $row ) {
+            $sortedData[$row[$groupedBy] ?? ''][$rowID] = $row;
+        }
+        ksort( $sortedData );
+        if ( !empty( $sortedData['totals'] ) ) {
+            $sortedData = ['totals' => $sortedData['totals']] + $sortedData;
+        }
+        $tableColumns = $this->getValidTableColumns();
+        $html = '';
+        foreach ( $sortedData as $groupName => $dataset ) {
+            $html .= $this->renderSingleArchive(
+                $dataset,
+                $tableColumns,
+                $groupName
+            );
+        }
+        return $html ?? '';
+    }
+
+    /**
+     * @param array  $data
+     * @param array  $columns
+     * @param string $groupName
+     * @return string
+     * @throws \Exception
+     */
+    public function renderSingleArchive(array $data, array $columns = [], string $groupName = ''): string
+    {
+        ob_start();
+        if ( !empty( $this->groupedBy ) ) {
+            $groupTitle = $columns[$this->groupedBy]['title'] ?? str_replace( '_', ' ', $this->groupedBy ); ?>
+            <h4 class="mx-3">
+                <?php echo 'Group - ' . ucfirst( $groupTitle ) . ' ';
+                $groupName = !empty( $groupName ) ? ucfirst( $groupName ) : 'N/A';
+                echo $this->htmlUtility::getBadgeHTML( strip_tags( $groupName ) );
+                ?>
+            </h4>
+        <?php } ?>
+        <div class="grey-bg p-3 mb-5">
+            <?php echo $this->htmlUtility::getTableHTML( [
+                'data' => $data,
+                'columns' => $columns,
+                'class' => $this->tableClass,
+                'rows' => $this->getRowArgs(),
+            ] ); ?>
+        </div>
+        <?php return ob_get_clean();
     }
 
     /**
@@ -400,7 +491,7 @@ abstract class Report extends Base
                 <?php if ( !empty( $data ) ) {
                     echo $this->renderColumnToggles();
                     $totalCount = $this->getTotalCount();
-                    if ( $totalCount > 5 ) { ?>
+                    if ( $totalCount > $this->countMinimum ) { ?>
                         <div class="col-auto mb-3"><h5 class="mb-0 entity-count"><?php echo $this->getTotalCountString()
                                 . ' ' . $this->htmlUtility::getBadgeHTML( $totalCount ); ?></h5>
                         </div><?php
@@ -432,16 +523,20 @@ abstract class Report extends Base
                 <div class="col">
                     <form class="form-inline mb-n2">
                         <?php $i = 0;
-                        foreach ( $this->getColumns() as $columnName => $columnArgs ) {
-                            if ( empty( $columnArgs['title'] ) || (!empty( $columnArgs['remove_if_empty'] ) && !empty( $columnArgs['is_empty'] )) ) {
+                        foreach ( $this->getColumns() as $columnID => $columnArgs ) {
+
+                            $title = is_string($columnArgs) ? $columnArgs : ($columnArgs['toggle_label'] ?? $columnArgs['title'] );
+
+                            if ( empty( $title )|| empty( $columnID ) || (!empty( $columnArgs['remove_if_empty'] ) && !empty( $columnArgs['is_empty'] )) ) {
                                 $i++;
                                 continue;
                             }
-                            $id = uniqid( 'toggle-' . ucfirst( $columnName ) . '-', true ); ?>
+                            $id = uniqid( 'toggle-' . ucfirst( $columnID ) . '-', true ); ?>
                             <div class="custom-control custom-checkbox mr-3 mb-2">
-                                <input class="custom-control-input column-toggle" type="checkbox" value="<?php echo $columnName; ?>" data-column="<?php echo $i; ?>"
+                                <input class="custom-control-input column-toggle" type="checkbox" value="<?php echo $columnID; ?>" data-column="<?php echo $i; ?>"
                                        id="<?php echo $id; ?>" <?php echo empty( $columnArgs['hidden'] ) ? 'checked' : ''; ?>>
-                                <label class="custom-control-label" for="<?php echo $id; ?>"><?php echo $columnArgs['title']; ?></label>
+                                <label class="custom-control-label"
+                                       for="<?php echo $id; ?>"><?php echo $title; ?></label>
                             </div>
                             <?php $i++;
                         } ?>
@@ -460,9 +555,9 @@ abstract class Report extends Base
     {
         /*
         $fullRowName = $this->fullRowName;
-        foreach ( $this->columns as $columnName => $columnArgs ) {
-            // $columns[$fullRowName . '.' . $columnName] = $columnArgs;
-            $columns[$columnName] = $columnArgs;
+        foreach ( $this->columns as $columnID => $columnArgs ) {
+            // $columns[$fullRowName . '.' . $columnID] = $columnArgs;
+            $columns[$columnID] = $columnArgs;
         }
         */
 
@@ -470,14 +565,14 @@ abstract class Report extends Base
             return $this->columns ?? [];
         }
 
-        foreach ( $this->columns ?? [] as $columnName => $columnArgs ) {
+        foreach ( $this->columns ?? [] as $columnID => $columnArgs ) {
 
             if ( is_string( $columnArgs ) && $property === 'title' ) {
-                $return[$columnName] = $columnArgs;
+                $return[$columnID] = $columnArgs;
                 continue;
             }
             if ( isset( $columnArgs[$property] ) ) {
-                $return[$columnName] = $columnArgs[$property];
+                $return[$columnID] = $columnArgs[$property];
             }
         }
         return $return ?? [];
@@ -503,6 +598,16 @@ abstract class Report extends Base
     public function disableColumnToggles(): self
     {
         $this->includeColumnToggles = false;
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    public function disableGroupBy(): self
+    {
+        $this->allowGroupBy = false;
+        $this->groupedBy = '';
         return $this;
     }
 

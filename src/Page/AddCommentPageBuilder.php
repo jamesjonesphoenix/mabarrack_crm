@@ -39,11 +39,12 @@ class AddCommentPageBuilder extends WorkerPageBuilder
     {
         $title = 'Add comment';
         if ( isset( $this->shiftID ) ) {
-            $comment = (new ShiftFactory( $this->db, $this->messages ))->getEntity( $this->shiftID )->activityComments;
+            $entity = (new ShiftFactory( $this->db, $this->messages ))->getEntity( $this->shiftID );
+            $comment = $entity->activityComments;
             if ( !empty( $comment ) ) {
                 $title = 'Update comment';
             }
-            $title .= ' for shift' . $this->HTMLUtility::getBadgeHTML( 'ID: ' . $this->shiftID );
+            $title .= ' for shift' . $entity->getIDBadge();
         }
         $this->page = $this->getNewPage()
             ->setTitle( $title . ' ?' )

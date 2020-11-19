@@ -114,7 +114,7 @@ $j(document).ready(function () {
         let columnIndex = input.attr('data-column'),
             columnClass = input.val(),
             checked = input.prop('checked'),
-            table = 'table.table.archive ',
+            table = 'table.table ',
             hideClass = 'd-none',
             column = $j(
                 table + ' thead td[data-column="' + columnIndex + '"], ' +
@@ -213,6 +213,23 @@ $j(document).ready(function () {
             }
         }
     }
+
+    /**
+     * Scroll to top button
+     */
+    $j(window).scroll(function () {
+        if ($j(this).scrollTop() > 20) {
+            $j('#scroll-to-top').fadeIn();
+        } else {
+            $j('#scroll-to-top').fadeOut();
+        }
+    });
+    $j('#scroll-to-top').click(function () {
+        $j("html, body").animate({
+            scrollTop: 0
+        }, 1000);
+        return false;
+    });
 });
 
 

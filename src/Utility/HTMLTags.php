@@ -41,7 +41,7 @@ class HTMLTags
      * @param string $url
      * @return string
      */
-    public static function getBadgeHTML(string $content = '', string $contextualClass = 'primary', string $url = ''): string
+    public static function getBadgeHTML(string $content = '', string $contextualClass = 'light', string $url = ''): string
     {
         return !empty( $content ) ? ' <span class="badge badge-' . $contextualClass . '">' . $content . '</span>' : '';
     }
@@ -82,20 +82,24 @@ class HTMLTags
     }
 
     /**
-     * @param array  $items
-     * @param string $contextualClass
+     * @param array $items with key 'content' and 'class'
      * @return string
      */
-    public static function getListGroup(array $items = [], $contextualClass = 'danger'): string
+    public static function getListGroup(array $items = []): string
     {
         if ( empty( $items ) ) {
             return '';
         }
-        $li = '<li class="list-group-item list-group-item-' . $contextualClass . '">';
+        $defaultContextualClass = 'danger';
+        $listItems = '';
+        foreach ( $items as $item ) {
+            $string = is_string( $item ) ? $item : $item['content'];
+            $class = $item['class'] ?? $defaultContextualClass;
+            $listItems .= '<li class="list-group-item list-group-item-' . $class . '">' . $string . '</li>';
+        }
         return '<ul class="list-group list-group-flush">'
-            . $li
-            . implode( '</li>' . $li, $items )
-            . '</li></ul>';
+            . $listItems
+            . '</ul>';
     }
 
     /**

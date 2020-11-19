@@ -3,7 +3,14 @@
 namespace Phoenix\Page;
 
 use Phoenix\AbstractCRM;
+use Phoenix\Entity\ShiftFactory;
 use Phoenix\Format;
+use Phoenix\Messages;
+use Phoenix\PDOWrap;
+use Phoenix\Report\ReportClient;
+use Phoenix\Report\ReportFactory;
+use Phoenix\Report\Shifts\ShiftsReportBuilder;
+use Phoenix\URL;
 use Phoenix\Utility\FormFields;
 
 /**
@@ -34,6 +41,58 @@ abstract class PageBuilder extends AbstractCRM
     protected Page $page;
 
     /**
+     * @var URL
+     */
+    private URL $url;
+
+    /**
+     * @var ReportClient
+     */
+    private ReportClient $reportClient;
+
+    /**
+     * PageBuilder constructor.
+     *
+     * @param PDOWrap  $db
+     * @param Messages $messages
+     * @param URL      $url
+     */
+    public function __construct(PDOWrap $db, Messages $messages, URL $url)
+    {
+        $this->setURL( $url );
+        parent::__construct( $db, $messages );
+
+        $this->reportClient = new ReportClient(
+            new ReportFactory(
+                $this->HTMLUtility,
+                $this->format,
+                $this->getURL()
+            ),
+            $this->HTMLUtility,
+            $this->db,
+            $this->messages
+        );
+    }
+
+    /**
+     * @return URL
+     */
+    public function getURL(): URL
+    {
+        return clone $this->url;
+    }
+
+    /**
+     * @param URL $url
+     * @return $this
+     */
+    public function setURL(URL $url): self
+    {
+        $this->url = $url;
+        return $this;
+    }
+
+    /**
      * @return Page
      */
     public function getPage(): Page
@@ -41,6 +100,9 @@ abstract class PageBuilder extends AbstractCRM
         return $this->page;
     }
 
+    /**
+     * @return $this
+     */
     abstract public function buildPage(): self;
 
     /**
@@ -73,4 +135,11 @@ abstract class PageBuilder extends AbstractCRM
         return $this->_format = new Format();
     }
 
+    /**
+     * @return ReportClient
+     */
+    public function getReportClient(): ReportClient
+    {
+        return $this->reportClient ;
+    }
 }

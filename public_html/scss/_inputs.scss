@@ -1,13 +1,14 @@
 /*///  INPUTS  ///*/
 
-fieldset:disabled .form-control,
-.form-control[disabled] {
-  background: #222222;
-  color: #ffffff;
-  border: none;
-  box-shadow: none;
+form.detail-form {
+  fieldset:disabled .form-control,
+  .form-control[disabled] {
+    background: #222222;
+    color: #ffffff;
+    border: none;
+    box-shadow: none;
+  }
 }
-
 .add-button {
   float: right;
   margin-top: 20px;
@@ -60,6 +61,6 @@ textarea.form-control.shift-comment {
   height: 125px;
 }
 
-textarea.form-control.setting-textarea{
+textarea.form-control.setting-textarea {
   height: 230px;
 }

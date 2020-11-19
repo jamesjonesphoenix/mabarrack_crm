@@ -27,6 +27,8 @@ abstract class EntityForm extends Form
     public function __construct(FormFields $htmlUtility, Entity $entity)
     {
         $this->entity = $entity;
-        $this->htmlUtility = $htmlUtility;
+        parent::__construct( $htmlUtility );
     }
+
+
 }

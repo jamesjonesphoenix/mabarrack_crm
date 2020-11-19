@@ -8,9 +8,6 @@ use Phoenix\Entity\User;
 use Phoenix\Entity\UserFactory;
 use Phoenix\Form\DetailPageForm\UserEntityForm;
 use Phoenix\Page\MenuItems\MenuItemsUsers;
-use Phoenix\Report\Archive\ArchiveTableShifts;
-use Phoenix\Report\Worker\WorkerTimeClockRecord;
-use Phoenix\Report\Worker\WorkerWeeklySummary;
 
 /**
  * @method User getEntity()
@@ -23,10 +20,6 @@ use Phoenix\Report\Worker\WorkerWeeklySummary;
  */
 class DetailPageBuilderUser extends DetailPageBuilder
 {
-    /**
-     * @var string
-     */
-    private string $startDate;
 
     /**
      * @return UserFactory
@@ -56,27 +49,6 @@ class DetailPageBuilderUser extends DetailPageBuilder
     }
 
     /**
-     * @param array $inputArgs
-     * @return $this
-     */
-    public function setInputArgs(array $inputArgs = []): self
-    {
-        $this->setStartDate( $inputArgs['start_date'] ?? '' );
-        return parent::setInputArgs( $inputArgs );
-    }
-
-    /**
-     * @param string $startDate
-     * @return $this
-     */
-    public function setStartDate(string $startDate = ''): self
-    {
-        $this->startDate = $startDate;
-
-        return $this;
-    }
-
-    /**
      * @return string
      */
     public function getDisplayEntityName(): string
@@ -102,57 +74,39 @@ class DetailPageBuilderUser extends DetailPageBuilder
             return $this;
         }
 
-        $startDate = $this->startDate ?? '';
-        $htmlUtility = $this->HTMLUtility;
-        $format = $this->format;
-
         $shifts = $user->shifts->orderLatestToEarliest();
         $shift = (new ShiftFactory( $this->db, $this->messages ))->getNew();
 
-        $nameBadge = !empty( $user->name ) ? $this->HTMLUtility::getBadgeHTML( $user->name ) . ' ' : '';
-
+        $nameBadge = !empty( $user->getFirstName() ) ? $this->HTMLUtility::getBadgeHTML( $user->getFirstName() ) . ' ' : '';
         $reports = [
-            (new ArchiveTableShifts(
-                $htmlUtility,
-                $format,
-            ))
-                ->setEntities( $user->shifts->getUnfinishedShifts()->getAll(), $shift )
+            $this->getReportClient()->getFactory()->archiveTables()->getShifts()
+                ->setEntities(
+                    $user->shifts->getUnfinishedShifts()
+                )
                 ->setTitle( $nameBadge . 'Current Shifts' )
                 ->setEmptyMessageClass( 'info' )
-                ->setEmptyMessage( ucfirst( $user->name ?? 'user' ) . ' is not currently clocked onto any shifts.' ),
-            (new WorkerTimeClockRecord(
-                $htmlUtility,
-                $format,
-            ))
-                ->setStartAndFinishDates( $startDate )
-                ->setUsername( $user->name )
-                ->setShifts( $shifts ),
-            (new WorkerWeeklySummary(
-                $htmlUtility,
-                $format,
-            ))
-                ->setStartAndFinishDates( $startDate )
-                ->setUsername( $user->name )
-                ->setShifts( $shifts ),
-            (new ArchiveTableShifts(
-                $htmlUtility,
-                $format,
-            ))
-                ->setEntities( $shifts->getAll(), $shift )
+                ->setEmptyMessage(
+                    ucfirst( $user->getFirstName() ?? 'user' ) . ' is not currently clocked onto any shifts.'
+                )
+                ->setDummyEntity( $shift ),
+
+            $this->getReportClient()->getFactory()->archiveTables()->getShifts()
+                ->setEntities( $shifts )
                 ->setTitle( $nameBadge . 'All Worker Shifts' )
                 ->setGroupByForm(
-                    $this->getGroupByForm()
-                        ->makeHiddenFields( ['start_date' => $startDate] ),
+                    $this->getGroupByForm(),
                     $this->groupBy
                 )
                 ->disablePrintButton()
+                ->setDummyEntity( $shift )
                 ->editColumn( 'worker', ['hidden' => true] )
+
         ];
-        $html = '';
         foreach ( $reports as $report ) {
-            $html .= $report->render();
+            $this->page->addContent(
+                $report->render()
+            );
         }
-        $this->page->addContent( $html );
         return $this;
     }
 }

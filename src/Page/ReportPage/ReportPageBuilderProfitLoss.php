@@ -4,9 +4,7 @@
 namespace Phoenix\Page\ReportPage;
 
 
-use PDO;
-use Phoenix\Entity\JobFactory;
-use Phoenix\Report\ProfitLoss;
+use Phoenix\Report\Report;
 
 /**
  * Class ReportPageBuilderProfitLoss
@@ -17,34 +15,42 @@ use Phoenix\Report\ProfitLoss;
 class ReportPageBuilderProfitLoss extends ReportPageBuilder
 {
     /**
-     * @return array
+     * @var bool
      */
-    public function getJobs(): array
+    private bool $includeFactoryCosts = false;
+
+    /**
+     * @param array $inputArgs
+     * @return $this
+     */
+    public function setInputArgs(array $inputArgs = []): self
     {
-        if ( !$this->validateDates() ) {
-            return [];
+        if ( !empty( $inputArgs['include_factory_costs'] ) ) {
+            $this->includeFactoryCosts = true;
         }
-        return (new JobFactory( $this->db, $this->messages ))->getEntities( [
-            'id' => [
-                'value' => $this->db->run( 'SELECT job FROM shifts WHERE date BETWEEN ? AND ?', [$this->dateStart, $this->dateFinish] )->fetchAll( PDO::FETCH_COLUMN | PDO::FETCH_UNIQUE, 'job' ),
-                'operator' => 'IN'
-            ]
-        ], [
-            'shifts' => [
-                'worker' => ['shifts' => false],
-                'activity' => true
-            ]
-        ] );
+        return parent::setInputArgs( $inputArgs );
     }
 
     /**
-     * @return ProfitLoss|null
+     * @param string $dateStart
+     * @param string $dateFinish
+     * @return $this
      */
-    public function getNewReport(): ProfitLoss
+    public function setDates(string $dateStart = '', string $dateFinish = ''): self
     {
-        return (new ProfitLoss(
-            $this->HTMLUtility,
-            $this->format
-        ))->setJobs( $this->getJobs() );
+        $this->getReportClient()->getProfitLossBuilder()->setDates( $dateStart, $dateFinish );
+        return parent::setDates( $dateStart, $dateFinish );
+    }
+
+    /**
+     * @return Report[]
+     */
+    public function getReports(): array
+    {
+        $builder = $this->getReportClient()->getProfitLossBuilder();
+        return [
+            $builder->getProfitLoss( $this->includeFactoryCosts ),
+            $builder->getArchive()
+        ];
     }
 }

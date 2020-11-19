@@ -6,25 +6,10 @@ namespace Phoenix;
 
 use Phoenix\Entity\ShiftFactory;
 use Phoenix\Page\ArchivePage\ArchivePageBuilder;
-use Phoenix\Page\ArchivePage\ArchivePageBuilderCustomer;
-use Phoenix\Page\ArchivePage\ArchivePageBuilderFurniture;
-use Phoenix\Page\ArchivePage\ArchivePageBuilderJob;
-use Phoenix\Page\ArchivePage\ArchivePageBuilderSettings;
-use Phoenix\Page\ArchivePage\ArchivePageBuilderShift;
-use Phoenix\Page\ArchivePage\ArchivePageBuilderUser;
 use Phoenix\Page\DetailPage\DetailPageBuilder;
-use Phoenix\Page\DetailPage\DetailPageBuilderCustomer;
-use Phoenix\Page\DetailPage\DetailPageBuilderFurniture;
-use Phoenix\Page\DetailPage\DetailPageBuilderJob;
-use Phoenix\Page\DetailPage\DetailPageBuilderSetting;
-use Phoenix\Page\DetailPage\DetailPageBuilderShift;
-use Phoenix\Page\DetailPage\DetailPageBuilderUser;
-use Phoenix\Page\EntityPageBuilder;
 use Phoenix\Page\IndexPageBuilder;
 use Phoenix\Page\PageBuilder;
 use Phoenix\Page\ReportPage\ReportPageBuilder;
-use Phoenix\Page\ReportPage\ReportPageBuilderActivitySummary;
-use Phoenix\Page\ReportPage\ReportPageBuilderProfitLoss;
 
 /**
  * Class DirectorCRM
@@ -46,91 +31,6 @@ class DirectorCRM extends Director
     */
 
     /**
-     * @param string $pageType
-     * @param string $entityType
-     * @return EntityPageBuilder|null
-     */
-    public function getEntityPageBuilder(string $pageType = '', string $entityType = ''): ?EntityPageBuilder
-    {
-        if ( $pageType === 'detail' ) {
-            return $this->getDetailPageBuilder( $entityType );
-        }
-        return $this->getArchivePageBuilder( $entityType );
-    }
-
-    /**
-     * @param string $entityType
-     * @return DetailPageBuilder|null
-     */
-    public function getDetailPageBuilder(string $entityType = ''): ?DetailPageBuilder
-    {
-        switch( $entityType ) {
-            case 'customer':
-            case 'customers':
-                return new DetailPageBuilderCustomer( $this->db, $this->messages );
-            case 'furniture':
-                return new DetailPageBuilderFurniture( $this->db, $this->messages );
-            case 'job':
-            case 'jobs':
-                return new DetailPageBuilderJob( $this->db, $this->messages );
-            case 'shift':
-            case 'shifts':
-                return new DetailPageBuilderShift( $this->db, $this->messages );
-            case 'user':
-            case 'users':
-                return new DetailPageBuilderUser( $this->db, $this->messages );
-            case 'setting':
-            case 'settings':
-                return new DetailPageBuilderSetting( $this->db, $this->messages );
-        }
-        return null;
-    }
-
-    /**
-     * @param string $entityType
-     * @return ArchivePageBuilder|null
-     */
-    public function getArchivePageBuilder(string $entityType = ''): ?ArchivePageBuilder
-    {
-        switch( $entityType ) {
-            case 'customer':
-            case 'customers':
-                return new ArchivePageBuilderCustomer( $this->db, $this->messages );
-            case 'furniture':
-                return new ArchivePageBuilderFurniture( $this->db, $this->messages );
-            case 'job':
-            case 'jobs':
-                return new ArchivePageBuilderJob( $this->db, $this->messages );
-            case 'shift':
-            case 'shifts':
-                return new ArchivePageBuilderShift( $this->db, $this->messages );
-            case 'user':
-            case 'users':
-                return new ArchivePageBuilderUser( $this->db, $this->messages );
-            case 'setting':
-            case 'settings':
-                return new ArchivePageBuilderSettings( $this->db, $this->messages );
-        }
-        return null;
-    }
-
-    /**
-     * @param string $reportType
-     * @return ReportPageBuilder|null
-     */
-    public function getReportPageBuilder(string $reportType = ''): ?ReportPageBuilder
-    {
-        switch( $reportType ) {
-            case 'profit_loss':
-                return new ReportPageBuilderProfitLoss( $this->db, $this->messages );
-            case 'activity_summary':
-            case 'billable_vs_non':
-                return new ReportPageBuilderActivitySummary( $this->db, $this->messages );
-        }
-        return null;
-    }
-
-    /**
      * @param array $inputArray
      * @return PageBuilder
      */
@@ -141,7 +41,14 @@ class DirectorCRM extends Director
             case 'archive':
             case 'detail':
                 $entityType = $inputArray['entity'] ?? '';
-                $pageBuilder = $this->getEntityPageBuilder( $pageType, $entityType );
+
+                if ( $pageType === 'detail' ) {
+                    $pageBuilder = DetailPageBuilder::create( $this->db, $this->messages, $this->url, $entityType );
+                } else {
+                    $pageBuilder = ArchivePageBuilder::create( $this->db, $this->messages, $this->url, $entityType );
+                }
+                //$pageBuilder = EntityPageBuilder::create($this->db, $this->messages, $this->url, $pageType, $entityType );
+
                 if ( $pageBuilder !== null ) {
                     return $pageBuilder->setInputArgs( $inputArray );
                 }
@@ -153,11 +60,9 @@ class DirectorCRM extends Director
                 break;
             case 'report':
                 $reportType = $inputArray['report'] ?? '';
-                $pageBuilder = $this->getReportPageBuilder( $reportType );
+                $pageBuilder = ReportPageBuilder::create( $this->db, $this->messages, $this->url, $reportType );
                 if ( $pageBuilder !== null ) {
-                    return $pageBuilder
-                        ->setDates( $inputArray['date_start'] ?? '', $inputArray['date_finish'] ?? '' )
-                        ->setReportType( $reportType );
+                    return $pageBuilder->setInputArgs($inputArray);
                 }
                 if ( empty( $reportType ) ) {
                     $message = 'Redirected to main page because no report type was requested for report page.';
@@ -167,7 +72,7 @@ class DirectorCRM extends Director
         }
 
         if ( empty( $message ) ) {
-            return new IndexPageBuilder( $this->db, $this->messages );
+            return new IndexPageBuilder( $this->db, $this->messages, $this->url );
         }
         $this->messages->add( $message );
         redirect( 'index.php' );

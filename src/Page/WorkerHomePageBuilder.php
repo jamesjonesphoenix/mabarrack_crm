@@ -7,8 +7,6 @@ use Phoenix\Entity\Shift;
 use Phoenix\Utility\DateTimeUtility;
 use Phoenix\Entity\SettingFactory;
 use Phoenix\Entity\ShiftFactory;
-use Phoenix\Report\Archive\ArchiveTableShiftsWorkerHome;
-use Phoenix\Report\Worker\WorkerTimeClockRecord;
 
 /**
  * Class WorkerPageBuilder
@@ -24,15 +22,18 @@ class WorkerHomePageBuilder extends WorkerPageBuilder
     /**
      * @var string
      */
-    private string $startDate = '';
+    private string $dateStart = '';
 
     /**
-     * @param string $startDate
+     * @param string $dateStart
      * @return $this
      */
-    public function setStartDate(string $startDate = ''): self
+    public function setDateStart(string $dateStart = ''): self
     {
-        $this->startDate = $startDate;
+        // $this->dateStart  = WorkerWeekReport::getDefaultDates( $dateStart );
+
+        $this->dateStart = $dateStart;
+
         return $this;
     }
 
@@ -42,13 +43,17 @@ class WorkerHomePageBuilder extends WorkerPageBuilder
      */
     public function buildPage(): self
     {
+        $this->getReportClient()->getShiftsReportBuilder()->setUser( $this->user );
+
         $this->page = $this->getNewPage()->setTitle( $this->user->getNamePossessive() . ' Dashboard' );
         $this->addActionButtons();
         $this->addNews();
-        $this->addWorkerHoursSummary();
-        $this->addWorkerShiftsTables();
-        $this->addTimeClockRecord();
 
+        $this->addWorkerHoursSummary();
+
+        $this->addWorkerShiftsTables();
+
+        $this->addTimeClockRecord();
 
         return $this;
     }
@@ -76,17 +81,17 @@ class WorkerHomePageBuilder extends WorkerPageBuilder
         return $this;
     }
 
+
     /**
      * @return $this
      * @throws \Exception
      */
     public function addWorkerHoursSummary(): self
     {
-        $timeClockRecordThisWeek = (new WorkerTimeClockRecord(
-            $this->HTMLUtility,
-            $this->format
-        ))->setStartAndFinishDates( $this->startDate )
-            ->setShifts( $this->user->shifts );
+        $timeClockRecordThisWeek = $this->getReportClient()->getShiftsReportBuilder()
+            ->setDatesForWeek()
+            ->getTimeClockRecord();
+
         $timeClockRecordThisWeek->getData();
 
         $this->page->setWorkerHoursTable( $this->HTMLUtility::getTableHTML( [
@@ -112,13 +117,9 @@ class WorkerHomePageBuilder extends WorkerPageBuilder
     public function addTimeClockRecord(): self
     {
         $this->page->addContent(
-            (new WorkerTimeClockRecord(
-                $this->HTMLUtility,
-                $this->format
-            ))
-                ->setStartAndFinishDates( $this->startDate )
-                ->setUsername( $this->user->name )
-                ->setShifts( $this->user->shifts )
+            $this->getReportClient()->getShiftsReportBuilder()
+                ->setDatesForWeek( $this->dateStart )
+                ->getTimeClockRecord()
                 ->render()
         );
         return $this;
@@ -133,24 +134,20 @@ class WorkerHomePageBuilder extends WorkerPageBuilder
         $shiftsCurrent = $this->user->shifts->getUnfinishedShifts();
         $dummyShift = (new ShiftFactory( $this->db, $this->messages ))->getNew();
 
-        $currentShiftArchive = (new ArchiveTableShiftsWorkerHome(
-            $this->HTMLUtility,
-            $this->format,
-        ))
-            ->setEntities( $shiftsCurrent->getAll(), $dummyShift )
+        $currentShiftArchive = $this->getReportClient()->getFactory()->archiveTables()->getShiftsWorkerHome()
+            ->setEntities( $shiftsCurrent )
             ->setTitle( 'Your Current ' . ucfirst( $shiftsCurrent->getPluralOrSingular() ) )
             ->setEmptyMessageClass( 'info' )
             ->setEmptyMessage( 'You are not currently clocked into any shifts.' )
-            ->removeErrors();
+            ->removeErrors()
+            ->setDummyEntity( $dummyShift );
 
-        $shiftLatestArchive = (new ArchiveTableShiftsWorkerHome(
-            $this->HTMLUtility,
-            $this->format,
-        ))
-            ->setEntities( $this->user->shifts->getLastWorkedShifts( 5 )->getAll(), $dummyShift )
+        $shiftLatestArchive = $this->getReportClient()->getFactory()->archiveTables()->getShiftsWorkerHome()
+            ->setEntities( $this->user->shifts->getLastWorkedShifts( 5 ) )
             ->setTitle( 'Your Most Recent Shifts' )
             ->setEmptyMessage( 'No recent shifts found.' )
-            ->removeErrors();
+            ->removeErrors()
+            ->setDummyEntity( $dummyShift );
 
 
         $currentShiftArchive->getData(); // hackish - extractData() now run twice
@@ -213,7 +210,7 @@ class WorkerHomePageBuilder extends WorkerPageBuilder
     private function getStartShiftButtons(bool $todayShifts, Shift $unfinishedShift = null): array
     {
         $cutoffTime = (new SettingFactory( $this->db, $this->messages ))->getCutoffTime();
-        
+
         $minutes = 5;
         $fuzzyCutOffTime = (new DateTime( $cutoffTime ))->modify( '-' . $minutes . ' minutes' )->format( 'H:i' );
 
@@ -222,9 +219,9 @@ class WorkerHomePageBuilder extends WorkerPageBuilder
         if ( DateTimeUtility::isAfter( $currentTime, $fuzzyCutOffTime ) ) {
             $shimText = DateTimeUtility::isAfter( $currentTime, $cutoffTime ) ? 'is later than' : 'is less than ' . $minutes . ' minutes from';
             $this->messages->add( "You can't start any more shifts today as the current time "
-                . $this->HTMLUtility::getBadgeHTML( $currentTime )
+                . $this->HTMLUtility::getBadgeHTML( $currentTime, 'primary' )
                 . ' ' . $shimText . ' the cutoff time'
-                . $this->HTMLUtility::getBadgeHTML( $cutoffTime ) . '.',
+                . $this->HTMLUtility::getBadgeHTML( $cutoffTime, 'primary' ) . '.',
                 'info' );
             return [];
         }

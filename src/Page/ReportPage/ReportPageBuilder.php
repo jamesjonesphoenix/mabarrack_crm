@@ -4,11 +4,13 @@
 namespace Phoenix\Page\ReportPage;
 
 
-use Phoenix\Form\SetReportDatesForm;
+use Phoenix\Form\PeriodicReportForm;
+use Phoenix\Messages;
+use Phoenix\Page\AdminPageBuilder;
 use Phoenix\Page\Page;
-use Phoenix\Page\PageBuilder;
-use Phoenix\Report\PeriodicReport;
-use function Phoenix\getScriptFilename;
+use Phoenix\PDOWrap;
+use Phoenix\Report\Report;
+use Phoenix\URL;
 
 /**
  * Class ReportPageBuilder
@@ -17,7 +19,7 @@ use function Phoenix\getScriptFilename;
  * @package Phoenix\Page\ReportPage
  *
  */
-abstract class ReportPageBuilder extends PageBuilder
+abstract class ReportPageBuilder extends AdminPageBuilder
 {
     /**
      * @var Page
@@ -37,20 +39,47 @@ abstract class ReportPageBuilder extends PageBuilder
     /**
      * @var string
      */
-    protected string $reportType;
+    protected string $reportType = '';
+
+
+    /**
+     * @var string
+     */
+    protected string $title = 'Report';
+
+    /**
+     * @param array $inputArgs
+     * @return $this
+     */
+    public function setInputArgs(array $inputArgs = []): self
+    {
+        $this->setDates( $inputArgs['date_start'] ?? '', $inputArgs['date_finish'] ?? '' )
+            ->setReportType( $inputArgs['report'] ?? '' );
+        return parent::setInputArgs( $inputArgs );
+    }
 
 
     /**
      * @return $this
+     * @throws \Exception
      */
     public function buildPage(): self
     {
         $this->page = $this->getNewPage()
-            ->setTitle( 'CRM Report' )
+            /*
+                        ->setTitle(
+                            $this->makeTitle(
+                                $this->getFactory()->shiftsReports()->annotateTitleWithInputs( $this->title )
+                            )
+                        )
+            */
+            ->setTitle(
+                $this->title
+            )
             ->setHeadTitle( 'Report' );
         $this->addNavLinks();
-        $this->addSetReportDatesForm();
-        $this->addReport();
+        $this->addPeriodicReportForm();
+        $this->addReports();
         return $this;
     }
 
@@ -59,15 +88,15 @@ abstract class ReportPageBuilder extends PageBuilder
      */
     public function addNavLinks(): self
     {
-        $url = getScriptFilename() . '?page=report&date_start=' . $this->dateStart . '&date_finish=' . $this->dateFinish . '&report=';
+        $url = $this->getURL();
         foreach ( [
                       'profit_loss' => 'Profit Loss',
                       'activity_summary' => 'Activities Summary',
-                      'billable_vs_non' => 'Value Adding vs. Non-Chargeable'
+                      'worker_week' => 'Worker Week'
                   ] as $reportType => $title ) {
-            if ( $this->reportType !== $reportType ) {
+            if ( ($this->reportType ?? null) !== $reportType ) {
                 $navLinks[$reportType] = [
-                    'url' => $url . $reportType,
+                    'url' => $url->setQueryArg( 'report', $reportType )->write(),
                     'text' => $title
                 ];
             }
@@ -85,39 +114,19 @@ abstract class ReportPageBuilder extends PageBuilder
     {
         $this->dateStart = $dateStart;
         $this->dateFinish = $dateFinish;
-
+        $this->setURL(
+            $this->getURL()->setQueryArgs( [
+                'date_start' => $dateStart,
+                'date_finish' => $dateFinish
+            ] )
+        );
         return $this;
     }
 
     /**
-     * @return bool
+     * @param string $reportType
+     * @return $this
      */
-    public function validateDates(): bool
-    {
-        if ( empty( $this->dateStart ) ) {
-            if ( empty( $this->dateFinish ) ) {
-                $this->messages->add( '<strong>Error:</strong> No dates were set for report.' );
-                return false;
-            }
-            $this->messages->add( '<strong>Error:</strong> Start date was not set for report.' );
-            return false;
-        }
-        if ( empty( $this->dateFinish ) ) {
-            $this->messages->add( '<strong>Error:</strong> End date was not set for report.' );
-            return false;
-        }
-        $differenceDays = (integer)(date_diff( date_create( $this->dateStart ), date_create( $this->dateFinish ) ))->format( '%R%a' );
-        if ( $differenceDays < 0 ) {
-            $this->messages->add( "<strong>Error:</strong> Can't generate report because end date is before start date." );
-            return false;
-        }
-        if ( $differenceDays === 0 ) {
-            $this->messages->add( "<strong>Error:</strong> Can't generate report because start date and end date are identical." );
-            return false;
-        }
-        return true;
-    }
-
     public function setReportType(string $reportType = ''): self
     {
         $this->reportType = $reportType;
@@ -126,49 +135,84 @@ abstract class ReportPageBuilder extends PageBuilder
 
 
     /**
+     * @return PeriodicReportForm
+     */
+    public function getPeriodicReportForm(): PeriodicReportForm
+    {
+        return (new PeriodicReportForm(
+            $this->HTMLUtility,
+            $this->getURL()
+        ))
+            ->setDates(
+                $this->dateStart,
+                $this->dateFinish
+            )
+            ->makeFields();
+    }
+
+    /**
      * @return $this
      */
-    public function addSetReportDatesForm(): self
+    public function addPeriodicReportForm(): self
     {
         $this->page->addContent(
-            (new SetReportDatesForm(
-                $this->HTMLUtility,
-                $this->dateStart,
-                $this->dateFinish,
-                $this->reportType
-            ))
-                ->makeFields()
-                ->render()
+            $this->getPeriodicReportForm()->render()
         );
         return $this;
     }
 
     /**
-     * @return PeriodicReport|null
+     * @return Report[]
      */
-    abstract public function getNewReport(): ?PeriodicReport;
+    abstract public function getReports(): array;
 
     /**
      * @return $this
+     * @throws \Exception
      */
-    public function addReport(): self
+    public function addReports(): self
     {
-        $report = $this->getNewReport()->setDates( $this->dateStart, $this->dateFinish );
-        if ( $report === null ) {
-            return $this;
+        $reports = $this->getReports();
+
+        foreach ( $reports as $report ) {
+
+            if ( $report === null ) {
+                continue;
+            }
+            $this->page->addContent(
+                $report->render()
+            );
         }
-        if ( !empty( $this->dateStart ) && !empty( $this->dateFinish ) ) {
-            $title = $report->getTitle()
-                . ' <small>'
-                . $this->HTMLUtility::getBadgeHTML( date( 'd-m-Y', strtotime( $this->dateStart ) ) )
-                . ' to '
-                . $this->HTMLUtility::getBadgeHTML( date( 'd-m-Y', strtotime( $this->dateFinish ) ) )
-                . '</small>';
-            $report->setTitle( $title );
-        }
-        $this->page->addContent(
-            $report->render()
-        );
         return $this;
+    }
+
+    /**
+     * @param string $title
+     * @return string
+     */
+    protected function makeTitle(string $title = ''): string
+    {
+        return $title;
+    }
+
+
+    /**
+     * @param PDOWrap  $db
+     * @param Messages $messages
+     * @param URL      $url
+     * @param string   $reportType
+     * @return static|null
+     */
+    public static function create(PDOWrap $db, Messages $messages, URL $url, string $reportType = ''): ?self
+    {
+        switch( $reportType ) {
+            case 'profit_loss':
+                return new ReportPageBuilderProfitLoss( $db, $messages, $url );
+            case 'activity_summary':
+                return new ReportPageBuilderActivitySummary( $db, $messages, $url );
+            case 'worker_week':
+                return new ReportPageBuilderWorkerWeek( $db, $messages, $url );
+        }
+        return null;
     }
 }

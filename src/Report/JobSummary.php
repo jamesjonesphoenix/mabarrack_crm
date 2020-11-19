@@ -28,9 +28,9 @@ class JobSummary extends Report
      */
     protected array $columns = [
         'item' => 'Item',
-        'value' => 'Value',
-        'percent_sum_cost' => '% of Sum Cost',
-        'notes' => ''
+        'value' => ['title' => 'Value', 'format' => 'currency'],
+        'percent_sum_cost' => ['title' => '% of Sum Cost', 'format' => 'percentage'],
+        'notes' => ['title' => '', 'format' => 'percentage']
     ];
 
     /**
@@ -51,7 +51,7 @@ class JobSummary extends Report
         return [
             'employee_cost_manual' => 'Employee Cost Manual',
             'employee_cost_cnc' => 'Employee Cost CNC',
-            'employee_cost_other' => 'Employee Cost Other*',
+            'employee_cost_general' => 'Employee Cost General*',
             'employee_cost' => 'Total Employee Cost',
             'material_cost' => 'Material Cost',
             'contractor_cost' => 'Contractor Cost',
@@ -94,10 +94,12 @@ class JobSummary extends Report
         $totalProfit = $job->getTotalProfit();
         $naString = 'N/A';
 
+        // d($job->shifts);
+
         $currencyValues = [
             'employee_cost_manual' => $job->shifts->getWorkerCost( 'Manual' ),
             'employee_cost_cnc' => $job->shifts->getWorkerCost( 'CNC' ),
-            'employee_cost_other' => $job->shifts->getWorkerCost( 'All' ),
+            'employee_cost_general' => $job->shifts->getWorkerCost( 'General' ),
             'employee_cost' => $job->shifts->getTotalWorkerCost(),
             'material_cost' => $job->materialCost,
             'contractor_cost' => $job->contractorCost,
@@ -109,10 +111,6 @@ class JobSummary extends Report
         foreach ( $currencyValues as $rowName => $currencyValue ) {
             $percentValues[$rowName] = $doCalculatePercentage ? $currencyValue / $totalCost : $naString;
         }
-        $currencyValues = $this->format::formatArrayValues( $currencyValues, 'currency' );
-        if ( $doCalculatePercentage ) {
-            $percentValues = $this->format::formatArrayValues( $percentValues, 'percentage' );
-        }
 
         foreach ( self::getRowTitles() as $rowName => $rowTitle ) {
             $returnData[$rowName] = [
@@ -123,13 +121,18 @@ class JobSummary extends Report
             ];
         }
         //Add "custom" table items
-        $returnData['employee_cost_other']['notes'] = '<p class="mb-0 d-print-none"><small>*Activities recorded before we started recording CNC and Manual work separately.</small></p>';
-        $returnData['profit_header'] = array_merge( $returnData['profit_header'], [
+        foreach ( $job->shifts->getAll() as $shift ) {
+            if ( !$shift->activity->isActive() ) {
+                $returnData['employee_cost_general']['notes'] = '<p class="mb-0 d-print-none"><small>*Includes activities recorded before CNC and Manual specific activities were created.</small></p>';
+                break;
+            }
+        }
+        $returnData['profit_header'] = array_merge( $returnData['profit_header'] ?? [], [
             'value' => 'Value',
             'percent_sum_cost' => '% of Sum Cost (Markup)',
             'notes' => '% of Sale Price (Gross Margin)',
         ] );
-        $returnData['total_profit']['notes'] = (int)$job->salePrice !== 0 ? $this->format::percentage( $totalProfit / $job->salePrice ) : $naString; //gross margin
+        $returnData['total_profit']['notes'] = (int)$job->salePrice !== 0 ? $totalProfit / $job->salePrice : $naString; //gross margin
 
         return $returnData;
     }

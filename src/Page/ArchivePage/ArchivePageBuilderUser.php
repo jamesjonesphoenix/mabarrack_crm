@@ -65,12 +65,4 @@ class ArchivePageBuilderUser extends ArchivePageBuilder
     {
         return new MenuItemsUsers( $this->getEntityFactory() );
     }
-
-    /**
-     * @return ArchiveTableUsers
-     */
-    protected function getNewArchiveTableReport(): ArchiveTableUsers
-    {
-        return new ArchiveTableUsers( $this->HTMLUtility, $this->format );
-    }
 }

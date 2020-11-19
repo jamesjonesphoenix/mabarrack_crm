@@ -55,13 +55,31 @@ class Shifts extends Entities
             return new self();
         }
         foreach ( $this->entities as $shift ) {
-            if ( DateTimeUtility::isAfter( $shift->date, $dateStart )
-                && DateTimeUtility::isBefore( $shift->date, $dateFinish ) ) {
+            if ( DateTimeUtility::isAfter( $shift->date, $dateStart, true )
+                && DateTimeUtility::isBefore( $shift->date, $dateFinish, true ) ) {
                 $shifts[$shift->id] = $shift;
             }
         }
         return new self( $shifts ?? [] );
+    }
 
+    /**
+     * @param string $dateStart
+     * @param string $dateFinish
+     * @return float
+     */
+    public function calculateCompletionOverPeriod($dateStart = '', $dateFinish = ''): float
+    {
+        $periodWorkerCost = 0;
+        $totalWorkerCost = 0;
+        foreach ( $this->entities as $shift ) {
+            if ( DateTimeUtility::isAfter( $shift->date, $dateStart, true )
+                && DateTimeUtility::isBefore( $shift->date, $dateFinish, false ) ) {
+                $periodWorkerCost += $shift->getShiftCost();
+            }
+            $totalWorkerCost += $shift->getShiftCost();
+        }
+        return $periodWorkerCost / $totalWorkerCost;
     }
 
     /**
@@ -121,19 +139,6 @@ class Shifts extends Entities
         return new self( $returnShifts ?? [] );
     }
 
-    /**
-     * @param Shift $shift
-     * @return array
-     */
-    public function addOrReplaceShift(Shift $shift): array
-    {
-        $shifts = $this->entities;
-        if ( empty( $shifts[$shift->id] ) ) {
-            return [$shift->id => $shift] + $shifts;
-        }
-        $shifts[$shift->id] = $shift;
-        return $shifts;
-    }
 
     /**
      * Returns array of unfinished shifts. It should only return a single shift in normal circumstances
@@ -164,13 +169,6 @@ class Shifts extends Entities
         return (new self( $returnShifts ?? [] ));
     }
 
-    /**
-     * @return int
-     */
-    public function getCount(): int
-    {
-        return count( $this->entities );
-    }
 
     /**
      * Type is is activity type
@@ -243,10 +241,13 @@ class Shifts extends Entities
             return $this->entities;
         }
         foreach ( $this->entities as $shift ) {
-            if ( !empty( $shift->activity->type ) && $shift->activity->type === $type ) {
+
+            if ( $shift->activity->type === $type ) {
                 $returnShifts[$shift->id] = $shift;
             }
         }
         return $returnShifts ?? [];
     }
+
+
 }

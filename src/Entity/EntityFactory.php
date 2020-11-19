@@ -125,6 +125,17 @@ abstract class EntityFactory extends AbstractCRM
         return array_column( $this->getAll(), 'name', 'id' );
     }
 
+    public function getJobStatusesOptionsArray(): array
+    {
+        return array_column(
+            $this->getEntities( ['name' => [
+                'value' => 'jobstat',
+                'operator' => 'LIKE']
+            ] ),
+            'value', 'name'
+        );
+    }
+
     /**
      * @return Entity
      */
@@ -202,9 +213,9 @@ abstract class EntityFactory extends AbstractCRM
      */
     public function countAllWithErrors(int $max = 9999): ?int
     {
-        return count(
-            (new Entities( $this->getAll() ))->getEntitiesWithErrors( $max )
-        );
+        return (new Entities( $this->getAll() ))
+            ->getEntitiesWithErrors( $max )
+            ->getCount();
     }
 
     /**

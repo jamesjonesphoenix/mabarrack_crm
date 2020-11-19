@@ -1,7 +1,7 @@
 <?php
 
 
-namespace Phoenix\Report\Worker;
+namespace Phoenix\Report\Shifts\Worker;
 
 
 /**
@@ -11,7 +11,7 @@ namespace Phoenix\Report\Worker;
  * @package Phoenix\Report
  *
  */
-class WorkerWeeklySummary extends WorkerReport
+class WorkerWeekSummary extends WorkerWeekReport
 {
 
     /**
@@ -55,34 +55,40 @@ class WorkerWeeklySummary extends WorkerReport
         if ( $this->shifts->getCount() === 0 ) {
             return [];
         }
-        $totals['total_value_adding'] = 0;
-        $totals['total_non_chargeable'] = 0;
-        $totals['total_recorded'] = 0;
+        $totals = [
+            'total_value_adding' => 0,
+            'total_non_chargeable' => 0,
+            'total_recorded' => 0,
 
-        $totals['factory_all'] = 0; //total time spent on factory
-        $totals['factory_with_job_number'] = 0;
-        $totals['factory_without_job_number'] = 0;
+            'factory_all' => 0, //total time spent on factory
+            'factory_with_job_number' => 0,
+            'factory_without_job_number' => 0,
 
-        $totals['lunch'] = 0;
-        $totals['total_paid'] = 0; //non lunch minutes
+            'lunch' => 0,
+            'total_paid' => 0 //non lunch minutes
+        ];
 
         foreach ( $this->shifts->getAll() as $shift ) {
             $shiftLength = $shift->getShiftLength();
-            $totals['total_value_adding'] += $shift->activity->chargeable ? $shiftLength : 0;
-            $totals['total_non_chargeable'] += !$shift->activity->chargeable ? $shiftLength : 0;
+            if ( $shift->activity->chargeable ) {
+                $totals['total_value_adding'] += $shiftLength;
+            } else {
+                $totals['total_non_chargeable'] += $shiftLength;
+            }
             $totals['total_recorded'] += $shiftLength;
 
-            if ( $shift->job->customer === 0 && $shift->activity->name !== 'Lunch' ) { //internal job
-                $totals['factory_all'] += $shiftLength;
-                if ( $shift->job->id === 0 ) {
-                    $totals['factory_without_job_number'] += $shiftLength; //add minutes of this shift to total
-                } elseif ( $shift->job->id > 0 ) {
-                    $totals['factory_with_job_number'] += $shiftLength;
-                }
-            }
-            if ( $shift->activity->displayName === 'Lunch' ) {
+            if ( $shift->isLunch() === 'lunch' ) {
                 $totals['lunch'] += $shiftLength;
             } else {
+                if ( $shift->job->customer->id === 0 ) { //internal job
+                    $totals['factory_all'] += $shiftLength;
+                    if ( $shift->job->id === 0 ) {
+                        $totals['factory_without_job_number'] += $shiftLength; //add minutes of this shift to total
+                    } elseif ( $shift->job->id > 0 ) {
+                        $totals['factory_with_job_number'] += $shiftLength;
+                    }
+                }
+
                 $totals['total_paid'] += $shiftLength;
             }
         }

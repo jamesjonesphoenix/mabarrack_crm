@@ -37,7 +37,8 @@ class CustomerEntityForm extends DetailPageEntityForm
             'name' => 'email_address',
             'value' => $this->entity->emailAddress,
             'label' => 'Email Address',
-            'disabled' => $this->isDisabled()
+            'disabled' => $this->isDisabled(),
+            'append' => $this->htmlUtility::getViewButton( $this->entity->getEmailLink(), 'Email ' . ($this->entity->name ?? 'Customer') )
         ] );
         return $this;
     }
@@ -50,13 +51,13 @@ class CustomerEntityForm extends DetailPageEntityForm
         ob_start();
         ?>
         <div class="form-row">
-            <div class="form-group col-md-4">
+            <div class="form-group col-md-2">
                 <?php echo $this->getIdFieldHTML(); ?>
             </div>
-            <div class="form-group col-md-4">
+            <div class="form-group col-md-5">
                 <?php echo $this->fields['name']; ?>
             </div>
-            <div class="form-group col-md-4">
+            <div class="form-group col-md-5">
                 <?php echo $this->fields['email_address']; ?>
             </div>
         </div>

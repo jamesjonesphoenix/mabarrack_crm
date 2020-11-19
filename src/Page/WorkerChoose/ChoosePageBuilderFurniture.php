@@ -3,7 +3,6 @@
 namespace Phoenix\Page\WorkerChoose;
 
 use Phoenix\Entity\JobFactory;
-use Phoenix\Report\ChooseFurnitureTable;
 
 /**
  * Class ChoosePageBuilderFurniture
@@ -22,7 +21,7 @@ class ChoosePageBuilderFurniture extends ChoosePageBuilder
     /**
      * @var string
      */
-    protected string $pageTitle = 'Choose Furniture';
+    protected string $title = 'Choose Furniture';
 
     /**
      * @param int|null $jobID
@@ -60,6 +59,7 @@ class ChoosePageBuilderFurniture extends ChoosePageBuilder
 
     /**
      * @return $this
+     * @throws \Exception
      */
     public function addChooseTables(): self
     {
@@ -69,10 +69,10 @@ class ChoosePageBuilderFurniture extends ChoosePageBuilder
         }
         $job = (new JobFactory( $this->db, $this->messages ))->getJob( $jobID );
 
-        $this->page->addContent( (new ChooseFurnitureTable(
-            $this->HTMLUtility,
-            $this->format
-        ))->setJobs( $job )->render() );
+        $this->page->addContent(
+            $this->getReportClient()->getFactory()->getChooseFurnitureTable()
+                ->setJobs( $job )
+                ->render() );
 
         return $this;
     }

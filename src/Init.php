@@ -57,6 +57,11 @@ class Init
     private bool $doingCRON = false;
 
     /**
+     * @var URL
+     */
+    private URL $url;
+
+    /**
      * Init constructor.
      */
     public function __construct()
@@ -72,7 +77,7 @@ class Init
         */
         $this->messages = new Messages( $this->htmlUtility );
         $this->secureSessionStart();
-
+        $this->url = new URL();
     }
 
     /**
@@ -89,7 +94,7 @@ class Init
             $user = $userFactory->getEntity( $this->userID, false );
 
             if ( $user === null ) {
-                $this->messages->add( 'Could not get current user' . $this->htmlUtility::getBadgeHTML( 'ID: ' . $this->userID ) );
+                $this->messages->add( 'Could not get current user' . $this->htmlUtility::getBadgeHTML( 'ID: ' . $this->userID, 'danger' )  );
             }
 
             // if ( $user->role === 'staff' ) {
@@ -242,13 +247,15 @@ class Init
             return new DirectorWorker(
                 $this->getDB(),
                 $this->getMessages(),
+                $this->getURL(),
                 $this->getHtmlUtility(),
                 $this->getCurrentUser()
             );
         }
         return new DirectorCRM(
             $this->getDB(),
-            $this->getMessages()
+            $this->getMessages(),
+            $this->getURL()
         );
     }
 
@@ -269,6 +276,14 @@ class Init
             ->render(
                 $this->getMessages()->getMessagesHTML()
             );
+    }
+
+    /**
+     * @return URL
+     */
+    public function getURL(): URL
+    {
+        return $this->url;
     }
 
     /**

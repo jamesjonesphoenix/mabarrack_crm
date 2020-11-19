@@ -121,12 +121,17 @@ class Format
         if ( empty( $date ) ) {
             return '';
         }
+        // DateTimeUtility::validateDate($date);
+
+        $diffDate = date_create( $date );
+        if ( empty( $diffDate ) ) {
+            return $date;
+        }
 
         $difference = (new DateTime())
             ->setTime( 0, 0, 0 )
             ->diff(
-                DateTime::createFromFormat( 'd-m-Y', $date )
-                    ->setTime( 0, 0, 0 )
+                $diffDate->setTime( 0, 0, 0 )
             );
 
         if ( $difference->d === 0 ) {
@@ -172,34 +177,38 @@ class Format
     public
     static function annotateDate(string $date = '', $allDays = false): string
     {
-        $date = self::date( $date );
-        if ( empty( $date ) ) {
+        $dateTime = date_create( $date );
+        if ( empty( $dateTime ) ) {
             return $date;
         }
-        /*
-        if ( strlen( $date ) > 10 ) {
-            return $date;
-        }
-        */
         $annotation = self::daysFromTodayToWords( $date, $allDays );
         if ( !empty( $annotation ) ) {
-            $date .= ' <small class="d-print-none">(' . $annotation . ')</small>';
+            return $dateTime->format( 'd-m-Y' ) . ' <small class="d-print-none">(' . $annotation . ')</small>';
         }
         return $date;
     }
 
+
+    public
+    static function percentageExtraDecimals($value): string
+    {
+
+        return self::percentage($value, 3);
+    }
+
     /**
      * @param float $value
+     * @param int   $numberOfPlaces
      * @return string
      */
     public
-    static function percentage($value): string
+    static function percentage($value, $numberOfPlaces = 1): string
     {
         if ( !is_numeric( $value ) ) {
             return $value;
         }
         // if ( $value === (float)0  ) { return '-'; }
-        return number_format( 100 * $value, 1 ) . '%';
+        return number_format( 100 * $value, $numberOfPlaces ) . '%';
     }
 
     /**
@@ -226,7 +235,9 @@ class Format
         ]];
         switch( $format ) {
             case 'currency' :
-                $methodName = 'currency';
+            case 'percentage':
+            case 'percentageExtraDecimals':
+                $methodName = $format;
                 //'&#45'
                 $shimArgs = array_merge( $shimArgs, [[
                     'match' => ',',
@@ -235,9 +246,6 @@ class Format
                 break;
             case 'hoursminutes':
                 $methodName = 'minutesToHoursMinutes';
-                break;
-            case 'percentage':
-                $methodName = 'percentage';
                 break;
             case 'date':
                 $methodName = 'date';
@@ -260,6 +268,26 @@ class Format
             default:
                 return $array;
         }
+
+        if ( !empty( $methodName ) ) {
+            foreach ( $array as $key => $value ) {
+                $formattedValue = self::$methodName( $value );
+                if ( $formattedValue !== $value ) {
+                    $newArray[$key] = $formattedValue;
+                }
+                //
+            }
+        }
+        if ( empty( $doNotShim ) ) {
+            $newArray = self::insertShims( $newArray ?? [], $shimArgs );
+        }
+        foreach ( $newArray ?? [] as $key => $value ) {
+            $array[$key] = $value;
+        }
+        return $array;
+
+
+        /*
         if ( !empty( $methodName ) ) {
             foreach ( $array as &$value ) {
                 $value = self::$methodName( $value );
@@ -270,6 +298,7 @@ class Format
             $array = self::insertShims( $array, $shimArgs );
         }
         return $array;
+        */
     }
 
     /**

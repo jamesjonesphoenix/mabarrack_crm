@@ -162,6 +162,14 @@ class User extends Entity
     /**
      * @return string
      */
+    public function getFirstName(): string
+    {
+        return strtok( $this->name, ' ' );
+    }
+
+    /**
+     * @return string
+     */
     public function getNamePossessive(): string
     {
         $name = $this->name;
@@ -267,11 +275,11 @@ class User extends Entity
         if ( $furnitureID !== null && $furnitureID !== '' ) {
             $newShift->furniture = (new FurnitureFactory( $this->db, $this->messages ))->getEntity( $furnitureID );
             if ( $newShift->furniture->id === null ) {
-                $errors[] = 'Furniture' . HTMLTags::getBadgeHTML( 'ID: ' . $furnitureID, 'danger' ) . " doesn't exist.";
+                $errors[] = 'Furniture' . $this->getIDBadge($furnitureID,'danger') . " doesn't exist.";
             }
         }
         if ( !empty( $errors ) ) {
-            return $this->addError( '<h5 class="alert-heading">Can\'t ' . $newShift->getActionString( 'present', 'start' ) . ':</h5>' . HTMLTags::getListGroup( $errors ) );
+            return $this->addError('<h5 class="alert-heading">Can\'t ' . $newShift->getActionString( 'present', 'start' ) . ':</h5>' . HTMLTags::getListGroup( $errors ) );
         }
         if ( !empty( $comment ) ) {
             $newShift->activityComments = $comment;
@@ -296,7 +304,7 @@ class User extends Entity
             $newShift->activity = (new ActivityFactory( $this->db, $this->messages ))->getEntity( $activityID );
             $newShift->job = (new JobFactory( $this->db, $this->messages ))->getJob( $jobID );
             $newShift->furniture = $newShift->job->furniture[$furnitureID] ?? null;
-            $this->shifts->addOrReplaceShift( $newShift );
+            $this->shifts->addOrReplace( $newShift );
             return $newShift;
         }
 
@@ -343,11 +351,11 @@ class User extends Entity
             $today = date( 'Y-m-d' );
             foreach ( $currentShifts as $shift ) {
                 if ( $shift->date !== $today ) {
-                    $date = !empty( $shift->date ) ? ' date ' . HTMLTags::getBadgeHTML( date( 'd-m-Y', strtotime( $shift->date ) ) ) : '';
+                    $date = !empty( $shift->date ) ? ' date ' . HTMLTags::getBadgeHTML( date( 'd-m-Y', strtotime( $shift->date ) ), 'primary' ) : '';
                     $errors[] = ucfirst( $userString ) . ' '
                         . $verbString
                         . ' an unfinished shift started on a day other than today.<br>An admin must manually set a finish time for shift'
-                        . $shift->getIDBadge() . $date . '.';
+                        . $shift->getIDBadge(null,'primary') . $date . '.';
                 }
             }
         }
@@ -371,7 +379,7 @@ class User extends Entity
         $unfinishedShift->worker = $this; //add user so Shift->healthCheck can confirm user role is staff
 
         $success = $unfinishedShift->finishShift();
-        $this->shifts->addOrReplaceShift( $unfinishedShift );
+        $this->shifts->addOrReplace( $unfinishedShift );
         return $success;
     }
 

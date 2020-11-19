@@ -40,11 +40,6 @@ class ArchivePageBuilderJob extends ArchivePageBuilder
     ];
 
     /**
-     * @var array
-     */
-    protected array $inessentialColumns = [];
-
-    /**
      * @return JobFactory
      */
     protected function getNewEntityFactory(): JobFactory
@@ -81,13 +76,5 @@ class ArchivePageBuilderJob extends ArchivePageBuilder
             return $this->entityFactory->getNew()->getIcon() . ' ' . $settingFactory->getSetting( $statusName );
         }
         return parent::getTitlePrefix();
-    }
-
-    /**
-     * @return ArchiveTableJobs
-     */
-    protected function getNewArchiveTableReport(): ArchiveTableJobs
-    {
-        return new ArchiveTableJobs( $this->HTMLUtility, $this->format );
     }
 }

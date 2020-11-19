@@ -3,6 +3,10 @@
 namespace Phoenix\Form;
 
 
+use Phoenix\Entity\Entity;
+use Phoenix\URL;
+use Phoenix\Utility\FormFields;
+
 /**
  * @author James Jones
  *
@@ -26,6 +30,24 @@ class GroupByEntityForm extends EntityForm
     private string $formAction = '';
 
     /**
+     * @var URL
+     */
+    private URL $url;
+
+    /**
+     * EntityForm constructor.
+     *
+     * @param FormFields $htmlUtility
+     * @param Entity     $entity
+     * @param URL        $url
+     */
+    public function __construct(FormFields $htmlUtility, Entity $entity, URL $url)
+    {
+        $this->url = $url;
+        parent::__construct( $htmlUtility, $entity );
+    }
+
+    /**
      * @param array  $columns
      * @param string $groupBy
      * @return $this
@@ -44,35 +66,13 @@ class GroupByEntityForm extends EntityForm
             'name' => 'group_by',
             'append' => '<button class="btn btn-primary" type="submit">Group</button>'
         ] );
-
+        $inputArgs = $this->url->getQueryArgs();
+        unset( $inputArgs['group_by'] );
+        $this->makeHiddenFields( $inputArgs );
         return $this;
     }
 
-    /**
-     * @param array $inputArgs
-     * @return $this
-     */
-    public function makeHiddenFields(array $inputArgs = []): self
-    {
-        foreach ( $inputArgs as $inputArgName => $inputArgValue ) {
-            if ( is_string( $inputArgValue ) || is_numeric( $inputArgValue ) ) {
-                $this->fields['hidden'][$inputArgName] = $this->htmlUtility::getHiddenFieldHTML( [
-                    'name' => $inputArgName,
-                    'value' => $inputArgValue,
-                ] );
-            } elseif ( is_iterable( $inputArgValue ) ) {
-                foreach ( $inputArgValue as $nestedArgName => $nestedArgValue ) {
-                    if ( is_string( $nestedArgValue ) ) {
-                        $this->fields['hidden'][$inputArgName . '_' . $nestedArgName] = $this->htmlUtility::getHiddenFieldHTML( [
-                            'name' => $inputArgName . '[' . $nestedArgName . ']',
-                            'value' => $nestedArgValue,
-                        ] );
-                    }
-                }
-            }
-        }
-        return $this;
-    }
+
 
     /**
      * @param string $formAction

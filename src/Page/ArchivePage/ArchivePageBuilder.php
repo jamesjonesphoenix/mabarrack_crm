@@ -6,8 +6,11 @@ namespace Phoenix\Page\ArchivePage;
 use Phoenix\Entity\Entities;
 use Phoenix\Entity\Entity;
 use Phoenix\Form\GroupByEntityForm;
+use Phoenix\Messages;
 use Phoenix\Page\EntityPageBuilder;
+use Phoenix\PDOWrap;
 use Phoenix\Report\Archive\ArchiveTable;
+use Phoenix\URL;
 
 /**
  * Class ArchivePageBuilder
@@ -19,19 +22,14 @@ use Phoenix\Report\Archive\ArchiveTable;
 abstract class ArchivePageBuilder extends EntityPageBuilder
 {
     /**
-     * @var Entity[]
+     * @var Entities
      */
-    protected array $entities;
+    protected Entities $entities;
 
     /**
      * @var array
      */
     protected array $provisionArgs = [];
-
-    /**
-     * @var string
-     */
-    private string $groupBy = '';
 
     /**
      * @var mixed|ArchiveTable|null
@@ -54,9 +52,9 @@ abstract class ArchivePageBuilder extends EntityPageBuilder
     private bool $errorEntitiesOnly = false;
 
     /**
-     * @return Entity[]
+     * @return Entities
      */
-    public function getEntities(): array
+    public function getEntities(): Entities
     {
         if ( !empty( $this->entities ) ) {
             return $this->entities;
@@ -67,9 +65,11 @@ abstract class ArchivePageBuilder extends EntityPageBuilder
                 $queryArgs[$argName] = $this->inputArgs[$argName];
             }
         }
-        $entities = $this->getEntityFactory()->getEntities( $queryArgs, $this->provisionArgs );
+        $entities = new Entities(
+            $this->getEntityFactory()->getEntities( $queryArgs, $this->provisionArgs )
+        );
         if ( $this->errorEntitiesOnly ) {
-            $entities = (new Entities( $entities ))->getEntitiesWithErrors();
+            $entities =  $entities->getEntitiesWithErrors();
         }
 
         return $this->entities = $entities;
@@ -107,9 +107,6 @@ abstract class ArchivePageBuilder extends EntityPageBuilder
                         }
                     }
                     break;
-                case 'group_by':
-                    $this->groupBy = $inputArgValue;
-                    break;
                 case 'errors_only':
                     $this->errorEntitiesOnly = true;
                     break;
@@ -117,7 +114,7 @@ abstract class ArchivePageBuilder extends EntityPageBuilder
                     $this->inputArgs[$inputArgName] = $inputArgValue;
             }
         }
-        return $this;
+        return parent::setInputArgs( $inputArgs );
     }
 
     /**
@@ -162,7 +159,12 @@ abstract class ArchivePageBuilder extends EntityPageBuilder
         if ( !empty( $this->archiveTableReport ) ) {
             return $this->archiveTableReport;
         }
-        return $this->archiveTableReport = $this->getNewArchiveTableReport();
+        // return $this->archiveTableReport = $this->getNewArchiveTableReport();
+
+        return $this->archiveTableReport = $this->getReportClient()->getFactory()->archiveTables()
+            ->get(
+                $this->getEntityFactory()->getEntityName()
+            );
     }
 
     /**
@@ -175,13 +177,17 @@ abstract class ArchivePageBuilder extends EntityPageBuilder
 
         $report = $this->getArchiveTableReport()
             ->setEntities(
-                $this->getEntities(),
-                $dummyEntity,
-            )->setGroupByForm(
-                (new GroupByEntityForm( $this->HTMLUtility, $dummyEntity ))
-                    ->makeHiddenFields( $this->inputArgs ),
+                $this->getEntities()
+            )
+            ->setDummyEntity(
+                $dummyEntity
+            )
+            ->setGroupByForm(
+                (new GroupByEntityForm( $this->HTMLUtility, $dummyEntity, $this->getURL() )),
                 $this->groupBy
-            )->setGoToIDForm( $this->getGoToIDForm() );
+            )
+            ->setGoToIDForm( $this->getGoToIDForm() )
+            ->setEmptyMessage( 'No ' . $this->getEntityFactory()->getEntityNamePlural() . ' found to report.' );
         if ( $this->errorEntitiesOnly ) {
             $report
                 ->hideInessentialColumns()
@@ -197,7 +203,37 @@ abstract class ArchivePageBuilder extends EntityPageBuilder
     /**
      * @return mixed
      */
-    abstract protected function getNewArchiveTableReport(): ArchiveTable;
+    // abstract protected function getNewArchiveTableReport(): ArchiveTable;
 
+    /**
+     * @param PDOWrap  $db
+     * @param Messages $messages
+     * @param URL      $url
+     * @param string   $entityType
+     * @return static|null
+     */
+    public static function create(PDOWrap $db, Messages $messages, URL $url, string $entityType = ''): ?self
+    {
+        switch( $entityType ) {
+            case 'customer':
+            case 'customers':
+                return new ArchivePageBuilderCustomer( $db, $messages, $url );
+            case 'furniture':
+                return new ArchivePageBuilderFurniture( $db, $messages, $url );
+            case 'job':
+            case 'jobs':
+                return new ArchivePageBuilderJob( $db, $messages, $url );
+            case 'shift':
+            case 'shifts':
+                return new ArchivePageBuilderShift( $db, $messages, $url );
+            case 'user':
+            case 'users':
+                return new ArchivePageBuilderUser( $db, $messages, $url );
+            case 'setting':
+            case 'settings':
+                return new ArchivePageBuilderSettings( $db, $messages, $url );
+        }
+        return null;
 
+    }
 }

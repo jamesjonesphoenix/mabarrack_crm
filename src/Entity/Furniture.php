@@ -162,7 +162,7 @@ class Furniture extends Entity
     public function healthCheck(): array
     {
         if ( empty( $this->name ) ) {
-            $errors[] = 'Furniture' . $this->getIDBadge() . ' has no name.';
+            $errors[] = 'Furniture' . $this->getIDBadge(null,'primary') . ' has no name.';
         }
         return $errors ?? [];
     }

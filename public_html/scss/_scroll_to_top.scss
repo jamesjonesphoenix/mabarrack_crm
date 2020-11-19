@@ -1,0 +1,23 @@
+a#scroll-to-top {
+  position: fixed;
+  bottom: 26px;
+  right: 39px;
+  z-index: 98;
+  padding: 0;
+  //background-color: hsla(5, 76%, 62%, .8);
+  //background-color:;
+
+
+  transition: opacity .3s, visibility .3s, background-color .3s;
+
+  // width: 40px;
+  // height: 40px;
+
+  box-shadow: 0 0 10px rgba(0, 0, 0, .05) !important;
+
+  i {
+    margin: 0.35em 0.35em 0.275em;
+    display: block;
+    font-size: 1.75em;
+  }
+}
