@@ -417,7 +417,7 @@ class Shift extends Entity
      * @return array
      */
     public
-    function healthCheck(): array
+    function doHealthCheck(): array
     {
         $shiftName = ucfirst( $this->isLunch() );
         $timeStarted = $this->timeStarted;

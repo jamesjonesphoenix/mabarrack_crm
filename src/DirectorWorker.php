@@ -108,7 +108,12 @@ class DirectorWorker extends Director
         $canStartOrFinishShifts = $this->user->healthCheck();
         if ( !empty( $canStartOrFinishShifts ) ) {
             $plural = count( $canStartOrFinishShifts ) > 1 ? 's' : '';
-            $this->messages->add( '<h5 class="alert-heading">You cannot clock shifts due to error' . $plural . ':</h5>' . $this->htmlUtility::getListGroup( $canStartOrFinishShifts ) );
+            $this->messages->add(
+                '<h5 class="alert-heading">You cannot clock shifts due to error'
+                . $plural
+                . ':</h5>'
+                . $this->htmlUtility::getListGroup( $canStartOrFinishShifts )
+            );
             if ( !empty( $inputArray['choose'] ) ) {
                 redirect( 'worker' );
             }

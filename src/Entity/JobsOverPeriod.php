@@ -78,7 +78,7 @@ class JobsOverPeriod extends Jobs
         }
         $totalSales = 0;
         foreach ( $this->entities as $job ) {
-            if ( empty( $job->healthCheck() ) && empty( $job->checkCompleteAndValid() ) ) {
+            if ( empty( $job->healthCheck() ) && empty( $job->completeCheck() ) ) {
                 $totalSales += $job->salePrice * $job->getPeriodProportion();
             }
         }

@@ -86,6 +86,11 @@ abstract class Entity extends AbstractCRM
     protected string $icon = '';
 
     /**
+     * @var array
+     */
+    private array $healthCheckErrors = [];
+
+    /**
      * Flag if property has changed when set to be checked when updating database
      *
      * @param $name
@@ -97,6 +102,7 @@ abstract class Entity extends AbstractCRM
         parent::__set( $name, $value );
         $newValue = $this->$name;
         if ( $oldValue !== $newValue && (!($oldValue instanceof Entity) || $oldValue->id !== $newValue->id) ) {
+            $this->healthCheckErrors = [];
             $this->changed[$name] = true;
         }
     }
@@ -479,7 +485,7 @@ abstract class Entity extends AbstractCRM
         if ( phValidateID( $result ) ) {
             $this->id = phValidateID( $result );
             $this->messages->add(
-                ucfirst( $this->getActionString( 'past', $action ) ) . $this->getIDBadge(null,'primary')
+                ucfirst( $this->getActionString( 'past', $action ) ) . $this->getIDBadge( null, 'primary' )
                 , 'success'
             );
             $this->changed = [];
@@ -501,7 +507,7 @@ abstract class Entity extends AbstractCRM
         if ( !$this->exists ) {
             return $this->addError( "Can't " . $this->getActionString( 'present', $action ) . " because it doesn't exist." );
         }
-        $messageNoChanges = 'No changes were made to ' . $this->entityName . $this->getIDBadge(null, 'primary');
+        $messageNoChanges = 'No changes were made to ' . $this->entityName . $this->getIDBadge( null, 'primary' );
 
 
         if ( empty( $data ) ) {
@@ -516,9 +522,9 @@ abstract class Entity extends AbstractCRM
             return $this->addError( $messageNoChanges . '. Attempted to update the following data:' . $dataHTMLTable );
         }
         if ( empty( $result ) ) {
-            return $this->addError( 'Failed to ' . $this->getActionString( 'present', $action ) . $this->getIDBadge(null, 'danger') . ' with the following data:' . $dataHTMLTable );
+            return $this->addError( 'Failed to ' . $this->getActionString( 'present', $action ) . $this->getIDBadge( null, 'danger' ) . ' with the following data:' . $dataHTMLTable );
         }
-        $this->messages->add( ucfirst( $this->getActionString( 'past', $action ) ) . $this->getIDBadge(null,'success') . ' with the following data:' . $dataHTMLTable, 'success' );
+        $this->messages->add( ucfirst( $this->getActionString( 'past', $action ) ) . $this->getIDBadge( null, 'success' ) . ' with the following data:' . $dataHTMLTable, 'success' );
         $this->changed = [];
         return $result;
     }
@@ -529,6 +535,23 @@ abstract class Entity extends AbstractCRM
      * @return array
      */
     public function healthCheck(): array
+    {
+        if ( !empty( $this->healthCheckErrors ) ) {
+            return $this->healthCheckErrors;
+        }
+        foreach ( $this->doHealthCheck() as $error ) {
+            $return[] = [
+                'content' => $error,
+                'class' => 'danger'
+            ];
+        }
+        return $this->healthCheckErrors = $return ?? [];
+    }
+
+    /**
+     * @return array
+     */
+    protected function doHealthCheck(): array
     {
         return [];
     }
@@ -706,10 +729,10 @@ abstract class Entity extends AbstractCRM
             $mainString .= ' named ' . $this->name();
         }
         if ( $this->db->delete( $this->tableName, ['ID' => $this->id] ) ) {
-            $this->messages->add( 'Deleted' . $mainString. $this->getIDBadge(null, 'success'), 'success' );
+            $this->messages->add( 'Deleted' . $mainString . $this->getIDBadge( null, 'success' ), 'success' );
             return true;
         }
-        $this->addError( 'Failed to delete ' . $mainString . $this->getIDBadge(null, 'danger'));
+        $this->addError( 'Failed to delete ' . $mainString . $this->getIDBadge( null, 'danger' ) );
         return false;
     }
 
@@ -724,4 +747,6 @@ abstract class Entity extends AbstractCRM
 
         return HTMLTags::getIconHTML( $this->icon );
     }
+
+
 }

@@ -190,7 +190,7 @@ class ProfitLoss extends Report
             // $periodProportion = $job->shifts->calculateCompletionOverPeriod();
             // $jobProportionAndWeight = $jobsProportionsAndWeights[$job->id];
 
-            if ( $job->id === 0 || !empty( $job->healthCheck() ) || !empty( $job->checkCompleteAndValid() ) ) {
+            if ( $job->id === 0 || !empty( $job->healthCheck() ) || !empty( $job->completeCheck() ) ) {
                 continue;
             }
             $this->numberOfValidJobs++;

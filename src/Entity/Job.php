@@ -446,7 +446,7 @@ class Job extends Entity
     /**
      * @return array
      */
-    public function checkCompleteAndValid(): array
+    public function completeCheck(): array
     {
         /*
         $errors = $this->healthCheck();
@@ -462,7 +462,7 @@ class Job extends Entity
         }
 
         if ( $this->status->name !== 'jobstat_yellow' && $this->status->name !== 'jobstat_green' ) {
-            $errors[]  = 'Job status is incomplete.';
+            $errors[] = 'Job status is incomplete.';
         }
 
         return $errors ?? [];
@@ -471,7 +471,7 @@ class Job extends Entity
     /**
      * @return array
      */
-    public function healthCheck(): array
+    public function doHealthCheck(): array
     {
         if ( $this->id === 0 ) {
             return [];
@@ -546,7 +546,6 @@ class Job extends Entity
             ]
         ];
     }
-
 
 
     /**

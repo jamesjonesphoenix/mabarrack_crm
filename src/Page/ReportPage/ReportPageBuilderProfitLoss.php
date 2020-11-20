@@ -50,7 +50,9 @@ class ReportPageBuilderProfitLoss extends ReportPageBuilder
         $builder = $this->getReportClient()->getProfitLossBuilder();
         return [
             $builder->getProfitLoss( $this->includeFactoryCosts ),
-            $builder->getArchive()
+            $builder->getValidArchive(),
+            $builder->getInvalidArchive(),
+
         ];
     }
 }

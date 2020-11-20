@@ -66,11 +66,23 @@ class ArchiveReportFactory extends ReportFactoryBase
     }
 
     /**
-     * @return ArchiveTableJobsProfitLoss
+     * @return ArchiveTableProfitLossJobsValid
      */
-    public function getJobsProfitLoss(): ArchiveTableJobsProfitLoss
+    public function getProfitLossJobsValid(): ArchiveTableProfitLossJobsValid
     {
-        return new ArchiveTableJobsProfitLoss(
+        return new ArchiveTableProfitLossJobsValid(
+            $this->htmlUtility,
+            $this->format,
+            $this->url
+        );
+    }
+
+    /**
+     * @return ArchiveTableProfitLossJobsInvalid
+     */
+    public function getProfitLossJobsInvalid(): ArchiveTableProfitLossJobsInvalid
+    {
+        return new ArchiveTableProfitLossJobsInvalid(
             $this->htmlUtility,
             $this->format,
             $this->url

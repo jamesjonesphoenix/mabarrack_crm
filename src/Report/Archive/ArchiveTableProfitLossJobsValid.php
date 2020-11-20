@@ -14,7 +14,7 @@ use Phoenix\Entity\JobOverPeriod;
  * @package Phoenix\Report\Archive
  *
  */
-class ArchiveTableJobsProfitLoss extends ArchiveTable
+class ArchiveTableProfitLossJobsValid extends ArchiveTable
 {
     /**
      * @var string
@@ -91,9 +91,6 @@ class ArchiveTableJobsProfitLoss extends ArchiveTable
             'title' => 'Weight',
             'format' => 'percentageExtraDecimals'
         ],
-        'included' => [
-            'title' => 'Included',
-        ]
     ];
 
     /**
@@ -115,22 +112,6 @@ class ArchiveTableJobsProfitLoss extends ArchiveTable
     public function extractEntityData($job): array
     {
 
-        foreach ( $job->healthCheck() as $error ) {
-            $invalidReasons[] = [
-                'content' => $error,
-                'class' => 'danger'
-            ];
-        }
-        foreach ( $job->checkCompleteAndValid() as $reason ) {
-            $invalidReasons[] = [
-                'content' => $reason,
-                'class' => 'warning'
-            ];
-        }
-        $includedString = empty( $invalidReasons ) ? 'Included' : $this->htmlUtility::getListGroup( $invalidReasons );
-
-
-        $this->htmlUtility::getListGroup();
         return [
             'date_started' => $job->dateStarted,
             'date_finished' => $job->dateFinished,
@@ -149,8 +130,7 @@ class ArchiveTableJobsProfitLoss extends ArchiveTable
             'employee_cost' => $job->shifts->getTotalWorkerCost(),
             'number_of_shifts' => $job->shifts->getCount(),
             'proportion' => $job->getPeriodProportion(),
-            'weight' => empty($invalidReasons) ? $job->getWeight() : 'N/A',
-            'included' => $includedString
+            'weight' => $job->getWeight() ,
         ];
     }
 }

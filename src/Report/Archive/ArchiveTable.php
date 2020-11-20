@@ -199,7 +199,9 @@ abstract class ArchiveTable extends Report
                 $this->extractEntityData( $entity ),
                 [
                     'view' => $this->getActionButton( $entity ),
-                    'errors' => $this->htmlUtility::getListGroup( $entity->healthCheck() )
+                    'errors' => $this->htmlUtility::getListGroup(
+                        $entity->healthCheck()
+                    )
                 ]
             );
             $data[$entity->id] = $row;

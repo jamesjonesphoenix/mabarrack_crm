@@ -322,7 +322,7 @@ class User extends Entity
     /**
      * @return array
      */
-    public function healthCheck(): array
+    public function doHealthCheck(): array
     {
         $currentShifts = $this->shifts->getUnfinishedShifts()->getAll();
 

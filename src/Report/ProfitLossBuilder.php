@@ -6,7 +6,8 @@ namespace Phoenix\Report;
 use Phoenix\Entity\JobOverPeriodFactory;
 use Phoenix\Entity\Jobs;
 use Phoenix\Entity\JobsOverPeriod;
-use Phoenix\Report\Archive\ArchiveTableJobsProfitLoss;
+use Phoenix\Report\Archive\ArchiveTableProfitLossJobsInvalid;
+use Phoenix\Report\Archive\ArchiveTableProfitLossJobsValid;
 
 /**
  * @author James Jones
@@ -61,13 +62,30 @@ class ProfitLossBuilder extends ReportBuilder
     }
 
     /**
-     * @param bool $includeFactoryCosts
-     * @return ArchiveTableJobsProfitLoss
+     * @return ArchiveTableProfitLossJobsValid
      */
-    public function getArchive(bool $includeFactoryCosts = false): ArchiveTableJobsProfitLoss
+    public function getValidArchive(): ArchiveTableProfitLossJobsValid
     {
-        $report = $this->getFactory()->archiveTables()->getJobsProfitLoss();
-        $this->provisionReport( $report );
+        $report = $this->getFactory()->archiveTables()->getProfitLossJobsValid();
+
+        $report->setEntities(
+            $this->getEntities()->getCompleteJobs()
+        );
+        $this->provisionReportStrings( $report );
+        // $this->provisionReport( $report );
+        return $report;
+    }
+
+    /**
+     * @return ArchiveTableProfitLossJobsInvalid
+     */
+    public function getInvalidArchive(): ArchiveTableProfitLossJobsInvalid
+    {
+        $report = $this->getFactory()->archiveTables()->getProfitLossJobsInvalid();
+        $report->setEntities(
+            $this->getEntities()->getIncompleteOrInvalidJobs()
+        );
+        $this->provisionReportStrings( $report );
         return $report;
     }
 }

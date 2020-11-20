@@ -142,7 +142,7 @@ class Customer extends Entity
     /**
      * @return array
      */
-    public function healthCheck(): array
+    public function doHealthCheck(): array
     {
         if ( empty( $this->name ) ) {
             $errors[] = 'Customer should have a name.';
