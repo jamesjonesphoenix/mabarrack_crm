@@ -111,23 +111,37 @@ $j(document).ready(function () {
      * @param input
      */
     function toggleTableColumn(input) {
-        let columnIndex = input.attr('data-column'),
-            columnClass = input.val(),
+        let columnClass = input.val(),
             checked = input.prop('checked'),
             table = 'table.table ',
             hideClass = 'd-none',
             column = $j(
-                table + ' thead td[data-column="' + columnIndex + '"], ' +
                 table + ' thead th.' + columnClass + ', ' +
                 table + ' tbody td.' + columnClass + ', ' +
                 table + ' tbody th.' + columnClass
-            );
+            ),
+            columnIndex,
+            filter;
+
         if (checked) {
             column.removeClass(hideClass);
         } else {
             column.addClass(hideClass);
         }
-        $j('input.column-toggle[data-column="' + columnIndex + '"][value="' + columnClass + '"]').prop(
+
+        $j(table).each(function (index, value) {
+            columnIndex = $j(value).find('thead th.' + columnClass).attr('data-column');
+            if (columnIndex !== undefined) {
+                filter = $j(value).find('thead td[data-column="' + columnIndex + '"]');
+                if (checked) {
+                    filter.removeClass(hideClass);
+                } else {
+                    filter.addClass(hideClass);
+                }
+            }
+        });
+
+        $j('input.column-toggle[value="' + columnClass + '"]').prop(
             'checked',
             checked
         );
@@ -144,7 +158,9 @@ $j(document).ready(function () {
             'table.table.home-shift-table'
         ];
         for (let i = 0; i <= tables.length; i++) {
-            matchTableWidths(tables[i]);
+            matchTableWidths(
+                tables[i] + ':not(.do-not-match-widths)'
+            );
         }
     }
 
@@ -230,6 +246,13 @@ $j(document).ready(function () {
         }, 1000);
         return false;
     });
+
+//btn text-white btn-secondary mb-2 minimise-button collapsed
+// btn text-white btn-secondary mb-2 minimise-button
+
+  //  $j('.minimise-button').on('hidden.bs.collapse', function () {
+  //      $j('.minimise-button').html('Expand');
+  //  })
 });
 
 

@@ -19,12 +19,12 @@ class MenuItemsOther extends MenuItems
         return [
             [
                 'icon' => 'user-clock',
-                'text' => 'Worker Dashboard',
-                'url' => 'worker.php',
+                'content' => 'Worker Dashboard',
+                'href' => 'worker.php',
             ], [
                 'icon' => 'cogs',
-                'text' => 'Settings',
-                'url' => 'index.php?page=archive&entity=settings'
+                'content' => 'Settings',
+                'href' => 'index.php?page=archive&entity=settings'
             ]
         ];
     }

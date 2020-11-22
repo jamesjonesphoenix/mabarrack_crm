@@ -21,16 +21,16 @@ class MenuItemsReports extends MenuItems
         $menuItems = [
             [
                 'icon' => 'dollar-sign',
-                'text' => 'Profit/Loss',
-                'url' => 'profit_loss',
+                'content' => 'Profit/Loss',
+                'href' => 'profit_loss',
             ], [
                 'icon' => 'chart-bar',
-                'text' => 'Activity Summary',
-                'url' => 'activity_summary'
+                'content' => 'Activity Summary',
+                'href' => 'activity_summary'
             ], [
                 'icon' => 'chart-bar',
-                'text' => 'Worker Week',
-                'url' => 'worker_week'
+                'content' => 'Worker Week',
+                'href' => 'worker_week'
             ]
         ];
         $defaultDates = [
@@ -41,13 +41,13 @@ class MenuItemsReports extends MenuItems
             ->reset()
             ->setQueryArg( 'page', 'report' );
         foreach ( $menuItems as &$item ) {
-            if ( $item['url'] !== 'worker_week' ) {
+            if ( $item['href'] !== 'worker_week' ) {
                 $url->setQueryArgs( $defaultDates );
             } else {
                 $url->removeQueryArgs( array_keys( $defaultDates ) );
 
             }
-            $item['url'] = $url->setQueryArg( 'report', $item['url'] )->write();
+            $item['href'] = $url->setQueryArg( 'report', $item['href'] )->write();
         }
         return $menuItems;
     }

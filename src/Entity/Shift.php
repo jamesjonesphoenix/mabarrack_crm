@@ -530,11 +530,11 @@ class Shift extends Entity
         $archivePage = $this->getArchiveLink() . '&order_by=date';
         return [
             'last_1000' => [
-                'url' => $archivePage . '&limit=1000',
-                'text' => 'Latest 1000 Shifts'
+                'href' => $archivePage . '&limit=1000',
+                'content' => 'Latest 1000 Shifts'
             ],
             'all' => [
-                'url' => $archivePage,
+                'href' => $archivePage,
             ]
         ];
     }

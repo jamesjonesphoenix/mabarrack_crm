@@ -96,8 +96,8 @@ abstract class ReportPageBuilder extends AdminPageBuilder
                   ] as $reportType => $title ) {
             if ( ($this->reportType ?? null) !== $reportType ) {
                 $navLinks[$reportType] = [
-                    'url' => $url->setQueryArg( 'report', $reportType )->write(),
-                    'text' => $title
+                    'href' => $url->setQueryArg( 'report', $reportType )->write(),
+                    'content' => $title
                 ];
             }
         }
@@ -180,7 +180,8 @@ abstract class ReportPageBuilder extends AdminPageBuilder
                 continue;
             }
             $this->page->addContent(
-                $report->render()
+                $report
+                    ->render()
             );
         }
         return $this;

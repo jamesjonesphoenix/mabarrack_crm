@@ -21,11 +21,11 @@ class IndexPage extends Page
     {
         ob_start(); ?>
 
-        <a href="<?php echo $item['url']; ?>"
+        <a href="<?php echo $item['href']; ?>"
            class="list-group-item list-group-item-action list-group-item-<?php echo $contextualClass; ?> d-flex justify-content-between align-items-center h5 mb-0">
             <span>
             <?php echo !empty( $item['icon'] ) ? '<i class="fas fa-' . $item['icon'] . ' fa-fw"></i> ' : '';
-            echo $item['text']; ?></span><span class="badge badge-<?php echo $contextualClass; ?> badge-pill"><?php echo $item['number'] ?? ''; ?></span>
+            echo $item['content']; ?></span><span class="badge badge-<?php echo $contextualClass; ?> badge-pill"><?php echo $item['number'] ?? ''; ?></span>
         </a>
         <?php return ob_get_clean();
     }

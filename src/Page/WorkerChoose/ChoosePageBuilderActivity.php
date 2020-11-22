@@ -71,14 +71,14 @@ class ChoosePageBuilderActivity extends ChoosePageBuilder
     {
         if ( count( $this->job->furniture ?? [] ) > 1 ) {
             $menuItems['choose_furniture'] = [
-                'url' => 'worker.php?job=' . $this->job->id . '&choose=furniture',
-                'text' => 'Choose Different Furniture',
+                'href' => 'worker.php?job=' . $this->job->id . '&choose=furniture',
+                'content' => 'Choose Different Furniture',
                 'class' => 'bg-info'
             ];
         }
         $menuItems['choose_job'] = [
-            'url' => 'worker.php?choose=job',
-            'text' => 'Choose Different Job',
+            'href' => 'worker.php?choose=job',
+            'content' => 'Choose Different Job',
             'class' => 'bg-info'
         ];
         return array_merge( $menuItems, parent::getMenuItems() );

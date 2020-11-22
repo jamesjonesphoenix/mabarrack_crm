@@ -54,12 +54,22 @@ abstract class ArchiveTable extends Report
     /**
      * @var string
      */
-    protected string $tableClass = 'archive table-sorter';
+    protected string $tableClass = 'archive';
 
     /**
      * @var string
      */
     protected string $emptyMessage = 'No items found to report.';
+
+    /**
+     * @var bool
+     */
+    protected bool $sortable = true;
+
+    /**
+     * @var bool
+     */
+    protected bool $doNotMatchWidths = false;
 
     /**
      * Report constructor.
@@ -70,25 +80,49 @@ abstract class ArchiveTable extends Report
      */
     public function __construct(HTMLTags $htmlUtility, Format $format, URL $url)
     {
+        $this->setupColumns();
+        if ( $this->sortable ) {
+            $this->tableClass .= ' table-sorter';
+        }
+        if ( $this->doNotMatchWidths ) {
+            $this->tableClass .= ' do-not-match-widths';
+        }
+        parent::__construct( $htmlUtility, $format, $url );
+    }
+
+    /**
+     *
+     */
+    private function setupColumns(): void
+    {
         $this->columns = array_merge(
             [
                 'id' => []
-            ], $this->columns, [
-                'errors' => [
-                    'title' => 'Errors',
-                    'remove_if_empty' => true,
-                    'default' => '&minus;',
-                    'hidden' => true
-                ],
-                'view' => ['title' => '']
-            ]
+            ], $this->columns
         );
-        if ( empty( $columns['id']['title'] ) ) {
-            $this->columns['id']['title'] = 'ID';
+
+        $extraColumns = [
+            'id' => [
+                'title' => 'ID'
+            ],
+            'errors' => [
+                'title' => 'Errors',
+                'remove_if_empty' => true,
+                'default' => '&minus;',
+                'hidden' => true
+            ],
+            'view' => [
+                'title' => ''
+            ]
+        ];
+
+        foreach ( $extraColumns as $columnID => $column ) {
+            foreach ( $column as $key => $item ) {
+                if ( !isset( $this->columns[$columnID][$key] ) ) {
+                    $this->columns[$columnID][$key] = $item;
+                }
+            }
         }
-
-        parent::__construct( $htmlUtility, $format, $url );
-
     }
 
     /**
@@ -187,6 +221,17 @@ abstract class ArchiveTable extends Report
     }
 
     /**
+     * @param Entity $entity
+     * @return string
+     */
+    public function getErrorString(Entity $entity): string
+    {
+        return $this->htmlUtility::getListGroup(
+            $entity->healthCheck()
+        );
+    }
+
+    /**
      * @return array
      */
     protected function extractData(): array
@@ -199,14 +244,11 @@ abstract class ArchiveTable extends Report
                 $this->extractEntityData( $entity ),
                 [
                     'view' => $this->getActionButton( $entity ),
-                    'errors' => $this->htmlUtility::getListGroup(
-                        $entity->healthCheck()
-                    )
+                    'errors' => $this->getErrorString( $entity )
                 ]
             );
             $data[$entity->id] = $row;
         }
-
         if ( empty( $data ) ) {
             return [];
         }
@@ -238,7 +280,7 @@ abstract class ArchiveTable extends Report
      */
     public function getTotalCount(): int
     {
-        return  $this->entities->getCount() ;
+        return $this->entities->getCount();
     }
 
     /**
@@ -247,7 +289,7 @@ abstract class ArchiveTable extends Report
     public function getTotalCountString(): string
     {
         return 'Total ' . ucfirst(
-                 $this->entity->entityNamePlural
+                $this->entity->entityNamePlural
             );
     }
 

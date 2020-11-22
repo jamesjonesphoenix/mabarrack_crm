@@ -41,6 +41,11 @@ class ChooseActivityTable extends Report
     protected bool $fullWidth = false;
 
     /**
+     * @var bool
+     */
+    protected bool $collapseButton = false;
+
+    /**
      * @param Activity[] $activities
      * @param array      $activityURLs
      * @param string     $type

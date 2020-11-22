@@ -13284,6 +13284,12 @@ textarea.form-control.shift-comment {
 textarea.form-control.setting-textarea {
   height: 230px; }
 
+.expand-button:not(.collapsed) {
+  display: none; }
+
+.minimise-button.collapsed {
+  display: none; }
+
 /*/// TO BE REMOVED///*/
 .well {
   display: inline-block;
@@ -13542,5 +13548,10 @@ a#scroll-to-top {
     margin: 0.35em 0.35em 0.275em;
     display: block;
     font-size: 1.75em; }
+
+div.report-container div.row.show + div.row {
+  display: none !important; }
+div.report-container div.row.collapse + div.row {
+  display: flex; }
 
 /*# sourceMappingURL=styles.css.map */

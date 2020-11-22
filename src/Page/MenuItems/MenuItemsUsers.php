@@ -20,14 +20,14 @@ class MenuItemsUsers extends MenuItemsEntities
         return [
             'Workers' => [
                 'icon' => 'user-clock',
-                'text' => 'Workers',
-                'url' => $archiveURL . '&query[type]=staff',
+                'content' => 'Workers',
+                'href' => $archiveURL . '&query[type]=staff',
                 'number' => $this->entityFactory->getCount( ['type' => 'staff'] )
             ],
             'Admins' => [
                 'icon' => 'user-cog',
-                'text' => 'Admins',
-                'url' => $archiveURL . '&query[type]=admin',
+                'content' => 'Admins',
+                'href' => $archiveURL . '&query[type]=admin',
                 'number' => $this->entityFactory->getCount( ['type' => 'admin'] )
             ]
         ];

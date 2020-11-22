@@ -82,11 +82,11 @@ abstract class WorkerWeekReport extends ShiftsReport
         $url = $this->getURL()->removeQueryArg( 'date_finish' );
         return array_merge( [
             [
-                'url' => $url->setQueryArg( 'date_start', $this->getDatePrevious() )->write(),
-                'text' => 'Previous Week'
+                'href' => $url->setQueryArg( 'date_start', $this->getDatePrevious() )->write(),
+                'content' => 'Previous Week'
             ], [
-                'url' => $url->setQueryArg( 'date_start', $this->getDateNext() )->write(),
-                'text' => 'Next Week'
+                'href' => $url->setQueryArg( 'date_start', $this->getDateNext() )->write(),
+                'content' => 'Next Week'
             ]], parent::getNavLinks()
         );
 

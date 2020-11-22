@@ -64,6 +64,11 @@ abstract class Report extends Base
     protected bool $printButton = false;
 
     /**
+     * @var bool
+     */
+    protected bool $collapseButton = true;
+
+    /**
      * @var string
      */
     protected string $id;
@@ -167,18 +172,57 @@ abstract class Report extends Base
     }
 
     /**
+     * @return $this
+     */
+    public function enableCollapseButton(): self
+    {
+        $this->collapseButton = true;
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    public function disableCollapseButton(): self
+    {
+        $this->collapseButton = false;
+        return $this;
+    }
+
+    /**
      * @return array
      */
     public function getNavLinks(): array
     {
-        if ( $this->printButton ) {
-            return [[
-                'url' => '#',
-                'text' => 'Print',
-                'class' => 'bg-secondary print-button',
+        if ( $this->collapseButton ) {
+            $collapsibleID = $this->getID() . '-report';
+            $all = !empty( $this->groupedBy ) ? ' All' : '';
+            $return = [[
+                'href' => '#' . $collapsibleID,
+                'content' => 'Minimise' . $all,
+                'class' => 'btn-danger minimise-button',
+                'role' => 'button',
+                'data' => [
+                    'toggle' => 'collapse',
+                ]
+            ], [
+                'href' => '#' . $collapsibleID,
+                'content' => 'Expand' . $all,
+                'class' => 'btn-success expand-button',
+                'role' => 'button',
+                'data' => [
+                    'toggle' => 'collapse',
+                ]
             ]];
         }
-        return [];
+        if ( $this->printButton ) {
+            $return[] = [
+                'href' => '#',
+                'content' => 'Print',
+                'class' => 'bg-secondary print-button',
+            ];
+        }
+        return $return ?? [];
     }
 
     /**
@@ -385,6 +429,7 @@ abstract class Report extends Base
                 $groupName
             );
         }
+
         return $html ?? '';
     }
 
@@ -397,23 +442,56 @@ abstract class Report extends Base
      */
     public function renderSingleArchive(array $data, array $columns = [], string $groupName = ''): string
     {
+        $groupName = strip_tags( $groupName );
+        $id = $this->getID()
+            . (!empty( $groupName ) ? '-' . str_replace( ' ', '-', strtolower( $groupName ) ) : '')
+            . '-report';
         ob_start();
-        if ( !empty( $this->groupedBy ) ) {
-            $groupTitle = $columns[$this->groupedBy]['title'] ?? str_replace( '_', ' ', $this->groupedBy ); ?>
-            <h4 class="mx-3">
-                <?php echo 'Group - ' . ucfirst( $groupTitle ) . ' ';
-                $groupName = !empty( $groupName ) ? ucfirst( $groupName ) : 'N/A';
-                echo $this->htmlUtility::getBadgeHTML( strip_tags( $groupName ) );
-                ?>
-            </h4>
+        if ( !empty( $this->groupedBy ) ) { ?>
+            <div class="row align-items-center mb-2">
+                <div class="col mx-3">
+                    <?php
+                    $groupTitle = $columns[$this->groupedBy]['title'] ?? str_replace( '_', ' ', $this->groupedBy ); ?>
+                    <h4 class="mb-0">
+                        <?php echo 'Group - ' . ucfirst( $groupTitle ) . ' ';
+                        $groupName = !empty( $groupName ) ? ucfirst( $groupName ) : 'N/A';
+                        echo $this->htmlUtility::getBadgeHTML( $groupName );
+                        ?>
+                    </h4>
+                </div>
+                <div class="col-auto mx-3">
+                    <?php
+                    echo $this->htmlUtility::getButton( [
+                            'href' => '#' . $id,
+                            'content' => 'Minimise',
+                            'class' => 'btn text-white btn-danger minimise-button',
+                            'role' => 'button',
+                            'data' => [
+                                'toggle' => 'collapse',
+                            ]
+                        ] )
+                        . $this->htmlUtility::getButton( [
+                            'href' => '#' . $id,
+                            'content' => 'Expand',
+                            'class' => 'btn text-white btn-success expand-button',
+                            'role' => 'button',
+                            'data' => [
+                                'toggle' => 'collapse',
+                            ]
+                        ] );
+                    ?>
+                </div>
+            </div>
         <?php } ?>
         <div class="grey-bg p-3 mb-5">
-            <?php echo $this->htmlUtility::getTableHTML( [
-                'data' => $data,
-                'columns' => $columns,
-                'class' => $this->tableClass,
-                'rows' => $this->getRowArgs(),
-            ] ); ?>
+            <div <?php echo !empty( $this->groupedBy ) ? 'id="' . $id . '"' : ''; ?> class="show">
+                <?php echo $this->htmlUtility::getTableHTML( [
+                    'data' => $data,
+                    'columns' => $columns,
+                    'class' => $this->tableClass,
+                    'rows' => $this->getRowArgs(),
+                ] ); ?>
+            </div>
         </div>
         <?php return ob_get_clean();
     }
@@ -499,10 +577,16 @@ abstract class Report extends Base
                 } ?>
             </div>
         </div>
-        <div class="container<?php echo $this->fullWidth ? '-fluid' : ''; ?> position-relative mb-3<?php echo $printNone; ?>">
-            <div class="row<?php echo $this->fullWidth ? ' justify-content-center' : ''; ?>">
+
+        <div class="report-container container<?php echo $this->fullWidth ? '-fluid' : ''; ?> position-relative mb-3<?php echo $printNone; ?>">
+            <div class="row show<?php echo $this->fullWidth ? ' justify-content-center' : ''; ?>" id="<?php echo $this->getID(); ?>-report">
                 <div class="report-table-column col-auto d-flex flex-column align-items-stretch">
                     <?php echo empty( $data ) ? $this->getEmptyMessage() : $this->renderReport( $data ); ?>
+                </div>
+            </div>
+            <div class="row<?php echo $this->fullWidth ? ' justify-content-center' : ''; ?>">
+                <div class="report-table-column col-auto d-flex flex-column align-items-stretch<?php echo $this->fullWidth ? '' : ' w-100'; ?>">
+                    <div class="grey-bg p-3 mb-5"></div>
                 </div>
             </div>
         </div>
@@ -525,9 +609,9 @@ abstract class Report extends Base
                         <?php $i = 0;
                         foreach ( $this->getColumns() as $columnID => $columnArgs ) {
 
-                            $title = is_string($columnArgs) ? $columnArgs : ($columnArgs['toggle_label'] ?? $columnArgs['title'] );
+                            $title = is_string( $columnArgs ) ? $columnArgs : ($columnArgs['toggle_label'] ?? $columnArgs['title']);
 
-                            if ( empty( $title )|| empty( $columnID ) || (!empty( $columnArgs['remove_if_empty'] ) && !empty( $columnArgs['is_empty'] )) ) {
+                            if ( empty( $title ) || empty( $columnID ) || (!empty( $columnArgs['remove_if_empty'] ) && !empty( $columnArgs['is_empty'] )) ) {
                                 $i++;
                                 continue;
                             }

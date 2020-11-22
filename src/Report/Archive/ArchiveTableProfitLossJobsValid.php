@@ -1,10 +1,7 @@
 <?php
 
-
 namespace Phoenix\Report\Archive;
 
-
-use Phoenix\Entity\Entities;
 use Phoenix\Entity\JobOverPeriod;
 
 /**
@@ -85,24 +82,48 @@ class ArchiveTableProfitLossJobsValid extends ArchiveTable
         ],
         'proportion' => [
             'title' => 'Proportion',
-            'format' => 'percentage'
+            'format' => 'percentage',
+            'remove_if_empty' => true,
         ],
         'weight' => [
             'title' => 'Weight',
-            'format' => 'percentageExtraDecimals'
+            'format' => 'percentageExtraDecimals',
+            'remove_if_empty' => true,
         ],
+        'errors' => [
+            'title' => 'Reason for Exclusion',
+            'hidden' => false
+        ]
     ];
 
     /**
-     * @param Entities|null $entities
-     * @return $this
+     * @var bool
      */
-    public function setEntities(Entities $entities = null): self
+    protected bool $doNotMatchWidths = true;
+
+    /**
+     * @param JobOverPeriod $entity
+     * @return string
+     */
+    public function getErrorString($entity): string
     {
-        if ( $entities !== null ) {
-            $entities->removeOne( 0 ); //remove factory job
-        }
-        return parent::setEntities( $entities );
+        $healthCheck = !empty($entity->healthCheck()) ? '<h6 class="mt-2">Job has error:</h6>' . $this->htmlUtility::getListGroup( $entity->healthCheck() ) : '';
+
+        $completeCheck = !empty($entity->completeCheck()) ? '<h6 class="mt-2">Job is incomplete:</h6>' . $this->htmlUtility::getListGroup( $entity->completeCheck() ) : '';
+
+        return $healthCheck . $completeCheck;
+    }
+
+    /**
+     * @param JobOverPeriod $job
+     * @return array
+     */
+    public function extractMoreEntityData(JobOverPeriod $job): array
+    {
+        return [
+            'proportion' => $job->getPeriodProportion(),
+            'weight' => $job->getWeight()
+        ];
     }
 
     /**
@@ -112,7 +133,7 @@ class ArchiveTableProfitLossJobsValid extends ArchiveTable
     public function extractEntityData($job): array
     {
 
-        return [
+        return array_merge( [
             'date_started' => $job->dateStarted,
             'date_finished' => $job->dateFinished,
             'priority' => $job->priority,
@@ -129,8 +150,8 @@ class ArchiveTableProfitLossJobsValid extends ArchiveTable
             'profit_loss' => $job->getTotalProfit(),
             'employee_cost' => $job->shifts->getTotalWorkerCost(),
             'number_of_shifts' => $job->shifts->getCount(),
-            'proportion' => $job->getPeriodProportion(),
-            'weight' => $job->getWeight() ,
-        ];
+        ],
+            $this->extractMoreEntityData( $job )
+        );
     }
 }

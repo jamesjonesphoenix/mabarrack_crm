@@ -69,15 +69,15 @@ class MenuItemsEntities extends MenuItems
 
         $return['all_items'] = [
             'icon' => 'list',
-            'text' => 'All ' . $entityNamePlural,
-            'url' => $entity->getArchiveLink(),
+            'content' => 'All ' . $entityNamePlural,
+            'href' => $entity->getArchiveLink(),
             'number' => $this->entityFactory->countAll()
         ];
         if ( $this->hasErrors() ) {
             $return['with_errors'] = [
                 'icon' => 'bug',
-                'text' => $entityNamePlural . ' With Errors',
-                'url' => $entity->getArchiveLink() . '&errors_only=true',
+                'content' => $entityNamePlural . ' With Errors',
+                'href' => $entity->getArchiveLink() . '&errors_only=true',
             ];
         }
         return array_merge( $this->getEntityMenuItems(), $return );

@@ -464,8 +464,13 @@ class Job extends Entity
         if ( $this->status->name !== 'jobstat_yellow' && $this->status->name !== 'jobstat_green' ) {
             $errors[] = 'Job status is incomplete.';
         }
-
-        return $errors ?? [];
+        foreach ( $errors ?? [] as $error ) {
+            $return[] = [
+                'content' => $error,
+                'class' => 'warning'
+            ];
+        }
+        return $return ?? [];
     }
 
     /**
@@ -530,19 +535,19 @@ class Job extends Entity
         $archivePage = $this->getArchiveLink();
         return [
             'in_progress' => [
-                'url' => $archivePage . '&query[status]=jobstat_red',
-                'text' => 'In Progress Jobs'
+                'href' => $archivePage . '&query[status]=jobstat_red',
+                'content' => 'In Progress Jobs'
             ],
             'urgent' => [
-                'url' => $archivePage . '&query[status]=jobstat_red&query[priority]=1',
-                'text' => 'Urgent Jobs'
+                'href' => $archivePage . '&query[status]=jobstat_red&query[priority]=1',
+                'content' => 'Urgent Jobs'
             ],
             'errors' => [
-                'url' => $archivePage . '&query[status]=jobstat_red&query[priority]=1',
-                'text' => 'Jobs With Errors'
+                'href' => $archivePage . '&query[status]=jobstat_red&query[priority]=1',
+                'content' => 'Jobs With Errors'
             ],
             'all' => [
-                'url' => $archivePage,
+                'href' => $archivePage,
             ]
         ];
     }

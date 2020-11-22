@@ -26,6 +26,11 @@ class ChooseFurnitureTable extends Report
     protected string $emptyMessageClass = 'info';
 
     /**
+     * @var bool
+     */
+    protected bool $collapseButton = false;
+
+    /**
      * @var array
      */
     protected array $columns = [

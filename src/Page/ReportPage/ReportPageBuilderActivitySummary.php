@@ -77,7 +77,7 @@ class ReportPageBuilderActivitySummary extends ReportPageBuilder
             ->getActivitySummary(
                 $this->sortActivitiesBy,
                 $this->groupActivities
-            );
+            )->disableCollapseButton();
 
         return $reports;
     }

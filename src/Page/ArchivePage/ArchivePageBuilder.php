@@ -69,7 +69,7 @@ abstract class ArchivePageBuilder extends EntityPageBuilder
             $this->getEntityFactory()->getEntities( $queryArgs, $this->provisionArgs )
         );
         if ( $this->errorEntitiesOnly ) {
-            $entities =  $entities->getEntitiesWithErrors();
+            $entities = $entities->getEntitiesWithErrors();
         }
 
         return $this->entities = $entities;
@@ -187,7 +187,9 @@ abstract class ArchivePageBuilder extends EntityPageBuilder
                 $this->groupBy
             )
             ->setGoToIDForm( $this->getGoToIDForm() )
-            ->setEmptyMessage( 'No ' . $this->getEntityFactory()->getEntityNamePlural() . ' found to report.' );
+            ->setEmptyMessage( 'No ' . $this->getEntityFactory()->getEntityNamePlural() . ' found to report.' )
+            ->disableCollapseButton();
+
         if ( $this->errorEntitiesOnly ) {
             $report
                 ->hideInessentialColumns()

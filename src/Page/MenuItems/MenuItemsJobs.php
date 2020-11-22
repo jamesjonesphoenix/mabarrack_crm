@@ -48,8 +48,8 @@ class MenuItemsJobs extends MenuItemsEntities
         $entity = $this->entityFactory->getNew();
         return [
             'In Progress' => [
-                'text' => 'In Progress',
-                'url' => $entity->getArchiveLink() . '&query[status]=jobstat_red',
+                'content' => 'In Progress',
+                'href' => $entity->getArchiveLink() . '&query[status]=jobstat_red',
                 'number' => $this->entityFactory->getCount( [
                     'status' => 'jobstat_red',
                     'ID' => ['operator' => '!=', 'value' => 0]
@@ -57,8 +57,8 @@ class MenuItemsJobs extends MenuItemsEntities
                 'icon' => 'hammer'
             ],
             'Urgent' => [
-                'text' => 'Urgent Jobs',
-                'url' => $entity->getArchiveLink() . '&query[status]=jobstat_red&query[priority]=1',
+                'content' => 'Urgent Jobs',
+                'href' => $entity->getArchiveLink() . '&query[status]=jobstat_red&query[priority]=1',
                 'number' => $this->entityFactory->getCount( [
                     'status' => 'jobstat_red',
                     'ID' => ['operator' => '!=', 'value' => 0],

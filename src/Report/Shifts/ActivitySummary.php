@@ -105,16 +105,16 @@ class ActivitySummary extends ShiftsReport
         foreach ( array_keys( $this->sortableBy ) as $sortType ) {
             if ( $this->sortBy !== $sortType ) {
                 $links['sort_by_' . $sortType] = [
-                    'url' => (clone $url)->setQueryArg( 'sort_activities_by', $sortType )->write(),
-                    'text' => 'Sort by ' . ucwords( $sortType ),
+                    'href' => (clone $url)->setQueryArg( 'sort_activities_by', $sortType )->write(),
+                    'content' => 'Sort by ' . ucwords( $sortType ),
                     'class' => 'bg-primary',
                 ];
             }
         }
         if ( $this->allowGroupBy ) {
             $links['group_by'] = [
-                'url' => (clone $url)->setQueryArg( 'group_activities', !$this->groupedBy )->write(),
-                'text' => $this->groupedBy ? 'Display One Table' : 'Display Separate Tables',
+                'href' => (clone $url)->setQueryArg( 'group_activities', !$this->groupedBy )->write(),
+                'content' => $this->groupedBy ? 'Display One Table' : 'Display Separate Tables',
                 'class' => 'bg-secondary',
             ];
         }

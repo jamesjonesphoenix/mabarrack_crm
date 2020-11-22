@@ -49,8 +49,8 @@ class ChoosePageBuilderFurniture extends ChoosePageBuilder
     {
         return array_merge( [
             'choose_job' => [
-                'url' => 'worker.php?choose=job',
-                'text' => 'Choose Different Job',
+                'href' => 'worker.php?choose=job',
+                'content' => 'Choose Different Job',
                 'class' => 'bg-info'
             ]],
             parent::getMenuItems()

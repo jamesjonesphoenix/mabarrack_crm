@@ -75,6 +75,18 @@ class ChooseJobTable extends Report
     protected bool $fullWidth = false;
 
     /**
+     * @return string
+     */
+    public function getID(): string
+    {
+        if ( empty( $this->id ) ) {
+            //count() is a hackish way to get a unique id, but sufficient for scroll-to-table
+            $this->id = parent::getID() . '-' . count($this->jobs);
+        }
+        return $this->id;
+    }
+
+    /**
      * @param Job[] $jobs
      * @return $this
      */

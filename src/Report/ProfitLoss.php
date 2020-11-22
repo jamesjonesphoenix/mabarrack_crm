@@ -338,8 +338,8 @@ class ProfitLoss extends Report
         // if ( $this->includeFactoryCosts ) {
         $links['include_factory_costs'] = [
 
-            'url' => $url->setQueryArg( 'include_factory_costs', !$this->includeFactoryCosts )->write(),
-            'text' => $this->includeFactoryCosts ? 'Ignore Factory Costs' : 'Include Factory Costs',
+            'href' => $url->setQueryArg( 'include_factory_costs', !$this->includeFactoryCosts )->write(),
+            'content' => $this->includeFactoryCosts ? 'Ignore Factory Costs' : 'Include Factory Costs',
             'class' => 'bg-secondary',
 
         ];

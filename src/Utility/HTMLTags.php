@@ -123,6 +123,32 @@ class HTMLTags
     }
 
     /**
+     * @param string $collapsibleID
+     * @return array
+     */
+    public static function getCollapseToggleButtonArgs(string $collapsibleID = ''): array
+    {
+        return [[
+            'href' => '#' . $collapsibleID,
+            'content' => 'Minimise',
+            'class' => 'text-white btn-danger minimise-button',
+            'role' => 'button',
+            'data' => [
+                'toggle' => 'collapse',
+            ]
+        ], [
+            'href' => '#' . $collapsibleID,
+            'content' => 'Expand',
+            'class' => 'text-white btn-success expand-button',
+            'role' => 'button',
+            'data' => [
+                'toggle' => 'collapse',
+            ]
+        ]];
+    }
+
+
+    /**
      * @param array $args
      * @return Table
      * @throws \Exception
@@ -227,6 +253,13 @@ class HTMLTags
             $args['placeholder'] ?? '',
             'placeholder'
         );
+
+        $attributes['role'] = self::makeElementProperty( $args['role'] ?? '', 'role' );
+
+        foreach ( $args['data'] ?? [] as $key => $arg ) {
+            $attributes['data_' . $key] = self::makeElementProperty( $arg, 'data-' . $key );
+        }
+
         return implode( '', $attributes ) ?? '';
     }
 
@@ -290,13 +323,14 @@ class HTMLTags
                     <ul class="navbar-nav nav-pills justify-content-end ml-auto flex-wrap d-print-none">
                         <?php
                         foreach ( $args['nav_links'] as $navLink ) { ?>
-                            <li class="nav-item ml-2 my-1">
-                                <a class="nav-link text-white text-nowrap <?php echo $navLink['class'] ?? 'bg-primary'; ?>"
-                                   href="<?php echo $navLink['url']; ?>"><?php echo $navLink['text'];
-                                    if ( isset( $navLink['number'] ) ) {
-                                        echo ' ' . self::getBadgeHTML( $navLink['number'] ?? '', 'light' );
-                                    } ?>
-                                </a>
+                            <li class="nav-item my-1">
+                                <?php
+                                $navLink['class'] = 'nav-link text-white text-nowrap ml-2 ' . ($navLink['class'] ?? 'bg-primary');
+                                $navLink['element'] ??= 'a';
+                                if ( isset( $navLink['number'] ) ) {
+                                    $navLink['content'] .= ' ' . self::getBadgeHTML( $navLink['number'] ?? '', 'light' );
+                                }
+                                echo self::getButton( $navLink ) ?>
                             </li>
                         <?php } ?>
                     </ul>

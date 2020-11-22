@@ -1,9 +1,9 @@
 @import "variables";
 @import "../../vendor/twbs/bootstrap/scss/bootstrap";
-$fa-font-path:         "../fonts/font-awesome";
+
+$fa-font-path: "../fonts/font-awesome";
 @import "font-awesome/fontawesome.scss";
 @import "font-awesome/solid.scss";
-
 
 
 @mixin centre-vertically() {
@@ -11,6 +11,7 @@ $fa-font-path:         "../fonts/font-awesome";
   top: 50%;
   transform: translateY(-50%);
 }
+
 @each $breakpoint, $container-max-width in $container-max-widths {
   @include media-breakpoint-up($breakpoint, $grid-breakpoints) {
     div.container-fluid div.report-table-column {
@@ -18,6 +19,7 @@ $fa-font-path:         "../fonts/font-awesome";
     }
   }
 }
+
 @import 'stuff';
 @import 'tables';
 @import 'login';
@@ -29,3 +31,12 @@ $fa-font-path:         "../fonts/font-awesome";
 @import 'single_job_page';
 @import 'scroll_to_top';
 
+div.report-container {
+  div.row.show + div.row {
+    display: none !important;
+  }
+
+  div.row.collapse + div.row {
+    display: flex;
+  }
+}

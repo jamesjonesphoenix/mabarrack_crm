@@ -42,36 +42,39 @@ class ChoosePageBuilderJob extends ChoosePageBuilder
                 $activeJob->shifts = [$lastShift->id => $lastShift];
             }
         }
-
-        $chooseJobsTable = $this->getReportClient()->getFactory()->getChooseJobTable()
+        $factory = $this->getReportClient()->getFactory();
+        $reports[] = $factory->getChooseJobTable()
             ->setJobs( $recentJobs )
             ->setTitle( 'Most Recent Jobs' )
             ->setEmptyMessage( 'No recently worked jobs to choose from.' );
 
-        $recentJobsHTML = $chooseJobsTable->render();
-        $activeJobsHTML = $chooseJobsTable
-            ->setJobs( $activeJobs )
-            ->setTitle( 'All Active Jobs' )
-            ->setEmptyMessageClass( 'info' )
-            ->setEmptyMessage( 'No active jobs to choose from.' )
-            ->render();
+
         if ( $factoryJob !== null ) {
             $lastShift = $factoryJob->getLastShift( $this->user->id );
             if ( $lastShift !== null ) {
                 $factoryJob->shifts = [$lastShift->id => $lastShift];
             }
-            $factoryJobsHTML = $chooseJobsTable
+            $reports[] = $factory->getChooseJobTable()
                 ->setJobs( [0 => $factoryJob] )
                 ->setTitle( 'Factory' )
                 ->setEmptyMessageClass( 'danger' )
                 ->setEmptyMessage( 'Factory job missing.' )
-                ->render();
+                ;
         }
-        $this->page->addContent(
-            $recentJobsHTML . ($factoryJobsHTML ?? '') . $activeJobsHTML
-        );
 
 
+        $reports[] = $factory->getChooseJobTable()
+            ->setJobs( $activeJobs )
+            ->setTitle( 'All Active Jobs' )
+            ->setEmptyMessageClass( 'info' )
+            ->setEmptyMessage( 'No active jobs to choose from.' );
+
+
+        foreach ( $reports as $report ) {
+            $this->page->addContent(
+                $report->render()
+            );
+        }
         return $this;
     }
 }
