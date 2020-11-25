@@ -23,6 +23,7 @@ class ArchivePageBuilderCustomer extends ArchivePageBuilder
             'furniture' => false,
             'shifts' => false,
             'customer' => false
+
         ]
     ];
 

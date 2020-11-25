@@ -3,7 +3,6 @@
 
 namespace Phoenix\Page\ReportPage;
 
-use Phoenix\Entity\ShiftFactory;
 use Phoenix\Entity\User;
 use Phoenix\Entity\UserFactory;
 use Phoenix\Form\PeriodicReportForm;
@@ -77,7 +76,8 @@ class ReportPageBuilderActivitySummary extends ReportPageBuilder
             ->getActivitySummary(
                 $this->sortActivitiesBy,
                 $this->groupActivities
-            )->disableCollapseButton();
+            )
+            ->disableCollapseButton();
 
         return $reports;
     }

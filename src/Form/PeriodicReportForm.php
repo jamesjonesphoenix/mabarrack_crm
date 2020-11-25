@@ -4,13 +4,14 @@
 namespace Phoenix\Form;
 
 
+use Phoenix\Entity\Customer;
 use Phoenix\Entity\User;
 use Phoenix\URL;
 use Phoenix\Utility\DateTimeUtility;
 use Phoenix\Utility\FormFields;
 
 /**
- * Class GoToIDEntityForm
+ * Class PeriodicReportForm
  *
  * @author James Jones
  * @package Phoenix\EntityForm
@@ -40,6 +41,14 @@ class PeriodicReportForm extends Form
      */
     private ?User $user = null;
 
+    /**
+     * @var Customer|null
+     */
+    private ?Customer $customer = null;
+
+    /**
+     * @var bool
+     */
     private bool $disableDateFinish = false;
 
     /**
@@ -47,8 +56,10 @@ class PeriodicReportForm extends Form
      */
     private URL $url;
 
+
+
     /**
-     * EntityForm constructor.
+     * PeriodicReportForm constructor.
      *
      * @param FormFields $htmlUtility
      * @param URL        $url
@@ -82,6 +93,16 @@ class PeriodicReportForm extends Form
     }
 
     /**
+     * @param Customer|null $customer
+     * @return $this
+     */
+    public function setCustomer(Customer $customer = null): self
+    {
+        $this->customer = $customer;
+        return $this;
+    }
+
+    /**
      * @return $this
      */
     public function disableDateFinish(): self
@@ -95,18 +116,24 @@ class PeriodicReportForm extends Form
      */
     public function makeFields(): self
     {
+        $dateStartString = $this->disableDateFinish ? 'Week Start Date' : 'Start Date';
         // d( $this );
         $this->fields['date_start'] = $this->htmlUtility::getDateFieldHTML( [
             'name' => 'date_start',
             'placeholder' => 'Start Date',
-            'value' => $this->dateStart
+            'value' => $this->dateStart,
+            'label' => $dateStartString
         ] );
+
         $this->fields['date_finish'] = $this->htmlUtility::getDateFieldHTML( [
             'name' => 'date_finish',
             'placeholder' => 'Finish Date',
             'value' => $this->dateFinish,
-            'disabled' => $this->disableDateFinish
+            'disabled' => $this->disableDateFinish,
+            'label' => 'Finish Date' . ($this->disableDateFinish ? ' <small>(Auto generated)</small>' : '')
         ] );
+
+
         $inputArgs = $this->url->getQueryArgs();
         unset(
             $inputArgs['date_start'],
@@ -124,20 +151,55 @@ class PeriodicReportForm extends Form
      */
     public function makeUserField(array $userOptions = [], string $placeholder = 'Select Worker'): self
     {
+        if ( $this->user !== null ) {
+            $append = $this->htmlUtility::getViewButton(
+                $this->user->getLink() ?? '',
+                'View Worker'
+            );
+        }
+
         $this->fields['user'] = $this->htmlUtility::getOptionDropdownFieldHTML( [
             'name' => 'user',
             'placeholder' => $placeholder,
-            'value' => $this->dateFinish,
 
             'options' => $userOptions,
 
             'selected' => $this->user->id ?? null,
             'id' => 'report-input-user',
+            'label' => 'Select Worker',
 
-            //'append' => $this->htmlUtility::getViewButton( '#', 'View Customer' ),
-
+            'append' => $append ?? ''
         ] );
 
+        return $this;
+    }
+
+    /**
+     * @param array $customerOptions
+     * @return $this
+     */
+    public function makeCustomerField(array $customerOptions = []): self
+    {
+        if ( $this->customer !== null ) {
+            $append = $this->htmlUtility::getViewButton(
+                $this->customer->getLink() ?? '',
+                'View Customer'
+            );
+        }
+
+        $this->fields['customer'] = $this->htmlUtility::getOptionDropdownFieldHTML( [
+            'name' => 'customer',
+            'placeholder' => 'All Customers',
+
+            'options' => $customerOptions,
+
+            'selected' => $this->customer->id ?? null,
+            'id' => 'report-input-customer',
+            'label' => 'Select Customer',
+
+            'append' => $append ?? ''
+
+        ] );
         return $this;
     }
 
@@ -146,54 +208,52 @@ class PeriodicReportForm extends Form
      */
     public function render(): string
     {
-        $dateString = $this->disableDateFinish ? 'Choose Week Start' : 'Choose Dates';
+        // $this->disableDateFinish
 
         ob_start(); ?>
         <div class="container mb-4 position-relative d-print-none">
             <div class="row">
                 <div class="col">
-                    <form id="<?php echo $this->formID; ?>" class="form-inline my-2 my-lg-0 ml-3">
-                        <div class="input-group">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text"><?php echo $dateString; ?></span>
-                            </div>
-                            <?php echo $this->fields['date_start'];
-                            if ( !$this->disableDateFinish ) { ?>
-                                <span class="input-group-text">to</span>
-                                <?php echo $this->fields['date_finish'];
-                            }
-                            foreach ( $this->fields['hidden'] as $field ) {
-                                echo $field;
-                            }
-                            if ( isset( $this->fields['user'] ) ) { ?>
-                                <span class="" style="width: 1px; background: #a4a9ae;"></span>
-                                <span class="input-group-text">Choose Worker</span>
-                                <?php echo $this->fields['user'];
-
-                            } ?>
-                            <div class="input-group-append">
-                                <?php if ( $this->user !== null ) { ?>
-                                    <?php
-                                    /*
-                                    echo $this->htmlUtility::getViewButton(
-                                        $this->user->getLink() ?? '',
-                                        'View ' . (($this->user->name ?? null) !== null ? $this->user->name : 'Worker') . ' Detail'
-                                    );
-                                    */
-                                    ?>
-                                <?php } ?>
-                                <button class="btn btn-primary my-2 my-sm-0" type="submit">Generate Report</button>
-                            </div>
-                        </div>
-                        <?php if ( $this->user !== null ) { ?>
-                            <div class="float-right ml-2">
-                                <?php echo $this->htmlUtility::getViewButton(
-                                    $this->user->getLink() ?? '',
-                                    'View ' . (!empty( $this->user->getFirstName() ) ? $this->user->getFirstName() : 'Worker') . ' Detail'
-                                ); ?>
-                            </div>
-                        <?php } ?>
-                    </form>
+                    <div class="grey-bg p-3">
+                        <form id="<?php echo $this->formID; ?>" class="">
+                            <fieldset>
+                                <?php foreach ( $this->fields['hidden'] as $field ) {
+                                    echo $field;
+                                } ?>
+                                <div class="form-row">
+                                    <div class="form-group col-md-4">
+                                        <?php echo $this->fields['date_start']; ?>
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                        <?php echo $this->fields['date_finish']; ?>
+                                    </div>
+                                    <?php if ( isset( $this->fields['user'] ) ) { ?>
+                                        <div class="form-group col-md-4">
+                                            <?php echo $this->fields['user']; ?>
+                                        </div>
+                                    <?php } ?>
+                                    <?php if ( isset( $this->fields['customer'] ) ) { ?>
+                                        <div class="form-group col-md-4">
+                                            <?php echo $this->fields['customer']; ?>
+                                        </div>
+                                    <?php } ?>
+                                </div>
+                                <div class="form-row mt-1">
+                                    <div class="form-group col mb-3 text-right">
+                                        <?php echo $this->htmlUtility::getButton( [
+                                            'element' => 'input',
+                                            'type' => 'submit',
+                                            'class' => [
+                                                'btn', 'btn-success', 'btn-lg', 'mt-2', 'mr-1'
+                                            ],
+                                            'id' => 'submit-button',
+                                            'value' => 'Generate'
+                                        ] ); ?>
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>

@@ -301,43 +301,50 @@ class HTMLTags
         if ( empty( $args['title'] ) && empty( $args['nav_links'] ) && empty( $args['html_left_aligned'] ) && empty( $args['html_right_aligned'] ) ) {
             return '';
         }
+        /*
+          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#<?php echo $id; ?>" aria-controls="<?php echo $id; ?>" aria-expanded="false" aria-label="Toggle navigation">
+              <span class="navbar-toggler-icon"></span>
+          </button>
+        */
         ob_start();
         ?>
-        <nav class="navbar navbar-expand-lg navbar-dark <?php echo !empty( $args['hide_when_printing'] ) ? '' : ' d-print-flex'; ?>">
-            <?php if ( !empty( $args['title'] ) ) { ?>
-                <h<?php echo $args['heading_level']; ?>
-                        class="navbar-brand h<?php echo $args['heading_level']; ?> py-0"><?php echo $args['title']; ?></h<?php echo $args['heading_level']; ?>>
+        <nav class="navbar navbar-expand-sm navbar-dark <?php echo !empty( $args['hide_when_printing'] ) ? '' : ' d-print-flex'; ?> flex-wrap justify-content-between">
+            <h<?php echo $args['heading_level']; ?>
+                    class="navbar-brand h<?php echo $args['heading_level']; ?> py-0<?php echo empty( $args['title'] ) ? ' mr-0' : ''; ?>"><?php echo $args['title']; ?></h<?php echo $args['heading_level']; ?>>
+            <?php
+            if ( !empty( $args['html_left_aligned'] ) ) {
+                ?>
+                <div class="mr-auto mb-2">
+                    <?php echo $args['html_left_aligned'] ?? ''; ?>
+                </div>
             <?php } ?>
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#<?php echo $id; ?>" aria-controls="<?php echo $id; ?>"
-                    aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse flex-wrap justify-content-end mb-2 d-print-none" id="<?php echo $id; ?>"><?php
-                if ( !empty( $args['html_left_aligned'] ) ) {
-                    ?>
-                    <div class="mr-auto"><?php
-                        echo $args['html_left_aligned'] ?? ''; ?>
-                    </div>
-                <?php } ?>
-                <?php if ( !empty( $args['nav_links'] ) ) { ?>
-                    <ul class="navbar-nav nav-pills justify-content-end ml-auto flex-wrap d-print-none">
+            <div class="mb-2 d-print-none d-flex justify-content-end flex-nowrap align-items-center" id="<?php echo $id; ?>"><?php
+
+
+                if ( !empty( $args['nav_links'] ) ) { ?>
+                    <ul class="navbar-nav nav-pills d-print-none">
                         <?php
+                        // ml-auto
                         foreach ( $args['nav_links'] as $navLink ) { ?>
                             <li class="nav-item my-1">
                                 <?php
-                                $navLink['class'] = 'nav-link text-white text-nowrap ml-2 ' . ($navLink['class'] ?? 'bg-primary');
+                                $navLink['class'] = 'nav-link text-white text-nowrap '
+                                    . (!empty( $didFirstLoop ) ? 'ml-2 ' : '')
+                                    . ($navLink['class'] ?? 'bg-primary ');
                                 $navLink['element'] ??= 'a';
                                 if ( isset( $navLink['number'] ) ) {
                                     $navLink['content'] .= ' ' . self::getBadgeHTML( $navLink['number'] ?? '', 'light' );
                                 }
                                 echo self::getButton( $navLink ) ?>
                             </li>
-                        <?php } ?>
+                            <?php
+                            $didFirstLoop = true;
+                        } ?>
                     </ul>
                 <?php }
                 if ( !empty( $args['html_right_aligned'] ) ) {
                     ?>
-                    <div class="justify-content-end <?php echo !empty( $args['nav_links'] ) ? 'ml-0' : 'ml-auto'; ?>"><?php
+                    <div class="<?php echo !empty( $args['nav_links'] ) ? 'ml-0' : 'ml-auto'; ?>"><?php
                         echo $args['html_right_aligned'] ?? ''; ?>
                     </div>
                 <?php } ?>

@@ -48,8 +48,7 @@ class CustomerEntityForm extends DetailPageEntityForm
      */
     public function renderFields(): string
     {
-        ob_start();
-        ?>
+        ob_start(); ?>
         <div class="form-row">
             <div class="form-group col-md-2">
                 <?php echo $this->getIdFieldHTML(); ?>
@@ -61,7 +60,6 @@ class CustomerEntityForm extends DetailPageEntityForm
                 <?php echo $this->fields['email_address']; ?>
             </div>
         </div>
-        <?php
-        return ob_get_clean();
+        <?php return ob_get_clean();
     }
 }

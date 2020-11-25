@@ -76,15 +76,12 @@ class ArchiveTableShiftsWorkerHome extends ArchiveTable
     /**
      * @var bool
      */
-    protected bool $printButton = false;
+    protected bool $includePrintButton = false;
 
     /**
-     * @return string
+     * @var bool
      */
-    public function getRightAlignedHeaderHTML(): string
-    {
-        return '';
-    }
+    protected bool $includeAddNewButton = false;
 
     /**
      * @param Shift $entity

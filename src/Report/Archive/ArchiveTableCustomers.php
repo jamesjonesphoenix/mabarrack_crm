@@ -31,6 +31,11 @@ class ArchiveTableCustomers extends ArchiveTable
         'number_of_jobs' => [
             'title' => 'Number of Jobs'
         ],
+        /*
+        'profit-loss'=> [
+            'title' => 'Profit/Loss'
+        ],
+        */
 
     ];
 
@@ -40,11 +45,16 @@ class ArchiveTableCustomers extends ArchiveTable
      */
     public function extractEntityData($customer): array
     {
+
+        // https://mabarrack-crm.loc/index.php?group_by=&page=archive&entity=customer
+
         // mailto:enquire@phoenixweb.com.au?subject=Enquiry from website
+
         return [
             'name' => $customer->name,
             'email_address' => $customer->getEmailLink(true),
             'number_of_jobs' => count( $customer->jobs ),
+            // 'profit-loss'=> ''
         ];
     }
 }

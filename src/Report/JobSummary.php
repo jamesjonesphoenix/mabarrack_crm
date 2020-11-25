@@ -66,7 +66,7 @@ class JobSummary extends Report
     /**
      * @var bool
      */
-    protected bool $printButton = true;
+    protected bool $includePrintButton = true;
 
     /**
      * @param Job $job

@@ -5,6 +5,7 @@ namespace Phoenix\Report\Shifts;
 
 use Phoenix\Entity\Shifts;
 use Phoenix\Entity\User;
+use Phoenix\Report\Archive\ArchiveTableShifts;
 use Phoenix\Report\Report;
 use Phoenix\Report\ReportBuilder;
 use Phoenix\Report\Shifts\Worker\WorkerWeekReport;
@@ -41,14 +42,34 @@ class ShiftsReportBuilder extends ReportBuilder
     }
 
     /**
+     * @return ArchiveTableShifts
+     */
+    public function getWeekShiftsArchive(): ArchiveTableShifts
+    {
+        $this->report = parent::getFactory()->archiveTables()->getShifts()
+            ->setTitle( 'Week Shifts Archive' )
+            /*
+            ->setGroupByForm(
+                $this->getGroupByForm()
+                    ->makeHiddenFields( ['date_start' => $dateStart] ),
+                $this->groupBy
+            )
+            */
+            ->editColumn( 'worker', ['hidden' => true] )->setEmptyMessage();
+        $this->provisionReport();
+        return $this->report;
+    }
+
+    /**
      * @return WorkerWeekTimeClockRecord
      */
     public function getTimeClockRecord(): WorkerWeekTimeClockRecord
     {
         $this->setUserRequired();
-        $report = $this->getFactory()->getTimeClockRecord();
-        $this->provisionReport( $report );
-        return $report;
+        $this->report = $this->getFactory()->getTimeClockRecord()
+            ->setDateStart( $this->dateStart );
+        $this->provisionReport();
+        return $this->report;
     }
 
     /**
@@ -57,9 +78,10 @@ class ShiftsReportBuilder extends ReportBuilder
     public function getWorkerWeekSummary(): WorkerWeekSummary
     {
         $this->setUserRequired();
-        $report = $this->getFactory()->getWorkerWeekSummary();
-        $this->provisionReport( $report );
-        return $report;
+        $this->report = $this->getFactory()->getWorkerWeekSummary()
+            ->setDateStart( $this->dateStart );
+        $this->provisionReport();
+        return $this->report;
     }
 
     /**
@@ -69,10 +91,11 @@ class ShiftsReportBuilder extends ReportBuilder
      */
     public function getActivitySummary(string $sortBy = '', bool $groupSeparateTables = false): ActivitySummary
     {
-        $report = $this->getFactory()->getActivitySummary( $sortBy, $groupSeparateTables );
-        $this->provisionReport( $report );
-        return $report;
+        $this->report = $this->getFactory()->getActivitySummary( $sortBy, $groupSeparateTables );
+        $this->provisionReport();
+        return $this->report;
     }
+
 
     /**
      * @param User|null $user
@@ -135,7 +158,12 @@ class ShiftsReportBuilder extends ReportBuilder
         return $this->entities = new Shifts(
             $this->entityFactory->getEntities( $queryArgs, [
                 'activity' => true,
-                'worker' => ['shifts' => false]
+                'worker' => [
+                    'shifts' => false
+                ],
+                'job' => [
+                    'customer' => true
+                ]
             ] )
         );
     }
@@ -177,29 +205,14 @@ class ShiftsReportBuilder extends ReportBuilder
     }
 
     /**
-     * @param Report $report
-     * @return Report
-     */
-    public function provisionReport(Report $report): Report
-    {
-        if ( $report instanceof WorkerWeekReport ) {
-            $report->setDateStart( $this->dateStart );
-        }
-        parent::provisionReport($report);
-        return $report;
-    }
-
-    /**
      * @param string $title
      * @return string
      */
     public function annotateTitleWithInputs(string $title = ''): string
     {
         $username = isset( $this->user ) ? '<small>' . $this->htmlUtility::getBadgeHTML( $this->user->getFirstName() ) . '</small> ' : '';
-        return parent::annotateTitleWithInputs($username. $title);
+        return parent::annotateTitleWithInputs( $username . $title );
     }
-
-
 
     /**
      * @return string
@@ -210,7 +223,18 @@ class ShiftsReportBuilder extends ReportBuilder
             return 'Please set a worker.';
         }
         return parent::validateInputs();
+    }
 
+    /**
+     * @return string
+     */
+    public function getDefaultEmptyMessage(): string
+    {
+        return 'No completed shifts '
+            . (isset( $this->user ) ? 'for worker ' . $this->htmlUtility::getBadgeHTML( $this->user->getFirstName(), 'primary' ) : '')
+            . ' found between'
+            . $this->getDateString( 'primary' )
+            . ' to report.';
     }
 
 

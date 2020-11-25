@@ -28,7 +28,7 @@ abstract class WorkerWeekReport extends ShiftsReport
     /**
      * @var bool
      */
-    protected bool $printButton = true;
+    protected bool $includePrintButton = true;
 
     /**
      * @param string $date

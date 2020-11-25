@@ -13317,8 +13317,8 @@ body.login .container.messages h2 {
     background: #ff879d; }
 
 /*///  INPUTS  ///*/
-form.detail-form fieldset:disabled .form-control,
-form.detail-form .form-control[disabled] {
+form fieldset:disabled .form-control,
+form .form-control[disabled] {
   background: #222222;
   color: #ffffff;
   border: none;

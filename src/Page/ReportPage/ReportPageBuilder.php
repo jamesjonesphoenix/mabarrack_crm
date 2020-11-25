@@ -77,9 +77,10 @@ abstract class ReportPageBuilder extends AdminPageBuilder
                 $this->title
             )
             ->setHeadTitle( 'Report' );
-        $this->addNavLinks();
         $this->addPeriodicReportForm();
         $this->addReports();
+        $this->addNavLinks();
+
         return $this;
     }
 
@@ -147,7 +148,7 @@ abstract class ReportPageBuilder extends AdminPageBuilder
                 $this->dateStart,
                 $this->dateFinish
             )
-            ->makeFields();
+            ;
     }
 
     /**
@@ -156,7 +157,7 @@ abstract class ReportPageBuilder extends AdminPageBuilder
     public function addPeriodicReportForm(): self
     {
         $this->page->addContent(
-            $this->getPeriodicReportForm()->render()
+            $this->getPeriodicReportForm()->makeFields()->render()
         );
         return $this;
     }

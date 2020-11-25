@@ -49,7 +49,7 @@ abstract class ArchiveTable extends Report
     /**
      * @var bool
      */
-    protected bool $printButton = true;
+    protected bool $includePrintButton = true;
 
     /**
      * @var string
@@ -70,6 +70,11 @@ abstract class ArchiveTable extends Report
      * @var bool
      */
     protected bool $doNotMatchWidths = false;
+
+    /**
+     * @var bool
+     */
+    protected bool $includeAddNewButton = true;
 
     /**
      * Report constructor.
@@ -203,21 +208,28 @@ abstract class ArchiveTable extends Report
     }
 
     /**
+     * @return array
+     */
+    public function getNavLinks(): array
+    {
+        $navLinks = parent::getNavLinks();
+        if ($this->includeAddNewButton && isset( $this->entity ) && $this->entity->canCreate() ) {
+            $navLinks[] =  [
+                'element' => 'a',
+                'content' => 'Add New ' . ucwords( $this->entity->entityName ),
+                'href' => $this->entity->getLink( false ),
+                'class' => 'bg-success'
+            ];
+        }
+        return $navLinks;
+    }
+
+    /**
      * @return string
      */
     public function getRightAlignedHeaderHTML(): string
     {
-        // $entity = $this->entity;
-        if ( isset( $this->entity ) && $this->entity->canCreate() ) {
-            $addNew = $this->htmlUtility::getButton( [
-                'element' => 'a',
-                'content' => 'Add New ' . ucwords( $this->entity->entityName ),
-                'href' => $this->entity->getLink( false ),
-                'class' => 'float-left btn btn-success ml-2'
-            ] );
-        }
-        return $this->goToIDForm
-            . ($addNew ?? '');
+        return $this->goToIDForm;
     }
 
     /**

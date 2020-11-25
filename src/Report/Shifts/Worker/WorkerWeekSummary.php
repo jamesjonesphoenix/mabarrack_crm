@@ -67,7 +67,6 @@ class WorkerWeekSummary extends WorkerWeekReport
             'lunch' => 0,
             'total_paid' => 0 //non lunch minutes
         ];
-
         foreach ( $this->shifts->getAll() as $shift ) {
             $shiftLength = $shift->getShiftLength();
             if ( $shift->activity->chargeable ) {

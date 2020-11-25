@@ -45,7 +45,7 @@ class ProfitLoss extends Report
     /**
      * @var bool
      */
-    protected bool $printButton = true;
+    protected bool $includePrintButton = true;
 
     /**
      * @var string
@@ -78,16 +78,19 @@ class ProfitLoss extends Report
         ],
         'average' => [
             'title' => 'Average',
-            'format' => 'currency'
+            'format' => 'currency',
+            'default' => 'N/A'
         ],
         'weighted_average' => [
             'title' => 'Weighted Average',
-            'format' => 'currency'
+            'format' => 'currency',
+            'default' => 'N/A'
         ],
         'percent_sum_cost' => [
             'title' => 'Average % of Sum Cost',
             'format' => 'percentage',
-            'toggle_label' => 'Markup'
+            'toggle_label' => 'Markup',
+            'default' => 'N/A'
         ],
         'weighted_percent_sum_cost' => [
             'title' => 'Weighted Average % of Sum Cost',
@@ -136,6 +139,11 @@ class ProfitLoss extends Report
     private bool $includeFactoryCosts = false;
 
     /**
+     * @var bool|
+     */
+    private bool $includeFactoryCostsButton = false;
+
+    /**
      * @return int
      */
     public function getTotalCount(): int
@@ -149,6 +157,15 @@ class ProfitLoss extends Report
     public function includeFactoryCosts(): self
     {
         $this->includeFactoryCosts = true;
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    public function includeFactoryCostsButton(): self
+    {
+        $this->includeFactoryCostsButton = true;
         return $this;
     }
 
@@ -167,6 +184,9 @@ class ProfitLoss extends Report
      */
     protected function extractData(): array
     {
+        if ( $this->jobs->getCount() === 0 ) {
+            return [];
+        }
         /*
         $validJobs = $this->getValidJobs();
         if ( empty( $validJobs ) ) {
@@ -215,7 +235,9 @@ class ProfitLoss extends Report
         } else {
             $data['sum_cost']['item'] .= ' <small>Including Factory</small>';
         }
-        $data = $this->calculateAverages( $data );
+        if ( $this->numberOfValidJobs > 0 ) {
+            $data = $this->calculateAverages( $data );
+        }
         $data['profit_header'] = self::getProfitHeaderRow( $data['profit_header'] );
         return $data ?? [];
     }
@@ -335,15 +357,15 @@ class ProfitLoss extends Report
         $url = $this->getURL();
 
 
-        // if ( $this->includeFactoryCosts ) {
-        $links['include_factory_costs'] = [
+        if ( $this->includeFactoryCostsButton ) {
+            $links['include_factory_costs'] = [
 
-            'href' => $url->setQueryArg( 'include_factory_costs', !$this->includeFactoryCosts )->write(),
-            'content' => $this->includeFactoryCosts ? 'Ignore Factory Costs' : 'Include Factory Costs',
-            'class' => 'bg-secondary',
+                'href' => $url->setQueryArg( 'include_factory_costs', !$this->includeFactoryCosts )->write(),
+                'content' => $this->includeFactoryCosts ? 'Ignore Factory Costs' : 'Include Factory Costs',
+                'class' => 'bg-secondary',
 
-        ];
-        // }
+            ];
+        }
         return array_merge(
             $links ?? [],
             parent::getNavLinks()

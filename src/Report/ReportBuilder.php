@@ -6,6 +6,7 @@ namespace Phoenix\Report;
 
 use Phoenix\Entity\Entities;
 use Phoenix\Entity\EntityFactory;
+use Phoenix\Report\Shifts\ShiftsReportBuilder;
 use Phoenix\Utility\DateTimeUtility;
 use Phoenix\Utility\HTMLTags;
 
@@ -47,6 +48,11 @@ abstract class ReportBuilder
      * @var Entities|null
      */
     protected ?Entities $entities = null;
+
+    /**
+     * @var Report
+     */
+    protected Report $report;
 
     /**
      * Report Factory constructor.
@@ -108,41 +114,43 @@ abstract class ReportBuilder
     }
 
     /**
-     * @param Report $report
-     * @return Report
+     * @return $this
      */
-    public function provisionReport(Report $report): Report
+    public function provisionReport(): self
     {
-        $this->provisionReportStrings( $report );
+        $this->provisionReportStrings();
 
-        $report->setEntities(
+        $this->report->setEntities(
             $this->getEntities()
         );
-        return $report;
+        return $this;
     }
 
     /**
-     * @param Report $report
-     * @return Report
+     * @return string
      */
-    public function provisionReportStrings(Report $report): Report
+    abstract public function getDefaultEmptyMessage(): string;
+
+    /**
+     * @param string $defaultMessage
+     * @return $this
+     */
+    public function provisionReportStrings(  string $defaultMessage = ''): self
     {
         $emptyMessage = $this->validateInputs();
         if ( empty( $emptyMessage ) ) {
-            $emptyMessage =
-                'No completed shifts found from'
-                . $this->getDateString( 'primary' )
-                . ' to report.';
+            $emptyMessage = !empty($defaultMessage) ? $defaultMessage : $this->getDefaultEmptyMessage();
         } else {
-            $report->setEmptyMessageClass( 'danger' );
+            $this->report->setEmptyMessageClass( 'danger' );
         }
-        return $report
+        $this->report
             ->setEmptyMessage( $emptyMessage )
             ->setTitle(
                 $this->annotateTitleWithInputs(
-                    $report->getTitle()
+                    $this->report->getTitle()
                 )
             );
+        return $this;
     }
 
     /**

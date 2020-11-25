@@ -38,21 +38,7 @@ class ReportPageBuilderWorkerWeek extends ReportPageBuilderActivitySummary
             $shiftReportBuilder->getTimeClockRecord(),
             $shiftReportBuilder->getWorkerWeekSummary(),
             $shiftReportBuilder->getActivitySummary( $this->sortActivitiesBy, $this->groupActivities ),
-
-            $shiftReportBuilder->provisionReport(
-                $this->getReportClient()->getFactory()->archiveTables()->getShifts()
-                    ->setTitle( 'Week Shifts Archive' )
-
-                    /*
-                    ->setGroupByForm(
-                        $this->getGroupByForm()
-                            ->makeHiddenFields( ['date_start' => $dateStart] ),
-                        $this->groupBy
-                    )
-                    */
-                    ->editColumn( 'worker', ['hidden' => true] )->setEmptyMessage()
-            )
-
+            $shiftReportBuilder->getWeekShiftsArchive()
         ];
     }
 
@@ -63,7 +49,8 @@ class ReportPageBuilderWorkerWeek extends ReportPageBuilderActivitySummary
      */
     public function setDates(string $dateStart = '', string $dateFinish = ''): self
     {
-        $reportFactory = $this->getReportClient()->getShiftsReportBuilder()->setDatesForWeek( $dateStart );
+        $reportFactory = $this->getReportClient()->getShiftsReportBuilder()
+            ->setDatesForWeek( $dateStart );
         return parent::setDates(
             $reportFactory->getDateStart(),
             $reportFactory->getDateFinish()

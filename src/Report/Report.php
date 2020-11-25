@@ -61,7 +61,7 @@ abstract class Report extends Base
     /**
      * @var bool
      */
-    protected bool $printButton = false;
+    protected bool $includePrintButton = false;
 
     /**
      * @var bool
@@ -114,6 +114,11 @@ abstract class Report extends Base
     protected int $countMinimum = 5;
 
     /**
+     * @var array
+     */
+    private array $navLinks = [];
+
+    /**
      * Report constructor.
      *
      * @param HTMLTags $htmlUtility
@@ -158,7 +163,7 @@ abstract class Report extends Base
      */
     public function enablePrintButton(): self
     {
-        $this->printButton = true;
+        $this->includePrintButton = true;
         return $this;
     }
 
@@ -167,7 +172,7 @@ abstract class Report extends Base
      */
     public function disablePrintButton(): self
     {
-        $this->printButton = false;
+        $this->includePrintButton = false;
         return $this;
     }
 
@@ -194,10 +199,11 @@ abstract class Report extends Base
      */
     public function getNavLinks(): array
     {
+        $return = $this->navLinks;
         if ( $this->collapseButton ) {
             $collapsibleID = $this->getID() . '-report';
             $all = !empty( $this->groupedBy ) ? ' All' : '';
-            $return = [[
+            $return[] = [
                 'href' => '#' . $collapsibleID,
                 'content' => 'Minimise' . $all,
                 'class' => 'btn-danger minimise-button',
@@ -205,7 +211,8 @@ abstract class Report extends Base
                 'data' => [
                     'toggle' => 'collapse',
                 ]
-            ], [
+            ];
+            $return[] = [
                 'href' => '#' . $collapsibleID,
                 'content' => 'Expand' . $all,
                 'class' => 'btn-success expand-button',
@@ -213,9 +220,9 @@ abstract class Report extends Base
                 'data' => [
                     'toggle' => 'collapse',
                 ]
-            ]];
+            ];
         }
-        if ( $this->printButton ) {
+        if ( $this->includePrintButton ) {
             $return[] = [
                 'href' => '#',
                 'content' => 'Print',
@@ -223,6 +230,16 @@ abstract class Report extends Base
             ];
         }
         return $return ?? [];
+    }
+
+    /**
+     * @param array $navLink
+     * @return $this
+     */
+    public function addNavLink(array $navLink = []): self
+    {
+        $this->navLinks[] = $navLink;
+        return $this;
     }
 
     /**
@@ -552,7 +569,12 @@ abstract class Report extends Base
     public function render(): string
     {
         $data = $this->getData();
-        $printNone = $this->printButton ? '' : ' d-print-none';
+        $printNone = $this->includePrintButton ? '' : ' d-print-none';
+        if ( empty( $data ) ) {
+            $this->disableCollapseButton();
+        }
+
+        //
 
         ob_start(); ?>
         <div id="<?php echo $this->getID(); ?>" class="container <?php echo $printNone; ?>">

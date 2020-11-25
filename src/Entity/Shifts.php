@@ -64,6 +64,8 @@ class Shifts extends Entities
     }
 
     /**
+     * Calculates value of work over a date range as a percentage of all work value
+     *
      * @param string $dateStart
      * @param string $dateFinish
      * @return float
@@ -79,7 +81,28 @@ class Shifts extends Entities
             }
             $totalWorkerCost += $shift->getShiftCost();
         }
+        if ( empty( $totalWorkerCost ) ) { //equals 0 - empty() accounts for integer or float 0
+            return 1;
+        }
         return $periodWorkerCost / $totalWorkerCost;
+    }
+
+    /**
+     * @return string
+     */
+    public function getEarliestShift(): string
+    {
+        $this->orderLatestToEarliest();
+        return $this->entities[array_key_first( $this->entities )]->date;
+    }
+
+    /**
+     * @return string
+     */
+    public function getLatestShift(): string
+    {
+        $this->orderLatestToEarliest();
+        return $this->entities[array_key_last( $this->entities )]->date;
     }
 
     /**

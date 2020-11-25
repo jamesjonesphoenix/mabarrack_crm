@@ -38,7 +38,7 @@ class FurnitureEntityForm extends DetailPageEntityForm
             'value' => $this->entity->namePlural,
             'label' => 'Plural Name',
             'disabled' => $this->isDisabled(),
-            'small' => '<small>Enter plural of name manually if it is different to simply appending an "s".</small>'
+            'small' => 'Enter plural of name manually if it is different to simply appending an "s".'
         ] );
         return $this;
     }

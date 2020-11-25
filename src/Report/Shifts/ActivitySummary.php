@@ -55,7 +55,7 @@ class ActivitySummary extends ShiftsReport
     /**
      * @var bool
      */
-    protected bool $printButton = true;
+    protected bool $includePrintButton = true;
 
     /**
      * @var string
@@ -146,7 +146,7 @@ class ActivitySummary extends ShiftsReport
                 return $shift->activity->chargeable ? 'Value Adding Time' : 'Non Chargeable Time';
             case 'factory':
                 if ( $shift->job->id === 0 ) {
-                    if ( $shift->isLunch() ) {
+                    if ( $shift->isLunch() === 'lunch') {
                         return 'Lunch Time';
                     }
                     return 'Factory Time <small>(No Job Number)</small>';
@@ -186,6 +186,7 @@ class ActivitySummary extends ShiftsReport
      */
     public function getActivitiesSummary(): array
     {
+
         foreach ( $this->sortShifts() as $groupName => $shifts ) {
 
             foreach ( $shifts as $shift ) {

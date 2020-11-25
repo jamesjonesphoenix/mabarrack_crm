@@ -12,10 +12,11 @@ use Phoenix\Report\Archive\ArchiveTableJobs;
 
 /**
  * @method Customer getEntity(int $entityID = null)
+ * @author James Jones
+ * @property  Customer entity
  *
  * Class DetailPageBuilderCustomer
  *
- * @author James Jones
  * @package Phoenix\DetailPage
  *
  */
@@ -40,6 +41,7 @@ class DetailPageBuilderCustomer extends DetailPageBuilder
         );
     }
 
+
     /**
      * @return $this
      * @throws \Exception
@@ -58,7 +60,7 @@ class DetailPageBuilderCustomer extends DetailPageBuilder
             $this->format,
             $this->getURL()
         ))
-            ->setEntities( new Entities($customer->jobs) )
+            ->setEntities( new Entities( $customer->jobs ) )
             ->setTitle(
                 ($customer->getNamePossessive() ?? 'Customer') . ' Jobs'
             )
@@ -72,6 +74,20 @@ class DetailPageBuilderCustomer extends DetailPageBuilder
                 'profit_loss',
                 'employee_cost'
             ], ['hidden' => true] )
+            ->addNavLink( [
+                'element' => 'a',
+                'content' => ucwords( $this->entity->getNamePossessive() . ' Profit/Loss Report' ),
+                'href' => $this->getURL()
+                    ->setQueryArgs( [
+                        'page' => 'report',
+                        'report' => 'profit_loss',
+                        'customer' => $this->entity->id,
+                        'date_start' => '1900-01-01',
+                        'date_finish' => '2200-01-01'
+                    ] )
+                    ->write(),
+                'class' => 'bg-primary'
+            ] )
             ->render()
         );
         return $this;

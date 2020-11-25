@@ -46,19 +46,26 @@ abstract class DetailPageEntityForm extends EntityForm
     }
 
     /**
+     * @param string $name
+     * @return $this
+     */
+    public function getDisplayEntityName(string $name = ''): self
+    {
+        $this->displayEntityName = $name;
+        return $this;
+    }
+
+    /**
      * @return bool
      */
     public function isDisabled(): bool
     {
         if ( $this->entity->exists ) {
-
             return true; //Safety feature to prevent accidentally editing existing job
         }
-
         if ( $this->getDBAction() === 'add' && !$this->entity->canCreate() ) {
             return true;
         }
-
         return false;
     }
 
@@ -89,7 +96,7 @@ abstract class DetailPageEntityForm extends EntityForm
             <?php } ?>
             <div class="row">
                 <div class="col">
-                    <div class="grey-bg px-3 pt-3">
+                    <div class="grey-bg p-3">
                         <form id="<?php echo $this->formID; ?>" class="detail-form">
                             <fieldset>
                                 <?php echo $this->renderFields(); ?>
@@ -98,7 +105,9 @@ abstract class DetailPageEntityForm extends EntityForm
                                         <?php echo $this->htmlUtility::getButton( [
                                             'element' => 'input',
                                             'type' => 'submit',
-                                            'class' => ['btn', 'btn-primary', 'btn-lg', 'mt-2', 'mr-1'],
+                                            'class' => [
+                                                    'btn', 'btn-primary', 'btn-lg', 'mt-2', 'mr-1'
+                                            ],
                                             'id' => 'submit-button',
                                             'disabled' => $this->isDisabled(),
                                             'value' => $submitButtonString
@@ -117,8 +126,7 @@ abstract class DetailPageEntityForm extends EntityForm
                 </div>
             </div>
         </div>
-        <?php
-        return ob_get_clean();
+        <?php return ob_get_clean();
     }
 
     /**
@@ -126,12 +134,19 @@ abstract class DetailPageEntityForm extends EntityForm
      */
     abstract protected function renderFields(): string;
 
+    protected function getEntityHandle()
+    {
+        return $this->displayEntityName ?? $this->entity->entityName;
+    }
+
     /**
      * @return \string[][]
      */
     public function getButtonsArray(): array
     {
         $entityName = $this->displayEntityName ?? $this->entity->entityName;
+
+
         $buttons = [
             [
                 'class' => 'btn btn-lg btn-primary mr-2 float-left',
@@ -190,4 +205,6 @@ abstract class DetailPageEntityForm extends EntityForm
     {
         return true;
     }
+
+
 }

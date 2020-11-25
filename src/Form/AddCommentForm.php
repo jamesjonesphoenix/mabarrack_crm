@@ -34,9 +34,9 @@ class AddCommentForm extends Form
      */
     public function __construct(FormFields $htmlUtility, int $shiftID, string $comment = '')
     {
-        $this->htmlUtility = $htmlUtility;
         $this->shiftID = $shiftID;
         $this->comment = $comment;
+        parent::__construct($htmlUtility);
     }
 
     /**
