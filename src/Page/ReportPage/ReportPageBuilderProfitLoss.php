@@ -28,6 +28,11 @@ class ReportPageBuilderProfitLoss extends ReportPageBuilder
     private ?Customer $customer = null;
 
     /**
+     * @var string
+     */
+    private string $jobType = '';
+
+    /**
      * @param array $inputArgs
      * @return $this
      */
@@ -37,8 +42,6 @@ class ReportPageBuilderProfitLoss extends ReportPageBuilder
 
         $reportBuilder = $this->getReportClient()->getProfitLossBuilder()
             ->setCustomer( $this->customer );
-
-
 
         if ( !empty( $inputArgs['include_factory_costs'] ) ) {
 
@@ -50,11 +53,26 @@ class ReportPageBuilderProfitLoss extends ReportPageBuilder
             } else {
                 $reportBuilder->includeFactoryCosts();
             }
-
         }
 
+        if ( !empty( $inputArgs['job_type'] ) ) {
+            $reportBuilder->setJobType( $inputArgs['job_type'] );
+            $this->setJobType( $inputArgs['job_type'] );
+        }
 
         return parent::setInputArgs( $inputArgs );
+    }
+
+    /**
+     * @param string $jobType
+     * @return $this
+     */
+    public function setJobType(string $jobType = ''): self
+    {
+        if ( !empty( $jobType ) ) {
+            $this->jobType = $jobType;
+        }
+        return $this;
     }
 
     /**
@@ -106,9 +124,14 @@ class ReportPageBuilderProfitLoss extends ReportPageBuilder
         if ( $this->customer !== null ) {
             $form->setCustomer( $this->customer );
         }
+        d( $this );
+        if ( !empty( $this->jobType ) ) {
+            $form->setJobType( $this->jobType );
+        }
         return $form
             ->makeCustomerField(
                 (new CustomerFactory( $this->db, $this->messages ))->getOptionsArray()
-            );
+            )
+            ->makeJobTypeField();
     }
 }

@@ -56,6 +56,10 @@ class PeriodicReportForm extends Form
      */
     private URL $url;
 
+    /**
+     * @var string
+     */
+    private string $jobType = '';
 
 
     /**
@@ -103,6 +107,16 @@ class PeriodicReportForm extends Form
     }
 
     /**
+     * @param string $jobType
+     * @return $this
+     */
+    public function setJobType(string $jobType): self
+    {
+        $this->jobType = $jobType;
+        return $this;
+    }
+
+    /**
      * @return $this
      */
     public function disableDateFinish(): self
@@ -140,6 +154,11 @@ class PeriodicReportForm extends Form
             $inputArgs['date_finish'],
             $inputArgs['user']
         );
+
+
+
+
+
         $this->makeHiddenFields( $inputArgs );
         return $this;
     }
@@ -204,6 +223,27 @@ class PeriodicReportForm extends Form
     }
 
     /**
+     * @return $this
+     */
+    public function makeJobTypeField(): self
+    {
+        $this->fields['job_type'] = $this->htmlUtility::getOptionDropdownFieldHTML( [
+            'name' => 'job_type',
+
+            'options' => [
+                'all' => 'All',
+                'CNC' => 'CNC Jobs Only',
+                'Manual' => 'Manual Jobs Only'
+            ],
+
+            'selected' => $this->jobType ?? 'all',
+            'id' => 'report-input-type',
+            'label' => 'Select Jobs Type',
+        ] );
+        return $this;
+    }
+
+    /**
      * @return string
      */
     public function render(): string
@@ -220,7 +260,7 @@ class PeriodicReportForm extends Form
                                 <?php foreach ( $this->fields['hidden'] as $field ) {
                                     echo $field;
                                 } ?>
-                                <div class="form-row">
+                                <div class="form-row align-items-end">
                                     <div class="form-group col-md-4">
                                         <?php echo $this->fields['date_start']; ?>
                                     </div>
@@ -237,8 +277,11 @@ class PeriodicReportForm extends Form
                                             <?php echo $this->fields['customer']; ?>
                                         </div>
                                     <?php } ?>
-                                </div>
-                                <div class="form-row mt-1">
+                                    <?php if ( isset( $this->fields['job_type'] ) ) { ?>
+                                        <div class="form-group col-md-4">
+                                            <?php echo $this->fields['job_type']; ?>
+                                        </div>
+                                    <?php } ?>
                                     <div class="form-group col mb-3 text-right">
                                         <?php echo $this->htmlUtility::getButton( [
                                             'element' => 'input',
@@ -259,4 +302,5 @@ class PeriodicReportForm extends Form
         </div>
         <?php return ob_get_clean();
     }
+
 }

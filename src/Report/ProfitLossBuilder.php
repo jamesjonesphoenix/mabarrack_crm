@@ -37,6 +37,11 @@ class ProfitLossBuilder extends ReportBuilder
     private bool $includeFactoryCostsButton = false;
 
     /**
+     * @var string
+     */
+    private string $jobType = 'all';
+
+    /**
      * @return $this
      */
     public function includeFactoryCosts(): self
@@ -125,6 +130,15 @@ class ProfitLossBuilder extends ReportBuilder
             $this->dateStart,
             $this->dateFinish
         ));
+
+        if ( $this->jobType !== 'all' ) {
+            d( $this->jobType );
+            $entities = $entities->getJobsOfType(
+                $this->jobType
+            );
+
+        }
+
         // $entities->getProportionsAndWeightsOverPeriod($this->dateStart, $this->dateFinish);
         return $this->entities = $entities;
     }
@@ -175,6 +189,16 @@ class ProfitLossBuilder extends ReportBuilder
     {
         $customer = isset( $this->customer->name ) ? '<small>' . $this->htmlUtility::getBadgeHTML( $this->customer->name ) . '</small> ' : '';
         return parent::annotateTitleWithInputs( $customer . $title );
+    }
+
+    /**
+     * @param $type
+     * @return $this
+     */
+    public function setJobType(string $type = ''): self
+    {
+        $this->jobType = $type;
+        return $this;
     }
 
 
