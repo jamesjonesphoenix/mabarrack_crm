@@ -3,7 +3,6 @@
 
 namespace Phoenix\Utility;
 
-use Phoenix\Format;
 
 /**
  * Class FormFields
@@ -20,9 +19,14 @@ class FormFields extends HTMLTags
      */
     public static function getCheckboxesFieldHTML(array $args = []): string
     {
-        $args = self::mergeDefaultArgs( $args, 'hidden' );
-        ob_start(); ?><input autocomplete="off" type="hidden"<?php echo self::getAttributes( $args ); ?>><?php
-        return ob_get_clean();
+        $args = self::mergeDefaultArgs( $args, 'checkbox' );
+        $args['class'] = str_replace( 'form-control', 'custom-control-input', $args['class'] );
+        $attributes = self::getAttributes( $args ) . self::makeElementProperty( $args['checked'] ?? '', 'checked' );
+        ob_start(); ?>
+        <div class="custom-control custom-checkbox mb-2"><input type="checkbox"<?php echo $attributes; ?> >
+            <label class="custom-control-label" for="<?php echo $args['id']; ?>"><?php echo $args['label']; ?><small><?php echo $args['small'] ?? ''; ?></small></label>
+        </div>
+        <?php return ob_get_clean();
     }
 
     /**
@@ -98,7 +102,7 @@ class FormFields extends HTMLTags
                 $selected = ($args['selected'] ?? '') === $optionValue ? self::makeElementProperty( 'selected', 'selected' ) : ''; ?>
                 <option<?php echo self::makeElementProperty( $optionValue, 'value' )
                     . $selected; ?>><?php echo str_replace( '_', ' ', $optionString ) ?></option>
-                <?php } ?>
+            <?php } ?>
         </select>
         <?php return self::getFieldLabelHTML(
             $args['label'] ?? '',

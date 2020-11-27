@@ -13133,7 +13133,9 @@ table.table th.date_started,
 table.table th.date_finished,
 table.table th.time_started,
 table.table th.time_finished,
-table.table th.priority {
+table.table th.priority,
+table.table th.worker_week,
+table.table th.profit-loss {
   width: 1%; }
 table.table th.view {
   width: 1%;

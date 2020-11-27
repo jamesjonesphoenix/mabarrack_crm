@@ -33,7 +33,11 @@ class ArchiveTableUsers extends ArchiveTable
         ],
         'role' => [
             'title' => 'Role'
-        ]
+        ],
+        'worker_week' => [
+            'title' => ''
+        ],
+
     ];
 
     /**
@@ -46,7 +50,11 @@ class ArchiveTableUsers extends ArchiveTable
             'name' => $user->name,
             'pin' => $user->pin,
             'rate' => $user->rate,
-            'role' => ucwords( $user->role )
+            'role' => ucwords( $user->role ),
+            'worker_week' => $this->htmlUtility::getViewButton(
+                $user->getWorkerWeekLink(),
+                'Worker Week'
+            )
         ];
     }
 }

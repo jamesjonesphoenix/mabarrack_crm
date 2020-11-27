@@ -18,7 +18,7 @@ class ArchiveTableProfitLossJobsInvalid extends ArchiveTableProfitLossJobsValid
     /**
      * @var string
      */
-    protected string $title = 'Jobs Excluded From Report';
+    protected string $title = 'Invalid Jobs';
 
     /**
      * @param JobOverPeriod $job

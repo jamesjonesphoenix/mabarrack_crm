@@ -46,10 +46,33 @@ class Jobs extends Entities
 
     /**
      * @param string $type
+     * @param bool   $exclusive
      * @return $this
      */
-    public function getJobsOfType(string $type = ''): self
+    public function getJobsOfType(string $type = '', $exclusive = false): self
     {
+
+        if ( $exclusive ) {
+            foreach ( $this->entities as $jobID => $job ) {
+                $mayBeLegit = false;
+                $wrongActivityType = false;
+                foreach ( $job->shifts->getAll() as $shiftID => $shift ) {
+                    if ( $shift->activity->type !== $type && $shift->activity->type !== 'General' ) {
+                        $wrongActivityType = true;
+                        break;
+                    }
+                    if ( $shift->activity->type === $type ) {
+                        $mayBeLegit = true;
+
+                    }
+                }
+                if ( $mayBeLegit && !$wrongActivityType ) {
+                    $jobs[$jobID] = $job;
+                }
+            }
+            return new static( $jobs ?? [] );
+        }
+
         foreach ( $this->entities as $jobID => $job ) {
             foreach ( $job->shifts->getAll() as $shiftID => $shift ) {
                 if ( $shift->activity->type === $type ) {

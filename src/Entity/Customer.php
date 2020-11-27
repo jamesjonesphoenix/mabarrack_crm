@@ -2,6 +2,8 @@
 
 namespace Phoenix\Entity;
 
+use Phoenix\URL;
+
 /**
  * @property string $emailAddress
  * @property string $name
@@ -80,6 +82,22 @@ class Customer extends Entity
             return $name . "'";
         }
         return $name . "'s";
+    }
+
+    /**
+     * @return string
+     */
+    public function getProfitLossLink(): string
+    {
+        return (new URL())
+            ->setQueryArgs( [
+                'page' => 'report',
+                'report' => 'profit_loss',
+                'customer' => $this->id,
+                'date_start' => '1900-01-01',
+                'date_finish' => '2200-01-01'
+            ] )
+            ->write();
     }
 
     /**

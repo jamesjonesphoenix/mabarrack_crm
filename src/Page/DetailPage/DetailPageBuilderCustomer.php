@@ -74,20 +74,7 @@ class DetailPageBuilderCustomer extends DetailPageBuilder
                 'profit_loss',
                 'employee_cost'
             ], ['hidden' => true] )
-            ->addNavLink( [
-                'element' => 'a',
-                'content' => ucwords( $this->entity->getNamePossessive() . ' Profit/Loss Report' ),
-                'href' => $this->getURL()
-                    ->setQueryArgs( [
-                        'page' => 'report',
-                        'report' => 'profit_loss',
-                        'customer' => $this->entity->id,
-                        'date_start' => '1900-01-01',
-                        'date_finish' => '2200-01-01'
-                    ] )
-                    ->write(),
-                'class' => 'bg-primary'
-            ] )
+
             ->render()
         );
         return $this;

@@ -60,7 +60,7 @@ $j(document).ready(function () {
             dateFormat: 'uk',
             showProcessing: true,
             headers: {
-                '.view, .furniture-select.select': {
+                '.view, .furniture-select.select, .profit-loss, .worker_week': {
                     sorter: false,
                     filter: false
                 },

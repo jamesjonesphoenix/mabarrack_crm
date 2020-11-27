@@ -31,7 +31,7 @@ class UserEntityForm extends DetailPageEntityForm
                 'element' => 'a',
                 'id' => 'view-worker-week',
                 'content' => 'View Worker Week',
-                'href' => 'index.php?page=report&report=worker_week&user=' . $this->entity->id
+                'href' => $this->entity->getWorkerWeekLink()
             ];
         }
         return $buttons;

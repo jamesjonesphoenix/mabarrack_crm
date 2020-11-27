@@ -61,6 +61,11 @@ class PeriodicReportForm extends Form
      */
     private string $jobType = '';
 
+    /**
+     * @var bool
+     */
+    private bool $exclusiveJobType = false;
+
 
     /**
      * PeriodicReportForm constructor.
@@ -156,9 +161,6 @@ class PeriodicReportForm extends Form
         );
 
 
-
-
-
         $this->makeHiddenFields( $inputArgs );
         return $this;
     }
@@ -202,7 +204,7 @@ class PeriodicReportForm extends Form
         if ( $this->customer !== null ) {
             $append = $this->htmlUtility::getViewButton(
                 $this->customer->getLink() ?? '',
-                'View Customer'
+                'View ' . ($this->customer->name ?? 'Customer')
             );
         }
 
@@ -219,6 +221,16 @@ class PeriodicReportForm extends Form
             'append' => $append ?? ''
 
         ] );
+        return $this;
+    }
+
+
+    /**
+     * @return $this
+     */
+    public function setExclusiveJobType(): self
+    {
+        $this->exclusiveJobType = true;
         return $this;
     }
 
@@ -240,6 +252,16 @@ class PeriodicReportForm extends Form
             'id' => 'report-input-type',
             'label' => 'Select Jobs Type',
         ] );
+
+        $this->fields['exclusive'] = $this->htmlUtility::getCheckboxesFieldHTML( [
+            'name' => 'exclusive',
+            'label' => 'Exclusively filter job type - ',
+            'id' => 'report-input-type-exclusive',
+            'checked' => $this->exclusiveJobType ? 'true' : '',
+            'value' => true,
+            'small' => 'Jobs with CNC <strong>and</strong> Manual shifts will be filtered out'
+        ] );
+
         return $this;
     }
 
@@ -248,8 +270,6 @@ class PeriodicReportForm extends Form
      */
     public function render(): string
     {
-        // $this->disableDateFinish
-
         ob_start(); ?>
         <div class="container mb-4 position-relative d-print-none">
             <div class="row">
@@ -281,6 +301,9 @@ class PeriodicReportForm extends Form
                                         <div class="form-group col-md-4">
                                             <?php echo $this->fields['job_type']; ?>
                                         </div>
+                                        <div class="form-group col-md-6">
+                                            <?php echo $this->fields['exclusive']; ?>
+                                        </div>
                                     <?php } ?>
                                     <div class="form-group col mb-3 text-right">
                                         <?php echo $this->htmlUtility::getButton( [
@@ -302,5 +325,6 @@ class PeriodicReportForm extends Form
         </div>
         <?php return ob_get_clean();
     }
+
 
 }

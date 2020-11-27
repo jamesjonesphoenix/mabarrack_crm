@@ -2,6 +2,7 @@
 
 namespace Phoenix\Entity;
 
+use Phoenix\URL;
 use Phoenix\Utility\DateTimeUtility;
 use Phoenix\Messages;
 use Phoenix\PDOWrap;
@@ -275,11 +276,11 @@ class User extends Entity
         if ( $furnitureID !== null && $furnitureID !== '' ) {
             $newShift->furniture = (new FurnitureFactory( $this->db, $this->messages ))->getEntity( $furnitureID );
             if ( $newShift->furniture->id === null ) {
-                $errors[] = 'Furniture' . $this->getIDBadge($furnitureID,'danger') . " doesn't exist.";
+                $errors[] = 'Furniture' . $this->getIDBadge( $furnitureID, 'danger' ) . " doesn't exist.";
             }
         }
         if ( !empty( $errors ) ) {
-            return $this->addError('<h5 class="alert-heading">Can\'t ' . $newShift->getActionString( 'present', 'start' ) . ':</h5>' . HTMLTags::getListGroup( $errors ) );
+            return $this->addError( '<h5 class="alert-heading">Can\'t ' . $newShift->getActionString( 'present', 'start' ) . ':</h5>' . HTMLTags::getListGroup( $errors ) );
         }
         if ( !empty( $comment ) ) {
             $newShift->activityComments = $comment;
@@ -309,6 +310,20 @@ class User extends Entity
         }
 
         return false;
+    }
+
+    /**
+     * @return string
+     */
+    public function getWorkerWeekLink(): string
+    {
+        return (new URL())
+            ->setQueryArgs( [
+                'page' => 'report',
+                'report' => 'worker_week',
+                'user' => $this->id
+            ] )
+            ->write();
     }
 
     /**
@@ -355,7 +370,7 @@ class User extends Entity
                     $errors[] = ucfirst( $userString ) . ' '
                         . $verbString
                         . ' an unfinished shift started on a day other than today.<br>An admin must manually set a finish time for shift'
-                        . $shift->getIDBadge(null,'primary') . $date . '.';
+                        . $shift->getIDBadge( null, 'primary' ) . $date . '.';
                 }
             }
         }

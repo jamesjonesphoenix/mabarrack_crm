@@ -33,6 +33,11 @@ class ReportPageBuilderProfitLoss extends ReportPageBuilder
     private string $jobType = '';
 
     /**
+     * @var bool
+     */
+    private bool $exclusiveJobType = false;
+
+    /**
      * @param array $inputArgs
      * @return $this
      */
@@ -54,10 +59,13 @@ class ReportPageBuilderProfitLoss extends ReportPageBuilder
                 $reportBuilder->includeFactoryCosts();
             }
         }
-
         if ( !empty( $inputArgs['job_type'] ) ) {
             $reportBuilder->setJobType( $inputArgs['job_type'] );
             $this->setJobType( $inputArgs['job_type'] );
+        }
+        if ( !empty( $inputArgs['exclusive'] ) ) {
+             $reportBuilder->setExclusiveJobType();
+            $this->setExclusiveJobType();
         }
 
         return parent::setInputArgs( $inputArgs );
@@ -127,10 +135,23 @@ class ReportPageBuilderProfitLoss extends ReportPageBuilder
         if ( !empty( $this->jobType ) ) {
             $form->setJobType( $this->jobType );
         }
+        if ( !empty( $this->exclusiveJobType ) ) {
+            $form->setExclusiveJobType( );
+        }
+
         return $form
             ->makeCustomerField(
                 (new CustomerFactory( $this->db, $this->messages ))->getOptionsArray()
             )
             ->makeJobTypeField();
+    }
+
+    /**
+     * @return $this
+     */
+    private function setExclusiveJobType(): self
+    {
+        $this->exclusiveJobType = true;
+        return $this;
     }
 }

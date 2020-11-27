@@ -77,9 +77,14 @@ abstract class Form
                 $this->makeHiddenFields( $inputArgValue, array_merge( $prefixes, [$inputArgName] ) );
                 continue;
             }
+            if ( isset( $this->fields[$inputArgName] ) ) {
+                continue;
+            }
+
             if ( !empty( $inputArgPrefix ) ) {
                 $inputArgName = $inputArgPrefix . '[' . $inputArgName . ']';
             }
+
 
             $this->fields['hidden'][$inputKeyPrefix . $inputArgName] = $this->htmlUtility::getHiddenFieldHTML( [
                 'name' => $inputArgName,

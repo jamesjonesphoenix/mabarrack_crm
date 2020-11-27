@@ -42,6 +42,11 @@ class ProfitLossBuilder extends ReportBuilder
     private string $jobType = 'all';
 
     /**
+     * @var bool
+     */
+    private bool $exclusiveJobType = false;
+
+    /**
      * @return $this
      */
     public function includeFactoryCosts(): self
@@ -132,9 +137,8 @@ class ProfitLossBuilder extends ReportBuilder
         ));
 
         if ( $this->jobType !== 'all' ) {
-            d( $this->jobType );
             $entities = $entities->getJobsOfType(
-                $this->jobType
+                $this->jobType, $this->exclusiveJobType
             );
 
         }
@@ -188,7 +192,12 @@ class ProfitLossBuilder extends ReportBuilder
     public function annotateTitleWithInputs(string $title = ''): string
     {
         $customer = isset( $this->customer->name ) ? '<small>' . $this->htmlUtility::getBadgeHTML( $this->customer->name ) . '</small> ' : '';
-        return parent::annotateTitleWithInputs( $customer . $title );
+
+        $exclusive = $this->exclusiveJobType ? 'Exclusively ' : '';
+
+        $jobType = $this->jobType !== 'all' ? ' - <small>' . $this->htmlUtility::getBadgeHTML( $exclusive . $this->jobType . ' Jobs Only' ) . '</small> ' : '';
+
+        return parent::annotateTitleWithInputs( $customer . $title ) . $jobType;
     }
 
     /**
@@ -198,6 +207,15 @@ class ProfitLossBuilder extends ReportBuilder
     public function setJobType(string $type = ''): self
     {
         $this->jobType = $type;
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    public function setExclusiveJobType(): self
+    {
+        $this->exclusiveJobType = true;
         return $this;
     }
 

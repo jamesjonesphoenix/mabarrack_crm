@@ -22,6 +22,21 @@ class CustomerEntityForm extends DetailPageEntityForm
      */
     public string $formID = 'customer_form';
 
+    public function getButtonsArray(): array
+    {
+        d(count($this->entity->jobs));
+        $buttons = parent::getButtonsArray();
+        if ( $this->entity->exists ) {
+            $buttons[] = [
+                'class' => 'btn btn-lg btn-primary mr-2 float-left',
+                'element' => 'a',
+                'content' => ucwords( $this->entity->getNamePossessive() . ' Profit/Loss Report' ),
+                'href' => $this->entity->getProfitLossLink()
+            ];
+        }
+        return $buttons;
+    }
+
     /**
      * @return $this
      */

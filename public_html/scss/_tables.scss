@@ -56,7 +56,10 @@ table.table {
   th.date_finished,
   th.time_started,
   th.time_finished,
-  th.priority {
+  th.priority,
+
+  th.worker_week,
+  th.profit-loss {
     width: 1%;
   }
 
