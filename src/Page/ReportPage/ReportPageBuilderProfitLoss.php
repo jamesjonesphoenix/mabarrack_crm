@@ -124,7 +124,6 @@ class ReportPageBuilderProfitLoss extends ReportPageBuilder
         if ( $this->customer !== null ) {
             $form->setCustomer( $this->customer );
         }
-        d( $this );
         if ( !empty( $this->jobType ) ) {
             $form->setJobType( $this->jobType );
         }
