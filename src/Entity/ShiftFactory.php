@@ -153,7 +153,7 @@ class ShiftFactory extends EntityFactory
         }
 
         //$jobs = (new JobFactory( $this->db, $this->messages ))->addFurniture( $jobs );
-        $furnitureIDs = self::getEntityIDs( $shifts, 'furniture' );
+        $furnitureIDs = $this->getEntityIDs( $shifts, 'furniture' );
         if ( empty( $furnitureIDs ) ) {
             return $shifts;
         }

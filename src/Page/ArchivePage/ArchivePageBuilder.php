@@ -84,7 +84,10 @@ abstract class ArchivePageBuilder extends EntityPageBuilder
         $this->page = $this->getNewPage()
             ->setNavLinks(
                 ($this->getMenuItems())->getMenuItems()
-            )->setHeadTitle( ucwords( $this->getEntityFactory()->getEntityNamePlural() ) );
+            )
+            ->setHeadTitle(
+                ucwords( $this->getEntityFactory()->getEntityNamePlural() )
+            );
         $this->addArchives();
         $this->addTitle();
         return $this;
@@ -138,7 +141,7 @@ abstract class ArchivePageBuilder extends EntityPageBuilder
      */
     protected function getTitlePrefix(): string
     {
-        $icon = $this->entityFactory->getNew()->getIcon();
+        $icon = $this->getMenuItems()->getIcon();
         if ( empty( $this->inputArgs['query'] ) || $this->inputArgs['query'] === $this->queryArgs ) {
             if ( empty( $this->inputArgs['limit'] ) ) {
                 if ( $this->errorEntitiesOnly ) {
@@ -150,7 +153,6 @@ abstract class ArchivePageBuilder extends EntityPageBuilder
                 return $icon . ' Recent';
             }
         }
-
         return $icon;
     }
 
@@ -197,7 +199,6 @@ abstract class ArchivePageBuilder extends EntityPageBuilder
                 ->setEmptyMessageClass( 'success' )
                 ->setEmptyMessage( 'No ' . $dummyEntity->entityNamePlural . ' found with errors.' );
         }
-
         $this->page->addContent( $report->render() );
         return $this;
     }

@@ -165,7 +165,8 @@ class User extends Entity
      */
     public function getFirstName(): string
     {
-        return strtok( $this->name, ' ' );
+        $name = strtok( $this->name, ' ' );
+        return empty( $name ) ? $this->entityName : $name;
     }
 
     /**
@@ -418,7 +419,7 @@ class User extends Entity
     {
         $numberOfShifts = $this->shifts->getCount();
         if ( $numberOfShifts > 0 ) {
-            return $this->addError( ucfirst( $this->name ) . ' has <strong>' . $numberOfShifts . '</strong> associated shifts. You cannot delete ' . ucfirst( $this->name ) . ' until the related shifts are deleted.' );
+            return $this->addError( ucfirst( $this->getFirstName() ) . ' has <strong>' . $numberOfShifts . '</strong> associated shifts. You cannot delete ' .  $this->getFirstName()  . ' until the related shifts are deleted.' );
         }
         return true;
     }

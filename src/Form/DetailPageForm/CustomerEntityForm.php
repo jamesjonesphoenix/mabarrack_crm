@@ -24,7 +24,6 @@ class CustomerEntityForm extends DetailPageEntityForm
 
     public function getButtonsArray(): array
     {
-        d(count($this->entity->jobs));
         $buttons = parent::getButtonsArray();
         if ( $this->entity->exists ) {
             $buttons[] = [

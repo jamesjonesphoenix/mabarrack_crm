@@ -3,6 +3,7 @@
 namespace Phoenix\Page\MenuItems;
 
 use Phoenix\URL;
+use Phoenix\Utility\HTMLTags;
 
 /**
  * Class MenuItems
@@ -13,6 +14,19 @@ use Phoenix\URL;
  */
 class MenuItemsReports extends MenuItems
 {
+    /**
+     * @var string
+     */
+    protected string $icon = 'clipboard-list';
+
+    /**
+     * @return string
+     */
+    public function getContextualClass(): string
+    {
+        return 'report';
+    }
+
     /**
      * @return array[]
      */

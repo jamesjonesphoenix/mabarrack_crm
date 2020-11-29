@@ -19,9 +19,9 @@ use Phoenix\Page\MenuItems\MenuItemsUsers;
 /**
  * Class IndexPageBuilder
  *
+ * @author James Jones
  * @property IndexPage $page
  *
- * @author James Jones
  * @package Phoenix\Page
  *
  */
@@ -34,7 +34,7 @@ class IndexPageBuilder extends PageBuilder
     {
         $this->page = $this
             ->getNewPage()
-            ->setHeadTitle('Main Menu');
+            ->setHeadTitle( 'Main Menu' );
         $this->addMenu();
         return $this;
     }
@@ -52,52 +52,26 @@ class IndexPageBuilder extends PageBuilder
      */
     private function addMenu(): self
     {
-        $countErrors = true;
-
-        $jobFactory = new JobFactory( $this->db, $this->messages );
-        $shiftFactory = new ShiftFactory( $this->db, $this->messages );
-        $customerFactory = new CustomerFactory( $this->db, $this->messages );
-        $userFactory = new UserFactory( $this->db, $this->messages );
-        $furnitureFactory = new FurnitureFactory( $this->db, $this->messages );
-        //
+        // $countErrors = true;
         $this->page->setMainMenu( [
-            'Jobs' => [
-                'icon' => $jobFactory->getNew()->getIcon(),
-                'contextual_class' => 'job',
-                'items' => (new MenuItemsJobs( $jobFactory ))
-                    ->setJobUrgencyThreshold( new SettingFactory( $this->db, $this->messages ) )
-                    ->getMenuItems( $countErrors )
-            ],
-            'Shifts' => [
-                'icon' => $shiftFactory->getNew()->getIcon(),
-                'contextual_class' => 'shift',
-                'items' => (new MenuItemsShifts( $shiftFactory ))->getMenuItems( $countErrors )
-            ],
-            'Users' => [
-                'icon' => $userFactory->getNew()->getIcon(),
-                'contextual_class' => 'worker',
-                'items' => (new MenuItemsUsers( $userFactory ))->getMenuItems( $countErrors )
-            ],
-            'Customers' => [
-                'icon' => $customerFactory->getNew()->getIcon(),
-                'contextual_class' => 'customer',
-                'items' => (new MenuItemsEntities( $customerFactory ))->getMenuItems( $countErrors )
-            ],
-            'Furniture' => [
-                'icon' => $furnitureFactory->getNew()->getIcon(),
-                'contextual_class' => 'furniture',
-                'items' => (new MenuItemsEntities( $furnitureFactory ))->getMenuItems( $countErrors )
-            ],
-            'Report' => [
-                'icon' => $this->HTMLUtility::getIconHTML( 'clipboard-list' ),
-                'contextual_class' => 'report',
-                'items' => (new MenuItemsReports())->getMenuItems()
-            ],
-            'Other' => [
-                'icon' => $this->HTMLUtility::getIconHTML( 'user-cog' ),
-                'contextual_class' => 'secondary',
-                'items' => (new MenuItemsOther())->getMenuItems()
-            ]
+            'Jobs' => ((new MenuItemsJobs(
+                new JobFactory( $this->db, $this->messages ) ))->setJobUrgencyThreshold( new SettingFactory( $this->db, $this->messages )
+            ))->includeAddNew(),
+            'Shifts' => (new MenuItemsShifts(
+                new ShiftFactory( $this->db, $this->messages )
+            ))->includeAddNew(),
+            'Users' => (new MenuItemsUsers(
+                new UserFactory( $this->db, $this->messages )
+            ))->includeAddNew(),
+            'Customers' => (new MenuItemsEntities(
+                new CustomerFactory( $this->db, $this->messages )
+            ))->includeAddNew(),
+            'Furniture' => (new MenuItemsEntities(
+                new FurnitureFactory( $this->db, $this->messages )
+            ))->includeAddNew(),
+            'Report' => new MenuItemsReports(),
+            'Other' => new MenuItemsOther()
+
         ] );
         return $this;
     }

@@ -99,14 +99,11 @@ class Ajax extends AbstractCRM
                 if ( !$id ) {
                     return $this->addError( "Can't update " . $entityName . '. ID is not a valid number.' );
                 }
-                //$provision = $this->action === 'delete-dry-run';
                 $this->entity = $entityFactory->getEntity( $id );
-
-                //$this->addError(print_r($this->entity->job->furniture, true));
 
                 if ( $this->entity === null || !$this->entity->exists ) {
                     return $this->addError( ucwords( $this->entity->entityName )
-                        . $this->entity->getIDBadge($id,'danger')
+                        . $this->entity->getIDBadge( $id, 'danger' )
                         . " doesn't exist in database." );
                 }
                 break;
@@ -174,7 +171,7 @@ class Ajax extends AbstractCRM
             return false;
         }
         $entity = $entityFactory->provisionEntity( $entity, true );
-        //$this->addError(print_r($entity, true));
+
         if ( $this->action === 'add' || $this->action === 'update' ) {
             $result = $entity->save();
         } elseif ( $this->action === 'delete-dry-run' ) {

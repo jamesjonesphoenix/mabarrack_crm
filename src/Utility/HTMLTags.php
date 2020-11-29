@@ -94,10 +94,6 @@ class HTMLTags
         $listItems = '';
         foreach ( $items as $item ) {
             $string = is_string( $item ) ? $item : $item['content'];
-            // echo '<br>';
-            // print_r( $item );
-            // echo '<br>';
-            //$string = $item['content'] ;
             $class = $item['class'] ?? $defaultContextualClass;
             $listItems .= '<li class="list-group-item list-group-item-'
                 . $class . '">'

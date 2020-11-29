@@ -5,6 +5,7 @@ namespace Phoenix\Page\MenuItems;
 
 
 use Phoenix\Entity\EntityFactory;
+use Phoenix\Utility\HTMLTags;
 
 /**
  * Class MenuItemsEntities
@@ -31,6 +32,12 @@ class MenuItemsEntities extends MenuItems
     protected $provisionArgsForHealthCheck = false;
 
     /**
+     * @var bool
+     */
+    private bool $includeAddNew = false;
+
+
+    /**
      * MenuItems constructor.
      *
      * @param EntityFactory $entityFactory
@@ -38,6 +45,15 @@ class MenuItemsEntities extends MenuItems
     public function __construct(EntityFactory $entityFactory)
     {
         $this->entityFactory = $entityFactory;
+        $this->icon = $this->entityFactory->getNew()->getIcon();
+    }
+
+    /**
+     * @return string
+     */
+    public function getContextualClass(): string
+    {
+        return $this->entityFactory->getEntityName();
     }
 
     /**
@@ -59,6 +75,15 @@ class MenuItemsEntities extends MenuItems
     }
 
     /**
+     * @return $this
+     */
+    public function includeAddNew(): self
+    {
+        $this->includeAddNew = true;
+        return $this;
+    }
+
+    /**
      * @param bool $countErrors
      * @return array[]
      */
@@ -66,6 +91,18 @@ class MenuItemsEntities extends MenuItems
     {
         $entity = $this->entityFactory->getNew();
         $entityNamePlural = ucwords( $entity->entityNamePlural );
+
+        if ( $this->includeAddNew && $entity->canCreate() ) {
+            $return['add_new'] = [
+                'icon' => 'plus',
+                'content' => 'Add New ' . ucwords( $entity->entityName ),
+                'href' => $entity->getLink(false)
+            ];
+        }
+        $return = array_merge(
+            $return ?? [],
+            $this->getEntityMenuItems()
+        );
 
         $return['all_items'] = [
             'icon' => 'list',
@@ -80,7 +117,7 @@ class MenuItemsEntities extends MenuItems
                 'href' => $entity->getArchiveLink() . '&errors_only=true',
             ];
         }
-        return array_merge( $this->getEntityMenuItems(), $return );
+        return $return;
     }
 
     /**

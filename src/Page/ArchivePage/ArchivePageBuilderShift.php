@@ -50,7 +50,7 @@ class ArchivePageBuilderShift extends ArchivePageBuilder
      */
     protected function getTitlePrefix(): string
     {
-        $icon = $this->entityFactory->getNew()->getIcon();
+        $icon = $this->getMenuItems()->getIcon();
         $timeFinished = $this->inputArgs['query']['time_finished'] ?? '';
         if ( is_string( $timeFinished ) && strtolower( $timeFinished ) === 'null' ) {
             return $icon . ' Unfinished';

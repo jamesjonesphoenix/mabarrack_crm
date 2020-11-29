@@ -94,7 +94,6 @@ class JobSummary extends Report
         $totalProfit = $job->getTotalProfit();
         $naString = 'N/A';
 
-        // d($job->shifts);
 
         $currencyValues = [
             'employee_cost_manual' => $job->shifts->getWorkerCost( 'Manual' ),

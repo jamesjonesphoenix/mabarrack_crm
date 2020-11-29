@@ -237,8 +237,9 @@ abstract class EntityFactory extends AbstractCRM
         }
 
 
-        $additionIDs = self::getEntityIDs( $entities, $joinPropertyName );
+        $additionIDs = $this->getEntityIDs( $entities, $joinPropertyName );
         if ( empty( $additionIDs ) ) {
+            //d($entities);
             //$this->messages->add('At least one ID should have been returned');
             return $entities;
         }
@@ -271,7 +272,7 @@ abstract class EntityFactory extends AbstractCRM
         if ( empty( $entities ) || $additionFactory === null ) {
             return $entities;
         }
-        $entityIDs = self::getEntityIDs( $entities );
+        $entityIDs = $this->getEntityIDs( $entities );
 
         if ( empty( $joinPropertyName ) ) {
             $joinPropertyName = strtolower( $this->getEntityName() );
@@ -279,10 +280,18 @@ abstract class EntityFactory extends AbstractCRM
                 return $entities;
             }
         }
-        $propertyQueryArgs = $this->getPropertyQueryArgs( $entityIDs, $joinPropertyName );
+        $propertyQueryArgs = $this->getPropertyQueryArgs(
+            $entityIDs,
+            $joinPropertyName
+        );
+
+        if ( empty( $propertyQueryArgs ) ) {
+            return $entities;
+        }
         $additions = $additionFactory->getEntities( $propertyQueryArgs, $provisionArgs ); //provision additions in all uses so far
 
         $propertyName = $additionFactory->getTableName();
+
 
         foreach ( $additions as $key => $addition ) {
             $id = $addition->$joinPropertyName->id;
@@ -296,21 +305,20 @@ abstract class EntityFactory extends AbstractCRM
     }
 
     /**
-     * @param array  $entities
-     * @param string $propertyName
+     * @param Entity[] $entities
+     * @param string   $propertyName
      * @return array
      */
-    public static function getEntityIDs(array $entities = [], string $propertyName = 'id'): array
+    public function getEntityIDs(array $entities = [], string $propertyName = 'id'): array
     {
         foreach ( $entities as $entity ) {
             //echo $propertyName;
-            if ( $propertyName === 'id' ) {
-                $property = $entity->id;
-            } else {
-                $property = $entity->$propertyName->id;
+            if ( $propertyName !== 'id' ) {
+                $entity = $entity->$propertyName;
             }
-            if ( $property !== null && (is_numeric( $property ) || is_string( $property )) ) {
-                $entityIDs[$property] = $property;
+            $id = $entity->id;
+            if ( $id !== null ) { // Don't throw errors if id can't be found because there's legit scenarios where it won't be found - eg non-existant Furniture for a factory Shift
+                $entityIDs[$id] = $id;
             }
         }
         return $entityIDs ?? [];

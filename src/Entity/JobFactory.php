@@ -114,7 +114,6 @@ class JobFactory extends EntityFactory
         }
 
         if ( $this->canProvision( $provision, 'shifts' ) ) { //Add shifts for each job to Job
-            $shiftFactory = new ShiftFactory( $this->db, $this->messages );
 
             /*Prevent shiftFactory from provisioning job otherwise we waste time on query*/
             if ( $provision === true || $provision['shifts'] === true ) {
@@ -128,18 +127,26 @@ class JobFactory extends EntityFactory
             }
             $provisionShifts['job'] = false;
             $provisionShifts = $provision['shifts'] ?? $provision;
-            $jobs = $this->addManyToOneEntityProperties( $jobs, $shiftFactory, $provisionShifts );
+            $jobs = $this->addManyToOneEntityProperties(
+                $jobs,
+                new ShiftFactory( $this->db, $this->messages ),
+                $provisionShifts
+            );
         }
 
         if ( $this->canProvision( $provision, 'customer' ) ) { //Add customers for each job to Job
-            $jobs = $this->addOneToOneEntityProperties( $jobs,
+            $jobs = $this->addOneToOneEntityProperties(
+                $jobs,
                 new CustomerFactory( $this->db, $this->messages )
             );
         }
         if ( $this->canProvision( $provision, 'status' ) ) { //Add status for each job to Job. Can't use addOneToOneEntityProperties() method because property is name, not id in DB table
-            foreach ( (new SettingFactory( $this->db, $this->messages ))->getEntities(
-                ['name' => ['value' => 'jobstat', 'operator' => 'LIKE']]
-            ) as $setting ) {
+            foreach ( (new SettingFactory( $this->db, $this->messages ))->getEntities( [
+                'name' => [
+                    'value' => 'jobstat',
+                    'operator' => 'LIKE'
+                ]
+            ] ) as $setting ) {
                 $settings[$setting->name] = $setting;
             }
             foreach ( $jobs as $job ) {
@@ -192,7 +199,6 @@ class JobFactory extends EntityFactory
      */
     public function addFurnitureNames(array $jobs = []): array
     {
-        $furnitureFactory = new FurnitureFactory( $this->db, $this->messages );
         $furnitureIDs = [];
         foreach ( $jobs as $job ) {
             if ( !empty( $job->furniture ) && is_array( $job->furniture ) ) {
@@ -204,7 +210,7 @@ class JobFactory extends EntityFactory
         if ( empty( $furnitureIDs ) ) {
             return $jobs;
         }
-        $furnitureInstances = $furnitureFactory->getEntities( ['id' => ['operator' => 'IN', 'value' => $furnitureIDs]] );
+        $furnitureInstances = (new FurnitureFactory( $this->db, $this->messages ))->getEntities( ['id' => ['operator' => 'IN', 'value' => $furnitureIDs]] );
 
         foreach ( $jobs as $job ) {
             if ( !empty( $job->furniture ) && is_array( $job->furniture ) ) {

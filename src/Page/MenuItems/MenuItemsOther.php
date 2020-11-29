@@ -2,6 +2,8 @@
 
 namespace Phoenix\Page\MenuItems;
 
+use Phoenix\Utility\HTMLTags;
+
 /**
  * Class MenuItemsOther
  *
@@ -11,6 +13,19 @@ namespace Phoenix\Page\MenuItems;
  */
 class MenuItemsOther extends MenuItems
 {
+    /**
+     * @var string
+     */
+    protected string $icon = 'user-cog';
+
+    /**
+     * @return string
+     */
+    public function getContextualClass(): string
+    {
+        return 'secondary';
+    }
+
     /**
      * @return array[]
      */

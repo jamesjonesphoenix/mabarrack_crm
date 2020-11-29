@@ -3,6 +3,8 @@
 
 namespace Phoenix\Page;
 
+use Phoenix\Page\MenuItems\MenuItems;
+
 /**
  * Class IndexPage
  *
@@ -31,7 +33,7 @@ class IndexPage extends Page
     }
 
     /**
-     * @param array $menu
+     * @param MenuItems[] $menu
      * @return string
      */
     public static function renderMainMenu(array $menu = []): string
@@ -50,12 +52,14 @@ class IndexPage extends Page
                 <?php foreach ( $columns ?? [] as $column ) { ?>
                     <div class="col-md-4 my-3">
                         <?php foreach ( $column as $categoryName => $category ) { ?>
-                            <h2 class="px-3"><?php echo !empty( $category['icon'] ) ? $category['icon'] . ' ' : '';
-                                echo ucwords( $categoryName ); ?></h2>
+                            <h2 class="px-3"><?php echo $category->getIcon() . ' ' . ucwords( $categoryName ); ?></h2>
                             <div class="grey-bg clearfix p-3 mb-4">
                                 <div class="list-group">
-                                    <?php foreach ( $category['items'] as $itemName => $menuItem ) {
-                                        echo self::renderMenuItem( $menuItem, $category['contextual_class'] ?? 'primary' );
+                                    <?php foreach ( $category->getMenuItems() as $itemName => $menuItem ) {
+                                        echo self::renderMenuItem(
+                                            $menuItem,
+                                            $category->getContextualClass()
+                                        );
                                     } ?>
                                 </div>
                             </div>
@@ -65,8 +69,8 @@ class IndexPage extends Page
             </div>
         </div>
         <?php return ob_get_clean();
-        /*
-        ob_start(); ?>
+
+        /* ob_start(); ?>
         <div class="container">
             <div class="row ">
                 <?php foreach ( $menu as $categoryName => $category ) { ?>
@@ -84,8 +88,7 @@ class IndexPage extends Page
                 <?php } ?>
             </div>
         </div>
-        <?php return ob_get_clean();
-        */
+        <?php return ob_get_clean(); */
     }
 
     /**

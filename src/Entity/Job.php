@@ -3,6 +3,7 @@
 namespace Phoenix\Entity;
 
 use Phoenix\Utility\DateTimeUtility;
+use Phoenix\Utility\HTMLTags;
 
 /**
  *
@@ -146,28 +147,37 @@ class Job extends Entity
         ]
     ];
 
+
     /**
      * Flag if property has changed when set to be checked when updating database.
      * Special behaviour for Job Furniture
      *
      * @param $name
-     * @param $value
+     * @param $oldValue
+     * @param $newValue
+     * @return bool
      */
-    public function __set($name, $value)
+    protected function checkChanged($name, $oldValue, $newValue): bool
     {
-        if ( $name !== 'furniture' ) {
-            parent::__set( $name, $value );
-            return;
+        if ( $name === 'furniture' ) {
+            foreach ( $oldValue as $furniture ) {
+                $oldValuesToCompare[$furniture->id] = $furniture->quantity;
+            }
+            foreach ( $newValue as $furniture ) {
+                $newValuesToCompare[$furniture->id] = $furniture->quantity;
+            }
+            if ( ($oldValuesToCompare ?? []) !== ($newValuesToCompare ?? []) ) {
+                return true;
+            }
+            return false;
         }
-        foreach ( $this->furniture as $furniture ) {
-            $oldValue[$furniture->id] = $furniture->quantity;
+        if ( ($name === 'status') ) {
+            if ( $oldValue->name !== $newValue->name ) {
+                return true;
+            }
+            return false;
         }
-        parent::__set( $name, $value );
-        foreach ( $this->furniture as $furniture ) {
-            $newValue[$furniture->id] = $furniture->quantity;
-        }
-        $this->changed['furniture'] = ($oldValue ?? []) !== ($newValue ?? []);
-
+        return parent::checkChanged( $name, $oldValue, $newValue );
     }
 
 
@@ -425,6 +435,7 @@ class Job extends Entity
      */
     protected function status($status = null): Setting
     {
+
         if ( $status !== null ) {
             if ( is_int( $status ) ) {
                 $statusID = $status;
@@ -504,6 +515,26 @@ class Job extends Entity
         if ( !empty( $dateFinished ) && $this->status->name === 'jobstat_red' ) {
             $errors[] = 'Job <strong>finish date</strong> has been set but <strong>status</strong> is still "in progress".';
         }
+
+        $jobFurnitureIDs = [];
+        foreach ( $this->furniture as $furniture ) {
+            $jobFurnitureIDs[] = $furniture->id;
+        }
+        foreach ( $this->shifts->getAll() as $shift ) {
+            $furnitureID = $shift->furniture->id;
+            if ( $furnitureID === null ) {
+                $errors[] = 'At least one shift for this job has no furniture assigned.';
+                break;
+            }
+            if ( !in_array( $shift->furniture->id, $jobFurnitureIDs, true ) ) {
+                $errors[] = 'Job has at least one shift assigned with furniture '
+                    .  HTMLTags::getBadgeHTML( $shift->furniture->name ?? ('ID: ' . $shift->furniture->id) , 'primary' )
+                    . '. The job must be assigned with this furniture while it has any shifts assigned with it.';
+                break;
+            }
+        }
+
+
         return $errors ?? [];
     }
 
@@ -514,7 +545,7 @@ class Job extends Entity
     {
         $numberOfShifts = $this->shifts->getCount();
         if ( $numberOfShifts > 0 ) {
-            return ' This job has <strong>' . $numberOfShifts . '</strong> shifts associated with it. These will also be deleted.';
+            return ' This job has <strong>' . $numberOfShifts . '</strong> shifts associated with it which will also be deleted if you delete this job.';
         }
         return '';
     }

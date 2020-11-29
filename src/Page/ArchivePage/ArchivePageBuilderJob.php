@@ -73,7 +73,7 @@ class ArchivePageBuilderJob extends ArchivePageBuilder
                 return $this->HTMLUtility::getIconHTML( 'exclamation-triangle' ) . ' Urgent';
             }
         } elseif ( !empty( $statusName ) ) {
-            return $this->entityFactory->getNew()->getIcon() . ' ' . $settingFactory->getSetting( $statusName );
+            return $this->getMenuItems()->getIcon() . ' ' . $settingFactory->getSetting( $statusName );
         }
         return parent::getTitlePrefix();
     }

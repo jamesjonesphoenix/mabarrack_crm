@@ -11,6 +11,8 @@ namespace Phoenix\Page\MenuItems;
  */
 class MenuItemsUsers extends MenuItemsEntities
 {
+
+
     /**
      * @return array[]
      */

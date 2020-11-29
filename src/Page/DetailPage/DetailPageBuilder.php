@@ -154,7 +154,7 @@ abstract class DetailPageBuilder extends EntityPageBuilder
         $entityName = ucwords( $this->getDisplayEntityName() ) ?? 'Entity';
         $title = $this->entity->id !== null ? $entityName . ' Details' : 'New ' . $entityName;
         $this->page
-            ->setTitle( $this->getEntity()->getIcon() . ' ' . $title )
+            ->setTitle( $this->getMenuItems()->getIcon() . ' ' . $title )
             ->setHeadTitle( $title );
         return $this;
     }

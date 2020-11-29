@@ -86,7 +86,7 @@ class DetailPageBuilderUser extends DetailPageBuilder
                 ->setTitle( $nameBadge . 'Current Shifts' )
                 ->setEmptyMessageClass( 'info' )
                 ->setEmptyMessage(
-                    ucfirst( $user->getFirstName() ?? 'user' ) . ' is not currently clocked onto any shifts.'
+                    ucfirst( $user->getFirstName() ) . ' is not currently clocked onto any shifts.'
                 )
                 ->setDummyEntity( $shift ),
 

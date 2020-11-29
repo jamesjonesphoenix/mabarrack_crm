@@ -3,6 +3,8 @@
 
 namespace Phoenix\Page\MenuItems;
 
+use Phoenix\Utility\HTMLTags;
+
 /**
  * Class MenuItems
  *
@@ -13,9 +15,30 @@ namespace Phoenix\Page\MenuItems;
 abstract class MenuItems
 {
     /**
+     * @var string
+     */
+    protected string $icon = '';
+
+    /**
      * @return array[]
      */
     abstract public function getMenuItems(): array;
+
+    /**
+     * @return string
+     */
+    public function getIcon(): string
+    {
+        return HTMLTags::getIconHTML( $this->icon );
+    }
+
+    /**
+     * @return string
+     */
+    public function getContextualClass(): string
+    {
+        return 'primary';
+    }
 
     /**
      * @param array  $item
@@ -31,7 +54,7 @@ abstract class MenuItems
             <span>
             <?php echo !empty( $item['icon'] ) ? '<i class="fas fa-' . $item['icon'] . ' fa-fw"></i> ' : '';
             echo $item['content']; ?></span><span
-                class="badge badge-<?php echo $contextualClass; ?> badge-pill"><?php echo $item['number'] ?? ''; ?></span>
+                    class="badge badge-<?php echo $contextualClass; ?> badge-pill"><?php echo $item['number'] ?? ''; ?></span>
         </a>
         <?php return ob_get_clean();
     }
@@ -46,7 +69,8 @@ abstract class MenuItems
             <div class="row ">
                 <?php foreach ( $this->menu as $categoryName => $category ) { ?>
                     <div class="col-md-4 my-3">
-                        <h2 class="px-3"><?php echo !empty( $category['icon'] ) ? $category['icon'] . ' ' : ''; echo ucwords( $categoryName ); ?></h2>
+                        <h2 class="px-3"><?php echo !empty( $category['icon'] ) ? $category['icon'] . ' ' : '';
+                            echo ucwords( $categoryName ); ?></h2>
                         <div class="grey-bg clearfix p-3">
                             <div class="list-group">
                                 <?php foreach ( $category['items'] as $itemName => $menuItem ) {

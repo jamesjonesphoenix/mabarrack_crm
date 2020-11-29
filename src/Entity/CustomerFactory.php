@@ -31,7 +31,6 @@ class CustomerFactory extends EntityFactory
             return $customers;
         }
         //Add jobs for each customer to Customer
-        $jobFactory = new JobFactory( $this->db, $this->messages );
 
         if ( $provision === true ) {
             $provisionJobs = [
@@ -44,6 +43,10 @@ class CustomerFactory extends EntityFactory
         }
         $provisionJobs['worker'] = false;
 
-        return $this->addManyToOneEntityProperties( $customers, $jobFactory, $provisionJobs );
+        return $this->addManyToOneEntityProperties(
+            $customers,
+            new JobFactory( $this->db, $this->messages ),
+            $provisionJobs
+        );
     }
 }

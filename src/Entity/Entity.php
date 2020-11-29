@@ -100,12 +100,23 @@ abstract class Entity extends AbstractCRM
     {
         $oldValue = $this->$name;
         parent::__set( $name, $value );
-        $newValue = $this->$name;
-        if ( $oldValue !== $newValue && (!($oldValue instanceof Entity) || $oldValue->id !== $newValue->id) ) {
+        if ( $this->checkChanged( $name, $oldValue, $this->$name ) ) {
             $this->healthCheckErrors = [];
             $this->changed[$name] = true;
         }
     }
+
+    /**
+     * @param $name
+     * @param $oldValue
+     * @param $newValue
+     * @return bool
+     */
+    protected function checkChanged($name, $oldValue, $newValue): bool
+    {
+        return $oldValue !== $newValue && (!($oldValue instanceof Entity) || $oldValue->id !== $newValue->id);
+    }
+
 
     /**
      * Entity constructor.
@@ -501,7 +512,7 @@ abstract class Entity extends AbstractCRM
      * @return bool|int
      * @throws \Exception
      */
-    private function updateDBRow(array $data = [])
+    protected function updateDBRow(array $data = [])
     {
         $action = 'update';
         if ( !$this->exists ) {
@@ -511,9 +522,7 @@ abstract class Entity extends AbstractCRM
 
 
         if ( empty( $data ) ) {
-            //if ( !$this->messages->isMessage() ) {
             $this->messages->add( $messageNoChanges, 'warning' );
-            //}
             return false;
         }
         $result = $this->db->update( $this->tableName, $data, ['ID' => $this->id] );
@@ -605,7 +614,6 @@ abstract class Entity extends AbstractCRM
                 $propertyName = $this->getColumnPropertyName( $columnName );
                 $propertyValue = $this->$propertyName;
                 if ( empty( $propertyValue ) && $propertyValue !== 0 ) {
-                    $this->addError( print_r( $data, true ) );
                     $errors[] = "Can't " . $this->getActionString( 'present', 'save' ) . '. <strong>' . ucfirst( $this->getColumnNiceName( $columnName ) ) . '</strong> is required to be set.';
                 }
             }
@@ -729,7 +737,10 @@ abstract class Entity extends AbstractCRM
             $mainString .= ' named ' . $this->name();
         }
         if ( $this->db->delete( $this->tableName, ['ID' => $this->id] ) ) {
-            $this->messages->add( 'Deleted' . $mainString . $this->getIDBadge( null, 'success' ), 'success' );
+            $this->messages->add(
+                'Deleted ' . $mainString . $this->getIDBadge( null, 'success' ),
+                'success'
+            );
             return true;
         }
         $this->addError( 'Failed to delete ' . $mainString . $this->getIDBadge( null, 'danger' ) );
@@ -741,11 +752,7 @@ abstract class Entity extends AbstractCRM
      */
     public function getIcon(): string
     {
-        if ( empty( $this->icon ) ) {
-            return '';
-        }
-
-        return HTMLTags::getIconHTML( $this->icon );
+        return $this->icon;
     }
 
 

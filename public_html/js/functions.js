@@ -288,7 +288,7 @@ function entityPageFunctions() {
     });
     cancelButton.click(function () {
         disableForm();
-        $j(".alert").alert('close');
+        $j('.detail-form .alert').alert('close');
     });
     passwordToggleButton.click(function () {
         if (passwordField1.prop('disabled')) {
@@ -417,7 +417,7 @@ function entityPageFunctions() {
      * @returns {boolean}
      */
     function doEntityAction(formAction = '') {
-        $j(".alert").alert('close');
+        $j('.detail-form .alert').alert('close');
 
         let ajaxURL = "add_entry.php",
             ajaxData = $j(".detail-form").serialize() + getFurnitureFromInputs() + '&db_action=' + formAction,
