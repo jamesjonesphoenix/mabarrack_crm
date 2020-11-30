@@ -26,7 +26,9 @@ abstract class ChoosePageBuilder extends WorkerPageBuilder
     public function buildPage(): self
     {
         $this->page = $this->getNewPage()
-            ->setNavLinks( $this->getMenuItems() );
+            ->setNavLinks(
+                $this->getMenuItems()
+            );
         $this->addTitle();
         return $this->addChooseTables();
     }

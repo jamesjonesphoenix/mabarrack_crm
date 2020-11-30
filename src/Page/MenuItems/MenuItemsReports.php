@@ -3,7 +3,6 @@
 namespace Phoenix\Page\MenuItems;
 
 use Phoenix\URL;
-use Phoenix\Utility\HTMLTags;
 
 /**
  * Class MenuItems
@@ -17,7 +16,7 @@ class MenuItemsReports extends MenuItems
     /**
      * @var string
      */
-    protected string $icon = 'clipboard-list';
+    protected string $icon = 'table';
 
     /**
      * @return string
@@ -33,16 +32,18 @@ class MenuItemsReports extends MenuItems
     public function getMenuItems(): array
     {
         $menuItems = [
-            [
+            'profit_loss' => [
                 'icon' => 'dollar-sign',
                 'content' => 'Profit/Loss',
                 'href' => 'profit_loss',
-            ], [
-                'icon' => 'chart-bar',
+            ],
+            'activity_summary' => [
+                'icon' => 'clipboard-list',
                 'content' => 'Activity Summary',
                 'href' => 'activity_summary'
-            ], [
-                'icon' => 'chart-bar',
+            ],
+            'worker_week' => [
+                'icon' => 'user-clock',
                 'content' => 'Worker Week',
                 'href' => 'worker_week'
             ]

@@ -18,7 +18,11 @@ class ChoosePageBuilderJob extends ChoosePageBuilder
      */
     public function addTitle(): self
     {
-        $this->page->setTitle( 'Choose Job' );
+        // hammer
+        $this->page->setTitle(
+            $this->HTMLUtility::getIconHTML( 'hammer' )
+            . ' Choose Job'
+        );
         return $this;
     }
 
@@ -58,8 +62,7 @@ class ChoosePageBuilderJob extends ChoosePageBuilder
                 ->setJobs( [0 => $factoryJob] )
                 ->setTitle( 'Factory' )
                 ->setEmptyMessageClass( 'danger' )
-                ->setEmptyMessage( 'Factory job missing.' )
-                ;
+                ->setEmptyMessage( 'Factory job missing.' );
         }
 
 

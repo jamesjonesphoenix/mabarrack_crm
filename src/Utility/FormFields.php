@@ -210,7 +210,6 @@ class FormFields extends HTMLTags
     public static function getPasswordFieldHTML(array $args = []): string
     {
         $args = self::mergeDefaultArgs( $args, 'password' );
-
         $suffix = '-2';
 
         return self::getFieldLabelHTML(
@@ -221,19 +220,19 @@ class FormFields extends HTMLTags
                     'id' => $args['id'],
                     'name' => $args['name'],
                     'placeholder' => 'Enter Password',
-                    'disabled' => true
+                    'disabled' => $args['disabled']
                 ] ) . self::getTextFieldHTML( [
                     'id' => $args['id'] . $suffix,
                     'name' => $args['name'] . $suffix,
                     'placeholder' => 'Confirm Password',
-                    'disabled' => true
+                    'disabled' => $args['disabled']
                 ] ),
-
                 self::getButton( [
                     'type' => 'button',
                     'id' => 'change-password-button',
-                    'class' => 'btn btn-info',
-                    'content' => 'Change Password'
+                    'class' => 'btn btn-info' . ($args['disabled'] ? '' : ' d-none'),
+                    'content' => 'Change Password',
+                    'disabled' => true
                 ] )
             );
     }

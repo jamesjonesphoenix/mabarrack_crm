@@ -60,7 +60,10 @@ class ChoosePageBuilderActivity extends ChoosePageBuilder
             $furniture = $this->job->furniture[$this->furnitureID] ?? null;
             $furnitureString = $this->HTMLUtility::getBadgeHTML( $furniture->name ?? 'Unknown Furniture' ) . ' in ';
         }
-        $this->page->setTitle( 'Choose Activity for ' . ($furnitureString ?? '') . $jobID );
+        $this->page->setTitle(
+            $this->HTMLUtility::getIconHTML( 'stopwatch' )
+            . ' Choose Activity for ' . ($furnitureString ?? '') . $jobID
+        );
         return $this;
     }
 

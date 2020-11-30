@@ -528,7 +528,7 @@ class Job extends Entity
             }
             if ( !in_array( $shift->furniture->id, $jobFurnitureIDs, true ) ) {
                 $errors[] = 'Job has at least one shift assigned with furniture '
-                    .  HTMLTags::getBadgeHTML( $shift->furniture->name ?? ('ID: ' . $shift->furniture->id) , 'primary' )
+                    . HTMLTags::getBadgeHTML( $shift->furniture->name ?? ('ID: ' . $shift->furniture->id), 'primary' )
                     . '. The job must be assigned with this furniture while it has any shifts assigned with it.';
                 break;
             }
@@ -603,5 +603,16 @@ class Job extends Entity
             $data['status'] = $this->status->name;
         }
         return $data;
+    }
+
+    /**
+     * @return bool
+     */
+    public function canDeleteThisEntityType(): bool
+    {
+        if ( $this->id === 0 ) {
+            return false;
+        }
+        return true;
     }
 }

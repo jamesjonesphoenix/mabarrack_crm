@@ -82,7 +82,7 @@ class UserEntityForm extends DetailPageEntityForm
             'value' => '',
             'placeholder' => 'Enter a password',
             'change_password_toggle' => $changePasswordToggleButton,
-            'disabled' => true
+            'disabled' => $this->isDisabled()
         ] );
 
         return $this;

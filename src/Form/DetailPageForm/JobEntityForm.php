@@ -23,6 +23,14 @@ class JobEntityForm extends DetailPageEntityForm
      */
     public string $formID = 'job_form';
 
+    public function render(): string
+    {
+        if ( $this->entity->id === 0 ) {
+            return '';
+        }
+        return parent::render();
+    }
+
     /**
      * @param array $jobStatusOptions
      * @param array $customerOptions
@@ -48,7 +56,10 @@ class JobEntityForm extends DetailPageEntityForm
             'id' => 'inputCustomer',
             'name' => 'customer',
             'label' => 'Customer',
-            'append' => $this->htmlUtility::getViewButton( $this->entity->customer->getLink(), 'View Customer' ),
+            'append' => $this->htmlUtility::getViewButton(
+                $this->entity->customer->getLink(),
+                'View ' . ($this->entity->customer->name ?? 'Customer')
+            ),
             'disabled' => $this->isDisabled()
         ] );
 
@@ -61,6 +72,7 @@ class JobEntityForm extends DetailPageEntityForm
             $jobFurniture = ['dummy' => $dummyFurniture];
         }
         foreach ( $jobFurniture as $furniture ) {
+
             $this->fields['furniture'][$furniture->id]['dropdown'] = $this->htmlUtility::getOptionDropdownFieldHTML(
                 [
                     'options' => $furnitureOptions,
@@ -68,19 +80,30 @@ class JobEntityForm extends DetailPageEntityForm
                     'class' => 'w300 furniture-name',
                     'id' => 'inputFurniture' . (!empty( $furniture->id ) ? '-' . $furniture->id : ''),
                     'placeholder' => 'Select Furniture',
-                    'disabled' => $this->isDisabled()
+                    'disabled' => $this->isDisabled(),
                     /*
-                    'link' => [
-                        'href' => $furniture->getLink() ?? '',
-                        'content' => 'View Furniture'
-                    ]
+                    'append' => $this->htmlUtility::getViewButton(
+                            $furniture->getLink(),
+                            'View ' . ($furniture->name ?? 'Furniture')
+                        )
                     */
+
+
                 ] );
             $this->fields['furniture'][$furniture->id]['quantity'] = $this->htmlUtility::getIntegerFieldHTML( [
-                'value' => $furniture->quantity,
-                'class' => 'furniture-quantity w100',
-                'disabled' => $this->isDisabled()
-            ] );
+                    'value' => $furniture->quantity,
+                    'class' => 'furniture-quantity w100',
+                    'disabled' => $this->isDisabled()
+                ] )
+                . '<a class="btn btn-danger remove-furniture'
+                . (empty( $loopedOnce ) || $this->isDisabled() ? ' disabled' : '')
+                . '" type="button">&minus;</a>'
+                . ' '
+                . $this->htmlUtility::getViewButton(
+                    $furniture instanceof stdClass ? '' : $furniture->getLink(),
+                    'View ' . ($furniture->name ?? 'Furniture')
+                );
+            $loopedOnce = true;
         }
         return $this;
     }
@@ -222,24 +245,19 @@ class JobEntityForm extends DetailPageEntityForm
         <div class="form-row job-furniture-row">
             <?php foreach ( $this->fields['furniture'] as $furnitureID => $furniture ) { ?>
                 <div class="form-group furniture-group col-sm-12">
-                    <?php if ( empty( $loopedOnce ) ) {
+                    <?php if ( empty( $didLabel ) ) {
                         echo $this->htmlUtility::getFieldLabelHTML(
                             'Furniture',
-                            'inputFurniture' .  (!empty( $furnitureID) ? '-' . $furnitureID: '')
+                            'inputFurniture' . (!empty( $furnitureID ) ? '-' . $furnitureID : '')
                         );
+                        $didLabel = true;
                     } ?>
                     <div class="row no-gutters">
                         <div class="col"><?php echo $furniture['dropdown']; ?></div>
                     </div>
                     <?php echo $furniture['quantity']; ?>
-                    <a class="btn btn-danger remove-furniture<?php
-                    if ( empty( $loopedOnce ) || $this->isDisabled() ) {
-                        echo ' disabled';
-                    }
-                    ?>" type="button">&minus;</a>
                 </div>
-                <?php $loopedOnce = true;
-            } ?>
+            <?php } ?>
             <div class="form-group col-sm-12">
                 <input id="add-furniture-button" class="btn btn-primary"
                        value="&plus; Add Furniture"

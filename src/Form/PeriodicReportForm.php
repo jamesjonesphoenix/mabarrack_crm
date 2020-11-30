@@ -175,7 +175,7 @@ class PeriodicReportForm extends Form
         if ( $this->user !== null ) {
             $append = $this->htmlUtility::getViewButton(
                 $this->user->getLink() ?? '',
-                'View Worker'
+                'View ' . $this->user->getFirstName()
             );
         }
 

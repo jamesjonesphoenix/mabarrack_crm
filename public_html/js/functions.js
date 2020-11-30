@@ -522,6 +522,7 @@ function entityPageFunctions() {
             let jobFurnitureNew = jobFurnitureLast.clone();
             jobFurnitureNew.find('select').removeAttr('id').val('');
             jobFurnitureNew.find('select option').prop("selected", false).removeAttr("selected");
+            jobFurnitureNew.find('.btn.btn-primary').addClass('d-none'); //Hide view button
 
             jobFurnitureNew.find('input.furniture-quantity').val(1); //Set Quantity to 1
             jobFurnitureNew.find('a.remove-furniture').removeClass('disabled').prop('disabled', false); //Enable remove furniture button.

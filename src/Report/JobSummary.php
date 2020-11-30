@@ -89,6 +89,9 @@ class JobSummary extends Report
         //$title = $this::title;
 
         $job = $this->job;
+        if ( $job->id === 0 ) {
+            return [];
+        }
         $totalCost = $job->getTotalCost();
         $doCalculatePercentage = $totalCost !== (float)0;
         $totalProfit = $job->getTotalProfit();

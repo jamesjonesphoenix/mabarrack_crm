@@ -68,8 +68,21 @@ class DetailPageBuilderJob extends DetailPageBuilder
         }
 
         $reportFactory = $this->getReportClient()->getFactory();
+
+        $jobSummary = $reportFactory->getJobSummary()
+            ->setJob( $entity );
+
+        if ( $entity->id === 0 ) {
+            $jobSummary->setEmptyMessage(
+                'This is the internal factory job for holding non-billable job activities like cleaning, lunch etc. It\'s shifts can be viewed, but the job itself cannot be edited.'
+            )
+                ->setEmptyMessageClass(
+                    'primary'
+                );
+        }
+
         $reports = [
-            'job_summary' => $reportFactory->getJobSummary()->setJob( $entity ),
+            'job_summary' => $jobSummary,
             'activity_summary' => $reportFactory->shiftsReports()->getActivitySummary( $this->sortActivitiesBy, $this->groupActivities )
                 ->setEntities( $entity->shifts )
                 ->setTitle( 'Activities Summary for Job ' . $entity->getIDBadge() )

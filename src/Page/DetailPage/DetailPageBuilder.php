@@ -91,7 +91,9 @@ abstract class DetailPageBuilder extends EntityPageBuilder
 
         if ( $form->isDisabled() && $form->getDBAction() === 'add' ) {
             $this->messages->add(
-                '<strong>Error:</strong> Adding a new ' . $this->getEntityFactory()->getEntityName() . ' is not allowed.'
+                '<strong>Error:</strong> Adding a new '
+                . $this->getEntityFactory()->getEntityName()
+                . ' is not allowed.'
             );
         }
         $this->page->addContent(

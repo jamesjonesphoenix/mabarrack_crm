@@ -20,6 +20,11 @@ use Phoenix\Utility\HTMLTags;
 class Setting extends Entity
 {
     /**
+     * @var string Fontawesome icon
+     */
+    protected string $icon = 'cog';
+
+    /**
      * @var string
      */
     protected string $_name;

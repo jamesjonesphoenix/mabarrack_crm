@@ -7,6 +7,8 @@ namespace Phoenix\Page\ReportPage;
 use Phoenix\Form\PeriodicReportForm;
 use Phoenix\Messages;
 use Phoenix\Page\AdminPageBuilder;
+use Phoenix\Page\MenuItems\MenuItemsEntities;
+use Phoenix\Page\MenuItems\MenuItemsReports;
 use Phoenix\Page\Page;
 use Phoenix\PDOWrap;
 use Phoenix\Report\Report;
@@ -41,7 +43,6 @@ abstract class ReportPageBuilder extends AdminPageBuilder
      */
     protected string $reportType = '';
 
-
     /**
      * @var string
      */
@@ -66,22 +67,25 @@ abstract class ReportPageBuilder extends AdminPageBuilder
     public function buildPage(): self
     {
         $this->page = $this->getNewPage()
-            /*
-                        ->setTitle(
-                            $this->makeTitle(
-                                $this->getFactory()->shiftsReports()->annotateTitleWithInputs( $this->title )
-                            )
-                        )
-            */
             ->setTitle(
-                $this->title
+                $this->HTMLUtility::getIconHTML(
+                    $this->getMenuItems()->getMenuItems()[$this->reportType]['icon']
+                ) . ' '
+                . $this->title
             )
             ->setHeadTitle( 'Report' );
         $this->addPeriodicReportForm();
         $this->addReports();
         $this->addNavLinks();
-
         return $this;
+    }
+
+    /**
+     * @return MenuItemsReports
+     */
+    public function getMenuItems(): MenuItemsReports
+    {
+        return new MenuItemsReports();
     }
 
     /**
@@ -90,15 +94,12 @@ abstract class ReportPageBuilder extends AdminPageBuilder
     public function addNavLinks(): self
     {
         $url = $this->getURL();
-        foreach ( [
-                      'profit_loss' => 'Profit Loss',
-                      'activity_summary' => 'Activities Summary',
-                      'worker_week' => 'Worker Week'
-                  ] as $reportType => $title ) {
+        foreach ( $this->getMenuItems()->getMenuItems() as $reportType => $menuItem ) {
+
             if ( ($this->reportType ?? null) !== $reportType ) {
                 $navLinks[$reportType] = [
                     'href' => $url->setQueryArg( 'report', $reportType )->write(),
-                    'content' => $title
+                    'content' => $menuItem['content']
                 ];
             }
         }
@@ -147,8 +148,7 @@ abstract class ReportPageBuilder extends AdminPageBuilder
             ->setDates(
                 $this->dateStart,
                 $this->dateFinish
-            )
-            ;
+            );
     }
 
     /**

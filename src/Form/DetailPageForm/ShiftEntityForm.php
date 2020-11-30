@@ -38,7 +38,10 @@ class ShiftEntityForm extends DetailPageEntityForm
             'name' => 'job',
             'label' => 'Job',
             'placeholder' => 'Select Job',
-            'append' => $this->htmlUtility::getViewButton( $this->entity->job->getLink(), 'View Job' ),
+            'append' => $this->htmlUtility::getViewButton(
+                $this->entity->job->getLink(),
+                'View ' . ($this->entity->job->id === 0 ? 'Factory Job' : 'Job ID: ' . $this->entity->job->id)
+            ),
             'disabled' => $this->isDisabled()
         ] );
 
@@ -48,7 +51,10 @@ class ShiftEntityForm extends DetailPageEntityForm
             'name' => 'worker',
             'label' => 'Worker',
             'placeholder' => 'Select Worker',
-            'append' => $this->htmlUtility::getViewButton( $this->entity->worker->getLink(), 'View Worker' ),
+            'append' => $this->htmlUtility::getViewButton(
+                $this->entity->worker->getLink(),
+                'View ' . $this->entity->worker->getFirstName()
+            ),
             'disabled' => $this->isDisabled()
         ] );
 
@@ -78,7 +84,7 @@ class ShiftEntityForm extends DetailPageEntityForm
 
             'append' => $this->htmlUtility::getViewButton(
                 $this->entity->furniture->getLink(),
-                'View Furniture'
+                'View ' . ($this->entity->furniture->name ?? 'Furniture')
             ),
             'disabled' => $this->isDisabled()
 

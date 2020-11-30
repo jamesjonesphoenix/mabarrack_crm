@@ -13521,7 +13521,7 @@ a.activity-icon-link:nth-of-type(2n) {
 .job-furniture-row .form-group:first-child label {
   display: block; }
 .job-furniture-row .form-group:first-child .remove-furniture {
-  display: none; }
+  visibility: hidden; }
 .job-furniture-row .form-group.furniture-group > .row {
   float: left;
   margin-right: 0.5rem; }

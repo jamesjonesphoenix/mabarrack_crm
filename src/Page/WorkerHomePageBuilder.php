@@ -30,10 +30,7 @@ class WorkerHomePageBuilder extends WorkerPageBuilder
      */
     public function setDateStart(string $dateStart = ''): self
     {
-        // $this->dateStart  = WorkerWeekReport::getDefaultDates( $dateStart );
-
         $this->dateStart = $dateStart;
-
         return $this;
     }
 
@@ -45,7 +42,10 @@ class WorkerHomePageBuilder extends WorkerPageBuilder
     {
         $this->getReportClient()->getShiftsReportBuilder()->setUser( $this->user );
 
-        $this->page = $this->getNewPage()->setTitle( $this->user->getNamePossessive() . ' Dashboard' );
+        $this->page = $this->getNewPage()
+            ->setTitle(
+                $this->HTMLUtility::getIconHTML('user-clock') . ' ' . $this->user->getNamePossessive() . ' Dashboard'
+            );
         $this->addActionButtons();
         $this->addNews();
 
@@ -136,16 +136,24 @@ class WorkerHomePageBuilder extends WorkerPageBuilder
 
         $currentShiftArchive = $this->getReportClient()->getFactory()->archiveTables()->getShiftsWorkerHome()
             ->setEntities( $shiftsCurrent )
-            ->setTitle( 'Your Current ' . ucfirst( $shiftsCurrent->getPluralOrSingular() ) )
+            ->setTitle(
+                'Your Current ' . ucfirst( $shiftsCurrent->getPluralOrSingular() )
+            )
             ->setEmptyMessageClass( 'info' )
-            ->setEmptyMessage( 'You are not currently clocked into any shifts.' )
+            ->setEmptyMessage(
+                'You are not currently clocked into any shifts.'
+            )
             ->removeErrors()
             ->setDummyEntity( $dummyShift );
 
         $shiftLatestArchive = $this->getReportClient()->getFactory()->archiveTables()->getShiftsWorkerHome()
             ->setEntities( $this->user->shifts->getLastWorkedShifts( 5 ) )
-            ->setTitle( 'Your Most Recent Shifts' )
-            ->setEmptyMessage( 'No recent shifts found.' )
+            ->setTitle(
+                'Your Most Recent Shifts'
+            )
+            ->setEmptyMessage(
+                'No recent shifts found.'
+            )
             ->removeErrors()
             ->setDummyEntity( $dummyShift );
 
