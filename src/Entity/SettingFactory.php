@@ -47,4 +47,18 @@ class SettingFactory extends EntityFactory
         }
         return '';
     }
+
+    /**
+     * @return array
+     */
+    public function getJobStatusesOptionsArray(): array
+    {
+        return array_column(
+            $this->getEntities( ['name' => [
+                'value' => 'jobstat',
+                'operator' => 'LIKE']
+            ] ),
+            'value', 'name'
+        );
+    }
 }

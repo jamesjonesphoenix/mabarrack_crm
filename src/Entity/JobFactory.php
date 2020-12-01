@@ -97,8 +97,8 @@ class JobFactory extends EntityFactory
         foreach ( $jobs as $job ) { //array_column( $jobs, 'id', 'id' ) fails to add id=0 factory job
             $return[$job->id] = $job->id;
         }
-        $return[0] = 'Factory';
-        return $return ?? [];
+        arsort($return);
+        return ['0' => 'Factory'] + $return; //Ensure factory job at start.
     }
 
     /**

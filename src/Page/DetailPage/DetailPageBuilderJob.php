@@ -10,6 +10,7 @@ use Phoenix\Entity\SettingFactory;
 use Phoenix\Entity\ShiftFactory;
 use Phoenix\Form\DetailPageForm\JobEntityForm;
 use Phoenix\Page\MenuItems\MenuItemsJobs;
+use Phoenix\URL;
 
 
 /**
@@ -80,33 +81,35 @@ class DetailPageBuilderJob extends DetailPageBuilder
                     'primary'
                 );
         }
+        $jobShifts = $reportFactory->archiveTables()->getShifts()
+            ->setEntities(
+                $entity->shifts,
+            )
+            ->setDummyEntity( (new ShiftFactory( $this->db, $this->messages ))->getNew() )
+            ->setGroupByForm(
+                $this->getGroupByForm(),
+                $this->groupBy
+            )
+            ->setTitle( 'Shifts for Job ' . $entity->getIDBadge() )
+            ->editColumn( 'job', ['hidden' => true] )
+            ->disablePrintButton()
+            ->setEmptyMessage( 'No job activity to report.' );
 
-        $reports = [
-            'job_summary' => $jobSummary,
-            'activity_summary' => $reportFactory->shiftsReports()->getActivitySummary( $this->sortActivitiesBy, $this->groupActivities )
-                ->setEntities( $entity->shifts )
-                ->setTitle( 'Activities Summary for Job ' . $entity->getIDBadge() )
-                ->removeSortableOption( 'factory' )
-            ,
-            'job_shifts' => $reportFactory->archiveTables()->getShifts()
-                ->setEntities(
-                    $entity->shifts,
-                )
-                ->setDummyEntity( (new ShiftFactory( $this->db, $this->messages ))->getNew() )
-                ->setGroupByForm(
-                    $this->getGroupByForm(),
-                    $this->groupBy
-                )
-                ->setTitle( 'Job ' . $entity->getIDBadge() . ' Shifts' )
-                ->editColumn( 'job', ['hidden' => true] )
-                ->disablePrintButton()
-                ->setEmptyMessage( 'No job activity to report.' )
-        ];
+        $jobShifts->addNavLink( 'add_new', [
+            'content' => 'Add New Shift to Job ' . $entity->getIDBadge(),
+               'href' => (
+                   new URL( $jobShifts->getNavLinks()['add_new']['href'] )
+               )
+                   ->setQueryArg('prefill',['job' => $entity->id])
+                   ->write()
+        ] );
 
-        //if($this->groupBy)
+        $activitySummary = $reportFactory->shiftsReports()->getActivitySummary( $this->sortActivitiesBy, $this->groupActivities )
+            ->setEntities( $entity->shifts )
+            ->setTitle( 'Activities Summary for Job ' . $entity->getIDBadge() )
+            ->removeSortableOption( 'factory' );
 
-        //$reports['activity_summary']->setTitle( $reports['activity_summary']->getTitle() . ' for Job ' . $entity->getIDBadge() );
-        foreach ( $reports as $report ) {
+        foreach ( [$jobSummary, $activitySummary, $jobShifts] as $report ) {
             $this->page->addContent( $report->render() );
         }
         return $this;

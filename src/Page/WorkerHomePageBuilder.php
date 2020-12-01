@@ -44,7 +44,7 @@ class WorkerHomePageBuilder extends WorkerPageBuilder
 
         $this->page = $this->getNewPage()
             ->setTitle(
-                $this->HTMLUtility::getIconHTML('user-clock') . ' ' . $this->user->getNamePossessive() . ' Dashboard'
+                $this->HTMLUtility::getIconHTML('user-clock') . ' ' . $this->user->getNamePossessive(true) . ' Dashboard'
             );
         $this->addActionButtons();
         $this->addNews();

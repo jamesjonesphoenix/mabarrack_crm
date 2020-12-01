@@ -170,11 +170,12 @@ class User extends Entity
     }
 
     /**
+     * @param bool $firstNameOnly
      * @return string
      */
-    public function getNamePossessive(): string
+    public function getNamePossessive(bool $firstNameOnly = false): string
     {
-        $name = $this->name;
+        $name = $firstNameOnly ? $this->getFirstName() : $this->name;
         if ( empty( $name ) ) {
             return '';
         }

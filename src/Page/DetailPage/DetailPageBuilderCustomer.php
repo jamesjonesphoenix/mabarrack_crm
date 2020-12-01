@@ -9,6 +9,7 @@ use Phoenix\Entity\Entities;
 use Phoenix\Entity\JobFactory;
 use Phoenix\Form\DetailPageForm\CustomerEntityForm;
 use Phoenix\Report\Archive\ArchiveTableJobs;
+use Phoenix\URL;
 
 /**
  * @method Customer getEntity(int $entityID = null)
@@ -54,15 +55,15 @@ class DetailPageBuilderCustomer extends DetailPageBuilder
         }
 
         // (new JobFactory( $this->db, $this->messages ))->getNew()
-
-        $this->page->addContent( (new ArchiveTableJobs(
+        $report = (new ArchiveTableJobs(
             $this->HTMLUtility,
             $this->format,
             $this->getURL()
         ))
             ->setEntities( new Entities( $customer->jobs ) )
             ->setTitle(
-                ($customer->getNamePossessive() ?? 'Customer') . ' Jobs'
+                ($customer->getNamePossessive() ?? 'Customer')
+                . ' Jobs'
             )
             ->setGroupByForm(
                 $this->getGroupByForm(),
@@ -73,9 +74,19 @@ class DetailPageBuilderCustomer extends DetailPageBuilder
                 'markup',
                 'profit_loss',
                 'employee_cost'
-            ], ['hidden' => true] )
+            ], ['hidden' => true] );
 
-            ->render()
+        $report->addNavLink( 'add_new', [
+            'content' => 'Add New Job to ' . $this->HTMLUtility::getBadgeHTML( $customer->name ),
+            'href' => (
+            new URL( $report->getNavLinks()['add_new']['href'] )
+            )
+                ->setQueryArg( 'prefill', ['customer' => $customer->id] )
+                ->write()
+        ] );
+
+        $this->page->addContent(
+            $report->render()
         );
         return $this;
     }

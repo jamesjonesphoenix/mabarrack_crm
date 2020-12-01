@@ -8,6 +8,7 @@ use Phoenix\Entity\User;
 use Phoenix\Entity\UserFactory;
 use Phoenix\Form\DetailPageForm\UserEntityForm;
 use Phoenix\Page\MenuItems\MenuItemsUsers;
+use Phoenix\URL;
 
 /**
  * @method User getEntity()
@@ -102,7 +103,20 @@ class DetailPageBuilderUser extends DetailPageBuilder
                 ->editColumn( 'worker', ['hidden' => true] )
 
         ];
+
+
+
         foreach ( $reports as $report ) {
+
+            $report->addNavLink( 'add_new', [
+                'content' => 'Add New Shift to ' . $this->HTMLUtility::getBadgeHTML($user->getFirstName()),
+                'href' => (
+                new URL( $report->getNavLinks()['add_new']['href'] )
+                )
+                    ->setQueryArg('prefill',['worker' => $user->id])
+                    ->write()
+            ] );
+
             $this->page->addContent(
                 $report->render()
             );

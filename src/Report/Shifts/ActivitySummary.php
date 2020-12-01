@@ -99,12 +99,12 @@ class ActivitySummary extends ShiftsReport
     /**
      * @return array
      */
-    public function getNavLinks(): array
+    public function buildNavLinks(): array
     {
         $url = $this->getURL()->setHash( $this->getID() );
         foreach ( array_keys( $this->sortableBy ) as $sortType ) {
             if ( $this->sortBy !== $sortType ) {
-                $links['sort_by_' . $sortType] = [
+                $return['sort_by_' . $sortType] = [
                     'href' => (clone $url)->setQueryArg( 'sort_activities_by', $sortType )->write(),
                     'content' => 'Sort by ' . ucwords( $sortType ),
                     'class' => 'bg-primary',
@@ -112,15 +112,15 @@ class ActivitySummary extends ShiftsReport
             }
         }
         if ( $this->allowGroupBy ) {
-            $links['group_by'] = [
+            $return['group_by'] = [
                 'href' => (clone $url)->setQueryArg( 'group_activities', !$this->groupedBy )->write(),
                 'content' => $this->groupedBy ? 'Display One Table' : 'Display Separate Tables',
                 'class' => 'bg-secondary',
             ];
         }
         return array_merge(
-            $links ?? [],
-            parent::getNavLinks()
+            $return ?? [],
+            parent::buildNavLinks()
         );
     }
 

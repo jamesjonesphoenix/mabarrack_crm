@@ -116,7 +116,7 @@ abstract class Report extends Base
     /**
      * @var array
      */
-    private array $navLinks = [];
+    protected array $navLinks;
 
     /**
      * Report constructor.
@@ -197,13 +197,12 @@ abstract class Report extends Base
     /**
      * @return array
      */
-    public function getNavLinks(): array
+    public function buildNavLinks(): array
     {
-        $return = $this->navLinks;
         if ( $this->collapseButton ) {
             $collapsibleID = $this->getID() . '-report';
             $all = !empty( $this->groupedBy ) ? ' All' : '';
-            $return[] = [
+            $return['minimise'] = [
                 'href' => '#' . $collapsibleID,
                 'content' => 'Minimise' . $all,
                 'class' => 'btn-danger minimise-button',
@@ -212,7 +211,7 @@ abstract class Report extends Base
                     'toggle' => 'collapse',
                 ]
             ];
-            $return[] = [
+            $return['expand'] = [
                 'href' => '#' . $collapsibleID,
                 'content' => 'Expand' . $all,
                 'class' => 'btn-success expand-button',
@@ -223,7 +222,7 @@ abstract class Report extends Base
             ];
         }
         if ( $this->includePrintButton ) {
-            $return[] = [
+            $return['print_button'] = [
                 'href' => '#',
                 'content' => 'Print',
                 'class' => 'bg-secondary print-button',
@@ -233,12 +232,25 @@ abstract class Report extends Base
     }
 
     /**
-     * @param array $navLink
+     * @return array
+     */
+    public function getNavLinks(): array
+    {
+        return $this->navLinks ?? ($this->navLinks = $this->buildNavLinks());
+    }
+
+    /**
+     * @param string $linkName
+     * @param array  $navLink
      * @return $this
      */
-    public function addNavLink(array $navLink = []): self
+    public function addNavLink(string $linkName = '', array $navLink = []): self
     {
-        $this->navLinks[] = $navLink;
+        $navLinks = $this->getNavLinks();
+        foreach ( $navLink as $argName => $arg ) {
+            $navLinks[$linkName][$argName] = $arg;
+        }
+        $this->navLinks = $navLinks;
         return $this;
     }
 

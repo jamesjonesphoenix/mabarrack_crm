@@ -77,7 +77,7 @@ abstract class WorkerWeekReport extends ShiftsReport
     /**
      * @return array
      */
-    public function getNavLinks(): array
+    public function buildNavLinks(): array
     {
         $url = $this->getURL()->removeQueryArg( 'date_finish' );
         return array_merge( [
@@ -87,8 +87,7 @@ abstract class WorkerWeekReport extends ShiftsReport
             ], [
                 'href' => $url->setQueryArg( 'date_start', $this->getDateNext() )->write(),
                 'content' => 'Next Week'
-            ]], parent::getNavLinks()
+            ]], parent::buildNavLinks()
         );
-
     }
 }

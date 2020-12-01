@@ -218,7 +218,7 @@ class Job extends Entity
     protected function customer($customer = null)
     {
         if ( $customer !== null ) {
-            if ( is_int( $customer ) ) {
+            if ( !$customer instanceof Customer) {
                 $customerID = $customer;
                 $customer = new Customer();
                 $customer->id = $customerID;

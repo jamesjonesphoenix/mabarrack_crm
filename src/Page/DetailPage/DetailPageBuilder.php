@@ -29,7 +29,7 @@ abstract class DetailPageBuilder extends EntityPageBuilder
      * @param int|null $entityID
      * @return $this
      */
-    public function setEntity(int $entityID = null): self
+    public function setEntity(int $entityID = null, $preFillArgs = []): self
     {
         $entityFactory = $this->getEntityFactory();
         if ( $entityID === null ) {
@@ -57,7 +57,20 @@ abstract class DetailPageBuilder extends EntityPageBuilder
      */
     public function setInputArgs(array $inputArgs = []): self
     {
-        $this->setEntity( $inputArgs['id'] ?? null );
+
+        $id = $inputArgs['id'] ?? null;
+        $this->setEntity( $id );
+
+        $preFillArgs = $inputArgs['prefill'] ?? null;
+        if ( $id === null && is_array( $preFillArgs ) ) { //prefill
+
+            $entity = $this->getEntity();
+
+            foreach ( $preFillArgs as $argName => $preFillArg ) {
+                $entity->$argName = $preFillArg;
+            }
+        }
+
         return parent::setInputArgs( $inputArgs );
     }
 

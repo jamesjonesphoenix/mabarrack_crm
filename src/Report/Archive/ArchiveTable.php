@@ -210,18 +210,20 @@ abstract class ArchiveTable extends Report
     /**
      * @return array
      */
-    public function getNavLinks(): array
+    public function buildNavLinks(): array
     {
-        $navLinks = parent::getNavLinks();
-        if ($this->includeAddNewButton && isset( $this->entity ) && $this->entity->canCreate() ) {
-            $navLinks[] =  [
+        if ( $this->includeAddNewButton && isset( $this->entity ) && $this->entity->canCreate() ) {
+            $return['add_new'] = [
                 'element' => 'a',
                 'content' => 'Add New ' . ucwords( $this->entity->entityName ),
                 'href' => $this->entity->getLink( false ),
                 'class' => 'bg-success'
             ];
         }
-        return $navLinks;
+        return array_merge(
+            $return ?? [],
+            parent::buildNavLinks()
+        );
     }
 
     /**

@@ -29,11 +29,15 @@ class URL
 
     /**
      * URL constructor.
+     *
+     * @param string $actualLink
      */
-    public function __construct()
+    public function __construct(string $actualLink = '')
     {
-        $actualLink = (isset( $_SERVER['HTTPS'] ) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http') .
-            "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
+        if ( empty( $actualLink ) ) {
+            $actualLink = (isset( $_SERVER['HTTPS'] ) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http') .
+                "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
+        }
 
         $this->urlComponents = parse_url( $actualLink );
         $queryArray = [];
@@ -54,9 +58,9 @@ class URL
     public function write(): string
     {
         $query = http_build_query( $this->queryArgs );
-        return $this->urlComponents['scheme']
+        return ($this->urlComponents['scheme'] ?? 'https')
             . '://'
-            . $this->urlComponents['host']
+            . ($this->urlComponents['host'] ?? $_SERVER['HTTP_HOST'] . '/')
             . $this->urlComponents['path']
             . (!empty( $query ) ? '?' . $query : '')
             . (!empty( $this->hash ) ? '#' . $this->hash : '');

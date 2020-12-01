@@ -15,11 +15,6 @@ use Phoenix\Form\EntityForm;
 abstract class DetailPageEntityForm extends EntityForm
 {
     /**
-     * @var array
-     */
-    public array $buttons = [];
-
-    /**
      * @var string
      */
     private string $displayEntityName;
@@ -84,9 +79,10 @@ abstract class DetailPageEntityForm extends EntityForm
             <?php if ( $dbAction === 'update' ) { ?>
                 <div class="row">
                     <div class="col">
-                        <div class="grey-bg p-3 clearfix">
+                        <div class="grey-bg px-3 pt-3 pb-2 clearfix">
                             <?php
                             foreach ( $this->getButtonsArray() as $button ) {
+                                $button['class'] .= ' mb-2';
                                 echo $this->htmlUtility::getButton( $button );
                             }
                             ?>
@@ -134,6 +130,9 @@ abstract class DetailPageEntityForm extends EntityForm
      */
     abstract protected function renderFields(): string;
 
+    /**
+     * @return string
+     */
     protected function getEntityHandle()
     {
         return $this->displayEntityName ?? $this->entity->entityName;
@@ -173,13 +172,15 @@ abstract class DetailPageEntityForm extends EntityForm
             $buttons[] = [
                 'href' => $this->entity->getLink( false ),
                 'type' => 'button',
-                'class' => 'btn btn-lg btn-success float-right',
+                'class' => 'btn btn-lg btn-success float-right ml-2',
                 'element' => 'a',
                 'content' => 'Add New ' . ucfirst( $entityName )
             ];
         }
         return $buttons;
     }
+
+
 
     /**
      * @return string

@@ -122,19 +122,12 @@ abstract class EntityFactory extends AbstractCRM
      */
     public function getOptionsArray(): array
     {
-        return array_column( $this->getAll(), 'name', 'id' );
+        $options = array_column( $this->getAll(), 'name', 'id' );
+        asort($options);
+        return $options;
     }
 
-    public function getJobStatusesOptionsArray(): array
-    {
-        return array_column(
-            $this->getEntities( ['name' => [
-                'value' => 'jobstat',
-                'operator' => 'LIKE']
-            ] ),
-            'value', 'name'
-        );
-    }
+
 
     /**
      * @return Entity

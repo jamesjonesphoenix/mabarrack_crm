@@ -34,7 +34,7 @@ class ShiftEntityForm extends DetailPageEntityForm
 
         $this->fields['job'] = $this->htmlUtility::getOptionDropdownFieldHTML( [
             'options' => $jobOptions,
-            'selected' => $this->entity->job->id ?? 0,
+            'selected' => $this->entity->job->id,
             'name' => 'job',
             'label' => 'Job',
             'placeholder' => 'Select Job',
@@ -42,12 +42,12 @@ class ShiftEntityForm extends DetailPageEntityForm
                 $this->entity->job->getLink(),
                 'View ' . ($this->entity->job->id === 0 ? 'Factory Job' : 'Job ID: ' . $this->entity->job->id)
             ),
-            'disabled' => $this->isDisabled()
+            'disabled' => $this->isDisabled(),
         ] );
 
         $this->fields['worker'] = $this->htmlUtility::getOptionDropdownFieldHTML( [
             'options' => $workerOptions,
-            'selected' => $this->entity->worker->id ?? 0,
+            'selected' => $this->entity->worker->id,
             'name' => 'worker',
             'label' => 'Worker',
             'placeholder' => 'Select Worker',

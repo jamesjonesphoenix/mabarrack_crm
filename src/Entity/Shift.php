@@ -326,7 +326,7 @@ class Shift extends Entity
     protected function job($job = null)
     {
         if ( $job !== null ) {
-            if ( is_int( $job ) ) {
+            if ( !$job instanceof Job ) {
                 $jobID = $job;
                 $job = new Job();
                 $job->id = $jobID;
@@ -370,7 +370,7 @@ class Shift extends Entity
     protected function worker($worker = null)
     {
         if ( $worker !== null ) {
-            if ( is_int( $worker ) ) {
+            if ( !$worker instanceof User) {
                 $workerID = $worker;
                 $worker = new User();
                 $worker->id = $workerID;

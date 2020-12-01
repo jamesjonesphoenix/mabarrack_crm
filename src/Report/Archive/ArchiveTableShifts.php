@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Phoenix\Report\Archive;
-
 
 use DateTime;
 use Phoenix\Entity\Shift;

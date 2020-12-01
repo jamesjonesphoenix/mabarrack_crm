@@ -3,6 +3,8 @@
 namespace Phoenix\Form\DetailPageForm;
 
 use Phoenix\Entity\Job;
+use Phoenix\Entity\Shift;
+use Phoenix\URL;
 use stdClass;
 
 /**
@@ -29,6 +31,26 @@ class JobEntityForm extends DetailPageEntityForm
             return '';
         }
         return parent::render();
+    }
+
+    /**
+     * @return array
+     */
+    public function getButtonsArray(): array
+    {
+
+        $buttons = parent::getButtonsArray();
+        if ( $this->entity->exists ) {
+            $buttons[] = [
+                'class' => 'btn btn-lg btn-success float-right ml-2',
+                'element' => 'a',
+                'content' => 'Add Shift to Job ' . $this->entity->getIDBadge(),
+                'href' => (new URL( (new Shift())->getLink( false ) ))
+                    ->setQueryArg( 'prefill', ['job' => $this->entity->id] )
+                    ->write()
+            ];
+        }
+        return $buttons;
     }
 
     /**
@@ -60,7 +82,8 @@ class JobEntityForm extends DetailPageEntityForm
                 $this->entity->customer->getLink(),
                 'View ' . ($this->entity->customer->name ?? 'Customer')
             ),
-            'disabled' => $this->isDisabled()
+            'disabled' => $this->isDisabled(),
+            'placeholder' => 'Select Customer'
         ] );
 
 

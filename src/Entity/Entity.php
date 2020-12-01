@@ -308,7 +308,7 @@ abstract class Entity extends AbstractCRM
     /**
      *
      *
-     * @param int|bool|null $id
+     * @param int|bool|null $id false to get add new link, null to get Entities detail page link, number to link to that ID number
      * @return string
      */
     public function getLink($id = null): string
@@ -317,12 +317,11 @@ abstract class Entity extends AbstractCRM
         if ( empty( $entityName ) ) {
             return '';
         }
-
         $link = 'index.php?page=detail&entity=' . $entityName;
         if ( $id === false ) {
             return $link;
         }
-        if ( $id === null ) {
+        if ( $id === null && $this->exists) {
             $id = $this->id;
         }
         if ( $id === null ) {

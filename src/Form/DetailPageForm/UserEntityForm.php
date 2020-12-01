@@ -22,6 +22,9 @@ class UserEntityForm extends DetailPageEntityForm
      */
     public string $formID = 'worker_form';
 
+    /**
+     * @return array
+     */
     public function getButtonsArray(): array
     {
         $buttons = parent::getButtonsArray();
@@ -30,9 +33,17 @@ class UserEntityForm extends DetailPageEntityForm
                 'class' => 'btn btn-lg btn-primary mr-2 float-left',
                 'element' => 'a',
                 'id' => 'view-worker-week',
-                'content' => 'View Worker Week',
+                'content' => 'View ' . $this->entity->getNamePossessive(true) . ' Worker Week',
                 'href' => $this->entity->getWorkerWeekLink()
             ];
+            /*
+            $buttons[] = [
+                'class' => 'btn btn-lg btn-success float-right ml-2',
+                'element' => 'a',
+                'content' => 'Add Shift to ' . $this->entity->getFirstName(),
+                'href' => $this->entity->getWorkerWeekLink()
+            ];
+            */
         }
         return $buttons;
     }

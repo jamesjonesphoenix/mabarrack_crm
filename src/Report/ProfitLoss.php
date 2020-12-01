@@ -352,23 +352,20 @@ class ProfitLoss extends Report
     /**
      * @return array
      */
-    public function getNavLinks(): array
+    public function buildNavLinks(): array
     {
         $url = $this->getURL();
 
-
         if ( $this->includeFactoryCostsButton ) {
-            $links['include_factory_costs'] = [
-
+            $return['include_factory_costs'] = [
                 'href' => $url->setQueryArg( 'include_factory_costs', !$this->includeFactoryCosts )->write(),
                 'content' => $this->includeFactoryCosts ? 'Ignore Factory Costs' : 'Include Factory Costs',
                 'class' => 'bg-secondary',
-
             ];
         }
         return array_merge(
-            $links ?? [],
-            parent::getNavLinks()
+            $return ?? [],
+            parent::buildNavLinks()
         );
     }
 

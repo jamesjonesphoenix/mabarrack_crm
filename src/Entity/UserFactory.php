@@ -72,10 +72,12 @@ class UserFactory extends EntityFactory
      */
     public function getOptionsArray(): array
     {
-        return array_column(
+        $options = array_column(
             $this->getAll(),
             'name',
             'id'
         );
+        asort($options);
+        return $options;
     }
 }
