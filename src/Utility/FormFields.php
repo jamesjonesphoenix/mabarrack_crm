@@ -132,19 +132,7 @@ class FormFields extends HTMLTags
      */
     public static function getTextFieldHTML(array $args = []): string
     {
-        $args = self::mergeDefaultArgs( $args, 'hidden' );
-        //$type = 'text';
-        ob_start();
-        //$type
-        echo self::getFieldLabelHTML(
-            $args['label'] ?? '',
-            $args['id']
-        );
-        ?><input autocomplete="off" type="text"<?php echo self::getAttributes( $args ); ?>><?php
-        if ( !empty( $args['small'] ) ) {
-            ?><small><?php echo $args['small']; ?></small><?php
-        }
-        return ob_get_clean();
+         return self::getFormFieldHTML( 'text', $args );
     }
 
     /**
@@ -307,6 +295,9 @@ class FormFields extends HTMLTags
                     <label class="custom-file-label" for="customFile">Choose file</label>
                 </div>
                 <?php break;
+        }
+        if ( !empty( $args['small'] ) ) {
+            ?><small><?php echo $args['small']; ?></small><?php
         }
         return self::getFieldLabelHTML(
                 $args['label'] ?? '',

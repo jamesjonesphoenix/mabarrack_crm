@@ -40,7 +40,7 @@ class ArchiveTableSettings extends ArchiveTable
     public function extractEntityData($setting): array
     {
         return [
-            'name' => $setting->name,
+            'name' => $setting->displayName,
             'description' => $setting->description,
             'value' => $setting->value,
         ];

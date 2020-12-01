@@ -7,6 +7,7 @@ use Phoenix\URL;
 /**
  * @property string $emailAddress
  * @property string $name
+ * @property string $phoneNumber
  * @property Job[]  $jobs
  *
  * Class Customer
@@ -36,6 +37,11 @@ class Customer extends Entity
     protected array $_jobs;
 
     /**
+     * @var string
+     */
+    protected string $_phoneNumber;
+
+    /**
      * Map of DB table columns.
      * Arrays keys are column names.
      * 'property' is matching Class property.
@@ -54,8 +60,13 @@ class Customer extends Entity
         'email_address' => [
             'type' => 'string',
             'property' => 'emailAddress'
+        ],
+        'phone_number' => [
+            'type' => 'string',
+            // 'property' => 'emailAddress'
         ]
     ];
+
 
     /**
      * @param string $name
@@ -113,6 +124,18 @@ class Customer extends Entity
     }
 
     /**
+     * @param string $phoneNumber
+     * @return string
+     */
+    protected function phoneNumber(string $phoneNumber = ''): string
+    {
+        if ( !empty( $phoneNumber ) ) {
+            $this->_phoneNumber = $phoneNumber;
+        }
+        return $this->_phoneNumber ?? '';
+    }
+
+    /**
      * @param bool $anchorLink
      * @return string
      */
@@ -124,6 +147,22 @@ class Customer extends Entity
         $href = 'mailto:' . $this->emailAddress;
         if ( $anchorLink ) {
             return '<a href="' . $href . '" class="text-white">' . $this->emailAddress . '</a>';
+        }
+        return $href;
+    }
+
+    /**
+     * @param bool $anchorLink
+     * @return string
+     */
+    public function getPhoneLink(bool $anchorLink = false): string
+    {
+        if ( empty( $this->phoneNumber ) ) {
+            return '';
+        }
+        $href = 'tel:' . $this->phoneNumber;
+        if ( $anchorLink ) {
+            return '<a href="' . $href . '" class="text-white">' . $this->phoneNumber . '</a>';
         }
         return $href;
     }

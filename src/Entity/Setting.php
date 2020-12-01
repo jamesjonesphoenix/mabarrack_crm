@@ -8,12 +8,15 @@ use Phoenix\Utility\HTMLTags;
 
 /**
  * @author James Jones
+ *
+ * @property string $name
+ * @property string $displayName
  * @property string $value
  * @property string $description
  *
  * Class Setting
  *
- * @property string $name
+ *
  * @package Phoenix\Entity
  *
  */
@@ -28,6 +31,11 @@ class Setting extends Entity
      * @var string
      */
     protected string $_name;
+
+    /**
+     * @var string
+     */
+    protected string $_displayName;
 
     /**
      * @var string
@@ -51,6 +59,10 @@ class Setting extends Entity
             'type' => 'string',
             'required' => true
         ],
+        'display_name' => [
+            'type' => 'string',
+            'required' => true
+        ],
         'description' => [
             'type' => 'string',
         ],
@@ -63,6 +75,7 @@ class Setting extends Entity
      * @var string
      */
     protected string $_description;
+
 
     /**
      * Check that only value has been changed. We disallow any other properties being changed.
@@ -96,6 +109,18 @@ class Setting extends Entity
             $this->_name = $name;
         }
         return $this->_name ?? '';
+    }
+
+    /**
+     * @param string $displayName
+     * @return string
+     */
+    protected function displayName(string $displayName = ''): string
+    {
+        if ( !empty( $displayName ) ) {
+            $this->_displayName = $displayName;
+        }
+        return $this->_displayName ?? '';
     }
 
     /**

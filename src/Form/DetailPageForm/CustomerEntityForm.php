@@ -54,7 +54,16 @@ class CustomerEntityForm extends DetailPageEntityForm
             'disabled' => $this->isDisabled(),
             'append' => $this->htmlUtility::getViewButton( $this->entity->getEmailLink(), 'Email ' . ($this->entity->name ?? 'Customer') )
         ] );
+
+        $this->fields['phone_number'] = $this->htmlUtility::getTextFieldHTML( [
+            'name' => 'phone_number',
+            'value' => $this->entity->phoneNumber,
+            'label' => 'Phone Number',
+            'disabled' => $this->isDisabled(),
+            'append' => $this->htmlUtility::getViewButton( $this->entity->getPhoneLink(), 'Call ' . ($this->entity->name ?? 'Customer') )
+        ] );
         return $this;
+
     }
 
     /**
@@ -64,14 +73,17 @@ class CustomerEntityForm extends DetailPageEntityForm
     {
         ob_start(); ?>
         <div class="form-row">
-            <div class="form-group col-md-2">
+            <div class="form-group col-md-6">
                 <?php echo $this->getIdFieldHTML(); ?>
             </div>
-            <div class="form-group col-md-5">
+            <div class="form-group col-md-6">
                 <?php echo $this->fields['name']; ?>
             </div>
-            <div class="form-group col-md-5">
+            <div class="form-group col-md-6">
                 <?php echo $this->fields['email_address']; ?>
+            </div>
+            <div class="form-group col-md-6">
+                <?php echo $this->fields['phone_number']; ?>
             </div>
         </div>
         <?php return ob_get_clean();

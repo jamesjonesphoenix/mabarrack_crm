@@ -51,7 +51,7 @@ class Page extends Base
     /**
      * @var string
      */
-    private string $version = '0.2';
+    private string $version = '0.3';
 
     /**
      * @var bool

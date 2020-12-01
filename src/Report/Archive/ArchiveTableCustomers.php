@@ -28,6 +28,10 @@ class ArchiveTableCustomers extends ArchiveTable
             'title' => 'Email Address',
             'default' => '&minus;'
         ],
+        'phone_number' => [
+            'title' => 'Phone Number',
+            'default' => '&minus;'
+        ],
         'number_of_jobs' => [
             'title' => 'Number of Jobs'
         ],
@@ -48,6 +52,7 @@ class ArchiveTableCustomers extends ArchiveTable
         return [
             'name' => $customer->name,
             'email_address' => $customer->getEmailLink( true ),
+            'phone_number' => $customer->getPhoneLink(true),
             'number_of_jobs' => $numberOfJobs,
             'profit-loss' => $numberOfJobs > 0 ? $this->htmlUtility::getViewButton(
                 $customer->getProfitLossLink(),
