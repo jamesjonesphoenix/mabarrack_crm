@@ -27,41 +27,22 @@ class Roles
         'admin' => [
             'file_capabilities' => [
                 'add_entry',
-                'archive_page',
-                'detail_page',
-                'entity',
                 'fix-shift-furniture',
                 'index',
-                'jcr',
-                'page',
-                'settings',
-                'settings-old',
-                'tcr',
-                'wtr',
-                'report',
-                'tables_test'
+                'script'
             ],
             'level' => 10
         ],
         'staff' => [
             'file_capabilities' => [
-                'chooseactivity',
-                'choosefur',
-                'choosejob',
-                'finishday',
-                'finish_day',
-                'nextshift',
-                'othercomment',
-                'report',
-                'reports',
-                'worker_enterjob',
-                'worker',
+
             ],
             'level' => 1
         ],
         'anyone' => [
             'file_capabilities' => [
-                'login'
+                'login',
+                'worker'
             ],
             'level' => 0
         ]

@@ -114,6 +114,10 @@ class CurrentUser extends User
             return $this->addError( 'Password has not been set.' );
         }
 
+        if (  !$this->active  ) {
+            return $this->addError( 'User is inactive. An admin must reactivate your user account to allow access.' );
+        }
+
         if ( !password_verify( $password, $this->hash ) ) {
             $this->messages->add( 'You entered an incorrect password. Please try again.' );
             // We record failed login attempt to the database
@@ -142,6 +146,7 @@ class CurrentUser extends User
         if ( $this->isIpAllowed() === false ) {
             return $this->addError( 'Incorrect IP detected. Please login from Mabarrack Factory.' );
         }
+
         if ( !password_verify( $this->hash . $this->getUserBrowser(), $_SESSION['login_string'] ) ) {
             return false;
         }

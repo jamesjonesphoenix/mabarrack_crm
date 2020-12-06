@@ -250,9 +250,9 @@ $j(document).ready(function () {
 //btn text-white btn-secondary mb-2 minimise-button collapsed
 // btn text-white btn-secondary mb-2 minimise-button
 
-  //  $j('.minimise-button').on('hidden.bs.collapse', function () {
-  //      $j('.minimise-button').html('Expand');
-  //  })
+    //  $j('.minimise-button').on('hidden.bs.collapse', function () {
+    //      $j('.minimise-button').html('Expand');
+    //  })
 });
 
 
@@ -302,7 +302,10 @@ function entityPageFunctions() {
      * @returns {*|jQuery.fn.init|jQuery|HTMLElement}
      */
     function getFormControls() {
-        return $j('form.detail-form .form-control:not(#inputFakeID,#inputID,' + passwordField1ID + ',' + passwordField2ID + ',.not-toggleable), input#add-furniture-button, a.remove-furniture');
+        return $j('form.detail-form .form-control:not(#inputFakeID,#inputID,'
+            + passwordField1ID + ','
+            + passwordField2ID
+            + ',.not-toggleable), input#add-furniture-button, a.remove-furniture, form.detail-form input.custom-control-input');
     }
 
     /**
@@ -419,8 +422,8 @@ function entityPageFunctions() {
     function doEntityAction(formAction = '') {
         $j('.detail-form .alert').alert('close');
 
-        let ajaxURL = "add_entry.php",
-            ajaxData = $j(".detail-form").serialize() + getFurnitureFromInputs() + '&db_action=' + formAction,
+        let ajaxURL = 'add_entry.php',
+            ajaxData = $j('.detail-form').serialize() + getFurnitureFromInputs() + '&db_action=' + formAction,
             formEntity = $j('input[name="entity"]').val(),
             defaultFailMessage = 'Failed to ' + formAction + ' ' + formEntity + '.',
             formValidated = validateFormInput();
@@ -428,6 +431,16 @@ function entityPageFunctions() {
         if (!formValidated) {
             return false;
         }
+
+        $j.each($j('form.detail-form input[type=checkbox]')
+                .filter(function (idx) { //Because un-ticked checkboxes aren't sent to the server unless we explicitly add them
+                    return $j(this).prop('checked') === false
+                }),
+            function (idx, el) { // attach matched element names to the formData with a chosen value.
+                let emptyVal = '0';
+                ajaxData += '&' + $j(el).attr('name') + '=' + emptyVal;
+            }
+        );
 
         console.log(ajaxData);
         submitButton.prop('disabled', true);

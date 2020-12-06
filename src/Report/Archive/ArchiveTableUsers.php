@@ -34,10 +34,17 @@ class ArchiveTableUsers extends ArchiveTable
         'role' => [
             'title' => 'Role'
         ],
+        /*
+        'number_of_shifts' => [
+            'title' => 'Number Of Shifts'
+        ],
+        */
+        'active' => [
+            'title' => 'Active?'
+        ],
         'worker_week' => [
             'title' => ''
-        ],
-
+        ]
     ];
 
     /**
@@ -51,6 +58,8 @@ class ArchiveTableUsers extends ArchiveTable
             'pin' => $user->pin,
             'rate' => $user->rate,
             'role' => ucwords( $user->role ),
+            'number_of_shifts' => $user->shifts->getCount(),
+            'active' => $user->active ? 'Yes' : 'No',
             'worker_week' => $this->htmlUtility::getViewButton(
                 $user->getWorkerWeekLink(),
                 'Worker Week'

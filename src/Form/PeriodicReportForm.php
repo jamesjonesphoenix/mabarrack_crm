@@ -255,10 +255,10 @@ class PeriodicReportForm extends Form
 
         $this->fields['exclusive'] = $this->htmlUtility::getCheckboxesFieldHTML( [
             'name' => 'exclusive',
-            'label' => 'Exclusively filter job type - ',
+            'label' => 'Exclusively filter job type',
             'id' => 'report-input-type-exclusive',
             'checked' => $this->exclusiveJobType ? 'true' : '',
-            'value' => true,
+            // 'value' => true,
             'small' => 'Jobs with CNC <strong>and</strong> Manual shifts will be filtered out'
         ] );
 

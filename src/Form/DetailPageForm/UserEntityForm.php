@@ -33,7 +33,7 @@ class UserEntityForm extends DetailPageEntityForm
                 'class' => 'btn btn-lg btn-primary mr-2 float-left',
                 'element' => 'a',
                 'id' => 'view-worker-week',
-                'content' => 'View ' . $this->entity->getNamePossessive(true) . ' Worker Week',
+                'content' => 'View ' . $this->entity->getNamePossessive( true ) . ' Worker Week',
                 'href' => $this->entity->getWorkerWeekLink()
             ];
             /*
@@ -74,6 +74,19 @@ class UserEntityForm extends DetailPageEntityForm
             'append' => '<span class="input-group-text">/Hour</span>',
             'disabled' => $this->isDisabled()
         ] );
+
+
+        $this->fields['active'] = $this->htmlUtility::getCheckboxesFieldHTML( [
+
+            'name' => 'active',
+            'label' => 'Active User',
+            // 'id' => 'report-input-type-exclusive',
+            'checked' => $this->entity->exists ? $this->entity->active : true,
+            'small' => 'Inactive users will be unable to login and clock shifts.',
+            'disabled' => $this->isDisabled()
+        ] );
+
+
         $this->fields['type'] = $this->htmlUtility::getOptionDropdownFieldHTML( [
             'options' => [
                 'staff' => 'Staff',
@@ -117,15 +130,19 @@ class UserEntityForm extends DetailPageEntityForm
                 <?php echo $this->fields['pin']; ?>
             </div>
         </div>
-        <div class="form-row">
-            <div class="form-group col-md-6">
+        <div class="form-row align-items-end">
+            <div class="form-group col-md-4">
                 <?php echo $this->fields['type']; ?>
             </div>
-            <div class="form-group col-md-6">
+            <div class="form-group col-md-4">
                 <?php echo $this->fields['rate']; ?>
             </div>
+            <div class="form-group col-md-4">
+                <?php echo $this->fields['active']; ?>
+            </div>
         </div>
-        <div class="form-row">
+
+        <div class="form-row align-items-end">
             <div class="form-group col">
                 <?php echo $this->fields['password']; ?>
             </div>

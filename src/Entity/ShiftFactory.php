@@ -5,6 +5,7 @@ namespace Phoenix\Entity;
 /**
  * @method Shift[] addOneToOneEntityProperties(array $entities = [], EntityFactory $additionFactory = null, $provisionArgs = false, string $joinPropertyName = '')
  * @method Shift getEntity(int $id = 0)
+ * @method Shift[] getEntities(array $queryArgs = [], $provision = false)
  *
  * Class ShiftFactory
  */

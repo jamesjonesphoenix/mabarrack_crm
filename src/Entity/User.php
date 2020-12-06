@@ -18,6 +18,7 @@ use function Phoenix\phValidateID;
  * @property integer $rate
  * @property string  $role
  * @property Shifts  $shifts
+ * @property bool    $active
  *
  * Class User
  *
@@ -66,6 +67,11 @@ class User extends Entity
     protected Shifts $_shifts;
 
     /**
+     * @var bool
+     */
+    protected bool $_active;
+
+    /**
      * Map of Database columns. Key is column name, 'property' is matching Class property. Don't need to include ID column in this array.
      *
      * @var array
@@ -93,7 +99,11 @@ class User extends Entity
             'required' => true,
             'property' => 'hash'
         ],
+        'active' => [
+            'type' => 'flag'
+        ],
     ];
+
 
     /**
      * For setting Entity properties related to DB table columns
@@ -158,6 +168,18 @@ class User extends Entity
             $this->_name = $name;
         }
         return $this->_name ?? '';
+    }
+
+    /**
+     * @param bool $active
+     * @return bool
+     */
+    protected function active(bool $active = null): ?bool
+    {
+        if ( $active !== null ) {
+            $this->_active = $active;
+        }
+        return $this->_active ?? null;
     }
 
     /**
@@ -420,7 +442,7 @@ class User extends Entity
     {
         $numberOfShifts = $this->shifts->getCount();
         if ( $numberOfShifts > 0 ) {
-            return $this->addError( ucfirst( $this->getFirstName() ) . ' has <strong>' . $numberOfShifts . '</strong> associated shifts. You cannot delete ' .  $this->getFirstName()  . ' until the related shifts are deleted.' );
+            return $this->addError( ucfirst( $this->getFirstName() ) . ' has <strong>' . $numberOfShifts . '</strong> associated shifts. You cannot delete ' . $this->getFirstName() . ' until the related shifts are deleted.' );
         }
         return true;
     }

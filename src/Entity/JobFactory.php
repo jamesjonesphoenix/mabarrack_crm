@@ -7,7 +7,7 @@ namespace Phoenix\Entity;
  * @method Job[] instantiateEntitiesFromDB(array $queryArgs = [])
  * @method Job getEntity(int $id = 0)
  * @method Job[] getAll()
- *
+ * @method Job[] getEntities(array $queryArgs = [], $provision = false)
  *
  * Class JobFactory
  */
@@ -211,7 +211,6 @@ class JobFactory extends EntityFactory
             return $jobs;
         }
         $furnitureInstances = (new FurnitureFactory( $this->db, $this->messages ))->getEntities( ['id' => ['operator' => 'IN', 'value' => $furnitureIDs]] );
-
         foreach ( $jobs as $job ) {
             if ( !empty( $job->furniture ) && is_array( $job->furniture ) ) {
                 foreach ( $job->furniture as $furnitureID => $furniture ) {

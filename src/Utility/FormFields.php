@@ -20,11 +20,18 @@ class FormFields extends HTMLTags
     public static function getCheckboxesFieldHTML(array $args = []): string
     {
         $args = self::mergeDefaultArgs( $args, 'checkbox' );
+        $args['value'] ??= true;
         $args['class'] = str_replace( 'form-control', 'custom-control-input', $args['class'] );
         $attributes = self::getAttributes( $args ) . self::makeElementProperty( $args['checked'] ?? '', 'checked' );
         ob_start(); ?>
-        <div class="custom-control custom-checkbox mb-2"><input type="checkbox"<?php echo $attributes; ?> >
-            <label class="custom-control-label" for="<?php echo $args['id']; ?>"><?php echo $args['label']; ?><small><?php echo $args['small'] ?? ''; ?></small></label>
+        <div class="mb-2">
+            <span><?php echo $args['label']; ?>:</span>
+        </div>
+        <div class="checkbox-wrapper " style="padding-left:12px;">
+            <div class="custom-control custom-checkbox mb-2">
+                <input type="checkbox"<?php echo $attributes; ?> >
+                <label class="custom-control-label" for="<?php echo $args['id']; ?>"><small><?php echo $args['small'] ?? ''; ?></small></label>
+            </div>
         </div>
         <?php return ob_get_clean();
     }
@@ -132,7 +139,7 @@ class FormFields extends HTMLTags
      */
     public static function getTextFieldHTML(array $args = []): string
     {
-         return self::getFormFieldHTML( 'text', $args );
+        return self::getFormFieldHTML( 'text', $args );
     }
 
     /**
