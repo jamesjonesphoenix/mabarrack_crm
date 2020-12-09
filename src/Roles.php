@@ -29,7 +29,9 @@ class Roles
                 'add_entry',
                 'fix-shift-furniture',
                 'index',
-                'script'
+                'script',
+                'fix-furniture',
+                'fix-zero-length-shifts'
             ],
             'level' => 10
         ],

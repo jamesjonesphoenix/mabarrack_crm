@@ -140,7 +140,7 @@ abstract class ArchiveTable extends Report
             return $this;
         }
         $this->entities = $entities;
-        if ( $entities->getCount() > 1 ) {
+        if ( $entities->getCount() >= 1 ) {
             $entity = $entities->getOne();
             if ( $entity !== null ) {
                 $this->entity = $entity;

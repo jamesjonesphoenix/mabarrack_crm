@@ -76,10 +76,12 @@ class DetailPageBuilderCustomer extends DetailPageBuilder
                 'employee_cost'
             ], ['hidden' => true] );
 
+        d($report->getNavLinks());
+
         $report->addNavLink( 'add_new', [
             'content' => 'Add New Job to ' . $this->HTMLUtility::getBadgeHTML( $customer->name ),
             'href' => (
-            new URL( $report->getNavLinks()['add_new']['href'] )
+            new URL( $report->getNavLinks()['add_new']['href'] ?? '')
             )
                 ->setQueryArg( 'prefill', ['customer' => $customer->id] )
                 ->write()
