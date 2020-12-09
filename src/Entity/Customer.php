@@ -69,12 +69,12 @@ class Customer extends Entity
 
 
     /**
-     * @param string $name
+     * @param string|null $name
      * @return string
      */
-    protected function name(string $name = ''): string
+    protected function name(string $name = null): string
     {
-        if ( !empty( $name ) ) {
+        if (  $name !== null ) {
             $this->_name = trim( $name );
         }
         return $this->_name ?? '';
@@ -112,24 +112,24 @@ class Customer extends Entity
     }
 
     /**
-     * @param string $emailAddress
+     * @param string|null $emailAddress
      * @return string
      */
-    protected function emailAddress(string $emailAddress = ''): string
+    protected function emailAddress(string $emailAddress = null): string
     {
-        if ( !empty( $emailAddress ) ) {
+        if ( $emailAddress !== null ) {
             $this->_emailAddress = $emailAddress;
         }
         return $this->_emailAddress ?? '';
     }
 
     /**
-     * @param string $phoneNumber
+     * @param string|null $phoneNumber
      * @return string
      */
-    protected function phoneNumber(string $phoneNumber = ''): string
+    protected function phoneNumber(string $phoneNumber = null): string
     {
-        if ( !empty( $phoneNumber ) ) {
+        if (  $phoneNumber !== null ) {
             $this->_phoneNumber = $phoneNumber;
         }
         return $this->_phoneNumber ?? '';

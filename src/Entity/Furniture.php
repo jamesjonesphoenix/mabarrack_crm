@@ -71,24 +71,24 @@ class Furniture extends Entity
     }
 
     /**
-     * @param string $name
+     * @param string|null $name
      * @return string
      */
-    protected function name(string $name = ''): string
+    protected function name(string $name = null): string
     {
-        if ( !empty( $name ) ) {
+        if ( $name !== null ) {
             $this->_name = $name;
         }
         return $this->_name ?? '';
     }
 
     /**
-     * @param string $namePlural
+     * @param string|null $namePlural
      * @return string
      */
-    protected function namePlural(string $namePlural = ''): string
+    protected function namePlural(string $namePlural = null): string
     {
-        if ( !empty( $namePlural ) ) {
+        if ( $namePlural !== null ) {
             $this->_namePlural = $namePlural;
         }
         if ( !empty( $this->_namePlural ) ) {

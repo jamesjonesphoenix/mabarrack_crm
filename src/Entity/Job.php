@@ -229,36 +229,36 @@ class Job extends Entity
     }
 
     /**
-     * @param string $dateStarted
+     * @param string|null $dateStarted
      * @return string
      */
-    protected function dateStarted(string $dateStarted = ''): string
+    protected function dateStarted(string $dateStarted = null): string
     {
-        if ( !empty( $dateStarted ) ) {
+        if ( $dateStarted !== null ) {
             $this->_dateStarted = $dateStarted;
         }
         return $this->_dateStarted ?? '';
     }
 
     /**
-     * @param string $dateFinished
+     * @param string|null $dateFinished
      * @return string
      */
-    protected function dateFinished(string $dateFinished = ''): string
+    protected function dateFinished(string $dateFinished = null): string
     {
-        if ( !empty( $dateFinished ) ) {
+        if (  $dateFinished !== null ) {
             $this->_dateFinished = $dateFinished;
         }
         return $this->_dateFinished ?? '';
     }
 
     /**
-     * @param string $description
+     * @param string|null $description
      * @return string
      */
-    protected function description(string $description = ''): string
+    protected function description(string $description = null): string
     {
-        if ( !empty( $description ) ) {
+        if (  $description !== null ) {
             $this->_description = $description;
         }
         if ( $this->id === 0 ) {
