@@ -98,7 +98,7 @@ class DetailPageBuilderJob extends DetailPageBuilder
         $jobShifts->addNavLink( 'add_new', [
             'content' => 'Add New Shift to Job ' . $entity->getIDBadge(),
                'href' => (
-                   new URL( $jobShifts->getNavLinks()['add_new']['href'] )
+                   new URL( $jobShifts->getNavLinks()['add_new']['href'] ?? '' )
                )
                    ->setQueryArg('prefill',['job' => $entity->id])
                    ->write()

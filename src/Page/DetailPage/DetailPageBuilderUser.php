@@ -111,7 +111,7 @@ class DetailPageBuilderUser extends DetailPageBuilder
             $report->addNavLink( 'add_new', [
                 'content' => 'Add New Shift to ' . $this->HTMLUtility::getBadgeHTML($user->getFirstName()),
                 'href' => (
-                new URL( $report->getNavLinks()['add_new']['href'] )
+                new URL( $report->getNavLinks()['add_new']['href'] ?? '')
                 )
                     ->setQueryArg('prefill',['worker' => $user->id])
                     ->write()
