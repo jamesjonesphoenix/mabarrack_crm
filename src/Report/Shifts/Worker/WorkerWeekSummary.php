@@ -17,7 +17,7 @@ class WorkerWeekSummary extends WorkerWeekReport
     /**
      * @var string
      */
-    protected string $title = 'Worker Week Summary';
+    protected string $title = 'Employee Week Summary';
 
     /**
      * @var array

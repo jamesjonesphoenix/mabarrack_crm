@@ -55,7 +55,7 @@ class ShiftsReportBuilder extends ReportBuilder
                 $this->groupBy
             )
             */
-            ->editColumn( 'worker', ['hidden' => true] )->setEmptyMessage();
+            ->editColumn( 'employee', ['hidden' => true] )->setEmptyMessage();
         $this->provisionReport();
         return $this->report;
     }
@@ -153,12 +153,12 @@ class ShiftsReportBuilder extends ReportBuilder
               ] */
         ];
         if ( isset( $this->user ) ) {
-            $queryArgs['worker'] = $this->user->id;
+            $queryArgs['employee'] = $this->user->id;
         }
         return $this->entities = new Shifts(
             $this->entityFactory->getEntities( $queryArgs, [
                 'activity' => true,
-                'worker' => [
+                'employee' => [
                     'shifts' => false
                 ],
                 'job' => [
@@ -220,7 +220,7 @@ class ShiftsReportBuilder extends ReportBuilder
     public function validateInputs(): string
     {
         if ( $this->userRequiredAndMissing() ) {
-            return 'Please set a worker.';
+            return 'Please set an employee.';
         }
         return parent::validateInputs();
     }
@@ -231,7 +231,7 @@ class ShiftsReportBuilder extends ReportBuilder
     public function getDefaultEmptyMessage(): string
     {
         return 'No completed shifts '
-            . (isset( $this->user ) ? 'for worker ' . $this->htmlUtility::getBadgeHTML( $this->user->getFirstName(), 'primary' ) : '')
+            . (isset( $this->user ) ? 'for employee ' . $this->htmlUtility::getBadgeHTML( $this->user->getFirstName(), 'primary' ) : '')
             . ' found between'
             . $this->getDateString( 'primary' )
             . ' to report.';

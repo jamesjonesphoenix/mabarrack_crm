@@ -20,12 +20,12 @@ class ReportPageBuilderWorkerWeek extends ReportPageBuilderActivitySummary
     /**
      * @var string
      */
-    protected string $title = 'Worker Week Report';
+    protected string $title = 'Employee Week Report';
 
     /**
      * @var string
      */
-    protected string $userFieldPlaceholder = 'Choose Worker';
+    protected string $userFieldPlaceholder = 'Choose Employee';
 
     /**
      * @return Report[]

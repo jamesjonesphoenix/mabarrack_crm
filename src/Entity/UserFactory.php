@@ -42,18 +42,18 @@ class UserFactory extends EntityFactory
                 'activity' => true,
                 'furniture' => true,
                 'job' => ['customer' => true],
-                'worker' => false //Don't waste CPU time provisioning shifts with worker - we already have the worker as the parent entity
+                'employee' => false //Don't waste CPU time provisioning shifts with worker - we already have the worker as the parent entity
             ];
         } else {
             $provisionShifts = $provision['shifts'];
         }
-        $provisionShifts['worker'] = false;
+        $provisionShifts['employee'] = false;
 
         $users = $this->addManyToOneEntityProperties(
             $users,
             new ShiftFactory( $this->db, $this->messages ),
             $provisionShifts,
-            'worker'
+            'employee'
         );
 /*
         foreach($users as $user){

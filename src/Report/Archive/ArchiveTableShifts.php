@@ -18,8 +18,8 @@ class ArchiveTableShifts extends ArchiveTable
      * @var array
      */
     protected array $columns = [
-        'worker' => [
-            'title' => 'Worker',
+        'employee' => [
+            'title' => 'Employee',
             'default' => '&minus;'
         ],
         'job' => [
@@ -105,12 +105,12 @@ class ArchiveTableShifts extends ArchiveTable
             $minutes = 'N/A';
         }
         return [
-            'worker' => $this->htmlUtility::getButton( [
+            'employee' => $this->htmlUtility::getButton( [
                     'element' => 'a',
-                    'content' => $shift->worker->name,
-                    'href' => $shift->worker->getLink(),
+                    'content' => $shift->employee->name,
+                    'href' => $shift->employee->getLink(),
                     'class' => 'text-white'
-                ] ) ?? $shift->worker->name,
+                ] ) ?? $shift->employee->name,
             'job' => $this->htmlUtility::getButton( [
                 'element' => 'a',
                 'content' => $shift->job->id === 0 ? 'Factory' : $shift->job->id,
@@ -131,7 +131,7 @@ class ArchiveTableShifts extends ArchiveTable
             'hours' => $minutes,
             'activity' => $shift->activity->displayName,
             'comment' => $shift->activityComments,
-            'rate' => $shift->worker->rate,
+            'rate' => $shift->employee->rate,
             'line_item_cost' => $shift->getShiftCost()
         ];
     }

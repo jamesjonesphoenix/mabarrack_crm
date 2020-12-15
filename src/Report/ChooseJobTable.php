@@ -103,7 +103,7 @@ class ChooseJobTable extends Report
      */
     public function getSelectLinkURL(Job $job): string
     {
-        $href = 'worker.php?job=' . $job->id;
+        $href = 'employee.php?job=' . $job->id;
         if ( $job->id === 0 ) {
             return $href . '&choose=activity';
         }

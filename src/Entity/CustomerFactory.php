@@ -41,7 +41,7 @@ class CustomerFactory extends EntityFactory
         } else {
             $provisionJobs = $provision['jobs'];
         }
-        $provisionJobs['worker'] = false;
+        $provisionJobs['employee'] = false;
 
         return $this->addManyToOneEntityProperties(
             $customers,

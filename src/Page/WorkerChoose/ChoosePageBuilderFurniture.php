@@ -53,7 +53,7 @@ class ChoosePageBuilderFurniture extends ChoosePageBuilder
     {
         return array_merge( [
             'choose_job' => [
-                'href' => 'worker.php?choose=job',
+                'href' => 'employee.php?choose=job',
                 'content' => 'Choose Different Job',
                 'class' => 'bg-info'
             ]],

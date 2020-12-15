@@ -44,22 +44,22 @@ class ShiftFactory extends EntityFactory
     public function getLastWorkedShift(int $userID = 0): ?Shift
     {
         $latestShiftDate = $this->db->run(
-            'SELECT MAX(date) FROM shifts WHERE worker=:worker AND activity!=0 AND job!=0',
+            'SELECT MAX(date) FROM shifts WHERE employee=:employee AND activity!=0 AND job!=0',
             [
-                'worker' => $userID
+                'employee' => $userID
             ]
         )->fetch()['MAX(date)'];
         $latestShiftTime = $this->db->run(
-            'SELECT MAX(time_finished) FROM shifts WHERE worker=:worker AND activity!=0 AND job!=0 AND date=:date',
+            'SELECT MAX(time_finished) FROM shifts WHERE employee=:employee AND activity!=0 AND job!=0 AND date=:date',
             [
-                'worker' => $userID,
+                'employee' => $userID,
                 'date' => $latestShiftDate
             ]
         )->fetch()['MAX(time_finished)'];
 
         $lastShift = $this->getEntities( [
 
-            'worker' => $userID,
+            'employee' => $userID,
             'date' => $latestShiftDate,
             'time_finished' => $latestShiftTime,
             'activity' => ['operator' => '!=', 'value' => 0],
@@ -87,7 +87,7 @@ class ShiftFactory extends EntityFactory
     {
         $criteria = ['time_finished' => null];
         if ( $userID !== null ) {
-            $criteria['worker'] = $userID;
+            $criteria['employee'] = $userID;
         }
         return $this->getEntities( $criteria, true );
     }
@@ -120,8 +120,8 @@ class ShiftFactory extends EntityFactory
             }
         }
         // * @method Shift[] addOneToOneEntityProperties($entities, $additionFactory, $joinPropertyName = '')
-        if ( $this->canProvision( $provision, 'worker' ) ) { //add workers details to each shift to Shift
-            $shifts = $this->addOneToOneEntityProperties( $shifts, new UserFactory( $this->db, $this->messages ), $provision['worker'] ?? false, 'worker' );
+        if ( $this->canProvision( $provision, 'employee' ) ) { //add workers details to each shift to Shift
+            $shifts = $this->addOneToOneEntityProperties( $shifts, new UserFactory( $this->db, $this->messages ), $provision['employee'] ?? false, 'employee' );
         }
         if ( $this->canProvision( $provision, 'activity' ) ) { //add activities to each shift to Shift
             $shifts = $this->addOneToOneEntityProperties( $shifts, new ActivityFactory( $this->db, $this->messages ) );

@@ -64,7 +64,7 @@ class ChooseFurnitureTable extends Report
                 'quantity' => $furniture->quantity,
                 'select' => $this->htmlUtility::getButton( [
                     'element' => 'a',
-                    'href' => 'worker.php?job=' . $this->job->id . '&furniture=' . $furniture->id . '&choose=activity',
+                    'href' => 'employee.php?job=' . $this->job->id . '&furniture=' . $furniture->id . '&choose=activity',
                     'class' => 'btn btn-primary btn-lg',
                     'content' => 'Select'
                 ] )

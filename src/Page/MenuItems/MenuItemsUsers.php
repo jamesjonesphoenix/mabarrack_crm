@@ -20,9 +20,9 @@ class MenuItemsUsers extends MenuItemsEntities
     {
         $archiveURL = $this->entityFactory->getNew()->getArchiveLink();
         return [
-            'workers' => [
+            'employees' => [
                 'icon' => 'user-clock',
-                'content' => 'Workers',
+                'content' => 'Employees',
                 'href' => $archiveURL . '&query[type]=staff',
                 'number' => $this->entityFactory->getCount( ['type' => 'staff'] )
             ],

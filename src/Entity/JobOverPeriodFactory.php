@@ -57,7 +57,7 @@ class JobOverPeriodFactory extends JobFactory
             ]
         ], [
             'shifts' => [
-                'worker' => ['shifts' => false],
+                'employee' => ['shifts' => false],
                 'activity' => true
 
             ],

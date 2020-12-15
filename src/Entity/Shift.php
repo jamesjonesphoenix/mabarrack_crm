@@ -15,7 +15,7 @@ use Phoenix\Utility\HTMLTags;
  * @property integer|Job       $job
  * @property string            $timeStarted
  * @property string|null       $timeFinished
- * @property integer|User      $worker
+ * @property integer|User      $employee
  *
  * Class Shift
  *
@@ -66,7 +66,7 @@ class Shift extends Entity
     /**
      * @var integer|User
      */
-    protected $_worker;
+    protected $_employee;
 
     /**
      * Database columns map. Don't need to include ID column in this array.
@@ -81,7 +81,7 @@ class Shift extends Entity
         'furniture' => [
             'type' => 'id',
         ],
-        'worker' => [
+        'employee' => [
             'type' => 'id',
             'required' => true
         ],
@@ -145,7 +145,7 @@ class Shift extends Entity
         if ( !empty( $this->shiftCost ) ) {
             return $this->shiftCost;
         }
-        return $this->shiftCost = $this->getShiftLength() * $this->worker->rate / 60;
+        return $this->shiftCost = $this->getShiftLength() * $this->employee->rate / 60;
     }
 
     /**
@@ -210,7 +210,7 @@ class Shift extends Entity
     }
 
     /**
-     * Designed for workers clocking off a shift
+     * Designed for employees clocking off a shift
      *
      * @return bool
      * @throws \Exception
@@ -364,20 +364,20 @@ class Shift extends Entity
     }
 
     /**
-     * @param int|User|null $worker
+     * @param int|User|null $employee
      * @return User
      */
-    protected function worker($worker = null)
+    protected function employee($employee = null)
     {
-        if ( $worker !== null ) {
-            if ( !$worker instanceof User) {
-                $workerID = $worker;
-                $worker = new User();
-                $worker->id = $workerID;
+        if ( $employee !== null ) {
+            if ( !$employee instanceof User) {
+                $employeeID = $employee;
+                $employee = new User();
+                $employee->id = $employeeID;
             }
-            $this->_worker = $worker;
+            $this->_employee = $employee;
         }
-        return $this->_worker ?? new User();
+        return $this->_employee ?? new User();
     }
 
     /**
@@ -387,7 +387,7 @@ class Shift extends Entity
      */
     protected function getActionString($tense = 'present', string $action = ''): string
     {
-        if ( CurrentUser::instance()->id !== $this->worker->id ) {
+        if ( CurrentUser::instance()->id !== $this->employee->id ) {
             return parent::getActionString( $tense, $action );
         }
         if ( $action === 'update'
@@ -468,8 +468,8 @@ class Shift extends Entity
             }
         }
 
-        if ( $this->worker->id === null ) {
-            $errors[] = $shiftName . ' has no worker assigned.';
+        if ( $this->employee->id === null ) {
+            $errors[] = $shiftName . ' has no employee assigned.';
         }
         return $errors ?? [];
     }

@@ -62,7 +62,7 @@ class ArchiveTableUsers extends ArchiveTable
             'active' => $user->active ? 'Yes' : 'No',
             'worker_week' => $this->htmlUtility::getViewButton(
                 $user->getWorkerWeekLink(),
-                'Worker Week'
+                'Employee Week'
             )
         ];
     }

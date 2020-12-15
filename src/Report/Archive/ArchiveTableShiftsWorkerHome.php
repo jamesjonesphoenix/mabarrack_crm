@@ -90,7 +90,7 @@ class ArchiveTableShiftsWorkerHome extends ArchiveTable
     public function getActionButton($entity): string
     {
         return $this->htmlUtility::getViewButton(
-            'worker.php?other_comment=1&shift=' . $entity->id,
+            'employee.php?other_comment=1&shift=' . $entity->id,
             !empty($entity->activityComments) ? 'Edit Comment' : 'Add Comment'
         );
     }

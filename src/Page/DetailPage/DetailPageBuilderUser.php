@@ -57,7 +57,7 @@ class DetailPageBuilderUser extends DetailPageBuilder
         $entity = $this->getEntity();
         switch( $entity->role ) {
             case 'staff':
-                return 'worker';
+                return 'employee';
             case 'admin':
                 return 'admin';
             default:
@@ -93,14 +93,14 @@ class DetailPageBuilderUser extends DetailPageBuilder
 
             $this->getReportClient()->getFactory()->archiveTables()->getShifts()
                 ->setEntities( $shifts )
-                ->setTitle( $nameBadge . 'All Worker Shifts' )
+                ->setTitle( $nameBadge . 'All Employee Shifts' )
                 ->setGroupByForm(
                     $this->getGroupByForm(),
                     $this->groupBy
                 )
                 ->disablePrintButton()
                 ->setDummyEntity( $shift )
-                ->editColumn( 'worker', ['hidden' => true] )
+                ->editColumn( 'employee', ['hidden' => true] )
 
         ];
 
@@ -113,7 +113,7 @@ class DetailPageBuilderUser extends DetailPageBuilder
                 'href' => (
                 new URL( $report->getNavLinks()['add_new']['href'] ?? '')
                 )
-                    ->setQueryArg('prefill',['worker' => $user->id])
+                    ->setQueryArg('prefill',['employee' => $user->id])
                     ->write()
             ] );
 

@@ -1,5 +1,5 @@
 /*!
- * Bootstrap v4.5.2 (https://getbootstrap.com/)
+ * Bootstrap v4.5.3 (https://getbootstrap.com/)
  * Copyright 2011-2020 The Bootstrap Authors
  * Copyright 2011-2020 Twitter, Inc.
  * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
@@ -185,7 +185,8 @@ caption {
   caption-side: bottom; }
 
 th {
-  text-align: inherit; }
+  text-align: inherit;
+  text-align: -webkit-match-parent; }
 
 label {
   display: inline-block;
@@ -3108,7 +3109,8 @@ input[type="button"].btn-block {
   z-index: 1;
   display: block;
   min-height: 1.5rem;
-  padding-left: 1.5rem; }
+  padding-left: 1.5rem;
+  color-adjust: exact; }
 
 .custom-control-inline {
   display: inline-flex;
@@ -4232,6 +4234,7 @@ input[type="button"].btn-block {
     position: absolute;
     top: 0;
     right: 0;
+    z-index: 2;
     padding: 0.75rem 1.25rem;
     color: inherit; }
 
@@ -8350,7 +8353,7 @@ a.text-report:hover, a.text-report:focus {
 
 .text-break {
   word-break: break-word !important;
-  overflow-wrap: break-word !important; }
+  word-wrap: break-word !important; }
 
 .text-reset {
   color: inherit !important; }
@@ -8435,7 +8438,7 @@ a.text-report:hover, a.text-report:focus {
     color: inherit;
     border-color: #dee2e6; } }
 /*!
- * Font Awesome Free 5.14.0 by @fontawesome - https://fontawesome.com
+ * Font Awesome Free 5.15.1 by @fontawesome - https://fontawesome.com
  * License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License)
  */
 .fa,
@@ -8630,9 +8633,6 @@ readers do not read off random characters that represent icons */
 
 .fa-adn:before {
   content: "\f170"; }
-
-.fa-adobe:before {
-  content: "\f778"; }
 
 .fa-adversal:before {
   content: "\f36a"; }
@@ -9422,6 +9422,9 @@ readers do not read off random characters that represent icons */
 
 .fa-cloud-upload-alt:before {
   content: "\f382"; }
+
+.fa-cloudflare:before {
+  content: "\e07d"; }
 
 .fa-cloudscale:before {
   content: "\f383"; }
@@ -10416,6 +10419,9 @@ readers do not read off random characters that represent icons */
 .fa-grunt:before {
   content: "\f3ad"; }
 
+.fa-guilded:before {
+  content: "\e07e"; }
+
 .fa-guitar:before {
   content: "\f7a6"; }
 
@@ -10590,6 +10596,9 @@ readers do not read off random characters that represent icons */
 .fa-history:before {
   content: "\f1da"; }
 
+.fa-hive:before {
+  content: "\e07f"; }
+
 .fa-hockey-puck:before {
   content: "\f453"; }
 
@@ -10719,11 +10728,17 @@ readers do not read off random characters that represent icons */
 .fa-info-circle:before {
   content: "\f05a"; }
 
+.fa-innosoft:before {
+  content: "\e080"; }
+
 .fa-instagram:before {
   content: "\f16d"; }
 
 .fa-instagram-square:before {
   content: "\e055"; }
+
+.fa-instalod:before {
+  content: "\e081"; }
 
 .fa-intercom:before {
   content: "\f7af"; }
@@ -11244,6 +11259,9 @@ readers do not read off random characters that represent icons */
 .fa-object-ungroup:before {
   content: "\f248"; }
 
+.fa-octopus-deploy:before {
+  content: "\e082"; }
+
 .fa-odnoklassniki:before {
   content: "\f263"; }
 
@@ -11381,6 +11399,9 @@ readers do not read off random characters that represent icons */
 
 .fa-pepper-hot:before {
   content: "\f816"; }
+
+.fa-perbyte:before {
+  content: "\e083"; }
 
 .fa-percent:before {
   content: "\f295"; }
@@ -12552,6 +12573,9 @@ readers do not read off random characters that represent icons */
 .fa-umbrella-beach:before {
   content: "\f5ca"; }
 
+.fa-uncharted:before {
+  content: "\e084"; }
+
 .fa-underline:before {
   content: "\f0cd"; }
 
@@ -12705,6 +12729,12 @@ readers do not read off random characters that represent icons */
 .fa-venus-mars:before {
   content: "\f228"; }
 
+.fa-vest:before {
+  content: "\e085"; }
+
+.fa-vest-patches:before {
+  content: "\e086"; }
+
 .fa-viacoin:before {
   content: "\f237"; }
 
@@ -12795,6 +12825,9 @@ readers do not read off random characters that represent icons */
 .fa-warehouse:before {
   content: "\f494"; }
 
+.fa-watchman-monitoring:before {
+  content: "\e087"; }
+
 .fa-water:before {
   content: "\f773"; }
 
@@ -12869,6 +12902,9 @@ readers do not read off random characters that represent icons */
 
 .fa-wizards-of-the-coast:before {
   content: "\f730"; }
+
+.fa-wodu:before {
+  content: "\e088"; }
 
 .fa-wolf-pack-battalion:before {
   content: "\f514"; }
@@ -12967,7 +13003,7 @@ readers do not read off random characters that represent icons */
   width: auto; }
 
 /*!
- * Font Awesome Free 5.14.0 by @fontawesome - https://fontawesome.com
+ * Font Awesome Free 5.15.1 by @fontawesome - https://fontawesome.com
  * License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License)
  */
 @font-face {
@@ -13149,7 +13185,7 @@ table.table td.errors {
   table.table td.errors .list-group-item {
     padding: 0.75rem; }
 
-body.worker table.table tr td.date {
+body.employee table.table tr td.date {
   white-space: normal; }
 
 table.table.table-sorter th.tablesorter-header:not(.sorter-false),
@@ -13414,17 +13450,17 @@ textarea.form-control.setting-textarea {
     color: #000000 !important;
     background: transparent !important;
     box-shadow: none !important; } }
-body.worker div.row.choose-activity {
+body.employee div.row.choose-activity {
   clear: both;
   border-top: 6px solid #2A80B9; }
-  body.worker div.row.choose-activity div.col {
+  body.employee div.row.choose-activity div.col {
     position: relative;
     margin-right: -1px; }
-    body.worker div.row.choose-activity div.col a.activity-icon-link:nth-child(4n) {
+    body.employee div.row.choose-activity div.col a.activity-icon-link:nth-child(4n) {
       margin-right: 0 !important; }
-  body.worker div.row.choose-activity div.col-auto {
+  body.employee div.row.choose-activity div.col-auto {
     width: 188px; }
-    body.worker div.row.choose-activity div.col-auto span {
+    body.employee div.row.choose-activity div.col-auto span {
       font-size: 16px;
       font-weight: 300;
       display: inline-block;
@@ -13434,7 +13470,7 @@ body.worker div.row.choose-activity {
       background: #2A80B9;
       padding-left: 0.75rem;
       padding-right: 0.75rem; }
-      body.worker div.row.choose-activity div.col-auto span:before {
+      body.employee div.row.choose-activity div.col-auto span:before {
         content: "";
         position: absolute;
         border-style: solid;
@@ -13445,7 +13481,7 @@ body.worker div.row.choose-activity {
         _filter: progid:DXImageTransform.Microsoft.Chroma(color='#000000');
         right: -1.5rem; }
 
-body.worker div.row.choose-activity:last-child {
+body.employee div.row.choose-activity:last-child {
   border-bottom: 6px solid #2A80B9; }
 
 a.activity-icon-link {
@@ -13489,9 +13525,9 @@ a.activity-icon-link:nth-of-type(2n) {
     background: #2573a6; }
 
 @media (min-width: 1200px) {
-  body.worker div.row.choose-activity div.col-auto {
+  body.employee div.row.choose-activity div.col-auto {
     width: 218px; }
-    body.worker div.row.choose-activity div.col-auto span {
+    body.employee div.row.choose-activity div.col-auto span {
       font-size: 1.25rem; }
 
   a.activity-icon-link {

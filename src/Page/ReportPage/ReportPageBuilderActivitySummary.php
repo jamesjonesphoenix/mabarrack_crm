@@ -25,7 +25,7 @@ class ReportPageBuilderActivitySummary extends ReportPageBuilder
     /**
      * @var string
      */
-    protected string $userFieldPlaceholder = 'All Workers';
+    protected string $userFieldPlaceholder = 'All Employees';
 
     /**
      * @var User|null

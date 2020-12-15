@@ -206,7 +206,7 @@ class CurrentUser extends User
             return 'index.php';
         }
         if ( $this->role === 'staff' ) {
-            return 'worker.php';
+            return 'employee.php';
         }
         return '';
     }

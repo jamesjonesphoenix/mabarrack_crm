@@ -34,8 +34,8 @@ class MenuItemsOther extends MenuItems
         return [
             [
                 'icon' => 'user-clock',
-                'content' => 'Worker Dashboard',
-                'href' => 'worker.php',
+                'content' => 'Employee Dashboard',
+                'href' => 'employee.php',
             ], [
                 'icon' => 'cogs',
                 'content' => 'Settings',

@@ -44,7 +44,7 @@ class MenuItemsReports extends MenuItems
             ],
             'worker_week' => [
                 'icon' => 'user-clock',
-                'content' => 'Worker Week',
+                'content' => 'Employee Week',
                 'href' => 'worker_week'
             ]
         ];

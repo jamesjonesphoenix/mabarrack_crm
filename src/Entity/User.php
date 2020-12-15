@@ -286,7 +286,7 @@ class User extends Entity
             return false;
         }
         $newShift = (new ShiftFactory( $this->db, $this->messages ))->getNew();
-        $newShift->worker = $this;
+        $newShift->employee = $this;
         $newShift->job = (new JobFactory( $this->db, $this->messages ))->getEntity( $jobID );
         if ( $newShift->job->id === null ) {
             $errors[] = 'Job ' . HTMLTags::getBadgeHTML( 'ID: ' . $jobID, 'danger' ) . " doesn't exist.";
@@ -385,7 +385,7 @@ class User extends Entity
                 . $userString . ' '
                 . $verbString . ' '
                 . $numberOfShifts
-                . ' unfinished shifts. Each worker should have only one active shift at a time. An admin must set a finish time for the extra shifts manually.';
+                . ' unfinished shifts. Each employee should have only one active shift at a time. An admin must set a finish time for the extra shifts manually.';
         } elseif ( $numberOfShifts === 1 ) {
             $today = date( 'Y-m-d' );
             foreach ( $currentShifts as $shift ) {
@@ -415,7 +415,7 @@ class User extends Entity
             return true;
         }
         $unfinishedShift = $unfinishedShifts->getOne();
-        $unfinishedShift->worker = $this; //add user so Shift->healthCheck can confirm user role is staff
+        $unfinishedShift->employee = $this; //add user so Shift->healthCheck can confirm user role is staff
 
         $success = $unfinishedShift->finishShift();
         $this->shifts->addOrReplace( $unfinishedShift );

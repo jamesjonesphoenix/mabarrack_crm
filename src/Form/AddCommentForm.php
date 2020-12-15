@@ -76,7 +76,7 @@ class AddCommentForm extends Form
                     'element' => 'a',
                     'class' => ['btn', 'btn-lg', 'btn-secondary'],
                     'content' => '<span class="centre-vertically">' . $cancel . '</span><span class="invisible">' . $cancel . '</span>',
-                    'href' => 'worker.php'
+                    'href' => 'employee.php'
                 ] )
         ] );
         return $this;
@@ -92,7 +92,7 @@ class AddCommentForm extends Form
             <div class="row">
                 <div class="col">
                     <div class="grey-bg px-3 p-3">
-                        <form id="<?php echo $this->formID; ?>" class="add-comment-form" action="worker.php" method="post">
+                        <form id="<?php echo $this->formID; ?>" class="add-comment-form" action="employee.php" method="post">
                             <fieldset>
                                 <?php foreach ( $this->fields as $field ) {
                                     echo $field;

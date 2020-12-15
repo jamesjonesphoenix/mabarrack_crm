@@ -44,7 +44,7 @@ class Roles
         'anyone' => [
             'file_capabilities' => [
                 'login',
-                'worker'
+                'employee'
             ],
             'level' => 0
         ]

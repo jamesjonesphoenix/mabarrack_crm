@@ -241,7 +241,7 @@ class WorkerHomePageBuilder extends WorkerPageBuilder
         $actionButtons[] = [
             'class' => 'btn-success',
             'content' => $startShiftText,
-            'href' => 'worker.php?choose=job',
+            'href' => 'employee.php?choose=job',
             'disabled' => true
         ];
 
@@ -249,7 +249,7 @@ class WorkerHomePageBuilder extends WorkerPageBuilder
             $actionButtons[] = [
                 'class' => 'btn-primary',
                 'content' => 'Start Lunch',
-                'href' => $this->user->hadLunchToday() ? 'worker.php?additional_lunch=1' : 'worker.php?job=0&activity=0&next_shift=1',
+                'href' => $this->user->hadLunchToday() ? 'employee.php?additional_lunch=1' : 'employee.php?job=0&activity=0&next_shift=1',
             ];
         }
 
@@ -269,7 +269,7 @@ class WorkerHomePageBuilder extends WorkerPageBuilder
         return [
             'class' => 'btn-danger',
             'content' => $unfinishedShift->activity->id === 0 ? 'Finish Lunch' : 'Clock Off',
-            'href' => 'worker.php?finish_day=1',
+            'href' => 'employee.php?finish_day=1',
         ];
 
     }

@@ -32,7 +32,7 @@ class ArchivePageBuilderJob extends ArchivePageBuilder
         'shifts' => [
             'activity' => false,
             'furniture' => false,
-            'worker' => ['shifts' => false],
+            'employee' => ['shifts' => false],
             'job' => false
         ],
         'customer' => ['jobs' => false],

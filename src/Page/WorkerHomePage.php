@@ -88,7 +88,7 @@ class WorkerHomePage extends Page
                         <h2>Hours</h2>
                     </div>
                     <div class="grey-bg px-3 py-2">
-                        <?php echo $this->workerHoursTable ?? HTMLTags::getAlertHTML( 'No worker hours available.', 'danger', false ); ?>
+                        <?php echo $this->workerHoursTable ?? HTMLTags::getAlertHTML( 'No employee hours available.', 'danger', false ); ?>
                     </div>
                 </div>
                 <div class="col-md-3">

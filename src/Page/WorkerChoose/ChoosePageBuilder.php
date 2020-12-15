@@ -50,7 +50,7 @@ abstract class ChoosePageBuilder extends WorkerPageBuilder
     {
         return [
             'cancel' => [
-                'href' => 'worker.php',
+                'href' => 'employee.php',
                 'content' => 'Cancel',
                 'class' => 'bg-secondary'
             ]

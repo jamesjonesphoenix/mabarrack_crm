@@ -187,7 +187,7 @@ class PeriodicReportForm extends Form
 
             'selected' => $this->user->id ?? null,
             'id' => 'report-input-user',
-            'label' => 'Select Worker',
+            'label' => 'Select Employee',
 
             'append' => $append ?? ''
         ] );

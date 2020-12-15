@@ -43,7 +43,7 @@ class ArchivePageBuilderUser extends ArchivePageBuilder
                 return $this->HTMLUtility::getIconHTML( 'user-cog' ) . ' Admin';
             }
             if ( $role === 'staff' ) {
-                return $this->HTMLUtility::getIconHTML( 'user-clock' ) . ' Worker';
+                return $this->HTMLUtility::getIconHTML( 'user-clock' ) . ' Employee';
             }
         }
 

@@ -40,7 +40,7 @@ class CurrentUserFactory extends UserFactory
         if ( !($user = current( $users )) ) {
             return null;
         }
-        //Add customers and furniture to user's shifts jobs to display on Worker dashboard
+        //Add customers and furniture to user's shifts jobs to display on Employee dashboard
         foreach ( $user->shifts->getAll() as $shift ) {
             $jobs[$shift->job->id] = $shift->job;
         }

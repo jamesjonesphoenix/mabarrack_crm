@@ -74,13 +74,13 @@ class ChoosePageBuilderActivity extends ChoosePageBuilder
     {
         if ( count( $this->job->furniture ?? [] ) > 1 ) {
             $menuItems['choose_furniture'] = [
-                'href' => 'worker.php?job=' . $this->job->id . '&choose=furniture',
+                'href' => 'employee.php?job=' . $this->job->id . '&choose=furniture',
                 'content' => 'Choose Different Furniture',
                 'class' => 'bg-info'
             ];
         }
         $menuItems['choose_job'] = [
-            'href' => 'worker.php?choose=job',
+            'href' => 'employee.php?choose=job',
             'content' => 'Choose Different Job',
             'class' => 'bg-info'
         ];
@@ -113,9 +113,9 @@ class ChoosePageBuilderActivity extends ChoosePageBuilder
                 continue;
             }
             // $nextPage = strtolower( $activity->name ) === 'other' ? 'other_comment' : 'next_shift';
-            // $activityURLs[$activity->id] = 'worker.php?job=' . $jobID . '&activity=' . $activity->id . '&' . $nextPage . '=1';
+            // $activityURLs[$activity->id] = 'employee.php?job=' . $jobID . '&activity=' . $activity->id . '&' . $nextPage . '=1';
             $comment = strtolower( $activity->name ) === 'other' ? '&other_comment=1' : '';
-            $activityURLs[$activity->id] = 'worker.php?job=' . $jobID . '&activity=' . $activity->id . '&next_shift=1' . $comment;
+            $activityURLs[$activity->id] = 'employee.php?job=' . $jobID . '&activity=' . $activity->id . '&next_shift=1' . $comment;
             if ( $furnitureID !== null ) {
                 $activityURLs[$activity->id] .= '&furniture=' . $furnitureID;
             }

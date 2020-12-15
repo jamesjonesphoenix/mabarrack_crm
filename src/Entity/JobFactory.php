@@ -118,7 +118,7 @@ class JobFactory extends EntityFactory
             /*Prevent shiftFactory from provisioning job otherwise we waste time on query*/
             if ( $provision === true || $provision['shifts'] === true ) {
                 $provisionShifts = [
-                    'worker' => true,
+                    'employee' => true,
                     'activity' => true,
                     'furniture' => true
                 ];

@@ -33,7 +33,7 @@ class UserEntityForm extends DetailPageEntityForm
                 'class' => 'btn btn-lg btn-primary mr-2 float-left',
                 'element' => 'a',
                 'id' => 'view-worker-week',
-                'content' => 'View ' . $this->entity->getNamePossessive( true ) . ' Worker Week',
+                'content' => 'View ' . $this->entity->getNamePossessive( true ) . ' Employee Week',
                 'href' => $this->entity->getWorkerWeekLink()
             ];
             /*

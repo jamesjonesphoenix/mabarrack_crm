@@ -83,7 +83,7 @@ class DirectorWorker extends Director
     public function getPageBuilder(array $inputArray = []): WorkerPageBuilder
     {
         if ( !isset( $this->user ) ) {
-            $this->addError( 'Cannot load a worker page without a current user.' );
+            $this->addError( 'Cannot load an employee page without a current user.' );
         }
         return $this->getWorkerPageBuilder( $inputArray )->setUser( $this->user );
     }
@@ -94,7 +94,7 @@ class DirectorWorker extends Director
     public function finishDay(): void
     {
         $this->user->finishCurrentShift();
-        redirect( 'worker' );
+        redirect( 'employee' );
         exit;
     }
 
@@ -115,7 +115,7 @@ class DirectorWorker extends Director
                 . $this->htmlUtility::getListGroup( $canStartOrFinishShifts )
             );
             if ( !empty( $inputArray['choose'] ) ) {
-                redirect( 'worker' );
+                redirect( 'employee' );
             }
         }
 
@@ -176,7 +176,7 @@ class DirectorWorker extends Director
                 'class' => 'btn btn-primary ml-3',
                 'element' => 'a',
                 'content' => 'Yes, Start Lunch',
-                'href' => 'worker.php?job=0&activity=0&next_shift=1',
+                'href' => 'employee.php?job=0&activity=0&next_shift=1',
             ] ), 'warning' );
     }
 
@@ -204,10 +204,10 @@ class DirectorWorker extends Director
             $comment ?? '',
         );
         if ( empty( $otherComment ) ) {
-            redirect( 'worker' );
+            redirect( 'employee' );
             exit;
         }
-        redirect( 'worker', ['other_comment' => 1, 'shift' => $newShift->id] );
+        redirect( 'employee', ['other_comment' => 1, 'shift' => $newShift->id] );
         exit;
     }
 

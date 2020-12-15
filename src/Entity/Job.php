@@ -203,7 +203,7 @@ class Job extends Entity
     {
         $this->shifts->orderLatestToEarliest();
         foreach ( $this->shifts->getAll() as $shift ) {
-            $workerID = $shift->worker->id ?? $shift->worker ?? null;
+            $workerID = $shift->employee->id ?? $shift->employee ?? null;
             if ( $workerID === $userID ) {
                 return $shift;
             }

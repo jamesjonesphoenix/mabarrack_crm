@@ -102,7 +102,7 @@ class Init
                 'activity' => true,
                 'furniture' => true,
                 'job' => ['customer' => true],
-                'worker' => false //Don't waste CPU time provisioning shifts with worker - we already have the worker
+                'employee' => false //Don't waste CPU time provisioning shifts with worker - we already have the worker
             ]] );
             // }
             $user->ipRestrictions = $this->config['ip_restrictions'];
