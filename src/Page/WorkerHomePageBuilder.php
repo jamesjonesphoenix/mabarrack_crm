@@ -44,7 +44,7 @@ class WorkerHomePageBuilder extends WorkerPageBuilder
 
         $this->page = $this->getNewPage()
             ->setTitle(
-                $this->HTMLUtility::getIconHTML('user-clock') . ' ' . $this->user->getNamePossessive(true) . ' Dashboard'
+                $this->HTMLUtility::getIconHTML( 'user-clock' ) . ' ' . $this->user->getNamePossessive( true ) . ' Dashboard'
             );
         $this->addActionButtons();
         $this->addNews();
@@ -196,8 +196,7 @@ class WorkerHomePageBuilder extends WorkerPageBuilder
         $todayShifts = $user->shifts->getShiftsToday()->getCount() > 0;
         $unfinishedShift = $user->shifts->getUnfinishedShifts()->getOne();
 
-        $actionButtons = $this->getStartShiftButtons( $todayShifts, $unfinishedShift );
-        $actionButtons[] = $this->getFinishButton( $todayShifts, $unfinishedShift );
+        $actionButtons = $this->getActionButtonArgs( $todayShifts, $unfinishedShift );
 
         foreach ( $actionButtons as $button ) {
             $button['class'] = ($button['class'] ?? '') . ' btn btn-lg btn-block ';
@@ -215,7 +214,7 @@ class WorkerHomePageBuilder extends WorkerPageBuilder
      * @return array
      * @throws \Exception
      */
-    private function getStartShiftButtons(bool $todayShifts, Shift $unfinishedShift = null): array
+    private function getActionButtonArgs(bool $todayShifts, Shift $unfinishedShift = null): array
     {
         $cutoffTime = (new SettingFactory( $this->db, $this->messages ))->getCutoffTime();
 
@@ -253,19 +252,39 @@ class WorkerHomePageBuilder extends WorkerPageBuilder
             ];
         }
 
+        if ( $unfinishedShift !== null && $unfinishedShift->activity->id === 0 ) {
+            $lastShift = $this->user->shifts->getLatestNonLunchShift();
+            if ( $lastShift !== null ) {
+                $actionButtons[] = [
+                    'class' => 'btn-success text-wrap',
+                    'content' => 'Resume Shift' . $lastShift->getIDBadge(),
+                    'href' => 'employee.php?job=' . $lastShift->job->id
+                        . '&activity=' . $lastShift->activity->id
+                        . '&next_shift=1'
+                        . ($lastShift->furniture->id === null ? '' : '&furniture=' . $lastShift->furniture->id),
+                ];
+            }
+
+        }
+
+        $actionButtons[] = $this->getFinishButton( $unfinishedShift );
+
+
         return $actionButtons ?? [];
     }
 
     /**
-     * @param bool       $todayShifts
      * @param Shift|null $unfinishedShift
      * @return array|string[]
      */
-    private function getFinishButton(bool $todayShifts, Shift $unfinishedShift = null): array
+    private function getFinishButton(Shift $unfinishedShift = null): array
     {
-        if ( !$todayShifts || $unfinishedShift === null ) {  /*$user->hadLunchToday()*/
+        // d($this->user->shifts->getLatestShift());
+        //$this->user->shifts->getLastWorkedShifts();
+        if ( $unfinishedShift === null ) {  /*$user->hadLunchToday()*/
             return [];
         }
+
         return [
             'class' => 'btn-danger',
             'content' => $unfinishedShift->activity->id === 0 ? 'Finish Lunch' : 'Clock Off',

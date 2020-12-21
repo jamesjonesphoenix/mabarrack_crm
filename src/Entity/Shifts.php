@@ -97,12 +97,19 @@ class Shifts extends Entities
     }
 
     /**
-     * @return string
+     * @return Shift|null
      */
-    public function getLatestShift(): string
+    public function getLatestNonLunchShift(): ?Shift
     {
         $this->orderLatestToEarliest();
-        return $this->entities[array_key_last( $this->entities )]->date;
+
+        foreach($this->entities  as $shift){
+            if($shift->activity->id !== 0){
+                return $shift;
+            }
+        }
+        return null;
+        // return $this->entities[array_key_last( $this->entities )]->date;
     }
 
     /**
