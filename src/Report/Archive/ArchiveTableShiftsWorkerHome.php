@@ -27,7 +27,7 @@ class ArchiveTableShiftsWorkerHome extends ArchiveTable
         ],
         'customer' => [
             'title' => 'Customer',
-            'default' =>'&minus;'
+            'default' => '&minus;'
         ],
         'description' => [
             'title' => 'Description',
@@ -70,6 +70,11 @@ class ArchiveTableShiftsWorkerHome extends ArchiveTable
             'title' => 'Comment',
             'remove_if_empty' => true,
             'default' => '&minus;'
+        ],
+        'start_shift' => [
+            'title' => '',
+            'default' => '&minus;',
+            'toggle_label' => 'Start Shift Button'
         ]
     ];
 
@@ -91,7 +96,7 @@ class ArchiveTableShiftsWorkerHome extends ArchiveTable
     {
         return $this->htmlUtility::getViewButton(
             'employee.php?other_comment=1&shift=' . $entity->id,
-            !empty($entity->activityComments) ? 'Edit Comment' : 'Add Comment'
+            !empty( $entity->activityComments ) ? 'Edit Comment' : 'Add Comment'
         );
     }
 
@@ -123,7 +128,16 @@ class ArchiveTableShiftsWorkerHome extends ArchiveTable
             'minutes' => $minutes,
             'hours' => $minutes,
             'activity' => $shift->activity->displayName,
-            'comment' => $shift->activityComments
+            'comment' => $shift->activityComments,
+            'start_shift' => empty( $shift->timeFinished ) || $shift->isLunch() === 'lunch' ? '' : $this->htmlUtility::getButton( [
+                'element' => 'a',
+                'href' => 'employee.php?job=' . $shift->job->id
+                    . '&activity=' . $shift->activity->id
+                    . '&next_shift=1'
+                    . ($shift->furniture->id === null ? '' : '&furniture=' . $shift->furniture->id),
+                'class' => 'btn btn-success',
+                'content' => 'Start Identical Shift'
+            ] )
         ];
     }
 }
