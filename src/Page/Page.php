@@ -51,7 +51,7 @@ class Page extends Base
     /**
      * @var string
      */
-    private string $version = '0.4';
+    private string $version = '0.5';
 
     /**
      * @var bool
@@ -252,7 +252,7 @@ class Page extends Base
             <script type="text/javascript" src="js/mousetrap.min.js<?php echo $version; ?>"></script>
             <script type="text/javascript" src="js/mousetrap-global-bind.min.js<?php echo $version; ?>"></script>
             <script type="text/javascript" src="js/jquery.matchHeight.js<?php echo $version; ?>"></script>
-            <script type="text/javascript" src="js/functions.js<?php echo $version; ?>"></script>
+            <script type="text/javascript" src="js/app.js<?php echo $version; ?>"></script>
 
             <link rel="apple-touch-icon" sizes="114x114" href="/apple-touch-icon.png">
             <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
