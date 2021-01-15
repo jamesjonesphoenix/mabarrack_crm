@@ -171,7 +171,6 @@ abstract class DetailPageEntityForm extends EntityForm
         if ( $this->entity->canCreate() ) {
             $buttons[] = [
                 'href' => $this->entity->getLink( false ),
-                'type' => 'button',
                 'class' => 'btn btn-lg btn-success float-right ml-2',
                 'element' => 'a',
                 'content' => 'Add New ' . ucfirst( $entityName )
