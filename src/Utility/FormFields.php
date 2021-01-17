@@ -269,7 +269,6 @@ class FormFields extends HTMLTags
 
         ob_start();
 
-
         switch( $type ) {
             case 'date':
             case 'email':

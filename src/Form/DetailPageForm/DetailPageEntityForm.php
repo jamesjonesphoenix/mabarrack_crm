@@ -20,6 +20,11 @@ abstract class DetailPageEntityForm extends EntityForm
     private string $displayEntityName;
 
     /**
+     * @var bool
+     */
+    protected bool $manuallySetID = false;
+
+    /**
      * @return string
      */
     public function getDBAction(): string
@@ -102,7 +107,7 @@ abstract class DetailPageEntityForm extends EntityForm
                                             'element' => 'input',
                                             'type' => 'submit',
                                             'class' => [
-                                                    'btn', 'btn-primary', 'btn-lg', 'mt-2', 'mr-1'
+                                                'btn', 'btn-primary', 'btn-lg', 'mt-2', 'mr-1'
                                             ],
                                             'id' => 'submit-button',
                                             'disabled' => $this->isDisabled(),
@@ -180,20 +185,33 @@ abstract class DetailPageEntityForm extends EntityForm
     }
 
 
-
     /**
      * @return string
      */
     public function getIdFieldHTML(): string
     {
         $idValue = $this->entity->id;
-        $placeholder = $this->getDBAction() === 'add' ? 'Auto generated' : 'ID';
+        $args = [
+            'value' => $idValue,
+            'id' => 'inputID',
+            'name' => 'ID',
+            'placeholder' => 'ID',
+            'max' => 10000000
+        ];
         ob_start();
-        echo $this->htmlUtility::getFieldLabelHTML( ucwords( $this->entity->entityName ) . ' ID', 'inputFakeID' );
-        ?>
-        <input type="number" class="form-control" id="inputFakeID" placeholder="<?php echo $placeholder; ?>" name='fakeID' value="<?php echo $idValue; ?>" disabled>
-        <input type="hidden" class="form-control" id="inputID" name='ID' value="<?php echo $idValue; ?>">
-        <?php
+        echo $this->htmlUtility::getFieldLabelHTML( ucwords( $this->entity->entityName ) . ' ID', 'inputID' );
+        if ( $this->manuallySetID && $this->getDBAction() === 'add' ) {
+            echo $this->htmlUtility::getIntegerFieldHTML( $args );
+        } else {
+            $args['placeholder'] = 'Auto generated';
+            echo $this->htmlUtility::getHiddenFieldHTML( $args ) .
+                $this->htmlUtility::getIntegerFieldHTML( array_merge( $args, [
+                    'id' => 'inputFakeID',
+                    'name' => 'fakeID',
+                    'disabled' => true
+                ] ) );
+
+        }
         return ob_get_clean();
     }
 

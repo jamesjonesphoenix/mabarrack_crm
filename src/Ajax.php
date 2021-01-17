@@ -88,6 +88,8 @@ class Ajax extends AbstractCRM
             return false;
         }
 
+        $id = phValidateID( $data['ID'] ?? null );
+
         switch( $this->action ) {
             case 'update':
             case 'delete-dry-run':
@@ -95,7 +97,6 @@ class Ajax extends AbstractCRM
                 if ( !isset( $data['ID'] ) ) {
                     return $this->addError( "Can't update " . $entityName . '. ID missing from input.' );
                 }
-                $id = phValidateID( $data['ID'] );
                 if ( !$id ) {
                     return $this->addError( "Can't update " . $entityName . '. ID is not a valid number.' );
                 }
@@ -108,6 +109,18 @@ class Ajax extends AbstractCRM
                 }
                 break;
             case 'add':
+                if ( $id !== false ) {
+                    $existingEntity = $entityFactory->getEntity( $id );
+                    if ( $existingEntity !== null ) {
+                        return $this->addError( ucwords( $existingEntity->entityName )
+                            . $existingEntity->getIDBadge( $id, 'danger' )
+                            . ' already exists. ' . $this->htmlUtility::getViewButton(
+                                $existingEntity->getLink(),
+                                'View ' . ucfirst( $existingEntity->entityName )
+                            )
+                        );
+                    }
+                }
                 $this->entity = $entityFactory->getNew();
                 break;
             default:
@@ -161,7 +174,7 @@ class Ajax extends AbstractCRM
         }
         //$entity = $this->entity->init( $this->inputData );
         $entity = $this->entity;
-         // $this->addError(print_r($this->inputData, true));
+        // $this->addError(print_r($this->inputData, true));
         foreach ( $this->inputData as $key => $value ) {
             $entity->setProperty( $key, $value );
         }

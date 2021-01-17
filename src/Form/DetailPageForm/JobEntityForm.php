@@ -25,6 +25,14 @@ class JobEntityForm extends DetailPageEntityForm
      */
     public string $formID = 'job_form';
 
+    /**
+     * @var bool
+     */
+    protected bool $manuallySetID = true;
+
+    /**
+     * @return string
+     */
     public function render(): string
     {
         if ( $this->entity->id === 0 ) {
