@@ -436,14 +436,23 @@ class User extends Entity
     }
 
     /**
+     * @return string
+     */
+    public function getAssociatedEntities(): string
+    {
+        $numberOfShifts = $this->shifts->getCount();
+        if ( $numberOfShifts > 0 ) {
+            return ' This employee has <strong>' . $numberOfShifts . '</strong> associated shifts which will also be deleted if they are deleted.';
+        }
+        return '';
+    }
+
+    /**
      * @return bool
      */
     public function canDelete(): bool
     {
-        $numberOfShifts = $this->shifts->getCount();
-        if ( $numberOfShifts > 0 ) {
-            return $this->addError( ucfirst( $this->getFirstName() ) . ' has <strong>' . $numberOfShifts . '</strong> associated shifts. You cannot delete ' . $this->getFirstName() . ' until the related shifts are deleted.' );
-        }
-        return true;
+        return true; //Should add sanity check to prevent deleting the last admin
     }
+
 }
