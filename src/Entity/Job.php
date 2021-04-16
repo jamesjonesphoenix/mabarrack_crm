@@ -37,14 +37,14 @@ class Job extends Entity
     protected Customer $_customer;
 
     /**
-     * @var string
+     * @var string|null
      */
-    protected string $_dateStarted;
+    protected ?string $_dateStarted;
 
     /**
-     * @var string
+     * @var string|null
      */
-    protected string $_dateFinished;
+    protected ?string $_dateFinished;
 
     /**
      * @var string
@@ -218,7 +218,7 @@ class Job extends Entity
     protected function customer($customer = null)
     {
         if ( $customer !== null ) {
-            if ( !$customer instanceof Customer) {
+            if ( !$customer instanceof Customer ) {
                 $customerID = $customer;
                 $customer = new Customer();
                 $customer->id = $customerID;
@@ -244,12 +244,15 @@ class Job extends Entity
      * @param string|null $dateFinished
      * @return string
      */
-    protected function dateFinished(string $dateFinished = null): string
+    protected function dateFinished(string $dateFinished = null): ?string
     {
-        if (  $dateFinished !== null ) {
-            $this->_dateFinished = $dateFinished;
+        if ( is_string( $dateFinished ) ) {
+            if ( empty( $dateFinished ) ) {
+                return $this->_dateFinished = null;
+            }
+            return $this->_dateFinished = $dateFinished;
         }
-        return $this->_dateFinished ?? '';
+        return $this->_dateFinished ?? null;
     }
 
     /**
@@ -258,7 +261,7 @@ class Job extends Entity
      */
     protected function description(string $description = null): string
     {
-        if (  $description !== null ) {
+        if ( $description !== null ) {
             $this->_description = $description;
         }
         if ( $this->id === 0 ) {
@@ -468,7 +471,7 @@ class Job extends Entity
         if ( empty( $this->salePrice ) ) {
             $errors[] = 'Job has no sale price set.';
         }
-        if ( $this->dateFinished === '' ) {
+        if ( empty($this->dateFinished)) {
             $errors[] = 'Job has no finish date set.';
         }
 
@@ -509,11 +512,14 @@ class Job extends Entity
         if ( empty( $dateStarted ) ) {
             $errors[] = 'No <strong>start date</strong> set.';
         }
-        if ( !empty( $dateStarted ) && DateTimeUtility::isBefore( $dateFinished, $dateStarted, false ) ) {
-            $errors[] = 'Job has <strong>finish date</strong> earlier than <strong>start date</strong>.';
-        }
-        if ( !empty( $dateFinished ) && $this->status->name === 'jobstat_red' ) {
-            $errors[] = 'Job <strong>finish date</strong> has been set but <strong>status</strong> is still "in progress".';
+
+        if ( !empty( $dateFinished )) {
+            if ( !empty( $dateStarted ) && DateTimeUtility::isBefore( $dateFinished, $dateStarted, false ) ) {
+                $errors[] = 'Job has <strong>finish date</strong> earlier than <strong>start date</strong>.';
+            }
+            if ( $this->status->name === 'jobstat_red' ) {
+                $errors[] = 'Job <strong>finish date</strong> has been set but <strong>status</strong> is still "in progress".';
+            }
         }
 
         $jobFurnitureIDs = [];
