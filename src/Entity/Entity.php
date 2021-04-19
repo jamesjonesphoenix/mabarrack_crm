@@ -547,8 +547,8 @@ abstract class Entity extends AbstractCRM
         if ( !empty( $this->healthCheckErrors ) ) {
             return $this->healthCheckErrors;
         }
-        foreach ( $this->doHealthCheck() as $error ) {
-            $return[] = [
+        foreach ( $this->doHealthCheck() as $key => $error ) {
+            $return[$key] = [
                 'content' => $error,
                 'class' => 'danger'
             ];

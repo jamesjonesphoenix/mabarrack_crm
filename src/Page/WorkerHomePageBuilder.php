@@ -185,6 +185,7 @@ class WorkerHomePageBuilder extends WorkerPageBuilder
 
     /**
      * @return $this
+     * @throws \Exception
      */
     public function addActionButtons(): self
     {
@@ -193,12 +194,9 @@ class WorkerHomePageBuilder extends WorkerPageBuilder
             $this->page->setActions( $this->HTMLUtility::getAlertHTML( 'No actions available due to error.', 'warning', false ) );
             return $this;
         }
-        $todayShifts = $user->shifts->getShiftsToday()->getCount() > 0;
         $unfinishedShift = $user->shifts->getUnfinishedShifts()->getOne();
 
-        $actionButtons = $this->getActionButtonArgs( $todayShifts, $unfinishedShift );
-
-        foreach ( $actionButtons as $button ) {
+        foreach ( $this->getActionButtonArgs( $unfinishedShift ) as $button ) {
             $button['class'] = ($button['class'] ?? '') . ' btn btn-lg btn-block ';
             $button['element'] = 'a';
             $html[] = $this->HTMLUtility::getButton( $button );
@@ -209,13 +207,13 @@ class WorkerHomePageBuilder extends WorkerPageBuilder
 
 
     /**
-     * @param bool       $todayShifts
      * @param Shift|null $unfinishedShift
      * @return array
      * @throws \Exception
      */
-    private function getActionButtonArgs(bool $todayShifts, Shift $unfinishedShift = null): array
+    private function getActionButtonArgs(Shift $unfinishedShift = null): array
     {
+
         $cutoffTime = (new SettingFactory( $this->db, $this->messages ))->getCutoffTime();
 
         $minutes = 5;
@@ -232,27 +230,57 @@ class WorkerHomePageBuilder extends WorkerPageBuilder
                 'info' );
             return [];
         }
-        if ( !$todayShifts ) {
-            $startShiftText = 'Start Day';
-        } else {
-            $startShiftText = $unfinishedShift !== null ? 'Next Shift' : 'Start New Shift';
-        }
-        $actionButtons[] = [
-            'class' => 'btn-success',
-            'content' => $startShiftText,
-            'href' => 'employee.php?choose=job',
-            'disabled' => true
-        ];
 
-        if ( ($unfinishedShift === null || $unfinishedShift->activity->id !== 0) && $todayShifts ) {
+
+        $noEarlierShifts = $unfinishedShift === null || DateTimeUtility::timeDifference( $unfinishedShift->date, date( 'Y-m-d' ), 'days' ) === 0;
+
+        if ( $noEarlierShifts ) {
+            if ( $this->user->shifts->getShiftsToday()->getCount() === 0 ) {
+                $startShiftText = 'Start Day';
+            } else {
+                $startShiftText = $unfinishedShift !== null ? 'Next Shift' : 'Start New Shift';
+            }
             $actionButtons[] = [
-                'class' => 'btn-primary',
-                'content' => 'Start Lunch',
-                'href' => $this->user->hadLunchToday() ? 'employee.php?additional_lunch=1' : 'employee.php?job=0&activity=0&next_shift=1',
+                'class' => 'btn-success',
+                'content' => $startShiftText,
+                'href' => 'employee.php?choose=job',
+                'disabled' => true
             ];
+
+            if ( ($unfinishedShift === null || $unfinishedShift->activity->id !== 0) ) {
+                $actionButtons[] = [
+                    'class' => 'btn-primary',
+                    'content' => 'Start Lunch',
+                    'href' => $this->user->hadLunchToday() ? 'employee.php?additional_lunch=1' : 'employee.php?job=0&activity=0&next_shift=1',
+                ];
+            }
+
+        } else {
+            $cutoffTimeBadge = $this->HTMLUtility::getBadgeHTML( $cutoffTime, 'primary' );
+
+            if ( DateTimeUtility::isBefore( $unfinishedShift->timeStarted, $cutoffTime, true ) ) {
+                $adminOrEmployee = 'You can clock off the shift, the finish time will be automatically set to the cutoff time ' . $cutoffTimeBadge . '.';
+            } else { //probably won't ever be triggered because any shifts starting after cutoff time are autoclocked off on page load.
+                $adminOrEmployee = 'An admin must manually set a finish time for the shift because it started after the cutoff time ' . $cutoffTimeBadge . '.';
+            }
+
+            $this->addError(
+                '<h5>Warning:</h5><p>You have an unfinished shift '
+                . $unfinishedShift->getIDBadge( null, 'primary' )
+                . ' started on a day other than today'
+                . (
+                !empty( $unfinishedShift->date ) ? ' '
+                    . $this->HTMLUtility::getBadgeHTML(
+                        date( 'd-m-Y', strtotime( $unfinishedShift->date ) ),
+                        'primary'
+                    ) : ''
+                ) . '. '
+                . $adminOrEmployee . '</p>'
+            );
         }
 
-        if ( $unfinishedShift !== null && $unfinishedShift->activity->id === 0 ) {
+
+        if ( $noEarlierShifts && $unfinishedShift !== null && $unfinishedShift->activity->id === 0 ) {
             $lastShift = $this->user->shifts->getLatestNonLunchShift();
             if ( $lastShift !== null ) {
                 $actionButtons[] = [

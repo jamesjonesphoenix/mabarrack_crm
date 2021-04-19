@@ -232,6 +232,21 @@ class Shift extends Entity
 
         $currentTime = DateTimeUtility::roundTime(); //get current time
         $cutoffTime = (new SettingFactory( $this->db, $this->messages ))->getCutoffTime();
+        $currentDate = date( 'd-m-Y' );
+
+        if ( DateTimeUtility::isAfter( $this->date, $currentDate, false ) ) {
+            $this->timeFinished = $cutoffTime;
+            $this->messages->add(
+                'Shift with date '
+                . HTMLTags::getBadgeHTML( $this->date, 'primary' )
+                . ' clocked off on '
+                . HTMLTags::getBadgeHTML( $currentDate, 'primary' )
+                . ' so finish time was automatically set to cutoff time of '
+                . $cutoffTime
+                . '. An admin should probably double check this shift.'
+            );
+            $this->appendComment( 'Shift with date ' . $this->date . ' clocked off on ' . $currentDate . ' so finish time was automatically set to cutoff time of ' . $cutoffTime . '.' );
+        }
 
         if ( DateTimeUtility::isAfter( $this->timeStarted, $cutoffTime, true ) ) {
             // If shift started after cutoff time set it's finish time equal to start time so it has 0 minutes length.
@@ -242,9 +257,12 @@ class Shift extends Entity
                 . $this->getIDBadge( null, 'primary' )
                 . ' started after cutoff time '
                 . HTMLTags::getBadgeHTML( $cutoffTime, 'primary' )
-                . ' so finish time was set to be 1 minute after the start time. An admin should probably edit this shift.',
+                . ' so finish time was set to be 1 minute after the start time. An admin should probably double check this shift.',
                 'warning'
             );
+
+            $this->appendComment( 'Shift started after cutoff time of ' . $cutoffTime . ' so finish time was automatically set to 1 minute after the start time.' );
+
         } elseif ( empty( $cutoffTime ) || DateTimeUtility::isBefore( $currentTime, $cutoffTime ) ) { // Finished before cut off time, therefore legit
             $this->timeFinished = $currentTime;
         } else { //Finished after cut off time
@@ -256,7 +274,7 @@ class Shift extends Entity
                 . HTMLTags::getBadgeHTML( $cutoffTime, 'primary' ) . '.',
                 'info'
             );
-
+            $this->appendComment( 'Shift finish time was automatically moved from ' . $currentTime . ' to the cutoff time ' . $cutoffTime . '.' );
         }
         return $this->save();
     }
@@ -289,6 +307,22 @@ class Shift extends Entity
         }
         return $this->_activityComments ?? '';
     }
+
+    /**
+     * @param string $comment
+     * @return bool
+     */
+    public function appendComment(string $comment = 'null'): bool
+    {
+        $existing = $this->activityComments;
+        if ( empty( $existing ) ) {
+            $this->activityComments = $comment;
+        } else {
+            $this->activityComments = $existing . ' <br>' . $comment;
+        }
+        return true;
+    }
+
 
     /**
      * @param string $date
@@ -370,7 +404,7 @@ class Shift extends Entity
     protected function employee($employee = null)
     {
         if ( $employee !== null ) {
-            if ( !$employee instanceof User) {
+            if ( !$employee instanceof User ) {
                 $employeeID = $employee;
                 $employee = new User();
                 $employee->id = $employeeID;

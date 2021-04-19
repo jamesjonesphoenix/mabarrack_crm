@@ -149,7 +149,13 @@ class DirectorWorker extends Director
         if ( DateTimeUtility::isAfter( $currentTime, $cutoffTime ) ) {
             $unfinishedShift = $this->user->shifts->getUnfinishedShifts()->getOne();
             if ( $unfinishedShift !== null ) {
-                $this->messages->add( 'Automatically clocking off shift due to cutoff time being reached.', 'primary' );
+                $this->messages->add(
+                    'Automatically clocking off shift '
+                    . $unfinishedShift->getIDBadge( null, 'primary' ) . ' due to cutoff time '
+                    . HTMLTags::getBadgeHTML( $cutoffTime, 'primary' )
+                    . ' being reached.',
+                    'primary'
+                );
                 $unfinishedShift->finishShift();
             }
         }

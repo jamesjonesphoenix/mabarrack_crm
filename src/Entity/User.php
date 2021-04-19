@@ -374,7 +374,6 @@ class User extends Entity
         if ( empty( $this->pin ) ) {
             $errors[] = ucwords( $userString ) . ' should have a pin number as part of user profile.';
         }
-
         if ( empty( $this->rate ) && $this->shifts->getCount() > 0 ) {
             $errors[] = ucwords( $userString ) . ' should have a rate greater than $0.00 per hour.';
         }
@@ -386,17 +385,6 @@ class User extends Entity
                 . $verbString . ' '
                 . $numberOfShifts
                 . ' unfinished shifts. Each employee should have only one active shift at a time. An admin must set a finish time for the extra shifts manually.';
-        } elseif ( $numberOfShifts === 1 ) {
-            $today = date( 'Y-m-d' );
-            foreach ( $currentShifts as $shift ) {
-                if ( $shift->date !== $today ) {
-                    $date = !empty( $shift->date ) ? ' date ' . HTMLTags::getBadgeHTML( date( 'd-m-Y', strtotime( $shift->date ) ), 'primary' ) : '';
-                    $errors[] = ucfirst( $userString ) . ' '
-                        . $verbString
-                        . ' an unfinished shift started on a day other than today.<br>An admin must manually set a finish time for shift'
-                        . $shift->getIDBadge( null, 'primary' ) . $date . '.';
-                }
-            }
         }
         return $errors ?? [];
     }
