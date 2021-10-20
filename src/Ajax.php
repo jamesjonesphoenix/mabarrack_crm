@@ -184,28 +184,28 @@ class Ajax extends AbstractCRM
             return false;
         }
         $entity = $entityFactory->provisionEntity( $entity, true );
-
-        if ( $this->action === 'add' || $this->action === 'update' ) {
-            $result = $entity->save();
-        } elseif ( $this->action === 'delete-dry-run' ) {
-            $result = $entity->deleteDryRun();
-        } elseif ( $this->action === 'delete-for-real' ) {
-            $result = $entity->delete();
+        $action = $this->action;
+        switch( $action ) {
+            case 'add':
+            case 'update':
+                $result = $entity->save();
+                $this->returnData['redirectURL'] = $this->entity->getLink();
+                break;
+            case 'delete-dry-run':
+                $result = $entity->deleteDryRun();
+                break;
+            case 'delete-for-real':
+                $result = $entity->delete();
+                $this->returnData['redirectURL'] = $this->entity->getArchiveLink() . '&limit=1000';
+                break;
         }
 
         $this->returnData['id'] = $entity->id;
-
         if ( !empty( $result ) ) {
             $this->returnData['result'] = 'success';
-            if ( $this->action === 'add' ) {
+            if ( $entity->redirectAfterUpdate() ) {
                 $this->returnData['redirect'] = true;
-                //$this->returnData['redirectURL'] = $this->entity->entityName . '.php?id=' . $entity->id;
-                $this->returnData['redirectURL'] = $this->entity->getLink();
-            } elseif ( $this->action === 'delete-for-real' ) {
-                $this->returnData['redirect'] = true;
-                $this->returnData['redirectURL'] = $this->entity->getArchiveLink() . '&limit=1000';
             }
-            //formEntity + '.php?id=' + data['id']
         }
         return true;
     }

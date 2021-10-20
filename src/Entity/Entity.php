@@ -91,6 +91,11 @@ abstract class Entity extends AbstractCRM
     private array $healthCheckErrors = [];
 
     /**
+     * @var bool
+     */
+    private bool $redirectAfterUpdate = false;
+
+    /**
      * Flag if property has changed when set to be checked when updating database
      *
      * @param $name
@@ -116,7 +121,6 @@ abstract class Entity extends AbstractCRM
     {
         return $oldValue !== $newValue && (!($oldValue instanceof Entity) || $oldValue->id !== $newValue->id);
     }
-
 
     /**
      * Entity constructor.
@@ -161,8 +165,8 @@ abstract class Entity extends AbstractCRM
     /**
      * For setting Entity properties related to DB table columns
      *
-     * @param $property
-     * @param $value
+     * @param string $property
+     * @param null   $value
      */
     public function setProperty(string $property = '', $value = null): void
     {
@@ -321,7 +325,7 @@ abstract class Entity extends AbstractCRM
         if ( $id === false ) {
             return $link;
         }
-        if ( $id === null && $this->exists) {
+        if ( $id === null && $this->exists ) {
             $id = $this->id;
         }
         if ( $id === null ) {
@@ -499,6 +503,7 @@ abstract class Entity extends AbstractCRM
                 , 'success'
             );
             $this->changed = [];
+            $this->redirectAfterUpdate = true;
             return $this->id;
         }
         return $this->addError( 'Failed to ' . $this->getActionString( 'present', $action ) . '.' );
@@ -575,6 +580,11 @@ abstract class Entity extends AbstractCRM
             $propertyName = $this->getColumnPropertyName( $columnName );
             $propertyValue = $this->$propertyName;
             if ( !empty( $this->changed[$propertyName] ) ) {
+
+                if ( !empty( $column['refresh_after_update'] ) ) {
+                    $this->redirectAfterUpdate = true;
+                }
+
                 if ( $propertyValue instanceof self ) {
                     $data[$columnName] = $propertyValue->id;
                 } else {
@@ -583,6 +593,14 @@ abstract class Entity extends AbstractCRM
             }
         }
         return $data ?? [];
+    }
+
+    /**
+     * @return bool
+     */
+    public function redirectAfterUpdate(): bool
+    {
+        return $this->redirectAfterUpdate;
     }
 
     /**
@@ -740,6 +758,7 @@ abstract class Entity extends AbstractCRM
                 'Deleted ' . $mainString . $this->getIDBadge( null, 'success' ),
                 'success'
             );
+            $this->redirectAfterUpdate = true;
             return true;
         }
         $this->addError( 'Failed to delete ' . $mainString . $this->getIDBadge( null, 'danger' ) );

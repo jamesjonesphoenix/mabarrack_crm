@@ -189,6 +189,10 @@ class Format
     }
 
 
+    /**
+     * @param $value
+     * @return string
+     */
     public
     static function percentageExtraDecimals($value): string
     {

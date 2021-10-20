@@ -135,15 +135,19 @@ class Job extends Entity
         ],
         'sale_price' => [
             'type' => 'float',
+            'refresh_after_update' => true
         ],
         'material_cost' => [
             'type' => 'float',
+            'refresh_after_update' => true
         ],
         'contractor_cost' => [
             'type' => 'float',
+            'refresh_after_update' => true
         ],
         'spare_cost' => [
             'type' => 'float',
+            'refresh_after_update' => true
         ]
     ];
 
