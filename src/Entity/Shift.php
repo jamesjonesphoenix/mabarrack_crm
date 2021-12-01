@@ -234,7 +234,7 @@ class Shift extends Entity
         $cutoffTime = (new SettingFactory( $this->db, $this->messages ))->getCutoffTime();
         $currentDate = date( 'd-m-Y' );
 
-        if ( DateTimeUtility::isAfter( $this->date, $currentDate, false ) ) {
+        if ( DateTimeUtility::isBefore( $this->date, $currentDate, false ) ) {
             $this->timeFinished = $cutoffTime;
             $this->messages->add(
                 'Shift with date '
@@ -242,15 +242,18 @@ class Shift extends Entity
                 . ' clocked off on '
                 . HTMLTags::getBadgeHTML( $currentDate, 'primary' )
                 . ' so finish time was automatically set to cutoff time of '
-                . $cutoffTime
+                . HTMLTags::getBadgeHTML( $cutoffTime, 'primary' )
                 . '. An admin should probably double check this shift.'
             );
             $this->appendComment( 'Shift with date ' . $this->date . ' clocked off on ' . $currentDate . ' so finish time was automatically set to cutoff time of ' . $cutoffTime . '.' );
+            $previousDayShift = true;
         }
 
         if ( DateTimeUtility::isAfter( $this->timeStarted, $cutoffTime, true ) ) {
-            // If shift started after cutoff time set it's finish time equal to start time so it has 0 minutes length.
-            // Otherwise we have shifts starting after cutoff and finishing at cutoff making for negative shift length.
+            /*
+             * If shift started after cutoff time set its finish time equal to start time so it has 0 minutes length.
+             * Otherwise we have shifts starting after cutoff and finishing at cutoff making for negative shift length.
+            */
             $this->timeFinished = (new DateTime( $this->timeStarted ))->modify( '+1 minutes' )->format( 'H:i' );
             $this->messages->add(
                 'Shift '
@@ -263,19 +266,22 @@ class Shift extends Entity
 
             $this->appendComment( 'Shift started after cutoff time of ' . $cutoffTime . ' so finish time was automatically set to 1 minute after the start time.' );
 
-        } elseif ( empty( $cutoffTime ) || DateTimeUtility::isBefore( $currentTime, $cutoffTime ) ) { // Finished before cut off time, therefore legit
-            $this->timeFinished = $currentTime;
-        } else { //Finished after cut off time
-            $this->timeFinished = $cutoffTime;
-            $this->messages->add(
-                'Shift ' . $this->getIDBadge( null, 'primary' ) . ' finish time was moved from '
-                . HTMLTags::getBadgeHTML( $currentTime, 'primary' )
-                . ' to the cutoff time '
-                . HTMLTags::getBadgeHTML( $cutoffTime, 'primary' ) . '.',
-                'info'
-            );
-            $this->appendComment( 'Shift finish time was automatically moved from ' . $currentTime . ' to the cutoff time ' . $cutoffTime . '.' );
+        } elseif (empty($previousDayShift)) {
+            if ( (empty( $cutoffTime ) || DateTimeUtility::isBefore( $currentTime, $cutoffTime )) ) { // Finished before cut off time, therefore legit
+                $this->timeFinished = $currentTime;
+            } else { //Finished after cut off time
+                $this->timeFinished = $cutoffTime;
+                $this->messages->add(
+                    'Shift ' . $this->getIDBadge( null, 'primary' ) . ' finish time was moved from '
+                    . HTMLTags::getBadgeHTML( $currentTime, 'primary' )
+                    . ' to the cutoff time '
+                    . HTMLTags::getBadgeHTML( $cutoffTime, 'primary' ) . '.',
+                    'info'
+                );
+                $this->appendComment( 'Shift finish time was automatically moved from ' . $currentTime . ' to the cutoff time ' . $cutoffTime . '.' );
+            }
         }
+
         return $this->save();
     }
 
@@ -318,7 +324,7 @@ class Shift extends Entity
         if ( empty( $existing ) ) {
             $this->activityComments = $comment;
         } else {
-            $this->activityComments = $existing . ' <br>' . $comment;
+            $this->activityComments = $existing . PHP_EOL . $comment;
         }
         return true;
     }

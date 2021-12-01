@@ -228,9 +228,8 @@ class WorkerHomePageBuilder extends WorkerPageBuilder
                 . ' ' . $shimText . ' the cutoff time'
                 . $this->HTMLUtility::getBadgeHTML( $cutoffTime, 'primary' ) . '.',
                 'info' );
-            return [];
+            return [$this->getFinishButton( $unfinishedShift )];
         }
-
 
         $noEarlierShifts = $unfinishedShift === null || DateTimeUtility::timeDifference( $unfinishedShift->date, date( 'Y-m-d' ), 'days' ) === 0;
 
@@ -307,8 +306,6 @@ class WorkerHomePageBuilder extends WorkerPageBuilder
      */
     private function getFinishButton(Shift $unfinishedShift = null): array
     {
-        // d($this->user->shifts->getLatestShift());
-        //$this->user->shifts->getLastWorkedShifts();
         if ( $unfinishedShift === null ) {  /*$user->hadLunchToday()*/
             return [];
         }
