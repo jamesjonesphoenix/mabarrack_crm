@@ -52,11 +52,6 @@ class Init
     private bool $doingAJAX = false;
 
     /**
-     * @var bool
-     */
-    private bool $doingCRON = false;
-
-    /**
      * @var URL
      */
     private URL $url;
@@ -200,32 +195,10 @@ class Init
     }
 
     /**
-     * @return $this
-     */
-    private function startUpCron(): self
-    {
-        $subject = trim( str_replace( 'CRM', '', $this->config['system_title'] ) ) . ' CRM';
-        $this->messages
-            ->doingCRON()
-            ->setEmailArgs( [
-                'prepend' => $subject . ' - ',
-                'subject' => $subject,
-                'to' => $this->config['email']['to'],
-                'from' => $this->config['email']['from'],
-                'from_name' => $this->config['system_title']
-            ] );
-        return $this;
-    }
-
-    /**
      *
      */
     public function startUp(): self
     {
-        if ( $this->doingCRON ) {
-            return $this->startUpCron();
-        }
-
         $this->messages->initStatefulMessages();
         $this->userID = $_SESSION['user_id'] ?? null;
 
@@ -284,15 +257,6 @@ class Init
     public function getURL(): URL
     {
         return $this->url;
-    }
-
-    /**
-     * @return $this
-     */
-    public function doingCRON(): self
-    {
-        $this->doingCRON = true;
-        return $this;
     }
 
     /**

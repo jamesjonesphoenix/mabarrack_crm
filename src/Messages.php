@@ -237,12 +237,13 @@ class Messages extends Base
             return false;
         }
 
-        $emailContent = '';
+        $emailContent = '<ul>';
         foreach ( $this->messages as $message ) {
             if ( !empty( $message['string'] ) ) {
-                $emailContent .= $emailArgs['prepend'] . $message['string'] . '<br>';
+                $emailContent .= '<li>' . $message['string'] . '</li>';
             }
         }
+        $emailContent .= '</ul>';
         $headers = 'From: ' . $emailArgs['from_name'] . ' CRM <' . $emailArgs['from'] . '>' . "\r\n"
             . 'Mime-Version: 1.0' . "\r\n"
             . 'Content-type: text/html; charset=UTF-8' . "\r\n";
